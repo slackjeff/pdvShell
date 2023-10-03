@@ -312,6 +312,7 @@ pressione_para_continuar() {
 
 # Função principal
 main() {
+    if [ sqlite -v ]; then
   criar_tabela_produtos
   criar_tabela_vendas
 
@@ -358,6 +359,9 @@ main() {
         ;;
     esac
   done
+else
+    echo "Você precisa instalar sqlite";
+    fi
 }
 
 main
