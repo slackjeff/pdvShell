@@ -10,4 +10,4 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
 
 ## Futuras Features
 * Adicionar validade do produto
-* Suporte a código de barra
+* Suporte a código de barra e Beep
