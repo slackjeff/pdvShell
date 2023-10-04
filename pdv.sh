@@ -312,7 +312,7 @@ pressione_para_continuar() {
 
 # Função principal
 main() {
-    if [ sqlite -v ]; then
+    if [ -f $(which sqlite3) ]; then
   criar_tabela_produtos
   criar_tabela_vendas
 
@@ -360,7 +360,7 @@ main() {
     esac
   done
 else
-    echo "Você precisa instalar sqlite";
+    echo "Você precisa instalar sqlite3";
     fi
 }
 
