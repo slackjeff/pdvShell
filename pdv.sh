@@ -291,6 +291,7 @@ EOF
 
 
 pesquisar_produto() {
+    clear
   read -p "Digite o nome do produto que deseja pesquisar: " produto
 
   # Consulta SQL para pesquisar o produto pelo nome

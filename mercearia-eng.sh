@@ -59,7 +59,7 @@ EOF
 # Função para adicionar um novo produto ao banco de dados ou atualizar a quantidade se o produto já existir
 adicionar_produto() {
   clear
-  echo "==================== REGESTERING PRODUCT ===================="
+  echo "==================== REGISTERING PRODUCT ===================="
   read -p "Name: " nome
   nome=${nome,,}
   read -p "Amount: " quantidade
@@ -78,7 +78,7 @@ EOF
 remover_produto() {
   clear
   echo "==================== REMOVING PRODUCT ====================="
-  read -p "Type the ID or name of the product you wish to remove: " identificador
+  read -p "Type the ID or name of the product you want to remove: " identificador
   identificado=${identificador,,}
   # Verifica se o identificador é um número (ID) ou uma string (nome)
   if [[ $identificador =~ ^[0-9]+$ ]]; then
@@ -112,11 +112,11 @@ realizar_venda() {
     done
     echo
     echo "------------------------------------------------------------"
-    echo "========> SUBTOTAL:$$total_venda"
+    echo "========> SUBTOTAL: $ $total_venda"
     echo "------------------------------------------------------------"
     echo
 
-    read -p "Type the ID or name of the product you wish to sell (or let it blank to complete the sale)" identificador
+    read -p "Type the ID or name of the product you want to sell (or let it blank to complete the sale)" identificador
     identificador=${identificador,,}
 
     if [ -z "$identificador" ]; then
@@ -137,13 +137,13 @@ realizar_venda() {
     # Verifica se o produto existe e se há quantidade suficiente no estoque
     quantidade_disponivel=$(sqlite3 estoque.db "SELECT quantidade FROM produtos WHERE nome='$produto_nome';")
     if [ -z "$quantidade_disponivel" ]; then
-      echo "${cor_vermelha}Produto '$produto_nome' não encontrado no estoque.${cor_reset}"
+      echo "${cor_vermelha}Product '$produto_nome' not found in stock.${cor_reset}"
       pressione_para_continuar
       continue
     fi
 
     if [ "$quantidade_disponivel" -lt "$quantidade" ]; then
-      echo "${cor_vermelha}Quantidade insuficiente de '$produto_nome' no estoque.${cor_reset}"
+      echo "${cor_vermelha}Insuficient amount of '$produto_nome' in stock.${cor_reset}"
       pressione_para_continuar
       continue
     fi
@@ -196,7 +196,7 @@ realizar_venda() {
     echo "------------------------------------------------------------"
     echo
 
-    read -p "Type the number of the product you wish to remove from sales (or let it blank to quit): " escolha
+    read -p "Type the number of the product you want to remove from sales (or let it blank to quit): " escolha
 
     if [ -z "$escolha" ]; then
       break
@@ -259,13 +259,13 @@ visualizar_produtos() {
 
   case $busca_opcao in
     1)
-      read -p "Digite o ID do produto que deseja buscar: " produto_id
+      read -p "Type the product ID you want to search: " produto_id
       sqlite3 -column -header -separator " | " estoque.db <<EOF
       SELECT id, nome, quantidade, preco FROM produtos WHERE id=$produto_id;
 EOF
       ;;
     2)
-      read -p "Digite o nome do produto que deseja buscar: " produto_nome
+      read -p "Type the product name you want to search: " produto_nome
       produto_nome=${produto_nome,,}
       sqlite3 -column -header -separator " | " estoque.db <<EOF
       SELECT id, nome, quantidade, preco FROM produtos WHERE nome LIKE '%$produto_nome%';
@@ -291,7 +291,8 @@ EOF
 
 
 pesquisar_produto() {
-  read -p "Type the name of the product you wish to search: " produto
+    clear
+  read -p "Type the name of the product you want to search: " produto
 
   # Consulta SQL para pesquisar o produto pelo nome
   QUERY_SEARCH_PRODUCT="SELECT id, nome, quantidade, preco FROM produtos WHERE nome LIKE '%$produto%'"
@@ -321,7 +322,7 @@ main() {
     logo
     echo "Choose an option:"
     echo " (1) Add new product"
-    echo " (2) Remover Product"
+    echo " (2) Remove Product"
     echo " (3) Sell"
     echo " (4) Show all products"
     echo " (5) Show daily sells"
