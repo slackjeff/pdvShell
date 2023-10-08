@@ -291,6 +291,7 @@ EOF
 
 
 pesquisar_produto() {
+    clear
   read -p "Digite o nome do produto que deseja pesquisar: " produto
 
   # Consulta SQL para pesquisar o produto pelo nome
@@ -312,6 +313,7 @@ pressione_para_continuar() {
 
 # Função principal
 main() {
+    if [ -f $(which sqlite3) ]; then
   criar_tabela_produtos
   criar_tabela_vendas
 
@@ -358,6 +360,9 @@ main() {
         ;;
     esac
   done
+else
+    echo "Você precisa instalar sqlite3";
+    fi
 }
 
 main
