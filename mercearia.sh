@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash disable=SC1091,SC2039,SC2166,SC2162,SC2155,SC2005,SC2034
 
+#TODO
+# - traducao para vários idiomas
+# - listagem de fornecedores
+# - listagem de entrada de produtos
+
 export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
@@ -9,27 +14,12 @@ declare _VERSION_="1.0.0-20231020"
 declare DEPENDENCIES=(tput gettext sqlite3)
 declare database='estoque.db'
 
-# Definição de cores para formatação de texto
-cor_vermelha=$(tput setaf 1)
-cor_verde=$(tput setaf 2)
-cor_amarela=$(tput setaf 3)
-cor_reset=$(tput sgr0)
-
 sh_config() {
 	declare COL_NC='\e[0m' # No Color
 	declare COL_LIGHT_GREEN='\e[1;32m'
 	declare COL_LIGHT_RED='\e[1;31m'
 	declare -g TICK="${white}[${COL_LIGHT_GREEN}✓${COL_NC}${white}]"
 	declare -g CROSS="${white}[${COL_LIGHT_RED}✗${COL_NC}${white}]"
-	declare INFO="[i]"
-	# shellcheck disable=SC2034
-	declare DONE="${COL_LIGHT_GREEN} done!${COL_NC}"
-	declare OVER="\\r\\033[K"
-	declare DOTPREFIX="  ${black}::${reset} "
-	declare -gi quiet=0
-	declare -g use_color=1
-	declare -gi contador=0
-	declare -gi njobs=1
 	declare -gi lastrow=$(lastrow)
 	declare -gi lastcol=$(lastcol)
 	declare -gi LC_DEFAULT=0
@@ -105,15 +95,23 @@ sh_setvarcolors() {
 		vermelho=$(tput setab 196)
 		roxo=$(tput setab 5)
 		ciano=$(tput setab 6)
+
+		# Definição de cores para formatação de texto
+		cor_vermelha=$(tput setaf 1)
+		cor_verde=$(tput setaf 2)
+		cor_amarela=$(tput setaf 3)
+		cor_reset=$(tput sgr0)
 	else
 		sh_unsetVarColors
 	fi
 }
 
 sh_unsetVarColors() {
-	unset reset green red bold blue cyan
-	unset orange pink white yellow violet purple
-	sh_setLogPrefix
+	unset reset bold underline nounderline reverse
+	unset black red green yellow blue pink magenta cyan white gray orange purple violet 
+	unset light_red light_yellow light_blue light_magenta light_cyan light_white
+	unset azul vermelho roxo ciano
+	unset cor_vermelha cor_verde cor_amarela cor_reset
 }
 
 logo() {
@@ -162,6 +160,34 @@ criar_tabela_vendas() {
 	sqlite3 "$database" "$query"
 }
 
+# Função para criar a tabela de compras se não existir
+criar_tabela_compras() {
+	query="CREATE TABLE IF NOT EXISTS compras (
+        id INTEGER,
+        fornecedor INTEGER,
+        data DATE,
+        docnr TEXT,
+        quantidade INTEGER,
+        custo REAL,
+        total REAL
+    );"
+	sqlite3 "$database" "$query"
+}
+
+# Função para criar a tabela de fornecedores se não existir
+criar_tabela_fornecedor() {
+	query="CREATE TABLE IF NOT EXISTS fornecedor (
+        id INTEGER PRIMARY KEY,
+        data DATE,
+        nome TEXT,
+        ende TEXT,
+        cida TEXT,
+        esta TEXT,
+        cnpj TEXT
+    );"
+	sqlite3 "$database" "$query"
+}
+
 # Função para pausar a execução e aguardar um pressionamento de tecla
 pressione_para_continuar() {
 	tput cuu1 # Move o cursor para a linha anterior
@@ -191,12 +217,11 @@ imprimir_quadro() {
 	col="$2"
 	altura="$3"
 	largura="$4"
-
-	# Verifica se os parâmetros foram fornecidos
-	if [ -z "$linha" ] || [ -z "$col" ] || [ -z "$largura" ] || [ -z "$altura" ]; then
-		echo "Uso: $0 <linha> <col> <largura> <altura>"
-		exit 1
-	fi
+	mensagem="$5"
+	color="$6"
+	tamanho=$((largura-2))
+	local largura_mensagem=${#mensagem}
+	local coluna_inicio=$(((largura - largura_mensagem ) / 2 + col ))
 
 	# Imprime o quadro com base nas coordenadas, largura e altura
 	for ((i = 0; i < altura; i++)); do
@@ -209,6 +234,14 @@ imprimir_quadro() {
 			echo "│$(printf ' %.0s' $(seq 1 $((largura - 2))))│"
 		fi
 	done
+
+	if [[ -n "$mensagem" ]]; then
+		setpos "$linha" "$((col+1))"
+		printf "$color%-${tamanho}s" " "
+		setpos "$linha" "$coluna_inicio"
+		echo -e "$bold$white$mensagem"
+	fi
+	tput sgr0
 }
 
 print() {
@@ -254,7 +287,7 @@ adicionar_produto() {
 		resultado="$(sqlite3 "$database" "$consulta_sql")"
 		tela
 		titulo 1 "CADASTRO DE PRODUTO" "$ciano"
-		imprimir_quadro 11 10 6 80
+		imprimir_quadro 11 10 6 80 "CADASTRO DE PRODUTO" "$ciano"
 
 		# Solicita a descrição (nome) do produto e verifica se não está em branco
 		print 10 11 "$resultado"
@@ -385,7 +418,7 @@ pesquisar_produto() {
 	while true; do
 		tela
 		titulo 1 "PESQUISAR PRODUTOS" "$ciano"
-		imprimir_quadro 10 0 3 $(($(lastcol) - 1))
+		imprimir_quadro 10 0 3 $(($(lastcol) - 1)) "PESQUISAR PRODUTOS" "$ciano"
 		get 11 1 "Pesquisar por (nome, id ou *=tudo) : " produto
 
 		[[ -z "$produto" ]] && return
@@ -398,7 +431,7 @@ pesquisar_produto() {
 		fi
 		if resultado_sqlite=$(sqlite3 -column -header "$database" "$QUERY_SEARCH_PRODUCT") && [[ -n "$resultado_sqlite" ]]; then
 			# Imprimir o resultado dentro do quadro
-			#			imprimir_quadro 13 0 $(($(lastrow)-3)) $(($(lastcol)-1))
+			#imprimir_quadro 13 0 $(($(lastrow)-3)) $(($(lastcol)-1))
 
 			setpos 13 1
 			nRow=13
@@ -411,48 +444,6 @@ pesquisar_produto() {
 		else
 			mensagem 2 "Nenhum produto encontrado nos parâmetros informados" "$red" 10
 		fi
-	done
-}
-
-# Função principal
-main() {
-	datetime &
-	while true; do
-		tela
-		titulo 1 "MENU PRINCIPAL" "$ciano"
-		echo " 1 - Adicionar Novo Produto"
-		echo " 2 - Remover Produto"
-		echo " 3 - Realizar Venda"
-		echo " 4 - Exibir Vendas Diárias"
-		echo " 5 - Pesquisar Produtos"
-		echo " 0 - Sair"
-		echo ""
-		read -p "Opção: " opcao
-
-		case $opcao in
-		1)
-			adicionar_produto
-			;;
-		2)
-			remover_produto
-			;;
-		3)
-			realizar_venda
-			;;
-		4)
-			exibir_vendas_diarias
-			;;
-		5)
-			pesquisar_produto
-			;;
-		0)
-			echo "Saindo do programa."
-			exit 0
-			;;
-		*)
-			mensagem 2 "Opção inválida. Tente novamente." "$red"
-			;;
-		esac
 	done
 }
 
@@ -546,81 +537,6 @@ buscar_produto() {
 	echo "$produto_info"
 }
 
-# Função para atualizar a lista de produtos vendidos
-atualizar_lista_produtos() {
-	local produto_nome="$1"
-	local quantidade="$2"
-	local subtotal="$3"
-
-	local produto_encontrado=0
-	for i in "${!lista_produtos[@]}"; do
-		IFS=',' read -r lista_produto_nome lista_quantidade lista_subtotal <<<"${lista_produtos[$i]}"
-		if [ "$lista_produto_nome" == "$produto_nome" ]; then
-			lista_quantidade=$((lista_quantidade + quantidade))
-			lista_subtotal=$(echo "$preco_unitario * $lista_quantidade" | bc)
-			lista_produtos[$i]="$produto_nome,$lista_quantidade,$lista_subtotal"
-			produto_encontrado=1
-			break
-		fi
-	done
-
-	if [ "$produto_encontrado" -eq 0 ]; then
-		lista_produtos+=("$produto_nome,$quantidade,$subtotal")
-	fi
-}
-
-# Função para gerenciar unidades de venda
-gerenciar_unidades_de_venda() {
-	while true; do
-		tela
-		titulo 1 "VENDA" "$ciano"
-		echo "------------------------CUPOM PDV---------------------------"
-		for key in "${!lista_produtos[@]}"; do
-			produto="${lista_produtos[$key]}"
-			IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
-			subtotal=$(echo "$quantidade * $valor" | bc -l | tr "." ",")
-			valor_formatado=$(echo "$valor" | tr '.' ',')
-
-			# Usamos especificadores de largura de campo (números dentro de %) para alinhar os campos
-			printf "${yellow}%s  %-s  %-40s  %-s  %-s${reset}\n" "$id" "$produto_nome" "$quantidade" "$valor_formatado" "$subtotal"
-		done
-		echo "------------------------------------------------------------"
-		printf "$red\t%s\t%s\t%s\t%8.2f\n$reset" "TOTAL ATUALIZADO R$" "" "" "$(tr '.' ',' <<<"$total_venda")"
-		echo "------------------------------------------------------------"
-
-		# Solicite ao usuário o índice do produto a ser removido
-		read -p "Informe o ID do produto que deseja remover da venda (ou deixe em branco para sair): " escolha
-
-		if [ -z "$escolha" ]; then
-			break
-		fi
-
-		if [[ ! "$escolha" =~ ^[0-9]+$ ]] || [[ ! "${lista_produtos[$escolha]}" ]]; then
-			mensagem 2 "ID inválido. Tente novamente" "$red"
-			continue
-		fi
-
-		# Use o índice para acessar o produto na lista
-		produto_removido="${lista_produtos[$escolha]}"
-
-		# Trabalhar com a variável $produto_removido para obter os detalhes do produto
-		IFS='|' read -r id produto_nome quantidade valor <<<"$produto_removido"
-		if [ "$quantidade" -gt 1 ]; then
-			# Se houver mais de uma unidade do produto, apenas diminua a quantidade
-			nova_quantidade=$((quantidade - 1))
-			novo_subtotal=$(echo "$valor * $nova_quantidade" | bc -l)
-			lista_produtos[$escolha]="$id|$produto_nome|$nova_quantidade|$valor"
-		else
-			# Se houver apenas uma unidade do produto, remova-o da lista
-			unset lista_produtos[$escolha]
-		fi
-		total_venda=$(echo "$total_venda - $valor" | bc -l)
-		mensagem 2 "Uma unidade de "$produto_nome" removida da venda" "$green"
-	done
-	mensagem 2 "$(printf "\t%s: %8.2f" "TOTAL DA VENDA ATUALIZADA R$" "$(tr '.' ',' <<<"$total_venda")")" "$green" 5
-}
-
-# Função para registrar uma venda no banco de dados
 registrar_venda() {
 	local total_venda="$1"
 	local data_venda=$(date +"%Y-%m-%d %H:%M:%S")
@@ -629,13 +545,11 @@ registrar_venda() {
 	for key in "${!lista_produtos[@]}"; do
 		produto="${lista_produtos[$key]}"
 		IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
-
-		# Substitua o comando SQL abaixo pelo comando apropriado para inserir a venda no banco de dados
 		sqlite3 "$database" "INSERT INTO vendas (id, data, quantidade, preco, total) VALUES ('$id', '$data_venda', '$quantidade', '$valor', '$total_venda');"
 	done
+	mensagem 2 "Registro de venda efetuado" "$green"
 }
 
-# Função para atualizar a quantidade no estoque
 atualizar_estoque() {
 	# Iterar sobre os elementos do array lista_produtos
 	for key in "${!lista_produtos[@]}"; do
@@ -643,6 +557,7 @@ atualizar_estoque() {
 		IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
 		sqlite3 "$database" "UPDATE produtos SET quantidade = quantidade - $quantidade WHERE id='$id';"
 	done
+	mensagem 2 "Baixa de estoque efetuado" "$green"
 }
 
 # Função para realizar uma venda de múltiplos produtos
@@ -700,9 +615,6 @@ realizar_venda() {
 		fi
 		subtotal=$(echo "$quantidade * $valor" | bc -l)
 
-		#		# Atualiza a quantidade no estoque
-		#		atualizar_estoque "$produto_nome" "$estoque" "$quantidade"
-
 		# Atualiza o array associativo com informações do produto
 		if [[ -v lista_produtos[$id] ]]; then
 			# Se o produto já existe na lista, atualiza a quantidade
@@ -718,16 +630,330 @@ realizar_venda() {
 	done
 
 	if [[ "${#lista_produtos[@]}" -gt 0 ]]; then
-		registrar_venda "$total_venda"
-		atualizar_estoque
+		if readconf "Confirma a saida desses produtos?"; then
+			registrar_venda "$total_venda"
+			atualizar_estoque
+		fi
 	fi
+}
+
+cadastrar_fornecedor() {
+	local date_time=$(date +"%Y-%m-%d %H:%M:%S")
+
+	while true; do
+		consulta_sql="SELECT * FROM fornecedor ORDER BY id DESC LIMIT 1;"
+		resultado="$(sqlite3 "$database" "$consulta_sql")"
+		tela
+		titulo 1 "CADASTRO DE FORNECEDOR" "$ciano"
+		imprimir_quadro 11 10 7 80 "CADASTRO DE FORNECEDOR" "$ciano"
+
+		# Solicita a descrição (nome) do produto e verifica se não está em branco
+		print 10 11 "$resultado"
+		print 12 11 "Nome                 : "
+		print 13 11 "Endereco             : "
+		print 14 11 "Cidade               : "
+		print 15 11 "Estado               : "
+		print 16 11 "Cnpj                 : "
+
+		while true; do
+			get 12 11 "Nome                 : " nome
+			if [[ -n "$nome" ]]; then
+				break
+			else
+				setpos 18 10
+				if readconf "O nome não pode ser em branco. Cancelar?"; then
+					return
+				fi
+			fi
+		done
+
+		while true; do
+			get 13 11 "Endereco             : " ende
+			if [[ -n "$ende" ]]; then
+				break
+			else
+				setpos 17 10
+				if readconf "O Endereco não pode ser em branco. Cancelar?"; then
+					return
+				fi
+			fi
+		done
+
+		while true; do
+			get 14 11 "Cidade               : " cida
+			if [[ -n "$cida" ]]; then
+				break
+			else
+				mensagem 2 "A cidade não pode ser em branco." "$red"
+			fi
+		done
+
+		while true; do
+			get 15 11 "Estado               : " esta
+			if [[ -n "$esta" ]]; then
+				break
+			else
+				mensagem 2 "A UF não pode ser em branco." "$red"
+			fi
+		done
+
+		# Solicita o preço como número inteiro ou decimal com ponto (ex: 4.40) e verifica se não está em branco
+		while true; do
+			get 16 11 "Cnpj                 : " cnpj
+			if [[ -n "$cnpj" ]]; then
+				break
+			else
+				mensagem 2 "Formato do cnpj inválido. Use ponto decimal (ex: 00.000.000/0000-00)" "$red"
+			fi
+		done
+
+		setpos 18 10
+		if readconf "Confirma inclusão/atualização do fornecedor?"; then
+			nome=${nome^^}
+			ende=${ende^^}
+			cida=${cida^^}
+			esta=${esta^^}
+			query="INSERT OR REPLACE INTO fornecedor (data, nome, ende, cida, esta, cnpj) VALUES ('$date_time', '$nome', '$ende', '$cida', '$esta', '$cnpj');"
+			if sqlite3 "$database" "$query"; then
+				mensagem 2 "Fornecedore cadastrado/atualizado com sucesso!" "$green"
+			else
+				mensagem 2 "Erro no cadastro/atualização do fornecedor" "$red"
+			fi
+		else
+			mensagem 2 "Inclusão/alteração não efetuada." "$red"
+		fi
+	done
+}
+
+registrar_compra() {
+	local total_compra="$1"
+	local data_compra=$(date +"%Y-%m-%d %H:%M:%S")
+	local fornecedor="${notafiscal[fornecedor]}"
+	local docnr="${notafiscal[docnr]}"
+
+	# Itera sobre os produtos vendidos no array associativo
+	for key in "${!lista_produtos[@]}"; do
+		produto="${lista_produtos[$key]}"
+		IFS='|' read -r id produto_nome quantidade custo<<<"$produto"
+		sqlite3 "$database" "INSERT INTO compras (id, fornecedor, data, docnr, quantidade, custo, total) VALUES ('$id', '$fornecedor', '$data_compra', '$docnr', '$quantidade', '$custo','$total_compra');"
+	done
+	mensagem 2 "Registro de entradas efetuado" "$green"
+}
+
+atualizar_estoque_compras() {
+	# Iterar sobre os elementos do array lista_produtos
+	for key in "${!lista_produtos[@]}"; do
+		produto="${lista_produtos[$key]}"
+		IFS='|' read -r id produto_nome quantidade custo <<<"$produto"
+		sqlite3 "$database" "UPDATE produtos SET quantidade = quantidade + $quantidade WHERE id='$id';"
+	done
+	mensagem 2 "Ajuste de estoque efetuado" "$green"
+}
+
+buscar_fornecedor() {
+	local identificador="$1"
+	local fornecedor_info
+
+	if [[ $identificador =~ ^[0-9]+$ ]]; then
+		fornecedor_info=$(sqlite3 "$database" "SELECT id, nome, ende, cida, esta, cnpj FROM fornecedor WHERE id='$identificador';")
+	else
+		fornecedor_info=$(sqlite3 "$database" "SELECT id, nome, ende, cida, esta, cnpj FROM fornecedor WHERE nome LIKE '%$identificador%';")
+	fi
+	echo "$fornecedor_info"
+}
+
+clear_eol() {
+	local coluna_inicial="$1"
+	local coluna_final="$2"
+
+	# Posiciona o cursor na coluna_inicial
+	echo -en "\033[6;${coluna_inicial}H"
+
+	# Limpa o conteúdo até a coluna_final
+	for ((i=$coluna_inicial; i<=$coluna_final; i++)); do
+		setpos $i 0
+		tput el
+	done
+
+	# Retorna o cursor para a posição inicial
+	echo -en "\033[6;${coluna_inicial}H"
+}
+
+entrada_produtos() {
+	declare -gA lista_produtos=() # Declarar um array associativo para armazenar produtos
+	declare -gA notafiscal=()
+	total_compra=0
+
+	while true ; do
+		tela
+		titulo 1 "ENTRADA DE PRODUTOS" "$ciano"
+		imprimir_quadro 11 00 4 70 "DADOS DA NFF" "$ciano"
+		# Solicita a descrição (nome) do produto e verifica se não está em branco
+		print 12 01 "Fornecedor : "
+		print 13 01 "Docnr/NFF  : "
+
+		while true; do
+			get 12 01 "Fornecedor : " identificador
+			identificador=${identificador^^}
+			if [[ -n "$identificador" ]]; then
+				break
+			else
+				setpos 15 10
+				if readconf "O ID/nome não pode ser em branco. Cancelar?"; then
+					return
+				fi
+			fi
+		done
+		if fornecedor_info=$(buscar_fornecedor "$identificador") && [ -z "$fornecedor_info" ]; then
+			mensagem 2 "Fornecedor não encontrado" "$red"
+			continue
+		fi
+		IFS='|' read -r id nome ende cida esta cnpj <<<"$fornecedor_info"
+		print 10 01 "${azul}${nome}${reset}"
+		get 13 01 "Docnr/NFF  : " docnr
+		notafiscal=([fornecedor]="$id" [nome]="$nome" [docnr]="$docnr")
+		break
+	done
+
+	while true; do
+		clear_eol 15 "$(( $(lastrow) - 4 ))"
+		setpos 15 00
+		echo "========================RELAÇAO DAS ENTRADAS========================="
+		total_compra=0
+		for key in "${!lista_produtos[@]}"; do
+			produto="${lista_produtos[$key]}"
+			IFS='|' read -r id produto_nome quantidade custo <<<"$produto"
+			subtotal=$(echo "$quantidade * $custo" | bc -l | tr "." ",")
+			custo_formatado=$(echo "$custo" | tr '.' ',')
+			# Adicione espaços extras para alinhar os campos
+			printf "${yellow}%2s  %-41s  %2s  %8.2f  %8.2f${reset}\n" "$id" "$produto_nome" "$quantidade" "$custo_formatado" "$subtotal"
+			total_compra=$(echo "$total_compra + ( $quantidade * $custo)" | bc -l)
+		done
+		echo "====================================================================="
+		printf "${red}%2s  %-41s  %2s  %8s  %8.2f${reset}\n" "" "SUBTOTAL R$" "" "" "$(tr '.' ',' <<<"$total_compra")"
+		echo "====================================================================="
+
+		read -p "ID/nome do produto (deixe em branco para concluir): " identificador
+		identificador=${identificador^^}
+		if [ -z "$identificador" ]; then
+			break
+		fi
+
+		if produto_info=$(buscar_produto "$identificador") && [ -z "$produto_info" ]; then
+			mensagem 2 "Produto não encontrado" "$red"
+			continue
+		fi
+		IFS='|' read -r id produto_nome estoque preco <<<"$produto_info"
+		echo -e "$azul$produto_nome$reset"
+
+		# Solicita a quantidade e verifica se não está em branco
+		read -p "Quantidade (0 para remover o item)                : " quantidade
+
+		if [[ "$quantidade" = 0 ]]; then
+			if [[ -v lista_produtos[$id] ]]; then
+				unset lista_produtos[$id]
+				continue
+			else
+				mensagem 2 "Quantidade inválida ou item não tem na lista" "$red"
+				continue
+			fi
+		fi
+
+		# Solicita o preço como número inteiro ou decimal com ponto (ex: 4.40) e verifica se não está em branco
+		while true; do
+			read -p "Preço custo (ex: 4.40 ou 5)                       : " custo
+			if [[ -n "$custo" ]] && [[ $custo =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+				break
+			else
+				mensagem 2 "Formato de preço inválido. Use ponto decimal (ex: 4.40) ou número inteiro." "$red"
+			fi
+		done
+		subtotal=$(echo "$quantidade * $custo" | bc -l)
+
+		# Atualiza o array associativo com informações do produto
+		if [[ -v lista_produtos[$id] ]]; then
+			# Se o produto já existe na lista, atualiza a quantidade
+			produto="${lista_produtos[$id]}"
+			IFS='|' read -r produto_id produto_nome produto_quantidade produto_custo <<<"$produto"
+			nova_quantidade=$((produto_quantidade + quantidade))
+			lista_produtos[$id]="$produto_id|$produto_nome|$nova_quantidade|$custo"
+		else
+			# Se o produto não existe na lista, adiciona
+			lista_produtos[$id]="$id|$produto_nome|$quantidade|$custo"
+		fi
+		total_compra=$(echo "$total_venda + $subtotal" | bc -l)
+	done
+
+	if [[ "${#lista_produtos[@]}" -gt 0 ]]; then
+		if readconf "Confirma a entrada desses produtos?"; then
+			registrar_compra "$total_compra"
+			atualizar_estoque_compras
+		fi
+	fi
+}
+
+# Função principal
+main() {
+	while true; do
+		tela
+		titulo 1 "MENU PRINCIPAL" "$ciano"
+		echo " 1 - Adicionar Novo Produto"
+		echo " 2 - Remover Produto"
+		echo " 3 - Realizar Venda"
+		echo " 4 - Exibir Vendas Diárias"
+		echo " 5 - Pesquisar Produtos"
+		echo " 6 - Entrada de Produtos"
+		echo " 7 - Cadastrar Fornecedor"
+		echo " 0 - Sair"
+		echo ""
+		read -p "Opção: " opcao
+
+		case $opcao in
+		1)
+			adicionar_produto
+			;;
+		2)
+			remover_produto
+			;;
+		3)
+			realizar_venda
+			;;
+		4)
+			exibir_vendas_diarias
+			;;
+		5)
+			pesquisar_produto
+			;;
+		6)
+			entrada_produtos
+			;;
+		7)
+			cadastrar_fornecedor
+			;;
+		0)
+			echo "Saindo do programa."
+			exit 0
+			;;
+		*)
+			mensagem 2 "Opção inválida. Tente novamente." "$red"
+			;;
+		esac
+	done
 }
 
 sh_config
 sh_checkDependencies
 criar_tabela_produtos
 #sqlite3 "$database" "DROP TABLE vendas;"
+#sqlite3 "$database" "DROP TABLE fornecedor;"
+#sqlite3 "$database" "DROP TABLE compras;"
 criar_tabela_vendas
+criar_tabela_compras
+criar_tabela_fornecedor
 #sqlite3 "$database" "SELECT * FROM produtos;"
 #sqlite3 "$database" "SELECT * FROM vendas;"
+#sqlite3 "$database" "SELECT * FROM fornecedor;"
+#sqlite3 "$database" "SELECT * FROM compras;"
+#inkey 10
 main
+
