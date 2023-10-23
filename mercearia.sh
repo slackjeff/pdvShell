@@ -481,9 +481,10 @@ adicionar_produto() {
 		if readconf "Confirma inclusão/atualização do produto?"; then
 			nome=${nome^^}
 			un=${un^^}
+			codebar=${codebar^^}
 			query="INSERT OR REPLACE INTO produtos (id, nome, un, preco, codebar) VALUES (
 		        (SELECT id FROM produtos WHERE id='$produto_id'),
-		        '$nome', '$un', $preco, $codebar
+		        '$nome', '$un', '$preco', '$codebar'
 		    );"
 
 			if sqlite3 "$database" "$query"; then
@@ -1290,9 +1291,9 @@ entrada_produtos() {
 }
 
 conciliar_estoque() {
-	setpos 22 11
+	setpos 23 11
 	if readconf "Confirma a atualização?"; then
-		mensagem 2 "Aguarde... Atualizando estoque" "$red"
+		mensagem 2 "Aguarde... Atualizando estoque" "$yellow"
 
 		sqlite3 estoque.db "UPDATE produtos
 	SET quantidade = 0
