@@ -3,14 +3,13 @@
 
 # TODO
 # - traducao para vários idiomas
-# - listagem das entradas de produtos
 
 export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
 declare _VERSION_="1.0.0-20231020"
-declare DEPENDENCIES=(tput gettext sqlite3)
+declare DEPENDENCIES=(tput gettext sqlite3 bc)
 declare database='estoque.db'
 
 # BEGIN FUNCTIONS
@@ -24,6 +23,12 @@ sh_config() {
 	declare -gi lastcol=$(lastcol)
 	declare -gi LC_DEFAULT=0
 	sh_setvarcolors
+}
+
+replicate() {
+	local Var
+	printf -v Var %$2s " "  #  Coloca em $Var $1 espaços
+	echo ${Var// /$1}       #  Troca os espaços pelo caractere escolhido
 }
 
 debug() {
@@ -186,14 +191,14 @@ print() {
 get() {
 	local row="$1"
 	local col="$2"
-	local msg="$3"
-	local prompt="$4"
+	local prompt="$3"
+	local new_value="$4"
 	local old_value="$5"
 
 	setpos "$row" "$col"
-	#	read -p "$msg$reverse" "$prompt"
-	read -p "$msg$reverse" -e -i "$old_value" "$prompt"
-	tput sc # Salva a posição atual do cursor
+	#	read -p "$propt$reverse" "$new_value"
+	read -p "$prompt$reverse" -e -i "$old_value" "$new_value"
+	tput sc
 	echo -e "$reset"
 }
 
@@ -249,7 +254,7 @@ mensagem() {
 	local color="$3"
 	local tempo="$4"
 
-	msg+=" Tecle algo"
+	msg+=" Pressione qualquer tecla para continuar"
 	local largura_terminal=$(tput cols)
 	local largura_mensagem=${#msg}
 	local coluna_inicio=$(((largura_terminal - largura_mensagem) / 2))
@@ -815,7 +820,7 @@ listagem_produtos_vendidos() {
 
 		# por id
 		if [[ $identificador =~ ^[0-9]+$ ]]; then
-			query="SELECT vendas.docnr AS 'Doc. Número', produtos.nome AS 'Produto', vendas.quantidade AS 'Quantidade', vendas.preco AS 'Preço', vendas.total AS 'Total'
+			query="SELECT vendas.data, vendas.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', vendas.quantidade AS 'Quantidade', vendas.preco AS 'Preço', vendas.total AS 'Total'
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				WHERE vendas.id = '$identificador'
@@ -834,7 +839,7 @@ listagem_produtos_vendidos() {
 				mensagem 2 "Formato de data inválido." "$red"
 				continue
 			fi
-			query="SELECT vendas.docnr AS 'Doc. Número', produtos.nome AS 'Produto', vendas.quantidade AS 'Quantidade', vendas.preco AS 'Preço', vendas.total AS 'Total'
+			query="SELECT vendas.data, vendas.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', vendas.quantidade AS 'Quantidade', vendas.preco AS 'Preço', vendas.total AS 'Total'
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				WHERE strftime('%Y-%m-%d', vendas.data) = '$data_banco'
@@ -843,7 +848,7 @@ listagem_produtos_vendidos() {
 
 		# por docnr
 		elif [[ $identificador =~ ^[0-9]{8}-[0-9]{8}$ ]]; then
-			query="SELECT vendas.docnr AS 'Doc. Número', produtos.nome AS 'Produto', vendas.quantidade AS 'Quantidade', vendas.preco AS 'Preço', vendas.total AS 'Total'
+			query="SELECT vendas.data, vendas.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', vendas.quantidade AS 'Quantidade', vendas.preco AS 'Preço', vendas.total AS 'Total'
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				WHERE vendas.docnr = '$identificador'
@@ -852,7 +857,7 @@ listagem_produtos_vendidos() {
 
 		# todos
 		else
-			query="SELECT vendas.docnr AS 'Doc. Número', produtos.nome AS 'Produto', vendas.quantidade AS 'Quantidade', vendas.preco AS 'Preço', vendas.total AS 'Total'
+			query="SELECT vendas.data, vendas.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', vendas.quantidade AS 'Quantidade', vendas.preco AS 'Preço', vendas.total AS 'Total'
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				ORDER BY vendas.docnr;"
@@ -862,18 +867,109 @@ listagem_produtos_vendidos() {
 		# Verifica se há dados no resultado da consulta
 		if [ -n "$result" ]; then
 			current_docnr=""
-			while IFS='|' read -r docnr produto quantidade preco total; do
+			while IFS='|' read -r data docnr un produto quantidade preco total codebar; do
 				if [[ "$docnr" != "$current_docnr" ]]; then
 					echo
-					echo "Doc. Número: $docnr"
+					echo "${blue}docnr: ${yellow}$docnr - ${blue}data: ${yellow}$data${reset}"
+					replicate "-" 84
 					current_docnr="$docnr"
 				fi
-				total_formatado=$(echo "scale=2; $quantidade * $preco" | bc)
-				printf "%-30s %-10s %-7s %-7s %-6s\n" "$produto" "$quantidade" "$preco" "$total_formatado" "$total"
+				total_formatado=$(echo "$quantidade * $preco" | bc -l | tr "." ",")
+				preco=$( bc -l <<< "$preco" | tr "." ",")
+				total=$( bc -l <<< "$total" | tr "." ",")
+				printf "%-40s %s ${cyan}%3d x %10.2f = %10.2f ${red}%10.2f${reset}\n" "$produto" "$un" "$quantidade" "$preco" "$total_formatado" "$total"
 			done <<<"$result"
-			mensagem 2 "" "$green" 10
+			mensagem 2 "" "$green" 300
 		else
 			mensagem 2 "Nenhum produto vendido nos parâmetros informados" "$red" 10
+		fi
+	done
+}
+
+listagem_entradas_produtos() {
+	while true; do
+		tela
+		titulo 1 "LISTAGEM ENTRADAS DE PRODUTOS" "$ciano"
+		imprimir_quadro 10 0 3 $(($(lastcol) - 1)) "LISTAGEM ENTRADAS DE PRODUTOS" "$ciano"
+		get 11 1 "Pesquisar por (id, docnr, data ou *=tudo) : " identificador
+
+		[[ -z "$identificador" ]] && return
+		[[ "$identificador" == "*" ]] && identificador=
+
+		# por id / por docnr
+		if [[ $identificador =~ ^[0-9]+$ ]]; then
+
+			query="SELECT compras.data, compras.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', compras.quantidade AS 'Quantidade', compras.custo AS 'Preço', compras.total AS 'Total'
+				FROM compras
+				JOIN produtos ON compras.id = produtos.id
+				WHERE compras.docnr = '$identificador'
+				ORDER BY compras.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
+			if [ -z "$result" ]; then
+				query="SELECT compras.data, compras.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', compras.quantidade AS 'Quantidade', compras.custo AS 'Custo', compras.total AS 'Total'
+					FROM compras
+					JOIN produtos ON compras.id = produtos.id
+					WHERE compras.id = '$identificador'
+					ORDER BY compras.docnr;"
+				result=$(sqlite3 "$database" "$query")
+			fi
+
+		# por data
+		elif [[ $identificador =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ || $identificador =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ || $identificador =~ ^[0-9]{2}/[0-9]{2}/[0-9]{4}$ ]]; then
+			# Remove caracteres não numéricos da data de entrada
+			identificador=$(echo "$identificador" | tr -cd '0-9')
+
+			# Converte a data para o formato "2023-10-23" aceito pelo banco de dados
+			if [[ ${#identificador} -eq 8 ]]; then
+				data_banco="${identificador:4}-${identificador:2:2}-${identificador:0:2}"
+			else
+				mensagem 2 "Formato de data inválido." "$red"
+				continue
+			fi
+			query="SELECT compras.data, compras.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', compras.quantidade AS 'Quantidade', compras.custo AS 'Preço', compras.total AS 'Total'
+				FROM compras
+				JOIN produtos ON compras.id = produtos.id
+				WHERE strftime('%Y-%m-%d', compras.data) = '$data_banco'
+				ORDER BY compras.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
+		# por docnr
+		elif [[ $identificador =~ ^[0-9]{8}-[0-9]{8}$ ]]; then
+			query="SELECT compras.data, compras.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', compras.quantidade AS 'Quantidade', compras.custo AS 'Preço', compras.total AS 'Total'
+				FROM compras
+				JOIN produtos ON compras.id = produtos.id
+				WHERE compras.docnr = '$identificador'
+				ORDER BY compras.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
+		# todos
+		else
+			query="SELECT compras.data, compras.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', compras.quantidade AS 'Quantidade', compras.custo AS 'Preço', compras.total AS 'Total'
+				FROM compras
+				JOIN produtos ON compras.id = produtos.id
+				ORDER BY compras.docnr;"
+			result=$(sqlite3 "$database" "$query")
+		fi
+
+		# Verifica se há dados no resultado da consulta
+		if [ -n "$result" ]; then
+			current_docnr=""
+			while IFS='|' read -r data docnr un produto quantidade preco total codebar; do
+				if [[ "$docnr" != "$current_docnr" ]]; then
+					echo
+					echo "${blue}docnr: ${yellow}$docnr - ${blue}data: ${yellow}$data${reset}"
+					replicate "-" 84
+					current_docnr="$docnr"
+				fi
+				total_formatado=$(echo "$quantidade * $preco" | bc -l | tr "." ",")
+				preco=$( bc -l <<< "$preco" | tr "." ",")
+				total=$( bc -l <<< "$total" | tr "." ",")
+				printf "%-40s %s ${cyan}%3d x %10.2f = %10.2f ${red}%10.2f${reset}\n" "$produto" "$un" "$quantidade" "$preco" "$total_formatado" "$total"
+			done <<<"$result"
+			mensagem 2 "" "$green" 300
+		else
+			mensagem 2 "Nenhum produto comprado nos parâmetros informados" "$red" 10
 		fi
 	done
 }
@@ -970,17 +1066,27 @@ realizar_venda() {
 		printf "${red}%2s  %-41s  %2s  %8s  %8.2f${reset}\n" "" "SUBTOTAL R$" "" "" "$(tr '.' ',' <<<"$total_venda")"
 		echo "====================================================================="
 
-		read -p "ID/nome do produto (deixe em branco para concluir): " identificador
+		read -p "ID/nome/CodeBar (deixe em branco para concluir)   : " identificador
 		identificador=${identificador^^}
 		if [ -z "$identificador" ]; then
 			break
 		fi
 
-		if produto_info=$(buscar_produto "$identificador") && [ -z "$produto_info" ]; then
+		#código de barras
+		if [[ $identificador =~ ^[0-9]{13}$ ]]; then
+			produto_info=$(seek produtos codebar "$identificador")
+		#id
+		elif [[ $identificador =~ ^[0-9]+$ ]]; then
+			produto_info=$(seek produtos id "$identificador")
+		else
+			produto_info=$(seek produtos nome "$identificador")
+		fi
+
+		if [[ -z "$produto_info" ]]; then
 			mensagem 2 "Produto não encontrado" "$red"
 			continue
 		fi
-		IFS='|' read -r id produto_nome estoque valor <<<"$produto_info"
+		IFS='|' read -r id produto_nome unidade estoque valor codebar <<<"$produto_info"
 
 		# Solicita a quantidade e verifica se não está em branco
 		read -p "Quantidade (0 para remover o item)                : " quantidade
@@ -1091,7 +1197,7 @@ entrada_produtos() {
 		fi
 		IFS='|' read -r id nome ende cida esta cnpj <<<"$fornecedor_info"
 		print 10 01 "${azul}${nome}${reset}"
-		get 13 01 "Docnr/NFF  : " docnr
+		get 13 01 "Docnr/NFF  : " docnr "$(random_docnr)"
 		notafiscal=([fornecedor]="$id" [nome]="$nome" [docnr]="$docnr")
 		break
 	done
@@ -1114,17 +1220,27 @@ entrada_produtos() {
 		printf "${red}%2s  %-41s  %2s  %8s  %8.2f${reset}\n" "" "SUBTOTAL R$" "" "" "$(tr '.' ',' <<<"$total_compra")"
 		echo "====================================================================="
 
-		read -p "ID/nome do produto (deixe em branco para concluir): " identificador
+		read -p "ID/nome/CodeBar (deixe em branco para concluir)   : " identificador
 		identificador=${identificador^^}
 		if [ -z "$identificador" ]; then
 			break
 		fi
 
-		if produto_info=$(buscar_produto "$identificador") && [ -z "$produto_info" ]; then
+		#código de barras
+		if [[ $identificador =~ ^[0-9]{13}$ ]]; then
+			produto_info=$(seek produtos codebar "$identificador")
+		#id
+		elif [[ $identificador =~ ^[0-9]+$ ]]; then
+			produto_info=$(seek produtos id "$identificador")
+		else
+			produto_info=$(seek produtos nome "$identificador")
+		fi
+
+		if [[ -z "$produto_info" ]]; then
 			mensagem 2 "Produto não encontrado" "$red"
 			continue
 		fi
-		IFS='|' read -r id produto_nome estoque preco <<<"$produto_info"
+		IFS='|' read -r id produto_nome unidade estoque preco codebar <<<"$produto_info"
 		echo -e "$azul$produto_nome$reset"
 
 		# Solicita a quantidade e verifica se não está em branco
@@ -1171,74 +1287,6 @@ entrada_produtos() {
 			atualizar_estoque_compras
 		fi
 	fi
-}
-
-menu_fornecedores() {
-	while true; do
-		tela
-		titulo 1 "MENU FORNECEDORES" "$ciano"
-		imprimir_quadro 11 10 8 80 "MENU FORNECEDORES" "$azul"
-		print 12 11 " 1 - Cadastrar Fornecedor"
-		print 13 11 " 2 - Alterar Fornecedor"
-		print 14 11 " 3 - Pesquisar Fornecedor"
-		print 15 11 " 0 - Voltar"
-		get 17 12 "Opção: " opcao
-
-		case "$opcao" in
-		1)
-			adicionar_fornecedor
-			;;
-		2)
-			alterar_fornecedor
-			;;
-		3)
-			pesquisar_fornecedor
-			;;
-		*)
-			return
-			;;
-		esac
-	done
-}
-
-menu_produtos() {
-	while true; do
-		tela
-		titulo 1 "MENU PRODUTOS" "$ciano"
-		imprimir_quadro 11 10 11 80 "MENU PRODUTOS" "$azul"
-		print 12 11 " 1 - Cadastrar Produtos"
-		print 13 11 " 2 - Alterar Produtos"
-		print 14 11 " 3 - Remover Produtos"
-		print 15 11 " 4 - Pesquisar Produtos"
-		print 16 11 " 5 - Atualizar Estoque (conciliação)"
-		print 17 11 " 6 - Listagem Produtos Vendidos"
-		print 18 11 " 0 - Voltar"
-		get 20 12 "Opção: " opcao
-
-		case "$opcao" in
-		1)
-			adicionar_produto
-			;;
-		2)
-			alterar_produto
-			;;
-		3)
-			remover_produto
-			;;
-		4)
-			pesquisar_produto
-			;;
-		5)
-			conciliar_estoque
-			;;
-		6)
-			listagem_produtos_vendidos
-			;;
-		*)
-			return
-			;;
-		esac
-	done
 }
 
 conciliar_estoque() {
@@ -1326,6 +1374,79 @@ sh_show_tabelas() {
 
 random_docnr() {
 	date "+%Y%m%d-%H%M%S"
+}
+
+
+menu_fornecedores() {
+	while true; do
+		tela
+		titulo 1 "MENU FORNECEDORES" "$ciano"
+		imprimir_quadro 11 10 8 80 "MENU FORNECEDORES" "$azul"
+		print 12 11 " 1 - Cadastrar Fornecedor"
+		print 13 11 " 2 - Alterar Fornecedor"
+		print 14 11 " 3 - Pesquisar Fornecedor"
+		print 15 11 " 0 - Voltar"
+		get 17 12 "Opção: " opcao
+
+		case "$opcao" in
+		1)
+			adicionar_fornecedor
+			;;
+		2)
+			alterar_fornecedor
+			;;
+		3)
+			pesquisar_fornecedor
+			;;
+		*)
+			return
+			;;
+		esac
+	done
+}
+
+menu_produtos() {
+	while true; do
+		tela
+		titulo 1 "MENU PRODUTOS" "$ciano"
+		imprimir_quadro 11 10 12 80 "MENU PRODUTOS" "$azul"
+		print 12 11 " 1 - Cadastrar Produtos"
+		print 13 11 " 2 - Alterar Produtos"
+		print 14 11 " 3 - Remover Produtos"
+		print 15 11 " 4 - Pesquisar Produtos"
+		print 16 11 " 5 - Atualizar Estoque (conciliação)"
+		print 17 11 " 6 - Listagem Produtos Vendidos"
+		print 18 11 " 7 - Listagem Entradas de Produtos"
+		print 19 11 " 0 - Voltar"
+		get 21 12 "Opção: " opcao
+
+		case "$opcao" in
+		1)
+			adicionar_produto
+			;;
+		2)
+			alterar_produto
+			;;
+		3)
+			remover_produto
+			;;
+		4)
+			pesquisar_produto
+			;;
+		5)
+			conciliar_estoque
+			;;
+		6)
+			listagem_produtos_vendidos
+			;;
+		7)
+			listagem_entradas_produtos
+			;;
+		*)
+			return
+			;;
+		esac
+	done
 }
 
 # menu principal
