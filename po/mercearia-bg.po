@@ -1,0 +1,547 @@
+# Bulgarian translations for PACKAGE package.
+# Copyright (C) 2023 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2023.
+#
+msgid ""
+msgstr ""
+
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-23 23:18-0400\n"
+"PO-Revision-Date: 2023-10-23 23:18-0400\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: bg\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: mercearia:257
+msgid " Pressione qualquer tecla para continuar"
+msgstr "Натиснете произволен клавиш, за да продължите"
+
+
+#: mercearia:299
+msgid "ERRO: não consegui encontrar o comando"
+msgstr "ГРЕШКА: не може да се намери командата"
+
+
+#: mercearia:303 mercearia:306
+msgid "IMPOSSÍVEL CONTINUAR"
+msgstr "НЕВЪЗМОЖНО ЗА ПРОДЪЛЖАВАНЕ"
+
+
+#: mercearia:304
+msgid "Este script precisa dos comandos listados acima"
+msgstr "Този скрипт се нуждае от командите, изброени по-горе"
+
+
+#: mercearia:305
+msgid "Instale-os e/ou verifique se eles estão em seu"
+msgstr "Инсталирайте ги и/или се уверете, че са на вашия"
+
+
+#: mercearia:307
+msgid "Instalação abortada!"
+msgstr "Инсталацията е прекратена!"
+
+
+#: mercearia:329
+msgid "SISTEMA PDV"
+msgstr "ПОС СИСТЕМА"
+
+
+#: mercearia:330 mercearia:1461 mercearia:1462
+msgid "MENU PRINCIPAL"
+msgstr "ГЛАВНО МЕНЮ"
+
+
+#: mercearia:394
+msgid "Pressione qualquer tecla para continuar..."
+msgstr "Натиснете произволен клавиш, за да продължите..."
+
+
+#: mercearia:439 mercearia:440
+msgid "CADASTRO DE PRODUTO"
+msgstr "РЕГИСТРАЦИЯ НА ПРОДУКТА"
+
+
+#: mercearia:442 mercearia:448 mercearia:452 mercearia:581 mercearia:606
+msgid "Descrição"
+msgstr "Описание"
+
+
+#: mercearia:443 mercearia:467 mercearia:582 mercearia:617
+msgid "Código Barras"
+msgstr "Баркод"
+
+
+#: mercearia:444 mercearia:468 mercearia:583 mercearia:618
+msgid "Unidade"
+msgstr "Мерна единица"
+
+
+#: mercearia:445 mercearia:472 mercearia:584 mercearia:622
+msgid "Preço (ex: 4.40 ou 5)"
+msgstr "Цена (напр.: 4,40 или 5)"
+
+
+#: mercearia:454
+msgid "Descrição não pode ser em branco"
+msgstr "Описанието не може да се попълни"
+
+
+#: mercearia:461 mercearia:611
+msgid "A descrição não pode ser em branco. Cancelar?"
+msgstr "Описанието не може да бъде празно. Отмяна?"
+
+
+#: mercearia:476 mercearia:626 mercearia:1266
+msgid ""
+"Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro."
+msgstr "„Невалиден формат на цената. Използвайте десетична точка (напр.: 4,40) или цяло число."
+
+
+#: mercearia:481 mercearia:631
+msgid "Confirma inclusão/atualização do produto?"
+msgstr "Да потвърдите включването/актуализацията на продукта?"
+
+
+#: mercearia:491 mercearia:640
+msgid "Produto cadastrado/atualizado com sucesso!"
+msgstr "Продуктът е регистриран/актуализиран успешно!"
+
+
+#: mercearia:493 mercearia:642
+msgid "Erro no cadastro/atualização do produto."
+msgstr "Грешка при регистрация/актуализация на продукта."
+
+
+#: mercearia:496 mercearia:561 mercearia:645 mercearia:722
+msgid "Inclusão/alteração não efetuada."
+msgstr "Включване/промяна не е направена."
+
+
+#: mercearia:510 mercearia:511
+msgid "CADASTRO DE FORNECEDOR"
+msgstr "РЕГИСТРАЦИЯ НА ДОСТАВЧИК"
+
+
+#: mercearia:513 mercearia:520 mercearia:524 mercearia:663 mercearia:689
+msgid "Nome"
+msgstr "Име"
+
+
+#: mercearia:514 mercearia:539 mercearia:664 mercearia:700
+msgid "Endereço"
+msgstr "Адрес"
+
+
+#: mercearia:515 mercearia:540 mercearia:665 mercearia:701
+msgid "Cidade"
+msgstr "град"
+
+
+#: mercearia:516 mercearia:541 mercearia:666 mercearia:702
+msgid "Estado"
+msgstr "състояние"
+
+
+#: mercearia:517 mercearia:542 mercearia:667 mercearia:703
+msgid "Cnpj"
+msgstr "CNPJ"
+
+
+#: mercearia:526
+msgid "Nome não pode ser em branco"
+msgstr "Името не може да се попълни"
+
+
+#: mercearia:533 mercearia:694
+msgid "O nome não pode ser em branco. Cancelar?"
+msgstr "Името не може да се попълни. Отмяна?"
+
+
+#: mercearia:545 mercearia:706
+msgid "Confirma inclusão/atualização do fornecedor?"
+msgstr "Потвърждаване на включването/актуализацията на доставчика?"
+
+
+#: mercearia:556 mercearia:717
+msgid "Fornecedor cadastrado/atualizado com sucesso!"
+msgstr "Доставчикът е успешно регистриран/актуализиран!"
+
+
+#: mercearia:558 mercearia:719
+msgid "Erro no cadastro/atualização do fornecedor"
+msgstr "Грешка при регистрация/актуализация на доставчика"
+
+
+#: mercearia:577 mercearia:578
+msgid "ALTERAÇÃO DE PRODUTO"
+msgstr "ПРОМЯНА НА ПРОДУКТА"
+
+
+#: mercearia:580 mercearia:586 mercearia:662 mercearia:669
+msgid "ID/Nome"
+msgstr "ID/Име"
+
+
+#: mercearia:590 mercearia:673
+msgid "ID/Nome não pode ser em branco. Cancelar?"
+msgstr "ID/Името не може да се попълни. Отмяна?"
+
+
+#: mercearia:600
+msgid "Produto não encontrado nos parâmetros informados"
+msgstr "Продуктът не е открит в посочените параметри"
+
+
+#: mercearia:659
+msgid "ALTERAÇÃO DE FORNECEDOR"
+msgstr "СМЯНА НА ДОСТАВЧИКА"
+
+
+#: mercearia:660
+msgid "ALTERACÃO DE FORNECEDOR"
+msgstr "СМЯНА НА ДОСТАВЧИК"
+
+
+#: mercearia:683
+msgid "Fornecedor não encontrado nos parâmetros informados"
+msgstr "Доставчикът не е намерен в посочените параметри"
+
+
+#: mercearia:733
+msgid "REMOÇÃO DE PRODUTO"
+msgstr "ПРЕМАХВАНЕ НА ПРОДУКТА"
+
+
+#: mercearia:736
+msgid "Digite o ID ou nome do produto que deseja remover: "
+msgstr "Въведете ID или името на продукта, който искате да премахнете:"
+
+
+#: mercearia:741
+msgid "O ID não pode ser em branco. Cancelar?"
+msgstr "ID не може да се попълни. Отмяна?"
+
+
+#: mercearia:755
+msgid "Confirma exclusão do produto?"
+msgstr "Потвърждаване на изтриването на продукта?"
+
+
+#: mercearia:763
+msgid "Produto removido com sucesso!"
+msgstr "Продуктът е премахнат успешно!"
+
+
+#: mercearia:766 mercearia:807
+msgid "Nenhum produto encontrado nos parâmetros informados"
+msgstr "Няма намерени продукти в посочените параметри"
+
+
+#: mercearia:774
+msgid "TOTAL VENDAS DIÁRIAS"
+msgstr "ОБЩО ДНЕВНИ ПРОДАЖБИ"
+
+
+#: mercearia:782 mercearia:783
+msgid "PESQUISAR PRODUTOS"
+msgstr "ТЪРСЕНЕ НА ПРОДУКТИ"
+
+
+#: mercearia:784
+msgid "Pesquisar por (nome, id ou *=tudo)"
+msgstr "Търсене по (име, идентификатор или *=всички)"
+
+
+#: mercearia:815 mercearia:816
+msgid "LISTAGEM PRODUTOS VENDIDOS"
+msgstr "СПИСЪК НА ПРОДАДЕНИ ПРОДУКТИ"
+
+
+#: mercearia:817 mercearia:895
+msgid "Pesquisar por (id, docnr, data ou *=tudo)"
+msgstr "Търсене по (ID, docnr, дата или *=всички)"
+
+
+#: mercearia:840 mercearia:928
+msgid "Formato de data inválido."
+msgstr "Невалиден формат на датата."
+
+
+#: mercearia:885
+msgid "Nenhum produto vendido nos parâmetros informados"
+msgstr "Няма продадени продукти в посочените параметри"
+
+
+#: mercearia:893 mercearia:894
+msgid "LISTAGEM ENTRADAS DE PRODUTOS"
+msgstr "СПИСЪК С ПРОДУКТОВИ ВПИСИ"
+
+
+#: mercearia:973
+msgid "Nenhum produto comprado nos parâmetros informados"
+msgstr "Няма закупени продукти в посочените параметри"
+
+
+#: mercearia:984 mercearia:985
+msgid "PESQUISAR FORNECEDOR"
+msgstr "ТЪРСЕНЕ НА ДОСТАВЧИК"
+
+
+#: mercearia:1006
+msgid "Nenhum fornecedor encontrado nos parâmetros informados"
+msgstr "Няма намерени доставчици в дадените параметри"
+
+
+#: mercearia:1034
+msgid "Registro de venda efetuado"
+msgstr "Направена регистрация за продажба"
+
+
+#: mercearia:1043
+msgid "Baixa de estoque efetuado"
+msgstr "Извършено отписване на запаси"
+
+
+#: mercearia:1053
+msgid "VENDA"
+msgstr "РАЗПРОДАЖБА"
+
+
+#: mercearia:1054
+msgid "CUPOM PDV"
+msgstr "ПОС КУПОН"
+
+
+#: mercearia:1070 mercearia:1224
+msgid "ID/nome/CodeBar (deixe em branco para concluir)"
+msgstr "ID/име/CodeBar (оставете празно за попълване)"
+
+
+#: mercearia:1087 mercearia:1241
+msgid "Produto não encontrado"
+msgstr "Продуктът не е намерен"
+
+
+#: mercearia:1093 mercearia:1248
+msgid "Quantidade (0 para remover o item)"
+msgstr "Количество (0 за премахване на елемент)"
+
+
+#: mercearia:1100 mercearia:1255
+msgid "Quantidade inválida ou item não tem na lista"
+msgstr "Невалидно количество или артикулът не е в списъка"
+
+
+#: mercearia:1106
+msgid "Quantidade insuficiente de"
+msgstr "Недостатъчно количество от"
+
+
+#: mercearia:1106
+msgid "no estoque"
+msgstr "в наличност"
+
+
+#: mercearia:1126
+msgid "Confirma o fetchamento do CUPOM?"
+msgstr "Потвърждавате ли извличането на КУПОН?"
+
+
+#: mercearia:1145
+msgid "Registro de entradas efetuado"
+msgstr "Регистрация на направените записи"
+
+
+#: mercearia:1155
+msgid "Ajuste de estoque efetuado"
+msgstr "Направена е корекция на инвентара"
+
+
+#: mercearia:1177
+msgid "ENTRADAS DE PRODUTOS"
+msgstr "ПРОДУКТОВ ВХОД"
+
+
+#: mercearia:1178
+msgid "DADOS DA NFF"
+msgstr "NFF ДАННИ"
+
+
+#: mercearia:1180 mercearia:1184
+msgid "Fornecedor"
+msgstr "Доставчик"
+
+
+#: mercearia:1181 mercearia:1201
+msgid "Docnr/NFF"
+msgstr "Docnr/NFF"
+
+
+#: mercearia:1190
+msgid "O ID/nome não pode ser em branco. Cancelar?"
+msgstr "ID/името не може да се попълни. Отмяна?"
+
+
+#: mercearia:1196
+msgid "Fornecedor não encontrado"
+msgstr "Доставчикът не е намерен"
+
+
+#: mercearia:1209
+msgid "RELAÇAO DAS ENTRADAS"
+msgstr "СПИСЪК НА ВХОДИТЕ"
+
+
+#: mercearia:1262
+msgid "Preço custo (ex: 4.40 ou 5)"
+msgstr "Себестойност (напр.: 4,40 или 5)"
+
+
+#: mercearia:1286
+msgid "Confirma a entrada desses produtos?"
+msgstr "Потвърждавате ли пристигането на тези продукти?"
+
+
+#: mercearia:1295
+msgid "Confirma a atualização?"
+msgstr "Потвърждаване на актуализацията?"
+
+
+#: mercearia:1296
+msgid "Aguarde... Atualizando estoque"
+msgstr "Моля, изчакайте... Наличността се актуализира"
+
+
+#: mercearia:1332
+msgid "Atualização concluída"
+msgstr "Актуализацията е завършена"
+
+
+#: mercearia:1354
+msgid "Checando tabela de produtos."
+msgstr "Проверка на продуктовата таблица."
+
+
+#: mercearia:1356
+msgid "Checando tabela de vendas."
+msgstr "Проверка на таблицата с продажбите."
+
+
+#: mercearia:1358
+msgid "Checando tabela de compras."
+msgstr "Проверка на таблицата за покупки."
+
+
+#: mercearia:1360
+msgid "Checando tabela de fornecedores."
+msgstr "Проверка на таблицата на доставчика."
+
+
+#: mercearia:1388 mercearia:1389
+msgid "MENU FORNECEDORES"
+msgstr "МЕНЮ ЗА ДОСТАВЧИЦИ"
+
+
+#: mercearia:1390
+msgid "Cadastrar Fornecedor"
+msgstr "Регистрирайте доставчик"
+
+
+#: mercearia:1391
+msgid "Alterar Fornecedor"
+msgstr "Сменете доставчика"
+
+
+#: mercearia:1392
+msgid "Pesquisar Fornecedor"
+msgstr "Търсене на доставчик"
+
+
+#: mercearia:1393 mercearia:1425
+msgid "Voltar"
+msgstr "Да се върна"
+
+
+#: mercearia:1394 mercearia:1426 mercearia:1469
+msgid "Opção"
+msgstr "опция"
+
+
+#: mercearia:1416 mercearia:1417
+msgid "MENU PRODUTOS"
+msgstr "ПРОДУКТОВО МЕНЮ"
+
+
+#: mercearia:1418
+msgid "Cadastrar Produtos"
+msgstr "Регистрирайте продукти"
+
+
+#: mercearia:1419
+msgid "Alterar Produtos"
+msgstr "Смяна на продукти"
+
+
+#: mercearia:1420
+msgid "Remover Produtos"
+msgstr "Премахване на продукти"
+
+
+#: mercearia:1421
+msgid "Pesquisar Produtos"
+msgstr "Търсене на продукти"
+
+
+#: mercearia:1422
+msgid "Atualizar Estoque (conciliação)"
+msgstr "Актуализиране на запасите (съгласуване)"
+
+
+#: mercearia:1423
+msgid "Listagem Produtos Vendidos"
+msgstr "Списък на продадените продукти"
+
+
+#: mercearia:1424
+msgid "Listagem Entradas de Produtos"
+msgstr "Списък за въвеждане на продукти"
+
+
+#: mercearia:1463
+msgid "Produtos"
+msgstr "Продукти"
+
+
+#: mercearia:1464
+msgid "Realizar Venda"
+msgstr "Направете продажба"
+
+
+#: mercearia:1465
+msgid "Exibir Vendas Diárias"
+msgstr "Вижте ежедневните продажби"
+
+
+#: mercearia:1466
+msgid "Entradas de Produtos"
+msgstr "Вписвания на продукти"
+
+
+#: mercearia:1467
+msgid "Fornecedores"
+msgstr "Доставчици"
+
+
+#: mercearia:1468
+msgid "Sair"
+msgstr "Излизам"
+
+
+#: mercearia:1491

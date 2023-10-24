@@ -1,0 +1,546 @@
+# Czech translations for PACKAGE package.
+# Copyright (C) 2023 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2023.
+#
+msgid ""
+msgstr ""
+
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-23 23:18-0400\n"
+"PO-Revision-Date: 2023-10-23 23:18-0400\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#: mercearia:257
+msgid " Pressione qualquer tecla para continuar"
+msgstr "pokračujte stiskem libovolné klávesy"
+
+
+#: mercearia:299
+msgid "ERRO: não consegui encontrar o comando"
+msgstr "CHYBA: příkaz nelze najít"
+
+
+#: mercearia:303 mercearia:306
+msgid "IMPOSSÍVEL CONTINUAR"
+msgstr "NELZE POKRAČOVAT"
+
+
+#: mercearia:304
+msgid "Este script precisa dos comandos listados acima"
+msgstr "Tento skript potřebuje výše uvedené příkazy"
+
+
+#: mercearia:305
+msgid "Instale-os e/ou verifique se eles estão em seu"
+msgstr "Nainstalujte je a/nebo se ujistěte, že jsou na vašem"
+
+
+#: mercearia:307
+msgid "Instalação abortada!"
+msgstr "Instalace zrušena!"
+
+
+#: mercearia:329
+msgid "SISTEMA PDV"
+msgstr "POS SYSTÉM"
+
+
+#: mercearia:330 mercearia:1461 mercearia:1462
+msgid "MENU PRINCIPAL"
+msgstr "HLAVNÍ MENU"
+
+
+#: mercearia:394
+msgid "Pressione qualquer tecla para continuar..."
+msgstr "Pokračujte stiskem libovolné klávesy..."
+
+
+#: mercearia:439 mercearia:440
+msgid "CADASTRO DE PRODUTO"
+msgstr "REGISTRACE VÝROBKU"
+
+
+#: mercearia:442 mercearia:448 mercearia:452 mercearia:581 mercearia:606
+msgid "Descrição"
+msgstr "Popis"
+
+
+#: mercearia:443 mercearia:467 mercearia:582 mercearia:617
+msgid "Código Barras"
+msgstr "Čárový kód"
+
+
+#: mercearia:444 mercearia:468 mercearia:583 mercearia:618
+msgid "Unidade"
+msgstr "Jednotka"
+
+
+#: mercearia:445 mercearia:472 mercearia:584 mercearia:622
+msgid "Preço (ex: 4.40 ou 5)"
+msgstr "Cena (např.: 4,40 nebo 5)"
+
+
+#: mercearia:454
+msgid "Descrição não pode ser em branco"
+msgstr "Popis nesmí být prázdný"
+
+
+#: mercearia:461 mercearia:611
+msgid "A descrição não pode ser em branco. Cancelar?"
+msgstr "Popis nesmí být prázdný. Zrušení?"
+
+
+#: mercearia:476 mercearia:626 mercearia:1266
+msgid "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro."
+msgstr "Neplatný formát ceny. Použijte desetinnou čárku (např.: 4,40) nebo celé číslo."
+
+
+#: mercearia:481 mercearia:631
+msgid "Confirma inclusão/atualização do produto?"
+msgstr "Potvrdit zařazení/aktualizaci produktu?"
+
+
+#: mercearia:491 mercearia:640
+msgid "Produto cadastrado/atualizado com sucesso!"
+msgstr "Produkt byl úspěšně zaregistrován/aktualizován!"
+
+
+#: mercearia:493 mercearia:642
+msgid "Erro no cadastro/atualização do produto."
+msgstr "Chyba při registraci/aktualizaci produktu."
+
+
+#: mercearia:496 mercearia:561 mercearia:645 mercearia:722
+msgid "Inclusão/alteração não efetuada."
+msgstr "Zařazení/změna neprovedena."
+
+
+#: mercearia:510 mercearia:511
+msgid "CADASTRO DE FORNECEDOR"
+msgstr "REGISTRACE DODAVATELE"
+
+
+#: mercearia:513 mercearia:520 mercearia:524 mercearia:663 mercearia:689
+msgid "Nome"
+msgstr "název"
+
+
+#: mercearia:514 mercearia:539 mercearia:664 mercearia:700
+msgid "Endereço"
+msgstr "Adresa"
+
+
+#: mercearia:515 mercearia:540 mercearia:665 mercearia:701
+msgid "Cidade"
+msgstr "Město"
+
+
+#: mercearia:516 mercearia:541 mercearia:666 mercearia:702
+msgid "Estado"
+msgstr "Stát"
+
+
+#: mercearia:517 mercearia:542 mercearia:667 mercearia:703
+msgid "Cnpj"
+msgstr "CNPJ"
+
+
+#: mercearia:526
+msgid "Nome não pode ser em branco"
+msgstr "Název nesmí být prázdný"
+
+
+#: mercearia:533 mercearia:694
+msgid "O nome não pode ser em branco. Cancelar?"
+msgstr "Název nesmí být prázdný. Zrušení?"
+
+
+#: mercearia:545 mercearia:706
+msgid "Confirma inclusão/atualização do fornecedor?"
+msgstr "Potvrdit zařazení/aktualizaci dodavatele?"
+
+
+#: mercearia:556 mercearia:717
+msgid "Fornecedor cadastrado/atualizado com sucesso!"
+msgstr "Dodavatel úspěšně zaregistrován/aktualizován!"
+
+
+#: mercearia:558 mercearia:719
+msgid "Erro no cadastro/atualização do fornecedor"
+msgstr "Chyba při registraci/aktualizaci dodavatele"
+
+
+#: mercearia:577 mercearia:578
+msgid "ALTERAÇÃO DE PRODUTO"
+msgstr "ZMĚNA PRODUKTU"
+
+
+#: mercearia:580 mercearia:586 mercearia:662 mercearia:669
+msgid "ID/Nome"
+msgstr "ID/Jméno"
+
+
+#: mercearia:590 mercearia:673
+msgid "ID/Nome não pode ser em branco. Cancelar?"
+msgstr "ID/Jméno nesmí být prázdné. Zrušení?"
+
+
+#: mercearia:600
+msgid "Produto não encontrado nos parâmetros informados"
+msgstr "Produkt nebyl nalezen ve specifikovaných parametrech"
+
+
+#: mercearia:659
+msgid "ALTERAÇÃO DE FORNECEDOR"
+msgstr "ZMĚNA DODAVATELE"
+
+
+#: mercearia:660
+msgid "ALTERACÃO DE FORNECEDOR"
+msgstr "ZMĚNA DODAVATELE"
+
+
+#: mercearia:683
+msgid "Fornecedor não encontrado nos parâmetros informados"
+msgstr "Dodavatel nebyl nalezen v zadaných parametrech"
+
+
+#: mercearia:733
+msgid "REMOÇÃO DE PRODUTO"
+msgstr "ODSTRANĚNÍ PRODUKTU"
+
+
+#: mercearia:736
+msgid "Digite o ID ou nome do produto que deseja remover: "
+msgstr "Zadejte ID nebo název produktu, který chcete odebrat:"
+
+
+#: mercearia:741
+msgid "O ID não pode ser em branco. Cancelar?"
+msgstr "ID nesmí být prázdné. Zrušení?"
+
+
+#: mercearia:755
+msgid "Confirma exclusão do produto?"
+msgstr "Potvrdit smazání produktu?"
+
+
+#: mercearia:763
+msgid "Produto removido com sucesso!"
+msgstr "Produkt byl úspěšně odstraněn!"
+
+
+#: mercearia:766 mercearia:807
+msgid "Nenhum produto encontrado nos parâmetros informados"
+msgstr "V zadaných parametrech nebyly nalezeny žádné produkty"
+
+
+#: mercearia:774
+msgid "TOTAL VENDAS DIÁRIAS"
+msgstr "CELKOVÝ DENNÍ PRODEJ"
+
+
+#: mercearia:782 mercearia:783
+msgid "PESQUISAR PRODUTOS"
+msgstr "HLEDAT PRODUKTY"
+
+
+#: mercearia:784
+msgid "Pesquisar por (nome, id ou *=tudo)"
+msgstr "Hledat podle (jméno, id nebo *=vše)"
+
+
+#: mercearia:815 mercearia:816
+msgid "LISTAGEM PRODUTOS VENDIDOS"
+msgstr "SEZNAM PRODÁVANÝCH PRODUKTŮ"
+
+
+#: mercearia:817 mercearia:895
+msgid "Pesquisar por (id, docnr, data ou *=tudo)"
+msgstr "Hledat podle (id, docnr, date nebo *=all)"
+
+
+#: mercearia:840 mercearia:928
+msgid "Formato de data inválido."
+msgstr "Neplatný formát data."
+
+
+#: mercearia:885
+msgid "Nenhum produto vendido nos parâmetros informados"
+msgstr "V uvedených parametrech se neprodávají žádné produkty"
+
+
+#: mercearia:893 mercearia:894
+msgid "LISTAGEM ENTRADAS DE PRODUTOS"
+msgstr "SEZNAM POLOŽEK PRODUKTŮ"
+
+
+#: mercearia:973
+msgid "Nenhum produto comprado nos parâmetros informados"
+msgstr "Žádné produkty zakoupené v rámci zadaných parametrů"
+
+
+#: mercearia:984 mercearia:985
+msgid "PESQUISAR FORNECEDOR"
+msgstr "VYHLEDAT DODAVATELE"
+
+
+#: mercearia:1006
+msgid "Nenhum fornecedor encontrado nos parâmetros informados"
+msgstr "V daných parametrech nebyli nalezeni žádní dodavatelé"
+
+
+#: mercearia:1034
+msgid "Registro de venda efetuado"
+msgstr "Provedena registrace prodeje"
+
+
+#: mercearia:1043
+msgid "Baixa de estoque efetuado"
+msgstr "Proveden odpis akcií"
+
+
+#: mercearia:1053
+msgid "VENDA"
+msgstr "PRODEJ"
+
+
+#: mercearia:1054
+msgid "CUPOM PDV"
+msgstr "POS KUPON"
+
+
+#: mercearia:1070 mercearia:1224
+msgid "ID/nome/CodeBar (deixe em branco para concluir)"
+msgstr "ID/název/CodeBar (pro dokončení ponechte prázdné)"
+
+
+#: mercearia:1087 mercearia:1241
+msgid "Produto não encontrado"
+msgstr "Produkt nenalezen"
+
+
+#: mercearia:1093 mercearia:1248
+msgid "Quantidade (0 para remover o item)"
+msgstr "Množství (0 pro odstranění položky)"
+
+
+#: mercearia:1100 mercearia:1255
+msgid "Quantidade inválida ou item não tem na lista"
+msgstr "Neplatné množství nebo položka není v seznamu"
+
+
+#: mercearia:1106
+msgid "Quantidade insuficiente de"
+msgstr "Nedostatečné množství"
+
+
+#: mercearia:1106
+msgid "no estoque"
+msgstr "na skladě"
+
+
+#: mercearia:1126
+msgid "Confirma o fetchamento do CUPOM?"
+msgstr "Potvrzujete načítání KUPÓNU?"
+
+
+#: mercearia:1145
+msgid "Registro de entradas efetuado"
+msgstr "Registrace provedených přihlášek"
+
+
+#: mercearia:1155
+msgid "Ajuste de estoque efetuado"
+msgstr "Provedena úprava zásob"
+
+
+#: mercearia:1177
+msgid "ENTRADAS DE PRODUTOS"
+msgstr "VSTUPY PRODUKTŮ"
+
+
+#: mercearia:1178
+msgid "DADOS DA NFF"
+msgstr "NFF DATA"
+
+
+#: mercearia:1180 mercearia:1184
+msgid "Fornecedor"
+msgstr "Dodavatel"
+
+
+#: mercearia:1181 mercearia:1201
+msgid "Docnr/NFF"
+msgstr "Docnr/NFF"
+
+
+#: mercearia:1190
+msgid "O ID/nome não pode ser em branco. Cancelar?"
+msgstr "ID/jméno nesmí být prázdné. Zrušení?"
+
+
+#: mercearia:1196
+msgid "Fornecedor não encontrado"
+msgstr "Dodavatel nenalezen"
+
+
+#: mercearia:1209
+msgid "RELAÇAO DAS ENTRADAS"
+msgstr "SEZNAM PŘÍSPĚVKŮ"
+
+
+#: mercearia:1262
+msgid "Preço custo (ex: 4.40 ou 5)"
+msgstr "Nákladová cena (např.: 4,40 nebo 5)"
+
+
+#: mercearia:1286
+msgid "Confirma a entrada desses produtos?"
+msgstr "Potvrzujete zadání těchto produktů?"
+
+
+#: mercearia:1295
+msgid "Confirma a atualização?"
+msgstr "Potvrdit aktualizaci?"
+
+
+#: mercearia:1296
+msgid "Aguarde... Atualizando estoque"
+msgstr "Čekejte prosím... Aktualizace zásob"
+
+
+#: mercearia:1332
+msgid "Atualização concluída"
+msgstr "Aktualizace dokončena"
+
+
+#: mercearia:1354
+msgid "Checando tabela de produtos."
+msgstr "Kontrola tabulky produktů."
+
+
+#: mercearia:1356
+msgid "Checando tabela de vendas."
+msgstr "Kontrola prodejní tabulky."
+
+
+#: mercearia:1358
+msgid "Checando tabela de compras."
+msgstr "Kontrola nákupní tabulky."
+
+
+#: mercearia:1360
+msgid "Checando tabela de fornecedores."
+msgstr "Kontrola tabulky dodavatelů."
+
+
+#: mercearia:1388 mercearia:1389
+msgid "MENU FORNECEDORES"
+msgstr "NABÍDKA DODAVATELŮ"
+
+
+#: mercearia:1390
+msgid "Cadastrar Fornecedor"
+msgstr "Registrovat dodavatele"
+
+
+#: mercearia:1391
+msgid "Alterar Fornecedor"
+msgstr "Změnit dodavatele"
+
+
+#: mercearia:1392
+msgid "Pesquisar Fornecedor"
+msgstr "Hledat dodavatele"
+
+
+#: mercearia:1393 mercearia:1425
+msgid "Voltar"
+msgstr "Vrátit se"
+
+
+#: mercearia:1394 mercearia:1426 mercearia:1469
+msgid "Opção"
+msgstr "Volba"
+
+
+#: mercearia:1416 mercearia:1417
+msgid "MENU PRODUTOS"
+msgstr "NABÍDKA PRODUKTŮ"
+
+
+#: mercearia:1418
+msgid "Cadastrar Produtos"
+msgstr "Registrovat produkty"
+
+
+#: mercearia:1419
+msgid "Alterar Produtos"
+msgstr "Změna produktů"
+
+
+#: mercearia:1420
+msgid "Remover Produtos"
+msgstr "Odebrat produkty"
+
+
+#: mercearia:1421
+msgid "Pesquisar Produtos"
+msgstr "Hledat produkty"
+
+
+#: mercearia:1422
+msgid "Atualizar Estoque (conciliação)"
+msgstr "Aktualizovat zásoby (odsouhlasení)"
+
+
+#: mercearia:1423
+msgid "Listagem Produtos Vendidos"
+msgstr "Seznam prodávaných produktů"
+
+
+#: mercearia:1424
+msgid "Listagem Entradas de Produtos"
+msgstr "Seznam položek produktu"
+
+
+#: mercearia:1463
+msgid "Produtos"
+msgstr "produkty"
+
+
+#: mercearia:1464
+msgid "Realizar Venda"
+msgstr "Proveďte prodej"
+
+
+#: mercearia:1465
+msgid "Exibir Vendas Diárias"
+msgstr "Zobrazit denní prodeje"
+
+
+#: mercearia:1466
+msgid "Entradas de Produtos"
+msgstr "Záznamy o produktu"
+
+
+#: mercearia:1467
+msgid "Fornecedores"
+msgstr "Dodavatelé"
+
+
+#: mercearia:1468
+msgid "Sair"
+msgstr "Jít ven"
+
+
+#: mercearia:1491

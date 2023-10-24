@@ -1,0 +1,546 @@
+# Chinese translations for PACKAGE package.
+# Copyright (C) 2023 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2023.
+#
+msgid ""
+msgstr ""
+
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-23 23:18-0400\n"
+"PO-Revision-Date: 2023-10-23 23:18-0400\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: zh\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: mercearia:257
+msgid " Pressione qualquer tecla para continuar"
+msgstr "按任意键继续"
+
+
+#: mercearia:299
+msgid "ERRO: não consegui encontrar o comando"
+msgstr "错误：找不到命令"
+
+
+#: mercearia:303 mercearia:306
+msgid "IMPOSSÍVEL CONTINUAR"
+msgstr "无法继续"
+
+
+#: mercearia:304
+msgid "Este script precisa dos comandos listados acima"
+msgstr "该脚本需要上面列出的命令"
+
+
+#: mercearia:305
+msgid "Instale-os e/ou verifique se eles estão em seu"
+msgstr "安装它们和/或确保它们在您的"
+
+
+#: mercearia:307
+msgid "Instalação abortada!"
+msgstr "安装中止！"
+
+
+#: mercearia:329
+msgid "SISTEMA PDV"
+msgstr "销售点系统"
+
+
+#: mercearia:330 mercearia:1461 mercearia:1462
+msgid "MENU PRINCIPAL"
+msgstr "主菜单"
+
+
+#: mercearia:394
+msgid "Pressione qualquer tecla para continuar..."
+msgstr "按任意键继续..."
+
+
+#: mercearia:439 mercearia:440
+msgid "CADASTRO DE PRODUTO"
+msgstr "产品注册"
+
+
+#: mercearia:442 mercearia:448 mercearia:452 mercearia:581 mercearia:606
+msgid "Descrição"
+msgstr "描述"
+
+
+#: mercearia:443 mercearia:467 mercearia:582 mercearia:617
+msgid "Código Barras"
+msgstr "条码"
+
+
+#: mercearia:444 mercearia:468 mercearia:583 mercearia:618
+msgid "Unidade"
+msgstr "单元"
+
+
+#: mercearia:445 mercearia:472 mercearia:584 mercearia:622
+msgid "Preço (ex: 4.40 ou 5)"
+msgstr "价格（例如：4.40 或 5）"
+
+
+#: mercearia:454
+msgid "Descrição não pode ser em branco"
+msgstr "描述不能为空"
+
+
+#: mercearia:461 mercearia:611
+msgid "A descrição não pode ser em branco. Cancelar?"
+msgstr "描述不能为空。取消？"
+
+
+#: mercearia:476 mercearia:626 mercearia:1266
+msgid ""
+"Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro."
+msgstr "“价格格式无效。请使用小数点（例如：4.40）或整数。"
+
+
+#: mercearia:481 mercearia:631
+msgid "Confirma inclusão/atualização do produto?"
+msgstr "确认包含/更新产品？"
+
+
+#: mercearia:491 mercearia:640
+msgid "Produto cadastrado/atualizado com sucesso!"
+msgstr "产品注册/更新成功！"
+
+
+#: mercearia:493 mercearia:642
+msgid "Erro no cadastro/atualização do produto."
+msgstr "注册/更新产品时出错。"
+
+
+#: mercearia:496 mercearia:561 mercearia:645 mercearia:722
+msgid "Inclusão/alteração não efetuada."
+msgstr "未进行包含/更改。"
+
+
+#: mercearia:510 mercearia:511
+msgid "CADASTRO DE FORNECEDOR"
+msgstr "供应商注册"
+
+
+#: mercearia:513 mercearia:520 mercearia:524 mercearia:663 mercearia:689
+msgid "Nome"
+msgstr "姓名"
+
+
+#: mercearia:514 mercearia:539 mercearia:664 mercearia:700
+msgid "Endereço"
+msgstr "地址"
+
+
+#: mercearia:515 mercearia:540 mercearia:665 mercearia:701
+msgid "Cidade"
+msgstr "城市"
+
+
+#: mercearia:516 mercearia:541 mercearia:666 mercearia:702
+msgid "Estado"
+msgstr "状态"
+
+
+#: mercearia:517 mercearia:542 mercearia:667 mercearia:703
+msgid "Cnpj"
+msgstr "CNPJ"
+
+
+#: mercearia:526
+msgid "Nome não pode ser em branco"
+msgstr "名称不能为空"
+
+
+#: mercearia:533 mercearia:694
+msgid "O nome não pode ser em branco. Cancelar?"
+msgstr "名称不能为空。取消？"
+
+
+#: mercearia:545 mercearia:706
+msgid "Confirma inclusão/atualização do fornecedor?"
+msgstr "确认纳入/更新供应商？"
+
+
+#: mercearia:556 mercearia:717
+msgid "Fornecedor cadastrado/atualizado com sucesso!"
+msgstr "供应商注册/更新成功！"
+
+
+#: mercearia:558 mercearia:719
+msgid "Erro no cadastro/atualização do fornecedor"
+msgstr "供应商注册/更新错误"
+
+
+#: mercearia:577 mercearia:578
+msgid "ALTERAÇÃO DE PRODUTO"
+msgstr "产品变更"
+
+
+#: mercearia:580 mercearia:586 mercearia:662 mercearia:669
+msgid "ID/Nome"
+msgstr "身份证/姓名"
+
+
+#: mercearia:590 mercearia:673
+msgid "ID/Nome não pode ser em branco. Cancelar?"
+msgstr "ID/姓名不能为空。取消？"
+
+
+#: mercearia:600
+msgid "Produto não encontrado nos parâmetros informados"
+msgstr "未在指定参数中找到产品"
+
+
+#: mercearia:659
+msgid "ALTERAÇÃO DE FORNECEDOR"
+msgstr "供应商变更"
+
+
+#: mercearia:660
+msgid "ALTERACÃO DE FORNECEDOR"
+msgstr "供应商变更"
+
+
+#: mercearia:683
+msgid "Fornecedor não encontrado nos parâmetros informados"
+msgstr "在指定参数中未找到供应商"
+
+
+#: mercearia:733
+msgid "REMOÇÃO DE PRODUTO"
+msgstr "产品去除"
+
+
+#: mercearia:736
+msgid "Digite o ID ou nome do produto que deseja remover: "
+msgstr "输入您要删除的产品的 ID 或名称："
+
+
+#: mercearia:741
+msgid "O ID não pode ser em branco. Cancelar?"
+msgstr "ID 不能为空。取消？"
+
+
+#: mercearia:755
+msgid "Confirma exclusão do produto?"
+msgstr "确认删除产品吗？"
+
+
+#: mercearia:763
+msgid "Produto removido com sucesso!"
+msgstr "产品删除成功！"
+
+
+#: mercearia:766 mercearia:807
+msgid "Nenhum produto encontrado nos parâmetros informados"
+msgstr "未找到指定参数的产品"
+
+
+#: mercearia:774
+msgid "TOTAL VENDAS DIÁRIAS"
+msgstr "每日总销售额"
+
+
+#: mercearia:782 mercearia:783
+msgid "PESQUISAR PRODUTOS"
+msgstr "搜索产品"
+
+
+#: mercearia:784
+msgid "Pesquisar por (nome, id ou *=tudo)"
+msgstr "按（名称、ID 或 *=全部）搜索"
+
+
+#: mercearia:815 mercearia:816
+msgid "LISTAGEM PRODUTOS VENDIDOS"
+msgstr "已售产品清单"
+
+
+#: mercearia:817 mercearia:895
+msgid "Pesquisar por (id, docnr, data ou *=tudo)"
+msgstr "按（id、docnr、日期或 *=全部）搜索"
+
+
+#: mercearia:840 mercearia:928
+msgid "Formato de data inválido."
+msgstr "日期格式无效。"
+
+
+#: mercearia:885
+msgid "Nenhum produto vendido nos parâmetros informados"
+msgstr "未销售符合指定参数的产品"
+
+
+#: mercearia:893 mercearia:894
+msgid "LISTAGEM ENTRADAS DE PRODUTOS"
+msgstr "产品条目列表"
+
+
+#: mercearia:973
+msgid "Nenhum produto comprado nos parâmetros informados"
+msgstr "未购买指定参数范围内的产品"
+
+
+#: mercearia:984 mercearia:985
+msgid "PESQUISAR FORNECEDOR"
+msgstr "搜寻供应商"
+
+
+#: mercearia:1006
+msgid "Nenhum fornecedor encontrado nos parâmetros informados"
+msgstr "未找到指定参数的供应商"
+
+
+#: mercearia:1034
+msgid "Registro de venda efetuado"
+msgstr "已完成销售登记"
+
+
+#: mercearia:1043
+msgid "Baixa de estoque efetuado"
+msgstr "已进行存货核销"
+
+
+#: mercearia:1053
+msgid "VENDA"
+msgstr "销售"
+
+
+#: mercearia:1054
+msgid "CUPOM PDV"
+msgstr "POS优惠券"
+
+
+#: mercearia:1070 mercearia:1224
+msgid "ID/nome/CodeBar (deixe em branco para concluir)"
+msgstr "ID/姓名/CodeBar（留空即可填写）"
+
+
+#: mercearia:1087 mercearia:1241
+msgid "Produto não encontrado"
+msgstr "未找到产品"
+
+
+#: mercearia:1093 mercearia:1248
+msgid "Quantidade (0 para remover o item)"
+msgstr "数量（0表示删除商品）"
+
+
+#: mercearia:1100 mercearia:1255
+msgid "Quantidade inválida ou item não tem na lista"
+msgstr "数量无效或商品不在列表中"
+
+
+#: mercearia:1106
+msgid "Quantidade insuficiente de"
+msgstr "数量不足"
+
+
+#: mercearia:1106
+msgid "no estoque"
+msgstr "有存货"
+
+
+#: mercearia:1126
+msgid "Confirma o fetchamento do CUPOM?"
+msgstr "您确认获取优惠券吗？"
+
+
+#: mercearia:1145
+msgid "Registro de entradas efetuado"
+msgstr "登记参赛作品"
+
+
+#: mercearia:1155
+msgid "Ajuste de estoque efetuado"
+msgstr "库存调整"
+
+
+#: mercearia:1177
+msgid "ENTRADAS DE PRODUTOS"
+msgstr "产品投入"
+
+
+#: mercearia:1178
+msgid "DADOS DA NFF"
+msgstr "NFF数据"
+
+
+#: mercearia:1180 mercearia:1184
+msgid "Fornecedor"
+msgstr "供应商"
+
+
+#: mercearia:1181 mercearia:1201
+msgid "Docnr/NFF"
+msgstr "文件/NFF"
+
+
+#: mercearia:1190
+msgid "O ID/nome não pode ser em branco. Cancelar?"
+msgstr "ID/姓名不能为空。取消？"
+
+
+#: mercearia:1196
+msgid "Fornecedor não encontrado"
+msgstr "未找到供应商"
+
+
+#: mercearia:1209
+msgid "RELAÇAO DAS ENTRADAS"
+msgstr "参赛作品清单"
+
+
+#: mercearia:1262
+msgid "Preço custo (ex: 4.40 ou 5)"
+msgstr "成本价（例如：4.40 或 5）"
+
+
+#: mercearia:1286
+msgid "Confirma a entrada desses produtos?"
+msgstr "您确认这些产品入境吗？"
+
+
+#: mercearia:1295
+msgid "Confirma a atualização?"
+msgstr "确认更新？"
+
+
+#: mercearia:1296
+msgid "Aguarde... Atualizando estoque"
+msgstr "请稍等...库存更新中"
+
+
+#: mercearia:1332
+msgid "Atualização concluída"
+msgstr "更新完成"
+
+
+#: mercearia:1354
+msgid "Checando tabela de produtos."
+msgstr "检查产品表。"
+
+
+#: mercearia:1356
+msgid "Checando tabela de vendas."
+msgstr "检查销售表。"
+
+
+#: mercearia:1358
+msgid "Checando tabela de compras."
+msgstr "检查采购表。"
+
+
+#: mercearia:1360
+msgid "Checando tabela de fornecedores."
+msgstr "检查供应商表。"
+
+
+#: mercearia:1388 mercearia:1389
+msgid "MENU FORNECEDORES"
+msgstr "供应商菜单"
+
+
+#: mercearia:1390
+msgid "Cadastrar Fornecedor"
+msgstr "注册供应商"
+
+
+#: mercearia:1391
+msgid "Alterar Fornecedor"
+msgstr "变更供应商"
+
+
+#: mercearia:1392
+msgid "Pesquisar Fornecedor"
+msgstr "搜寻供应商"
+
+
+#: mercearia:1393 mercearia:1425
+msgid "Voltar"
+msgstr "回去"
+
+
+#: mercearia:1394 mercearia:1426 mercearia:1469
+msgid "Opção"
+msgstr "选项"
+
+
+#: mercearia:1416 mercearia:1417
+msgid "MENU PRODUTOS"
+msgstr "产品菜单"
+
+
+#: mercearia:1418
+msgid "Cadastrar Produtos"
+msgstr "注册产品"
+
+
+#: mercearia:1419
+msgid "Alterar Produtos"
+msgstr "更改产品"
+
+
+#: mercearia:1420
+msgid "Remover Produtos"
+msgstr "删除产品"
+
+
+#: mercearia:1421
+msgid "Pesquisar Produtos"
+msgstr "搜索产品"
+
+
+#: mercearia:1422
+msgid "Atualizar Estoque (conciliação)"
+msgstr "更新库存（对账）"
+
+
+#: mercearia:1423
+msgid "Listagem Produtos Vendidos"
+msgstr "已售产品一览"
+
+
+#: mercearia:1424
+msgid "Listagem Entradas de Produtos"
+msgstr "产品参赛清单"
+
+
+#: mercearia:1463
+msgid "Produtos"
+msgstr "产品"
+
+
+#: mercearia:1464
+msgid "Realizar Venda"
+msgstr "进行销售"
+
+
+#: mercearia:1465
+msgid "Exibir Vendas Diárias"
+msgstr "查看每日销售额"
+
+
+#: mercearia:1466
+msgid "Entradas de Produtos"
+msgstr "产品参赛作品"
+
+
+#: mercearia:1467
+msgid "Fornecedores"
+msgstr "供应商"
+
+
+#: mercearia:1468
+msgid "Sair"
+msgstr "出去"
+
+
+#: mercearia:1491

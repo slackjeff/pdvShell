@@ -1,0 +1,545 @@
+# Hindi translations for PACKAGE package.
+# Copyright (C) 2023 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2023.
+#
+msgid ""
+msgstr ""
+
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-23 23:18-0400\n"
+"PO-Revision-Date: 2023-10-23 23:18-0400\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: hi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: mercearia:257
+msgid " Pressione qualquer tecla para continuar"
+msgstr "जारी रखने के लिए किसी भी कुंजी को दबाएं"
+
+
+#: mercearia:299
+msgid "ERRO: não consegui encontrar o comando"
+msgstr "त्रुटि: आदेश नहीं मिल सका"
+
+
+#: mercearia:303 mercearia:306
+msgid "IMPOSSÍVEL CONTINUAR"
+msgstr "जारी रखना असंभव"
+
+
+#: mercearia:304
+msgid "Este script precisa dos comandos listados acima"
+msgstr "इस स्क्रिप्ट को ऊपर सूचीबद्ध कमांड की आवश्यकता है"
+
+
+#: mercearia:305
+msgid "Instale-os e/ou verifique se eles estão em seu"
+msgstr "उन्हें स्थापित करें और/या सुनिश्चित करें कि वे आपके ऊपर हैं"
+
+
+#: mercearia:307
+msgid "Instalação abortada!"
+msgstr "स्थापना निरस्त!"
+
+
+#: mercearia:329
+msgid "SISTEMA PDV"
+msgstr "पीओएस प्रणाली"
+
+
+#: mercearia:330 mercearia:1461 mercearia:1462
+msgid "MENU PRINCIPAL"
+msgstr "मुख्य मेन्यू"
+
+
+#: mercearia:394
+msgid "Pressione qualquer tecla para continuar..."
+msgstr "जारी रखने के लिए किसी भी कुंजी को दबाएं..."
+
+
+#: mercearia:439 mercearia:440
+msgid "CADASTRO DE PRODUTO"
+msgstr "उत्पाद पंजीकरण"
+
+
+#: mercearia:442 mercearia:448 mercearia:452 mercearia:581 mercearia:606
+msgid "Descrição"
+msgstr "विवरण"
+
+
+#: mercearia:443 mercearia:467 mercearia:582 mercearia:617
+msgid "Código Barras"
+msgstr "बार कोड"
+
+
+#: mercearia:444 mercearia:468 mercearia:583 mercearia:618
+msgid "Unidade"
+msgstr "इकाई"
+
+
+#: mercearia:445 mercearia:472 mercearia:584 mercearia:622
+msgid "Preço (ex: 4.40 ou 5)"
+msgstr "कीमत (उदा: 4.40 या 5)"
+
+
+#: mercearia:454
+msgid "Descrição não pode ser em branco"
+msgstr "विवरण रिक्त नहीं हो सकता"
+
+
+#: mercearia:461 mercearia:611
+msgid "A descrição não pode ser em branco. Cancelar?"
+msgstr "विवरण रिक्त नहीं हो सकता. रद्द करना?"
+
+
+#: mercearia:476 mercearia:626 mercearia:1266
+msgid "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro."
+msgstr "अमान्य मूल्य प्रारूप। दशमलव बिंदु (उदा: 4.40) या पूर्ण संख्या का उपयोग करें।"
+
+
+#: mercearia:481 mercearia:631
+msgid "Confirma inclusão/atualização do produto?"
+msgstr "उत्पाद के समावेशन/अद्यतन की पुष्टि करें?"
+
+
+#: mercearia:491 mercearia:640
+msgid "Produto cadastrado/atualizado com sucesso!"
+msgstr "उत्पाद सफलतापूर्वक पंजीकृत/अद्यतन किया गया!"
+
+
+#: mercearia:493 mercearia:642
+msgid "Erro no cadastro/atualização do produto."
+msgstr "उत्पाद को पंजीकृत/अद्यतन करने में त्रुटि।"
+
+
+#: mercearia:496 mercearia:561 mercearia:645 mercearia:722
+msgid "Inclusão/alteração não efetuada."
+msgstr "समावेशन/परिवर्तन नहीं किया गया."
+
+
+#: mercearia:510 mercearia:511
+msgid "CADASTRO DE FORNECEDOR"
+msgstr "आपूर्तिकर्ता पंजीकरण"
+
+
+#: mercearia:513 mercearia:520 mercearia:524 mercearia:663 mercearia:689
+msgid "Nome"
+msgstr "नाम"
+
+
+#: mercearia:514 mercearia:539 mercearia:664 mercearia:700
+msgid "Endereço"
+msgstr "पता"
+
+
+#: mercearia:515 mercearia:540 mercearia:665 mercearia:701
+msgid "Cidade"
+msgstr "शहर"
+
+
+#: mercearia:516 mercearia:541 mercearia:666 mercearia:702
+msgid "Estado"
+msgstr "राज्य"
+
+
+#: mercearia:517 mercearia:542 mercearia:667 mercearia:703
+msgid "Cnpj"
+msgstr "सीएनपीजे"
+
+
+#: mercearia:526
+msgid "Nome não pode ser em branco"
+msgstr "नाम रिक्त नहीं हो सकता"
+
+
+#: mercearia:533 mercearia:694
+msgid "O nome não pode ser em branco. Cancelar?"
+msgstr "नाम रिक्त नहीं हो सकता. रद्द करना?"
+
+
+#: mercearia:545 mercearia:706
+msgid "Confirma inclusão/atualização do fornecedor?"
+msgstr "आपूर्तिकर्ता को शामिल करने/अद्यतन करने की पुष्टि करें?"
+
+
+#: mercearia:556 mercearia:717
+msgid "Fornecedor cadastrado/atualizado com sucesso!"
+msgstr "आपूर्तिकर्ता सफलतापूर्वक पंजीकृत/अद्यतन!"
+
+
+#: mercearia:558 mercearia:719
+msgid "Erro no cadastro/atualização do fornecedor"
+msgstr "आपूर्तिकर्ता पंजीकरण/अद्यतन में त्रुटि"
+
+
+#: mercearia:577 mercearia:578
+msgid "ALTERAÇÃO DE PRODUTO"
+msgstr "उत्पाद परिवर्तन"
+
+
+#: mercearia:580 mercearia:586 mercearia:662 mercearia:669
+msgid "ID/Nome"
+msgstr "आईडी/नाम"
+
+
+#: mercearia:590 mercearia:673
+msgid "ID/Nome não pode ser em branco. Cancelar?"
+msgstr "आईडी/नाम खाली नहीं हो सकता. रद्द करना?"
+
+
+#: mercearia:600
+msgid "Produto não encontrado nos parâmetros informados"
+msgstr "उत्पाद निर्दिष्ट पैरामीटर में नहीं मिला"
+
+
+#: mercearia:659
+msgid "ALTERAÇÃO DE FORNECEDOR"
+msgstr "आपूर्तिकर्ता परिवर्तन"
+
+
+#: mercearia:660
+msgid "ALTERACÃO DE FORNECEDOR"
+msgstr "आपूर्तिकर्ता का परिवर्तन"
+
+
+#: mercearia:683
+msgid "Fornecedor não encontrado nos parâmetros informados"
+msgstr "आपूर्तिकर्ता निर्दिष्ट मापदंडों में नहीं मिला"
+
+
+#: mercearia:733
+msgid "REMOÇÃO DE PRODUTO"
+msgstr "उत्पाद हटाना"
+
+
+#: mercearia:736
+msgid "Digite o ID ou nome do produto que deseja remover: "
+msgstr "उस उत्पाद की आईडी या नाम दर्ज करें जिसे आप हटाना चाहते हैं:"
+
+
+#: mercearia:741
+msgid "O ID não pode ser em branco. Cancelar?"
+msgstr "आईडी खाली नहीं हो सकती. रद्द करना?"
+
+
+#: mercearia:755
+msgid "Confirma exclusão do produto?"
+msgstr "उत्पाद को हटाने की पुष्टि करें?"
+
+
+#: mercearia:763
+msgid "Produto removido com sucesso!"
+msgstr "उत्पाद सफलतापूर्वक हटा दिया गया!"
+
+
+#: mercearia:766 mercearia:807
+msgid "Nenhum produto encontrado nos parâmetros informados"
+msgstr "निर्दिष्ट पैरामीटर में कोई उत्पाद नहीं मिला"
+
+
+#: mercearia:774
+msgid "TOTAL VENDAS DIÁRIAS"
+msgstr "कुल दैनिक बिक्री"
+
+
+#: mercearia:782 mercearia:783
+msgid "PESQUISAR PRODUTOS"
+msgstr "उत्पादों को खोजना"
+
+
+#: mercearia:784
+msgid "Pesquisar por (nome, id ou *=tudo)"
+msgstr "(नाम, आईडी या *=सभी) के आधार पर खोजें"
+
+
+#: mercearia:815 mercearia:816
+msgid "LISTAGEM PRODUTOS VENDIDOS"
+msgstr "बेचे गए उत्पादों की सूची"
+
+
+#: mercearia:817 mercearia:895
+msgid "Pesquisar por (id, docnr, data ou *=tudo)"
+msgstr "(आईडी, डॉक्एनआर, दिनांक या *=सभी) के आधार पर खोजें"
+
+
+#: mercearia:840 mercearia:928
+msgid "Formato de data inválido."
+msgstr "अमान्य तिथि प्रारूप।"
+
+
+#: mercearia:885
+msgid "Nenhum produto vendido nos parâmetros informados"
+msgstr "निर्दिष्ट मापदंडों के भीतर कोई उत्पाद नहीं बेचा गया"
+
+
+#: mercearia:893 mercearia:894
+msgid "LISTAGEM ENTRADAS DE PRODUTOS"
+msgstr "उत्पाद प्रविष्टियों की सूची"
+
+
+#: mercearia:973
+msgid "Nenhum produto comprado nos parâmetros informados"
+msgstr "निर्दिष्ट मापदंडों के भीतर कोई उत्पाद नहीं खरीदा गया"
+
+
+#: mercearia:984 mercearia:985
+msgid "PESQUISAR FORNECEDOR"
+msgstr "आपूर्तिकर्ता खोजें"
+
+
+#: mercearia:1006
+msgid "Nenhum fornecedor encontrado nos parâmetros informados"
+msgstr "दिए गए मापदंडों में कोई आपूर्तिकर्ता नहीं मिला"
+
+
+#: mercearia:1034
+msgid "Registro de venda efetuado"
+msgstr "बिक्री पंजीकरण किया गया"
+
+
+#: mercearia:1043
+msgid "Baixa de estoque efetuado"
+msgstr "स्टॉक राइट-ऑफ किया गया"
+
+
+#: mercearia:1053
+msgid "VENDA"
+msgstr "बिक्री"
+
+
+#: mercearia:1054
+msgid "CUPOM PDV"
+msgstr "पीओएस कूपन"
+
+
+#: mercearia:1070 mercearia:1224
+msgid "ID/nome/CodeBar (deixe em branco para concluir)"
+msgstr "आईडी/नाम/कोडबार (पूरा करने के लिए खाली छोड़ें)"
+
+
+#: mercearia:1087 mercearia:1241
+msgid "Produto não encontrado"
+msgstr "उत्पाद नहीं मिला"
+
+
+#: mercearia:1093 mercearia:1248
+msgid "Quantidade (0 para remover o item)"
+msgstr "मात्रा (आइटम हटाने के लिए 0)"
+
+
+#: mercearia:1100 mercearia:1255
+msgid "Quantidade inválida ou item não tem na lista"
+msgstr "अमान्य मात्रा या आइटम सूची में नहीं है"
+
+
+#: mercearia:1106
+msgid "Quantidade insuficiente de"
+msgstr "की अपर्याप्त मात्रा"
+
+
+#: mercearia:1106
+msgid "no estoque"
+msgstr "स्टॉक में"
+
+
+#: mercearia:1126
+msgid "Confirma o fetchamento do CUPOM?"
+msgstr "क्या आप कूपन लाने की पुष्टि करते हैं?"
+
+
+#: mercearia:1145
+msgid "Registro de entradas efetuado"
+msgstr "की गई प्रविष्टियों का पंजीकरण"
+
+
+#: mercearia:1155
+msgid "Ajuste de estoque efetuado"
+msgstr "इन्वेंटरी समायोजन किया गया"
+
+
+#: mercearia:1177
+msgid "ENTRADAS DE PRODUTOS"
+msgstr "उत्पाद इनपुट"
+
+
+#: mercearia:1178
+msgid "DADOS DA NFF"
+msgstr "एनएफएफ डेटा"
+
+
+#: mercearia:1180 mercearia:1184
+msgid "Fornecedor"
+msgstr "देने वाला"
+
+
+#: mercearia:1181 mercearia:1201
+msgid "Docnr/NFF"
+msgstr "डॉकएनआर/एनएफएफ"
+
+
+#: mercearia:1190
+msgid "O ID/nome não pode ser em branco. Cancelar?"
+msgstr "आईडी/नाम खाली नहीं हो सकता. रद्द करना?"
+
+
+#: mercearia:1196
+msgid "Fornecedor não encontrado"
+msgstr "आपूर्तिकर्ता नहीं मिला"
+
+
+#: mercearia:1209
+msgid "RELAÇAO DAS ENTRADAS"
+msgstr "प्रविष्टियों की सूची"
+
+
+#: mercearia:1262
+msgid "Preço custo (ex: 4.40 ou 5)"
+msgstr "लागत मूल्य (उदा: 4.40 या 5)"
+
+
+#: mercearia:1286
+msgid "Confirma a entrada desses produtos?"
+msgstr "क्या आप इन उत्पादों के प्रवेश की पुष्टि करते हैं?"
+
+
+#: mercearia:1295
+msgid "Confirma a atualização?"
+msgstr "अद्यतन की पुष्टि करें?"
+
+
+#: mercearia:1296
+msgid "Aguarde... Atualizando estoque"
+msgstr "कृपया प्रतीक्षा करें... स्टॉक अपडेट हो रहा है"
+
+
+#: mercearia:1332
+msgid "Atualização concluída"
+msgstr "अपडेट पूर्ण हो गया"
+
+
+#: mercearia:1354
+msgid "Checando tabela de produtos."
+msgstr "उत्पाद तालिका की जाँच की जा रही है।"
+
+
+#: mercearia:1356
+msgid "Checando tabela de vendas."
+msgstr "विक्रय तालिका की जाँच करना।"
+
+
+#: mercearia:1358
+msgid "Checando tabela de compras."
+msgstr "क्रय तालिका की जाँच करना।"
+
+
+#: mercearia:1360
+msgid "Checando tabela de fornecedores."
+msgstr "आपूर्तिकर्ता तालिका की जाँच की जा रही है।"
+
+
+#: mercearia:1388 mercearia:1389
+msgid "MENU FORNECEDORES"
+msgstr "आपूर्तिकर्ता मेनू"
+
+
+#: mercearia:1390
+msgid "Cadastrar Fornecedor"
+msgstr "आपूर्तिकर्ता पंजीकृत करें"
+
+
+#: mercearia:1391
+msgid "Alterar Fornecedor"
+msgstr "आपूर्तिकर्ता बदलें"
+
+
+#: mercearia:1392
+msgid "Pesquisar Fornecedor"
+msgstr "आपूर्तिकर्ता खोजें"
+
+
+#: mercearia:1393 mercearia:1425
+msgid "Voltar"
+msgstr "पीछे जाना"
+
+
+#: mercearia:1394 mercearia:1426 mercearia:1469
+msgid "Opção"
+msgstr "विकल्प"
+
+
+#: mercearia:1416 mercearia:1417
+msgid "MENU PRODUTOS"
+msgstr "उत्पाद मेनू"
+
+
+#: mercearia:1418
+msgid "Cadastrar Produtos"
+msgstr "उत्पाद पंजीकृत करें"
+
+
+#: mercearia:1419
+msgid "Alterar Produtos"
+msgstr "उत्पाद बदलें"
+
+
+#: mercearia:1420
+msgid "Remover Produtos"
+msgstr "उत्पाद हटाएँ"
+
+
+#: mercearia:1421
+msgid "Pesquisar Produtos"
+msgstr "उत्पादों को खोजना"
+
+
+#: mercearia:1422
+msgid "Atualizar Estoque (conciliação)"
+msgstr "अद्यतन स्टॉक (समाधान)"
+
+
+#: mercearia:1423
+msgid "Listagem Produtos Vendidos"
+msgstr "बेचे गए उत्पादों की सूची"
+
+
+#: mercearia:1424
+msgid "Listagem Entradas de Produtos"
+msgstr "उत्पाद प्रविष्टि सूची"
+
+
+#: mercearia:1463
+msgid "Produtos"
+msgstr "उत्पादों"
+
+
+#: mercearia:1464
+msgid "Realizar Venda"
+msgstr "बिक्री करें"
+
+
+#: mercearia:1465
+msgid "Exibir Vendas Diárias"
+msgstr "दैनिक बिक्री देखें"
+
+
+#: mercearia:1466
+msgid "Entradas de Produtos"
+msgstr "उत्पाद प्रविष्टियाँ"
+
+
+#: mercearia:1467
+msgid "Fornecedores"
+msgstr "आपूर्तिकर्ताओं"
+
+
+#: mercearia:1468
+msgid "Sair"
+msgstr "बाहर जाने के लिए"
+
+
+#: mercearia:1491

@@ -2,7 +2,7 @@
 # shellcheck shell=bash disable=SC1091,SC2039,SC2166,SC2162,SC2155,SC2005,SC2034,SC2154,SC2229
 
 # TODO
-# - traducao para vários idiomas
+
 
 export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
@@ -254,7 +254,7 @@ mensagem() {
 	local color="$3"
 	local tempo="$4"
 
-	msg+=" Pressione qualquer tecla para continuar"
+	msg+="$(gettext " Pressione qualquer tecla para continuar")"
 	local largura_terminal=$(tput cols)
 	local largura_mensagem=${#msg}
 	local coluna_inicio=$(((largura_terminal - largura_mensagem) / 2))
@@ -267,7 +267,7 @@ mensagem() {
 	setpos "$row" "$coluna_inicio"
 	printf "$reverse$color%s" "$msg"
 	tput sgr0
-	inkey "$tempo"
+	(( tempo > 0 )) && inkey "$tempo"
 	setpos "$row" 0
 	tput el
 	tput rc
@@ -326,8 +326,8 @@ logo() {
 
 tela() {
 	clear
-	titulo 0 "SISTEMA PDV" "$roxo" "$(date)"
-	titulo 1 "MENU PRINCIPAL" "$ciano"
+	titulo 0 "$(gettext "SISTEMA PDV")" "$roxo" "$(date)"
+	titulo 1 "$(gettext "MENU PRINCIPAL")" "$ciano"
 	titulo "$(($(lastrow) - 2))" "MERCEARIA TEMDTUDO" "$azul" "$PWD" "$USER"
 	logo
 }
@@ -391,7 +391,7 @@ pressione_para_continuar() {
 	tput cuu1 # Move o cursor para a linha anterior
 	tput sc   # Salva a posição do cursor
 	echo ""
-	read -n 1 -s -p "========> Pressione qualquer tecla para continuar..."
+	read -n 1 -s -p "========> $(gettext "Pressione qualquer tecla para continuar...")"
 	tput rc # Restaura a posição do cursor
 }
 
@@ -436,49 +436,49 @@ adicionar_produto() {
 		produto_info=
 		ultimo_registro="$(lastrec 'produtos')"
 		tela
-		titulo 1 "CADASTRO DE PRODUTO" "$ciano"
-		imprimir_quadro 11 10 6 100 "CADASTRO DE PRODUTO" "$ciano"
+		titulo 1 "$(gettext "CADASTRO DE PRODUTO")" "$ciano"
+		imprimir_quadro 11 10 6 100 "$(gettext "CADASTRO DE PRODUTO")" "$ciano"
 		print 10 11 "$ultimo_registro"
-		print 12 11 "Descrição            : "
-		print 13 11 "Codigo Barras        : "
-		print 14 11 "Unidade              : "
-		print 15 11 "Preço (ex: 4.40 ou 5): "
+		print 12 11 "$(gettext "Descrição")            : "
+		print 13 11 "$(gettext "Código Barras")        : "
+		print 14 11 "$(gettext "Unidade")              : "
+		print 15 11 "$(gettext "Preço (ex: 4.40 ou 5)"): "
 
 		while true; do
-			get 12 11 "Descrição            : " nome
+			get 12 11 "$(gettext "Descrição")            : " nome
 			if [[ -n "$nome" ]]; then
 				if produto_info=$(seek produtos nome "$nome") && [ -n "$produto_info" ]; then
 					IFS='|' read -r produto_id produto_nome produto_unidade produto_quantidade produto_preco produto_codebar <<<"$produto_info"
-					get 12 11 "Descrição            : " nome "$produto_nome"
+					get 12 11 "$(gettext "Descrição")            : " nome "$produto_nome"
 					if [[ -z "$nome" ]]; then
-						mensagem 2 "Descrição não pode ser em branco" "$red"
+						mensagem 2 "$(gettext "Descrição não pode ser em branco")" "$red"
 						continue
 					fi
 				fi
 				break
 			else
 				setpos 18 10
-				if readconf "A descrição não pode ser em branco. Cancelar?"; then
+				if readconf "$(gettext "A descrição não pode ser em branco. Cancelar?")"; then
 					return
 				fi
 			fi
 		done
 
-		get 13 11 "Codigo Barras        : " codebar "$produto_codebar"
-		get 14 11 "Unidade              : " un "$produto_unidade"
+		get 13 11 "$(gettext "Código Barras")        : " codebar "$produto_codebar"
+		get 14 11 "$(gettext "Unidade")              : " un "$produto_unidade"
 
 		# Solicita o preço como número inteiro ou decimal com ponto (ex: 4.40) e verifica se não está em branco
 		while true; do
-			get 15 11 "Preço (ex: 4.40 ou 5): " preco "$produto_preco"
+			get 15 11 "$(gettext "Preço (ex: 4.40 ou 5)"): " preco "$produto_preco"
 			if [[ -n "$preco" ]] && [[ $preco =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
 				break
 			else
-				mensagem 2 "Formato de preço inválido. Use ponto decimal (ex: 4.40) ou número inteiro." "$red"
+				mensagem 2 "$(gettext "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro.")" "$red"
 			fi
 		done
 
 		setpos 18 10
-		if readconf "Confirma inclusão/atualização do produto?"; then
+		if readconf "$(gettext "Confirma inclusão/atualização do produto?")"; then
 			nome=${nome^^}
 			un=${un^^}
 			codebar=${codebar^^}
@@ -488,12 +488,12 @@ adicionar_produto() {
 		    );"
 
 			if sqlite3 "$database" "$query"; then
-				mensagem 2 "Produto cadastrado/atualizado com sucesso!" "$green"
+				mensagem 2 "$(gettext "Produto cadastrado/atualizado com sucesso!")" "$green"
 			else
-				mensagem 2 "Erro no cadastro/atualização do produto." "$red"
+				mensagem 2 "$(gettext "Erro no cadastro/atualização do produto.")" "$red"
 			fi
 		else
-			mensagem 2 "Inclusão/alteração não efetuada." "$red"
+			mensagem 2 "$(gettext "Inclusão/alteração não efetuada.")" "$red"
 		fi
 	done
 }
@@ -507,42 +507,42 @@ adicionar_fornecedor() {
 		fornecedor_info=
 		ultimo_registro="$(lastrec 'fornecedor')"
 		tela
-		titulo 1 "CADASTRO DE FORNECEDOR" "$ciano"
-		imprimir_quadro 11 10 7 80 "CADASTRO DE FORNECEDOR" "$ciano"
+		titulo 1 "$(gettext "CADASTRO DE FORNECEDOR")" "$ciano"
+		imprimir_quadro 11 10 7 80 "$(gettext "CADASTRO DE FORNECEDOR")" "$ciano"
 		print 10 11 "$ultimo_registro"
-		print 12 11 "Nome                 : "
-		print 13 11 "Endereco             : "
-		print 14 11 "Cidade               : "
-		print 15 11 "Estado               : "
-		print 16 11 "Cnpj                 : "
+		print 12 11 "$(gettext "Nome")                 : "
+		print 13 11 "$(gettext "Endereço")             : "
+		print 14 11 "$(gettext "Cidade")               : "
+		print 15 11 "$(gettext "Estado")               : "
+		print 16 11 "$(gettext "Cnpj")                 : "
 
 		while true; do
-			get 12 11 "Nome                 : " nome
+			get 12 11 "$(gettext "Nome")                 : " nome
 			if [[ -n "$nome" ]]; then
 				if fornecedor_info=$(seek fornecedor nome "$nome") && [ -n "$fornecedor_info" ]; then
 					IFS='|' read -r fornecedor_id fornecedor_data fornecedor_nome fornecedor_ende fornecedor_cida fornecedor_esta fornecedor_cnpj <<<"$fornecedor_info"
-					get 12 11 "Nome                 : " nome "$fornecedor_nome"
+					get 12 11 "$(gettext "Nome")                 : " nome "$fornecedor_nome"
 					if [[ -z "$nome" ]]; then
-						mensagem 2 "Nome não pode ser em branco" "$red"
+						mensagem 2 "$(gettext "Nome não pode ser em branco")" "$red"
 						continue
 					fi
 				fi
 				break
 			else
 				setpos 18 10
-				if readconf "O nome não pode ser em branco. Cancelar?"; then
+				if readconf "$(gettext "O nome não pode ser em branco. Cancelar?")"; then
 					return
 				fi
 			fi
 		done
 
-		get 13 11 "Endereco             : " ende "$fornecedor_ende"
-		get 14 11 "Cidade               : " cida "$fornecedor_cida"
-		get 15 11 "Estado               : " esta "$fornecedor_esta"
-		get 16 11 "Cnpj                 : " cnpj "$fornecedor_cnpj"
+		get 13 11 "$(gettext "Endereço")             : " ende "$fornecedor_ende"
+		get 14 11 "$(gettext "Cidade")               : " cida "$fornecedor_cida"
+		get 15 11 "$(gettext "Estado")               : " esta "$fornecedor_esta"
+		get 16 11 "$(gettext "Cnpj")                 : " cnpj "$fornecedor_cnpj"
 
 		setpos 18 10
-		if readconf "Confirma inclusão/atualização do fornecedor?"; then
+		if readconf "$(gettext "Confirma inclusão/atualização do fornecedor?")"; then
 			nome=${nome^^}
 			ende=${ende^^}
 			cida=${cida^^}
@@ -553,12 +553,12 @@ adicionar_fornecedor() {
 			);"
 
 			if sqlite3 "$database" "$query"; then
-				mensagem 2 "Fornecedore cadastrado/atualizado com sucesso!" "$green"
+				mensagem 2 "$(gettext "Fornecedor cadastrado/atualizado com sucesso!")" "$green"
 			else
-				mensagem 2 "Erro no cadastro/atualização do fornecedor" "$red"
+				mensagem 2 "$(gettext "Erro no cadastro/atualização do fornecedor")" "$red"
 			fi
 		else
-			mensagem 2 "Inclusão/alteração não efetuada." "$red"
+			mensagem 2 "$(gettext "Inclusão/alteração não efetuada.")" "$red"
 		fi
 	done
 }
@@ -574,20 +574,20 @@ alterar_produto() {
 		identificador=
 		ultimo_registro="$(lastrec 'produtos')"
 		tela
-		titulo 1 "ALTERAÇÃO DE PRODUTO" "$ciano"
-		imprimir_quadro 11 10 7 100 "ALTERAÇÃO DE PRODUTO" "$ciano"
+		titulo 1 "$(gettext "ALTERAÇÃO DE PRODUTO")" "$ciano"
+		imprimir_quadro 11 10 7 100 "$(gettext "ALTERAÇÃO DE PRODUTO")" "$ciano"
 		print 10 11 "$ultimo_registro"
-		print 12 11 "ID/Nome              : "
-		print 13 11 "Descrição            : "
-		print 14 11 "Codigo Barras        : "
-		print 15 11 "Unidade              : "
-		print 16 11 "Preço (ex: 4.40 ou 5): "
+		print 12 11 "$(gettext "ID/Nome")              : "
+		print 13 11 "$(gettext "Descrição")            : "
+		print 14 11 "$(gettext "Código Barras")        : "
+		print 15 11 "$(gettext "Unidade")              : "
+		print 16 11 "$(gettext "Preço (ex: 4.40 ou 5)"): "
 
-		get 12 11 "ID/Nome              : " identificador
+		get 12 11 "$(gettext "ID/Nome")              : " identificador
 		setpos 18 10
 
 		if [[ -z "$identificador" ]]; then
-			if readconf "ID/Nome não pode ser em branco. Cancelar?"; then
+			if readconf "$(gettext "ID/Nome não pode ser em branco. Cancelar?")"; then
 				return
 			fi
 		fi
@@ -597,38 +597,38 @@ alterar_produto() {
 			produto_info=$(seek produtos nome "$identificador")
 		fi
 		if [[ -z "$produto_info" ]]; then
-			mensagem 2 "Produto não encontrado nos parâmetros informados" "$red"
+			mensagem 2 "$(gettext "Produto não encontrado nos parâmetros informados")" "$red"
 			continue
 		fi
 		IFS='|' read -r produto_id produto_nome produto_unidade produto_quantidade produto_preco produto_codebar <<<"$produto_info"
 
 		while true; do
-			get 13 11 "Descrição            : " nome "$produto_nome"
+			get 13 11 "$(gettext "Descrição")            : " nome "$produto_nome"
 			if [[ -n "$nome" ]]; then
 				break
 			else
 				setpos 18 10
-				if readconf "A descrição não pode ser em branco. Cancelar?"; then
+				if readconf "$(gettext "A descrição não pode ser em branco. Cancelar?")"; then
 					return
 				fi
 			fi
 		done
 
-		get 14 11 "Codigo Barras        : " codebar "$produto_codebar"
-		get 15 11 "Unidade              : " un "$produto_unidade"
+		get 14 11 "$(gettext "Código Barras")        : " codebar "$produto_codebar"
+		get 15 11 "$(gettext "Unidade")              : " un "$produto_unidade"
 
 		# Solicita o preço como número inteiro ou decimal com ponto (ex: 4.40) e verifica se não está em branco
 		while true; do
-			get 16 11 "Preço (ex: 4.40 ou 5): " preco "$produto_preco"
+			get 16 11 "$(gettext "Preço (ex: 4.40 ou 5)"): " preco "$produto_preco"
 			if [[ -n "$preco" ]] && [[ $preco =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
 				break
 			else
-				mensagem 2 "Formato de preço inválido. Use ponto decimal (ex: 4.40) ou número inteiro." "$red"
+				mensagem 2 "$(gettext "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro.")" "$red"
 			fi
 		done
 
 		setpos 18 10
-		if readconf "Confirma inclusão/atualização do produto?"; then
+		if readconf "$(gettext "Confirma inclusão/atualização do produto?")"; then
 			nome=${nome^^}
 			un=${un^^}
 			query="INSERT OR REPLACE INTO produtos (id, nome, un, preco, codebar) VALUES (
@@ -637,12 +637,12 @@ alterar_produto() {
 		    );"
 
 			if sqlite3 "$database" "$query"; then
-				mensagem 2 "Produto cadastrado/atualizado com sucesso!" "$green"
+				mensagem 2 "$(gettext "Produto cadastrado/atualizado com sucesso!")" "$green"
 			else
-				mensagem 2 "Erro no cadastro/atualização do produto." "$red"
+				mensagem 2 "$(gettext "Erro no cadastro/atualização do produto.")" "$red"
 			fi
 		else
-			mensagem 2 "Inclusão/alteração não efetuada." "$red"
+			mensagem 2 "$(gettext "Inclusão/alteração não efetuada.")" "$red"
 		fi
 	done
 }
@@ -656,21 +656,21 @@ alterar_fornecedor() {
 		fornecedor_info=
 		ultimo_registro="$(lastrec 'fornecedor')"
 		tela
-		titulo 1 "ALTERAÇÃO DE FORNECEDOR" "$ciano"
-		imprimir_quadro 11 10 8 80 "ALTERACÃO DE FORNECEDOR" "$ciano"
+		titulo 1 "$(gettext "ALTERAÇÃO DE FORNECEDOR")" "$ciano"
+		imprimir_quadro 11 10 8 80 "$(gettext "ALTERACÃO DE FORNECEDOR")" "$ciano"
 		print 10 11 "$ultimo_registro"
-		print 12 11 "ID/Nome              : "
-		print 13 11 "Nome                 : "
-		print 14 11 "Endereco             : "
-		print 15 11 "Cidade               : "
-		print 16 11 "Estado               : "
-		print 17 11 "Cnpj                 : "
+		print 12 11 "$(gettext "ID/Nome")              : "
+		print 13 11 "$(gettext "Nome")                 : "
+		print 14 11 "$(gettext "Endereço")             : "
+		print 15 11 "$(gettext "Cidade")               : "
+		print 16 11 "$(gettext "Estado")               : "
+		print 17 11 "$(gettext "Cnpj")                 : "
 
-		get 12 11 "ID/Nome              : " identificador
+		get 12 11 "$(gettext "ID/Nome")              : " identificador
 		setpos 19 10
 
 		if [[ -z "$identificador" ]]; then
-			if readconf "ID/Nome não pode ser em branco. Cancelar?"; then
+			if readconf "$(gettext "ID/Nome não pode ser em branco. Cancelar?")"; then
 				return
 			fi
 		fi
@@ -680,30 +680,30 @@ alterar_fornecedor() {
 			fornecedor_info=$(seek fornecedor nome "$identificador")
 		fi
 		if [[ -z "$fornecedor_info" ]]; then
-			mensagem 2 "Fornecedor não encontrado nos parâmetros informados" "$red"
+			mensagem 2 "$(gettext "Fornecedor não encontrado nos parâmetros informados")" "$red"
 			continue
 		fi
 		IFS='|' read -r fornecedor_id fornecedor_data fornecedor_nome fornecedor_ende fornecedor_cida fornecedor_esta fornecedor_cnpj <<<"$fornecedor_info"
 
 		while true; do
-			get 13 11 "Nome                 : " nome "$fornecedor_nome"
+			get 13 11 "$(gettext "Nome")                 : " nome "$fornecedor_nome"
 			if [[ -n "$nome" ]]; then
 				break
 			else
 				setpos 19 10
-				if readconf "O nome não pode ser em branco. Cancelar?"; then
+				if readconf "$(gettext "O nome não pode ser em branco. Cancelar?")"; then
 					return
 				fi
 			fi
 		done
 
-		get 14 11 "Endereco             : " ende "$fornecedor_ende"
-		get 15 11 "Cidade               : " cida "$fornecedor_cida"
-		get 16 11 "Estado               : " esta "$fornecedor_esta"
-		get 17 11 "Cnpj                 : " cnpj "$fornecedor_cnpj"
+		get 14 11 "$(gettext "Endereço")             : " ende "$fornecedor_ende"
+		get 15 11 "$(gettext "Cidade")               : " cida "$fornecedor_cida"
+		get 16 11 "$(gettext "Estado")               : " esta "$fornecedor_esta"
+		get 17 11 "$(gettext "Cnpj")                 : " cnpj "$fornecedor_cnpj"
 
 		setpos 19 10
-		if readconf "Confirma inclusão/atualização do fornecedor?"; then
+		if readconf "$(gettext "Confirma inclusão/atualização do fornecedor?")"; then
 			nome=${nome^^}
 			ende=${ende^^}
 			cida=${cida^^}
@@ -714,12 +714,12 @@ alterar_fornecedor() {
 			);"
 
 			if sqlite3 "$database" "$query"; then
-				mensagem 2 "Fornecedore cadastrado/atualizado com sucesso!" "$green"
+				mensagem 2 "$(gettext "Fornecedor cadastrado/atualizado com sucesso!")" "$green"
 			else
-				mensagem 2 "Erro no cadastro/atualização do fornecedor" "$red"
+				mensagem 2 "$(gettext "Erro no cadastro/atualização do fornecedor")" "$red"
 			fi
 		else
-			mensagem 2 "Inclusão/alteração não efetuada." "$red"
+			mensagem 2 "$(gettext "Inclusão/alteração não efetuada.")" "$red"
 		fi
 	done
 }
@@ -730,15 +730,15 @@ remover_produto() {
 
 	while true; do
 		tela
-		titulo 1 "REMOÇÃO DE PRODUTO" "$ciano"
+		titulo 1 "$(gettext "REMOÇÃO DE PRODUTO")" "$ciano"
 		imprimir_quadro 10 0 4 $(($(lastcol) - 1))
 
-		get 11 01 "Digite o ID ou nome do produto que deseja remover: " identificador
+		get 11 01 "$(gettext "Digite o ID ou nome do produto que deseja remover: ")" identificador
 		identificador=${identificador^^}
 
 		if [[ -z "$identificador" ]]; then
 			setpos 14 01
-			if readconf "O ID não pode ser em branco. Cancelar?"; then
+			if readconf "$(gettext "O ID não pode ser em branco. Cancelar?")"; then
 				return
 			fi
 		fi
@@ -752,7 +752,7 @@ remover_produto() {
 		if [[ -n "$resultado" ]]; then
 			print 12 01 "$resultado" "$azul"
 			setpos 14 01
-			if readconf "Confirma exclusão do produto?"; then
+			if readconf "$(gettext "Confirma exclusão do produto?")"; then
 				# Verifica se o identificador é um número (ID) ou uma string (nome)
 				if [[ $identificador =~ ^[0-9]+$ ]]; then
 					query="DELETE FROM produtos WHERE id='$identificador';"
@@ -760,10 +760,10 @@ remover_produto() {
 					query="DELETE FROM produtos WHERE nome='$identificador';"
 				fi
 				sqlite3 "$database" "$query"
-				mensagem 2 "Produtor removido com sucesso!" "$green"
+				mensagem 2 "$(gettext "Produto removido com sucesso!")" "$green"
 			fi
 		else
-			mensagem 2 "Nenhum produto encontrado nos parâmetros informados" "$red" 10
+			mensagem 2 "$(gettext "Nenhum produto encontrado nos parâmetros informados")" "$red" 10
 		fi
 	done
 }
@@ -771,7 +771,7 @@ remover_produto() {
 # Função para exibir as vendas diárias
 exibir_vendas_diarias() {
 	tela
-	titulo 1 "TOTAL VENDAS DIÁRIAS" "$ciano"
+	titulo 1 "$(gettext "TOTAL VENDAS DIÁRIAS")" "$ciano"
 	sqlite3 -column -header "$database" "SELECT date(data) AS DATA, SUM(total) AS 'TOTAL DIA' FROM vendas GROUP BY date(data) ORDER BY data DESC"
 	mensagem 2 "" "$green" 10
 }
@@ -779,9 +779,9 @@ exibir_vendas_diarias() {
 pesquisar_produto() {
 	while true; do
 		tela
-		titulo 1 "PESQUISAR PRODUTOS" "$ciano"
-		imprimir_quadro 10 0 3 $(($(lastcol) - 1)) "PESQUISAR PRODUTOS" "$ciano"
-		get 11 1 "Pesquisar por (nome, id ou *=tudo) : " produto
+		titulo 1 "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
+		imprimir_quadro 10 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
+		get 11 1 "$(gettext "Pesquisar por (nome, id ou *=tudo)") : " produto
 
 		[[ -z "$produto" ]] && return
 		[[ "$produto" == "*" ]] && produto=
@@ -804,7 +804,7 @@ pesquisar_produto() {
 			done < <(tr '\t' '|' <<<"$resultado_sqlite")
 			mensagem 2 "" "$green" 10
 		else
-			mensagem 2 "Nenhum produto encontrado nos parâmetros informados" "$red" 10
+			mensagem 2 "$(gettext "Nenhum produto encontrado nos parâmetros informados")" "$red" 10
 		fi
 	done
 }
@@ -812,9 +812,9 @@ pesquisar_produto() {
 listagem_produtos_vendidos() {
 	while true; do
 		tela
-		titulo 1 "LISTAR PRODUTOS VENDIDOS" "$ciano"
-		imprimir_quadro 10 0 3 $(($(lastcol) - 1)) "LISTAR PRODUTOS VENDIDOS" "$ciano"
-		get 11 1 "Pesquisar por (id, docnr, data ou *=tudo) : " identificador
+		titulo 1 "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
+		imprimir_quadro 10 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
+		get 11 1 "$(gettext "Pesquisar por (id, docnr, data ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -837,7 +837,7 @@ listagem_produtos_vendidos() {
 			if [[ ${#identificador} -eq 8 ]]; then
 				data_banco="${identificador:4}-${identificador:2:2}-${identificador:0:2}"
 			else
-				mensagem 2 "Formato de data inválido." "$red"
+				mensagem 2 "$(gettext "Formato de data inválido.")" "$red"
 				continue
 			fi
 			query="SELECT vendas.data, vendas.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', vendas.quantidade AS 'Quantidade', vendas.preco AS 'Preço', vendas.total AS 'Total'
@@ -882,7 +882,7 @@ listagem_produtos_vendidos() {
 			done <<<"$result"
 			mensagem 2 "" "$green" 300
 		else
-			mensagem 2 "Nenhum produto vendido nos parâmetros informados" "$red" 10
+			mensagem 2 "$(gettext "Nenhum produto vendido nos parâmetros informados")" "$red" 10
 		fi
 	done
 }
@@ -890,9 +890,9 @@ listagem_produtos_vendidos() {
 listagem_entradas_produtos() {
 	while true; do
 		tela
-		titulo 1 "LISTAGEM ENTRADAS DE PRODUTOS" "$ciano"
-		imprimir_quadro 10 0 3 $(($(lastcol) - 1)) "LISTAGEM ENTRADAS DE PRODUTOS" "$ciano"
-		get 11 1 "Pesquisar por (id, docnr, data ou *=tudo) : " identificador
+		titulo 1 "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
+		imprimir_quadro 10 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
+		get 11 1 "$(gettext "Pesquisar por (id, docnr, data ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -925,7 +925,7 @@ listagem_entradas_produtos() {
 			if [[ ${#identificador} -eq 8 ]]; then
 				data_banco="${identificador:4}-${identificador:2:2}-${identificador:0:2}"
 			else
-				mensagem 2 "Formato de data inválido." "$red"
+				mensagem 2 "$(gettext "Formato de data inválido.")" "$red"
 				continue
 			fi
 			query="SELECT compras.data, compras.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', compras.quantidade AS 'Quantidade', compras.custo AS 'Preço', compras.total AS 'Total'
@@ -970,7 +970,7 @@ listagem_entradas_produtos() {
 			done <<<"$result"
 			mensagem 2 "" "$green" 300
 		else
-			mensagem 2 "Nenhum produto comprado nos parâmetros informados" "$red" 10
+			mensagem 2 "$(gettext "Nenhum produto comprado nos parâmetros informados")" "$red" 10
 		fi
 	done
 }
@@ -981,8 +981,8 @@ pesquisar_fornecedor() {
 
 	while true; do
 		tela
-		titulo 1 "PESQUISAR FORNECEDOR" "$ciano"
-		imprimir_quadro 10 0 3 $(($(lastcol) - 1)) "PESQUISAR FORNECEDOR" "$ciano"
+		titulo 1 "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
+		imprimir_quadro 10 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
 		get 11 1 "Pesquisar por (nome, id ou *=tudo) : " identificador
 
 		[[ -z "$identificador" ]] && return
@@ -1003,7 +1003,7 @@ pesquisar_fornecedor() {
 			done < <(tr '\t' '|' <<<"$resultado_sqlite")
 			mensagem 2 "" "$green" 10
 		else
-			mensagem 2 "Nenhum fornecedor encontrado nos parâmetros informados" "$red" 10
+			mensagem 2 "$(gettext "Nenhum fornecedor encontrado nos parâmetros informados")" "$red" 10
 		fi
 	done
 }
@@ -1031,7 +1031,7 @@ registrar_venda() {
 		IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
 		sqlite3 "$database" "INSERT INTO vendas (id, data, quantidade, preco, total, docnr) VALUES ('$id', '$data_venda', '$quantidade', '$valor', '$total_venda', '$docnr');"
 	done
-	mensagem 2 "Registro de venda efetuado" "$green"
+	mensagem 2 "$(gettext "Registro de venda efetuado")" "$green"
 }
 
 atualizar_estoque_vendas() {
@@ -1040,7 +1040,7 @@ atualizar_estoque_vendas() {
 		IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
 		sqlite3 "$database" "UPDATE produtos SET quantidade = COALESCE(quantidade, 0) - $quantidade WHERE id='$id';"
 	done
-	mensagem 2 "Baixa de estoque efetuado" "$green"
+	mensagem 2 "$(gettext "Baixa de estoque efetuado")" "$green"
 }
 
 # Função para realizar uma venda de múltiplos produtos
@@ -1050,8 +1050,8 @@ realizar_venda() {
 
 	while true; do
 		tela
-		titulo 1 "VENDA" "$ciano"
-		echo "==============================CUPOM PDV=============================="
+		titulo 1 "$(gettext "VENDA")" "$ciano"
+		echo "==============================$(gettext "CUPOM PDV")=============================="
 		total_venda=0
 		for key in "${!lista_produtos[@]}"; do
 			produto="${lista_produtos[$key]}"
@@ -1067,7 +1067,7 @@ realizar_venda() {
 		printf "${red}%2s  %-41s  %2s  %8s  %8.2f${reset}\n" "" "SUBTOTAL R$" "" "" "$(tr '.' ',' <<<"$total_venda")"
 		echo "====================================================================="
 
-		read -p "ID/nome/CodeBar (deixe em branco para concluir)   : " identificador
+		read -p "$(gettext "ID/nome/CodeBar (deixe em branco para concluir)")   : " identificador
 		identificador=${identificador^^}
 		if [ -z "$identificador" ]; then
 			break
@@ -1084,26 +1084,26 @@ realizar_venda() {
 		fi
 
 		if [[ -z "$produto_info" ]]; then
-			mensagem 2 "Produto não encontrado" "$red"
+			mensagem 2 "$(gettext "Produto não encontrado")" "$red"
 			continue
 		fi
 		IFS='|' read -r id produto_nome unidade estoque valor codebar <<<"$produto_info"
 
 		# Solicita a quantidade e verifica se não está em branco
-		read -p "Quantidade (0 para remover o item)                : " quantidade
+		read -p "$(gettext "Quantidade (0 para remover o item)")                : " quantidade
 
 		if [[ "$quantidade" = 0 ]]; then
 			if [[ -v lista_produtos[$id] ]]; then
 				unset lista_produtos[$id]
 				continue
 			else
-				mensagem 2 "Quantidade inválida ou item não tem na lista" "$red"
+				mensagem 2 "$(gettext "Quantidade inválida ou item não tem na lista")" "$red"
 				continue
 			fi
 		fi
 
 		if [ "$estoque" -lt "$quantidade" ]; then
-			mensagem 2 "Quantidade insuficiente de '$produto_nome' no estoque" "$red"
+			mensagem 2 "$(gettext "Quantidade insuficiente de") '$produto_nome' $(gettext "no estoque")" "$red"
 			continue
 		fi
 		subtotal=$(echo "$quantidade * $valor" | bc -l)
@@ -1123,7 +1123,7 @@ realizar_venda() {
 	done
 
 	if [[ "${#lista_produtos[@]}" -gt 0 ]]; then
-		if readconf "Confirma o fetchamento do CUPOM?"; then
+		if readconf "$(gettext "Confirma o fetchamento do CUPOM?")"; then
 			registrar_venda "$total_venda"
 			atualizar_estoque_vendas
 		fi
@@ -1142,7 +1142,7 @@ registrar_compra() {
 		IFS='|' read -r id produto_nome quantidade custo <<<"$produto"
 		sqlite3 "$database" "INSERT INTO compras (id, fornecedor, data, docnr, quantidade, custo, total) VALUES ('$id', '$fornecedor', '$data_compra', '$docnr', '$quantidade', '$custo','$total_compra');"
 	done
-	mensagem 2 "Registro de entradas efetuado" "$green"
+	mensagem 2 "$(gettext "Registro de entradas efetuado")" "$green"
 }
 
 atualizar_estoque_compras() {
@@ -1152,7 +1152,7 @@ atualizar_estoque_compras() {
 		IFS='|' read -r id nome quantidade custo <<<"$produto"
 		sqlite3 "$database" "UPDATE produtos SET quantidade = COALESCE(quantidade, 0) + $quantidade WHERE id=$id;"
 	done
-	mensagem 2 "Ajuste de estoque efetuado" "$green"
+	mensagem 2 "$(gettext "Ajuste de estoque efetuado")" "$green"
 }
 
 buscar_fornecedor() {
@@ -1174,31 +1174,31 @@ entrada_produtos() {
 
 	while true; do
 		tela
-		titulo 1 "ENTRADAS DE PRODUTOS" "$ciano"
-		imprimir_quadro 11 00 4 70 "DADOS DA NFF" "$ciano"
+		titulo 1 "$(gettext "ENTRADAS DE PRODUTOS")" "$ciano"
+		imprimir_quadro 11 00 4 70 "$(gettext "DADOS DA NFF")" "$ciano"
 		# Solicita a descrição (nome) do produto e verifica se não está em branco
-		print 12 01 "Fornecedor : "
-		print 13 01 "Docnr/NFF  : "
+		print 12 01 "$(gettext "Fornecedor") : "
+		print 13 01 "$(gettext "Docnr/NFF")  : "
 
 		while true; do
-			get 12 01 "Fornecedor : " identificador
+			get 12 01 "$(gettext "Fornecedor") : " identificador
 			identificador=${identificador^^}
 			if [[ -n "$identificador" ]]; then
 				break
 			else
 				setpos 15 10
-				if readconf "O ID/nome não pode ser em branco. Cancelar?"; then
+				if readconf "$(gettext "O ID/nome não pode ser em branco. Cancelar?")"; then
 					return
 				fi
 			fi
 		done
 		if fornecedor_info=$(buscar_fornecedor "$identificador") && [ -z "$fornecedor_info" ]; then
-			mensagem 2 "Fornecedor não encontrado" "$red"
+			mensagem 2 "$(gettext "Fornecedor não encontrado")" "$red"
 			continue
 		fi
 		IFS='|' read -r id nome ende cida esta cnpj <<<"$fornecedor_info"
 		print 10 01 "${azul}${nome}${reset}"
-		get 13 01 "Docnr/NFF  : " docnr "$(random_docnr)"
+		get 13 01 "$(gettext "Docnr/NFF")  : " docnr "$(random_docnr)"
 		notafiscal=([fornecedor]="$id" [nome]="$nome" [docnr]="$docnr")
 		break
 	done
@@ -1206,7 +1206,7 @@ entrada_produtos() {
 	while true; do
 		clear_eol 15 "$(($(lastrow) - 4))"
 		setpos 15 00
-		echo "========================RELAÇAO DAS ENTRADAS========================="
+		echo "========================$(gettext "RELAÇAO DAS ENTRADAS")========================="
 		total_compra=0
 		for key in "${!lista_produtos[@]}"; do
 			produto="${lista_produtos[$key]}"
@@ -1221,7 +1221,7 @@ entrada_produtos() {
 		printf "${red}%2s  %-41s  %2s  %8s  %8.2f${reset}\n" "" "SUBTOTAL R$" "" "" "$(tr '.' ',' <<<"$total_compra")"
 		echo "====================================================================="
 
-		read -p "ID/nome/CodeBar (deixe em branco para concluir)   : " identificador
+		read -p "$(gettext "ID/nome/CodeBar (deixe em branco para concluir)")   : " identificador
 		identificador=${identificador^^}
 		if [ -z "$identificador" ]; then
 			break
@@ -1238,32 +1238,32 @@ entrada_produtos() {
 		fi
 
 		if [[ -z "$produto_info" ]]; then
-			mensagem 2 "Produto não encontrado" "$red"
+			mensagem 2 "$(gettext "Produto não encontrado")" "$red"
 			continue
 		fi
 		IFS='|' read -r id produto_nome unidade estoque preco codebar <<<"$produto_info"
 		echo -e "$azul$produto_nome$reset"
 
 		# Solicita a quantidade e verifica se não está em branco
-		read -p "Quantidade (0 para remover o item)                : " quantidade
+		read -p "$(gettext "Quantidade (0 para remover o item)")                : " quantidade
 
 		if [[ "$quantidade" = 0 ]]; then
 			if [[ -v lista_produtos[$id] ]]; then
 				unset lista_produtos[$id]
 				continue
 			else
-				mensagem 2 "Quantidade inválida ou item não tem na lista" "$red"
+				mensagem 2 "$(gettext "Quantidade inválida ou item não tem na lista")" "$red"
 				continue
 			fi
 		fi
 
 		# Solicita o preço como número inteiro ou decimal com ponto (ex: 4.40) e verifica se não está em branco
 		while true; do
-			read -p "Preço custo (ex: 4.40 ou 5)                       : " custo
+			read -p "$(gettext "Preço custo (ex: 4.40 ou 5)")                       : " custo
 			if [[ -n "$custo" ]] && [[ $custo =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
 				break
 			else
-				mensagem 2 "Formato de preço inválido. Use ponto decimal (ex: 4.40) ou número inteiro." "$red"
+				mensagem 2 "$(gettext "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro.")" "$red"
 			fi
 		done
 		subtotal=$(echo "$quantidade * $custo" | bc -l)
@@ -1283,7 +1283,7 @@ entrada_produtos() {
 	done
 
 	if [[ "${#lista_produtos[@]}" -gt 0 ]]; then
-		if readconf "Confirma a entrada desses produtos?"; then
+		if readconf "$(gettext "Confirma a entrada desses produtos?")"; then
 			registrar_compra "$total_compra"
 			atualizar_estoque_compras
 		fi
@@ -1292,8 +1292,8 @@ entrada_produtos() {
 
 conciliar_estoque() {
 	setpos 23 11
-	if readconf "Confirma a atualização?"; then
-		mensagem 2 "Aguarde... Atualizando estoque" "$yellow"
+	if readconf "$(gettext "Confirma a atualização?")"; then
+		mensagem 2 "$(gettext "Aguarde... Atualizando estoque")" "$yellow"
 
 		sqlite3 estoque.db "UPDATE produtos
 	SET quantidade = 0
@@ -1329,7 +1329,7 @@ conciliar_estoque() {
 	    LEFT JOIN vendas ON produtos.id = vendas.id
 	    GROUP BY produtos.id
 	);"
-		mensagem 2 "Atualização concluída" "$green"
+		mensagem 2 "$(gettext "Atualização concluída")" "$green"
 	fi
 }
 
@@ -1351,9 +1351,13 @@ soma_teste() {
 }
 
 sh_criar_tabelas() {
+	mensagem 2 "$(gettext "Checando tabela de produtos.")" "$green" 0
 	criar_tabela_produtos
+	mensagem 2 "$(gettext "Checando tabela de vendas.")" "$green" 0
 	criar_tabela_vendas
+	mensagem 2 "$(gettext "Checando tabela de compras.")" "$green" 0
 	criar_tabela_compras
+	mensagem 2 "$(gettext "Checando tabela de fornecedores.")" "$green" 0
 	criar_tabela_fornecedor
 }
 
@@ -1381,13 +1385,13 @@ random_docnr() {
 menu_fornecedores() {
 	while true; do
 		tela
-		titulo 1 "MENU FORNECEDORES" "$ciano"
-		imprimir_quadro 11 10 8 80 "MENU FORNECEDORES" "$azul"
-		print 12 11 " 1 - Cadastrar Fornecedor"
-		print 13 11 " 2 - Alterar Fornecedor"
-		print 14 11 " 3 - Pesquisar Fornecedor"
-		print 15 11 " 0 - Voltar"
-		get 17 12 "Opção: " opcao
+		titulo 1 "$(gettext "MENU FORNECEDORES")" "$ciano"
+		imprimir_quadro 11 10 8 80 "$(gettext "MENU FORNECEDORES")" "$azul"
+		print 12 11 " 1 - $(gettext "Cadastrar Fornecedor")"
+		print 13 11 " 2 - $(gettext "Alterar Fornecedor")"
+		print 14 11 " 3 - $(gettext "Pesquisar Fornecedor")"
+		print 15 11 " 0 - $(gettext "Voltar")"
+		get 17 12 "$(gettext "Opção"): " opcao
 
 		case "$opcao" in
 		1)
@@ -1409,17 +1413,17 @@ menu_fornecedores() {
 menu_produtos() {
 	while true; do
 		tela
-		titulo 1 "MENU PRODUTOS" "$ciano"
-		imprimir_quadro 11 10 12 80 "MENU PRODUTOS" "$azul"
-		print 12 11 " 1 - Cadastrar Produtos"
-		print 13 11 " 2 - Alterar Produtos"
-		print 14 11 " 3 - Remover Produtos"
-		print 15 11 " 4 - Pesquisar Produtos"
-		print 16 11 " 5 - Atualizar Estoque (conciliação)"
-		print 17 11 " 6 - Listagem Produtos Vendidos"
-		print 18 11 " 7 - Listagem Entradas de Produtos"
-		print 19 11 " 0 - Voltar"
-		get 21 12 "Opção: " opcao
+		titulo 1 "$(gettext "MENU PRODUTOS")" "$ciano"
+		imprimir_quadro 11 10 12 80 "$(gettext "MENU PRODUTOS")" "$azul"
+		print 12 11 " 1 - $(gettext "Cadastrar Produtos")"
+		print 13 11 " 2 - $(gettext "Alterar Produtos")"
+		print 14 11 " 3 - $(gettext "Remover Produtos")"
+		print 15 11 " 4 - $(gettext "Pesquisar Produtos")"
+		print 16 11 " 5 - $(gettext "Atualizar Estoque (conciliação)")"
+		print 17 11 " 6 - $(gettext "Listagem Produtos Vendidos")"
+		print 18 11 " 7 - $(gettext "Listagem Entradas de Produtos")"
+		print 19 11 " 0 - $(gettext "Voltar")"
+		get 21 12 "$(gettext "Opção"): " opcao
 
 		case "$opcao" in
 		1)
@@ -1454,15 +1458,15 @@ menu_produtos() {
 main() {
 	while true; do
 		tela
-		titulo 1 "MENU PRINCIPAL" "$ciano"
-		imprimir_quadro 11 10 10 80 "MENU PRINCIPAL" "$azul"
-		print 12 11 " 1 - Produtos"
-		print 13 11 " 2 - Realizar Venda"
-		print 14 11 " 3 - Exibir Vendas Diárias"
-		print 15 11 " 4 - Entradas de Produtos"
-		print 16 11 " 5 - Fornecedores"
-		print 17 11 " 0 - Sair"
-		get 19 12 "Opção: " opcao
+		titulo 1 "$(gettext "MENU PRINCIPAL")" "$ciano"
+		imprimir_quadro 11 10 10 80 "$(gettext "MENU PRINCIPAL")" "$azul"
+		print 12 11 " 1 - $(gettext "Produtos")"
+		print 13 11 " 2 - $(gettext "Realizar Venda")"
+		print 14 11 " 3 - $(gettext "Exibir Vendas Diárias")"
+		print 15 11 " 4 - $(gettext "Entradas de Produtos")"
+		print 16 11 " 5 - $(gettext "Fornecedores")"
+		print 17 11 " 0 - $(gettext "Sair")"
+		get 19 12 "$(gettext "Opção"): " opcao
 
 		case "$opcao" in
 		1)
@@ -1482,11 +1486,13 @@ main() {
 			;;
 
 		0)
-			echo "Saindo do programa."
+			clear_eol 21 "$(lastrow)"
+			setpos 21 0
+			echo "$(gettext "Saindo do programa.")"
 			exit 0
 			;;
 		*)
-			mensagem 2 "Opção inválida. Tente novamente." "$red"
+			mensagem 2 "$(gettext "Opção inválida. Tente novamente.")" "$red"
 			;;
 		esac
 	done

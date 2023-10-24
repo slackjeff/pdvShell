@@ -1,0 +1,551 @@
+# Dutch translations for PACKAGE package.
+# Copyright (C) 2023 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2023.
+#
+msgid ""
+msgstr ""
+
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-23 23:18-0400\n"
+"PO-Revision-Date: 2023-10-23 23:18-0400\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: mercearia:257
+msgid " Pressione qualquer tecla para continuar"
+msgstr "Druk op een willekeurige toets om door te gaan"
+
+
+#: mercearia:299
+msgid "ERRO: não consegui encontrar o comando"
+msgstr "FOUT: kon de opdracht niet vinden"
+
+
+#: mercearia:303 mercearia:306
+msgid "IMPOSSÍVEL CONTINUAR"
+msgstr "ONMOGELIJK OM DOOR TE GAAN"
+
+
+#: mercearia:304
+msgid "Este script precisa dos comandos listados acima"
+msgstr "Dit script heeft de hierboven genoemde opdrachten nodig"
+
+
+#: mercearia:305
+msgid "Instale-os e/ou verifique se eles estão em seu"
+msgstr "Installeer ze en/of zorg ervoor dat ze op uw computer staan"
+
+
+#: mercearia:307
+msgid "Instalação abortada!"
+msgstr "Installatie afgebroken!"
+
+
+#: mercearia:329
+msgid "SISTEMA PDV"
+msgstr "POS-SYSTEEM"
+
+
+#: mercearia:330 mercearia:1461 mercearia:1462
+msgid "MENU PRINCIPAL"
+msgstr "HOOFDMENU"
+
+
+#: mercearia:394
+msgid "Pressione qualquer tecla para continuar..."
+msgstr "Druk op een willekeurige toets om door te gaan..."
+
+
+#: mercearia:439 mercearia:440
+msgid "CADASTRO DE PRODUTO"
+msgstr "PRODUCT REGISTRATIE"
+
+
+#: mercearia:442 mercearia:448 mercearia:452 mercearia:581 mercearia:606
+msgid "Descrição"
+msgstr "Beschrijving"
+
+
+#: mercearia:443 mercearia:467 mercearia:582 mercearia:617
+msgid "Código Barras"
+msgstr "Streepjescode"
+
+
+#: mercearia:444 mercearia:468 mercearia:583 mercearia:618
+msgid "Unidade"
+msgstr "Eenheid"
+
+
+#: mercearia:445 mercearia:472 mercearia:584 mercearia:622
+msgid "Preço (ex: 4.40 ou 5)"
+msgstr "Prijs (ex: 4,40 of 5)"
+
+
+#: mercearia:454
+msgid "Descrição não pode ser em branco"
+msgstr "Beschrijving mag niet leeg zijn"
+
+
+#: mercearia:461 mercearia:611
+msgid "A descrição não pode ser em branco. Cancelar?"
+msgstr "De beschrijving mag niet leeg zijn. Annuleren?"
+
+
+#: mercearia:476 mercearia:626 mercearia:1266
+msgid "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro."
+msgstr "Ongeldig prijsformaat. Gebruik een decimaalteken (bijvoorbeeld: 4,40) of een geheel getal."
+
+
+#: mercearia:481 mercearia:631
+msgid "Confirma inclusão/atualização do produto?"
+msgstr "Bevestiging/update van het product?"
+
+
+#: mercearia:491 mercearia:640
+msgid "Produto cadastrado/atualizado com sucesso!"
+msgstr "Product geregistreerd/geüpdatet!"
+
+
+#: mercearia:493 mercearia:642
+msgid "Erro no cadastro/atualização do produto."
+msgstr "Fout bij het registreren/bijwerken van het product."
+
+
+#: mercearia:496 mercearia:561 mercearia:645 mercearia:722
+msgid "Inclusão/alteração não efetuada."
+msgstr "Opname/wijziging niet doorgevoerd."
+
+
+#: mercearia:510 mercearia:511
+msgid "CADASTRO DE FORNECEDOR"
+msgstr "LEVERANCIERSREGISTRATIE"
+
+
+#: mercearia:513 mercearia:520 mercearia:524 mercearia:663 mercearia:689
+msgid "Nome"
+msgstr "Naam"
+
+
+#: mercearia:514 mercearia:539 mercearia:664 mercearia:700
+msgid "Endereço"
+msgstr "Adres"
+
+
+#: mercearia:515 mercearia:540 mercearia:665 mercearia:701
+msgid "Cidade"
+msgstr "Stad"
+
+
+#: mercearia:516 mercearia:541 mercearia:666 mercearia:702
+msgid "Estado"
+msgstr "staat"
+
+
+#: mercearia:517 mercearia:542 mercearia:667 mercearia:703
+msgid "Cnpj"
+msgstr "CNPJ"
+
+
+#: mercearia:526
+msgid "Nome não pode ser em branco"
+msgstr "Naam mag niet leeg zijn"
+
+
+#: mercearia:533 mercearia:694
+msgid "O nome não pode ser em branco. Cancelar?"
+msgstr "De naam mag niet leeg zijn. Annuleren?"
+
+
+#: mercearia:545 mercearia:706
+msgid "Confirma inclusão/atualização do fornecedor?"
+msgstr "Bevestiging/update van leverancier?"
+
+
+#: mercearia:556 mercearia:717
+msgid "Fornecedor cadastrado/atualizado com sucesso!"
+msgstr "Leverancier succesvol geregistreerd/geüpdatet!"
+
+
+#: mercearia:558 mercearia:719
+msgid "Erro no cadastro/atualização do fornecedor"
+msgstr "Fout bij leveranciersregistratie/update"
+
+
+#: mercearia:577 mercearia:578
+msgid "ALTERAÇÃO DE PRODUTO"
+msgstr "PRODUCTWIJZIGING"
+
+
+#: mercearia:580 mercearia:586 mercearia:662 mercearia:669
+msgid "ID/Nome"
+msgstr "Identiteit/Naam"
+
+
+#: mercearia:590 mercearia:673
+msgid "ID/Nome não pode ser em branco. Cancelar?"
+msgstr "ID/naam mag niet leeg zijn. Annuleren?"
+
+
+#: mercearia:600
+msgid "Produto não encontrado nos parâmetros informados"
+msgstr "Product niet gevonden in de opgegeven parameters"
+
+
+#: mercearia:659
+msgid "ALTERAÇÃO DE FORNECEDOR"
+msgstr "LEVERANCIERSWIJZIGING"
+
+
+#: mercearia:660
+msgid "ALTERACÃO DE FORNECEDOR"
+msgstr "WIJZIGING VAN LEVERANCIER"
+
+
+#: mercearia:683
+msgid "Fornecedor não encontrado nos parâmetros informados"
+msgstr "Leverancier niet gevonden in de opgegeven parameters"
+
+
+#: mercearia:733
+msgid "REMOÇÃO DE PRODUTO"
+msgstr "PRODUCTVERWIJDERING"
+
+
+#: mercearia:736
+msgid "Digite o ID ou nome do produto que deseja remover: "
+msgstr "Voer de ID of naam in van het product dat u wilt verwijderen:"
+
+
+#: mercearia:741
+msgid "O ID não pode ser em branco. Cancelar?"
+msgstr "Het ID mag niet leeg zijn. Annuleren?"
+
+
+#: mercearia:755
+msgid "Confirma exclusão do produto?"
+msgstr "Verwijdering van het product bevestigen?"
+
+
+#: mercearia:763
+msgid "Produto removido com sucesso!"
+msgstr "Product succesvol verwijderd!"
+
+
+#: mercearia:766 mercearia:807
+msgid "Nenhum produto encontrado nos parâmetros informados"
+msgstr "Er zijn geen producten gevonden in de opgegeven parameters"
+
+
+#: mercearia:774
+msgid "TOTAL VENDAS DIÁRIAS"
+msgstr "TOTALE DAGELIJKSE VERKOOP"
+
+
+#: mercearia:782 mercearia:783
+msgid "PESQUISAR PRODUTOS"
+msgstr "ZOEK PRODUCTEN"
+
+
+#: mercearia:784
+msgid "Pesquisar por (nome, id ou *=tudo)"
+msgstr "Zoek op (naam, id of *=alles)"
+
+
+#: mercearia:815 mercearia:816
+msgid "LISTAGEM PRODUTOS VENDIDOS"
+msgstr "LIJST VAN VERKOCHTE PRODUCTEN"
+
+
+#: mercearia:817 mercearia:895
+msgid "Pesquisar por (id, docnr, data ou *=tudo)"
+msgstr "Zoeken op (id, docnr, datum of *=alles)"
+
+
+#: mercearia:840 mercearia:928
+msgid "Formato de data inválido."
+msgstr "Ongeldige datum."
+
+
+#: mercearia:885
+msgid "Nenhum produto vendido nos parâmetros informados"
+msgstr "Er worden geen producten verkocht binnen de opgegeven parameters"
+
+
+#: mercearia:893 mercearia:894
+msgid "LISTAGEM ENTRADAS DE PRODUTOS"
+msgstr "LIJST MET PRODUCTINVOER"
+
+
+#: mercearia:973
+msgid "Nenhum produto comprado nos parâmetros informados"
+msgstr "Er zijn geen producten gekocht binnen de opgegeven parameters"
+
+
+#: mercearia:984 mercearia:985
+msgid "PESQUISAR FORNECEDOR"
+msgstr "ZOEK LEVERANCIER"
+
+
+#: mercearia:1006
+msgid "Nenhum fornecedor encontrado nos parâmetros informados"
+msgstr "Er zijn geen leveranciers gevonden in de opgegeven parameters"
+
+
+#: mercearia:1034
+msgid "Registro de venda efetuado"
+msgstr "Verkoopregistratie gemaakt"
+
+
+#: mercearia:1043
+msgid "Baixa de estoque efetuado"
+msgstr "Voorraadafschrijving uitgevoerd"
+
+
+#: mercearia:1053
+msgid "VENDA"
+msgstr "VERKOOP"
+
+
+#: mercearia:1054
+msgid "CUPOM PDV"
+msgstr "POS-COUPON"
+
+
+#: mercearia:1070 mercearia:1224
+msgid "ID/nome/CodeBar (deixe em branco para concluir)"
+msgstr "ID/naam/CodeBar (leeg laten om in te vullen)"
+
+
+#: mercearia:1087 mercearia:1241
+msgid "Produto não encontrado"
+msgstr "product niet gevonden"
+
+
+#: mercearia:1093 mercearia:1248
+msgid "Quantidade (0 para remover o item)"
+msgstr "Aantal (0 om item te verwijderen)"
+
+
+#: mercearia:1100 mercearia:1255
+msgid "Quantidade inválida ou item não tem na lista"
+msgstr "Ongeldig aantal of artikel staat niet in de lijst"
+
+
+#: mercearia:1106
+msgid "Quantidade insuficiente de"
+msgstr "Onvoldoende hoeveelheid"
+
+
+#: mercearia:1106
+msgid "no estoque"
+msgstr "op voorraad"
+
+
+#: mercearia:1126
+msgid "Confirma o fetchamento do CUPOM?"
+msgstr "Bevestigt u het ophalen van de COUPON?"
+
+
+#: mercearia:1145
+msgid "Registro de entradas efetuado"
+msgstr "Registratie van gemaakte inzendingen"
+
+
+#: mercearia:1155
+msgid "Ajuste de estoque efetuado"
+msgstr "Voorraadaanpassing doorgevoerd"
+
+
+#: mercearia:1177
+msgid "ENTRADAS DE PRODUTOS"
+msgstr "PRODUCTINVOER"
+
+
+#: mercearia:1178
+msgid "DADOS DA NFF"
+msgstr "NFF-GEGEVENS"
+
+
+#: mercearia:1180 mercearia:1184
+msgid "Fornecedor"
+msgstr "Leverancier"
+
+
+#: mercearia:1181 mercearia:1201
+msgid "Docnr/NFF"
+msgstr "Docnr/NFF"
+
+
+#: mercearia:1190
+msgid "O ID/nome não pode ser em branco. Cancelar?"
+msgstr "De ID/naam mag niet leeg zijn. Annuleren?"
+
+
+#: mercearia:1196
+msgid "Fornecedor não encontrado"
+msgstr "Leverancier niet gevonden"
+
+
+#: mercearia:1209
+msgid "RELAÇAO DAS ENTRADAS"
+msgstr "LIJST VAN INSCHRIJVINGEN"
+
+
+#: mercearia:1262
+msgid "Preço custo (ex: 4.40 ou 5)"
+msgstr "Kostprijs (bijvoorbeeld: 4,40 of 5)"
+
+
+#: mercearia:1286
+msgid "Confirma a entrada desses produtos?"
+msgstr "Bevestigt u de aankomst van deze producten?"
+
+
+#: mercearia:1295
+msgid "Confirma a atualização?"
+msgstr "Bevestig de update?"
+
+
+#: mercearia:1296
+msgid "Aguarde... Atualizando estoque"
+msgstr "Een ogenblik geduld... De voorraad wordt bijgewerkt"
+
+
+#: mercearia:1332
+msgid "Atualização concluída"
+msgstr "Update voltooid"
+
+
+#: mercearia:1354
+msgid "Checando tabela de produtos."
+msgstr "Producttabel controleren."
+
+
+#: mercearia:1356
+msgid "Checando tabela de vendas."
+msgstr "Verkooptabel controleren."
+
+
+#: mercearia:1358
+msgid "Checando tabela de compras."
+msgstr "Inkooptabel controleren."
+
+
+#: mercearia:1360
+msgid "Checando tabela de fornecedores."
+msgstr "Leverancierstabel controleren."
+
+
+#: mercearia:1388 mercearia:1389
+msgid "MENU FORNECEDORES"
+msgstr "LEVERANCIERSMENU"
+
+
+#: mercearia:1390
+msgid "Cadastrar Fornecedor"
+msgstr "Leverancier registreren"
+
+
+#: mercearia:1391
+msgid "Alterar Fornecedor"
+msgstr "Leverancier wijzigen"
+
+
+#: mercearia:1392
+msgid "Pesquisar Fornecedor"
+msgstr "Zoek leverancier"
+
+
+#: mercearia:1393 mercearia:1425
+msgid "Voltar"
+msgstr "Terug gaan"
+
+
+#: mercearia:1394 mercearia:1426 mercearia:1469
+msgid "Opção"
+msgstr "Keuze"
+
+
+#: mercearia:1416 mercearia:1417
+msgid "MENU PRODUTOS"
+msgstr "PRODUCTMENU"
+
+
+#: mercearia:1418
+msgid "Cadastrar Produtos"
+msgstr "Producten registreren"
+
+
+#: mercearia:1419
+msgid "Alterar Produtos"
+msgstr "Producten wijzigen"
+
+
+#: mercearia:1420
+msgid "Remover Produtos"
+msgstr "Producten verwijderen"
+
+
+#: mercearia:1421
+msgid "Pesquisar Produtos"
+msgstr "zoek producten"
+
+
+#: mercearia:1422
+msgid "Atualizar Estoque (conciliação)"
+msgstr "Voorraad bijwerken (afstemming)"
+
+
+#: mercearia:1423
+msgid "Listagem Produtos Vendidos"
+msgstr "Lijst met verkochte producten"
+
+
+#: mercearia:1424
+msgid "Listagem Entradas de Produtos"
+msgstr "Productinvoerlijst"
+
+
+#: mercearia:1463
+msgid "Produtos"
+msgstr "Producten"
+
+
+#: mercearia:1464
+msgid "Realizar Venda"
+msgstr "Verkoop maken"
+
+
+#: mercearia:1465
+msgid "Exibir Vendas Diárias"
+msgstr "Bekijk dagelijkse verkopen"
+
+
+#: mercearia:1466
+msgid "Entradas de Produtos"
+msgstr "Productinvoer"
+
+
+#: mercearia:1467
+msgid "Fornecedores"
+msgstr "Leveranciers"
+
+
+#: mercearia:1468
+msgid "Sair"
+msgstr "Uitgaan"
+
+
+#: mercearia:1491
+msgid "Saindo do programa."
+msgstr "Het programma verlaten."
+
+
+#: mercearia:1495

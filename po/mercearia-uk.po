@@ -1,0 +1,547 @@
+# Ukrainian translations for PACKAGE package.
+# Copyright (C) 2023 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2023.
+#
+msgid ""
+msgstr ""
+
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-23 23:18-0400\n"
+"PO-Revision-Date: 2023-10-23 23:18-0400\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: mercearia:257
+msgid " Pressione qualquer tecla para continuar"
+msgstr "натисніть будь-яку кнопку, щоб продовжити"
+
+
+#: mercearia:299
+msgid "ERRO: não consegui encontrar o comando"
+msgstr "ПОМИЛКА: не вдалося знайти команду"
+
+
+#: mercearia:303 mercearia:306
+msgid "IMPOSSÍVEL CONTINUAR"
+msgstr "ПРОДОВЖУВАТИ НЕМОЖЛИВО"
+
+
+#: mercearia:304
+msgid "Este script precisa dos comandos listados acima"
+msgstr "Для цього сценарію потрібні команди, перелічені вище"
+
+
+#: mercearia:305
+msgid "Instale-os e/ou verifique se eles estão em seu"
+msgstr "Встановіть їх і/або переконайтеся, що вони є на вашому пристрої"
+
+
+#: mercearia:307
+msgid "Instalação abortada!"
+msgstr "Встановлення відмінено!"
+
+
+#: mercearia:329
+msgid "SISTEMA PDV"
+msgstr "POS СИСТЕМА"
+
+
+#: mercearia:330 mercearia:1461 mercearia:1462
+msgid "MENU PRINCIPAL"
+msgstr "ГОЛОВНЕ МЕНЮ"
+
+
+#: mercearia:394
+msgid "Pressione qualquer tecla para continuar..."
+msgstr "Натисніть будь-яку кнопку, щоб продовжити..."
+
+
+#: mercearia:439 mercearia:440
+msgid "CADASTRO DE PRODUTO"
+msgstr "РЕЄСТРАЦІЯ ТОВАРУ"
+
+
+#: mercearia:442 mercearia:448 mercearia:452 mercearia:581 mercearia:606
+msgid "Descrição"
+msgstr "опис"
+
+
+#: mercearia:443 mercearia:467 mercearia:582 mercearia:617
+msgid "Código Barras"
+msgstr "Штрих-код"
+
+
+#: mercearia:444 mercearia:468 mercearia:583 mercearia:618
+msgid "Unidade"
+msgstr "одиниця"
+
+
+#: mercearia:445 mercearia:472 mercearia:584 mercearia:622
+msgid "Preço (ex: 4.40 ou 5)"
+msgstr "Ціна (наприклад: 4,40 або 5)"
+
+
+#: mercearia:454
+msgid "Descrição não pode ser em branco"
+msgstr "Опис не може бути пустим"
+
+
+#: mercearia:461 mercearia:611
+msgid "A descrição não pode ser em branco. Cancelar?"
+msgstr "Опис не може бути пустим. Скасувати?"
+
+
+#: mercearia:476 mercearia:626 mercearia:1266
+msgid "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro."
+msgstr "Недійсний формат ціни. Використовуйте десяткову кому (наприклад, 4,40) або ціле число."
+
+
+#: mercearia:481 mercearia:631
+msgid "Confirma inclusão/atualização do produto?"
+msgstr "Підтвердити включення/оновлення продукту?"
+
+
+#: mercearia:491 mercearia:640
+msgid "Produto cadastrado/atualizado com sucesso!"
+msgstr "Продукт успішно зареєстровано/оновлено!"
+
+
+#: mercearia:493 mercearia:642
+msgid "Erro no cadastro/atualização do produto."
+msgstr "Помилка реєстрації/оновлення продукту."
+
+
+#: mercearia:496 mercearia:561 mercearia:645 mercearia:722
+msgid "Inclusão/alteração não efetuada."
+msgstr "Включення/зміна не зроблено."
+
+
+#: mercearia:510 mercearia:511
+msgid "CADASTRO DE FORNECEDOR"
+msgstr "РЕЄСТРАЦІЯ ПОСТАЧАЛЬНИКА"
+
+
+#: mercearia:513 mercearia:520 mercearia:524 mercearia:663 mercearia:689
+msgid "Nome"
+msgstr "Ім'я"
+
+
+#: mercearia:514 mercearia:539 mercearia:664 mercearia:700
+msgid "Endereço"
+msgstr "Адреса"
+
+
+#: mercearia:515 mercearia:540 mercearia:665 mercearia:701
+msgid "Cidade"
+msgstr "місто"
+
+
+#: mercearia:516 mercearia:541 mercearia:666 mercearia:702
+msgid "Estado"
+msgstr "стан"
+
+
+#: mercearia:517 mercearia:542 mercearia:667 mercearia:703
+msgid "Cnpj"
+msgstr "CNPJ"
+
+
+#: mercearia:526
+msgid "Nome não pode ser em branco"
+msgstr "Поле імені не може бути пустим"
+
+
+#: mercearia:533 mercearia:694
+msgid "O nome não pode ser em branco. Cancelar?"
+msgstr "Ім’я не може бути пустим. Скасувати?"
+
+
+#: mercearia:545 mercearia:706
+msgid "Confirma inclusão/atualização do fornecedor?"
+msgstr "Підтвердити включення/оновлення постачальника?"
+
+
+#: mercearia:556 mercearia:717
+msgid "Fornecedor cadastrado/atualizado com sucesso!"
+msgstr "Постачальник успішно зареєстрований/оновлений!"
+
+
+#: mercearia:558 mercearia:719
+msgid "Erro no cadastro/atualização do fornecedor"
+msgstr "Помилка при реєстрації/оновленні постачальника"
+
+
+#: mercearia:577 mercearia:578
+msgid "ALTERAÇÃO DE PRODUTO"
+msgstr "ЗМІНА ПРОДУКТУ"
+
+
+#: mercearia:580 mercearia:586 mercearia:662 mercearia:669
+msgid "ID/Nome"
+msgstr "ID/ім'я"
+
+
+#: mercearia:590 mercearia:673
+msgid "ID/Nome não pode ser em branco. Cancelar?"
+msgstr "Ідентифікатор/ім’я не може бути пустим. Скасувати?"
+
+
+#: mercearia:600
+msgid "Produto não encontrado nos parâmetros informados"
+msgstr "Товар не знайдено за вказаними параметрами"
+
+
+#: mercearia:659
+msgid "ALTERAÇÃO DE FORNECEDOR"
+msgstr "ЗМІНА ПОСТАЧАЛЬНИКА"
+
+
+#: mercearia:660
+msgid "ALTERACÃO DE FORNECEDOR"
+msgstr "ЗМІНА ПОСТАЧАЛЬНИКА"
+
+
+#: mercearia:683
+msgid "Fornecedor não encontrado nos parâmetros informados"
+msgstr "За вказаними параметрами постачальника не знайдено"
+
+
+#: mercearia:733
+msgid "REMOÇÃO DE PRODUTO"
+msgstr "ВИДАЛЕННЯ ВИРОБУ"
+
+
+#: mercearia:736
+msgid "Digite o ID ou nome do produto que deseja remover: "
+msgstr "Введіть ідентифікатор або назву продукту, який потрібно видалити:"
+
+
+#: mercearia:741
+msgid "O ID não pode ser em branco. Cancelar?"
+msgstr "Ідентифікатор не може бути пустим. Скасувати?"
+
+
+#: mercearia:755
+msgid "Confirma exclusão do produto?"
+msgstr "Підтвердити видалення продукту?"
+
+
+#: mercearia:763
+msgid "Produto removido com sucesso!"
+msgstr "Продукт успішно видалено!"
+
+
+#: mercearia:766 mercearia:807
+msgid "Nenhum produto encontrado nos parâmetros informados"
+msgstr "За вказаними параметрами не знайдено товарів"
+
+
+#: mercearia:774
+msgid "TOTAL VENDAS DIÁRIAS"
+msgstr "ЗАГАЛЬНИЙ ЩОДЕННИЙ ПРОДАЖ"
+
+
+#: mercearia:782 mercearia:783
+msgid "PESQUISAR PRODUTOS"
+msgstr "ПОШУК ТОВАРИ"
+
+
+#: mercearia:784
+msgid "Pesquisar por (nome, id ou *=tudo)"
+msgstr "Пошук за (назва, ідентифікатор або *=усі)"
+
+
+#: mercearia:815 mercearia:816
+msgid "LISTAGEM PRODUTOS VENDIDOS"
+msgstr "СПИСОК ПРОДАНОЇ ПРОДУКЦІЇ"
+
+
+#: mercearia:817 mercearia:895
+msgid "Pesquisar por (id, docnr, data ou *=tudo)"
+msgstr "Шукати за (id, docnr, date or *=all)"
+
+
+#: mercearia:840 mercearia:928
+msgid "Formato de data inválido."
+msgstr "Недійсний формат дати."
+
+
+#: mercearia:885
+msgid "Nenhum produto vendido nos parâmetros informados"
+msgstr "Немає товарів, що продаються за вказаними параметрами"
+
+
+#: mercearia:893 mercearia:894
+msgid "LISTAGEM ENTRADAS DE PRODUTOS"
+msgstr "СПИСОК ПРОДУКТІВ"
+
+
+#: mercearia:973
+msgid "Nenhum produto comprado nos parâmetros informados"
+msgstr "За вказаними параметрами не було придбано жодної продукції"
+
+
+#: mercearia:984 mercearia:985
+msgid "PESQUISAR FORNECEDOR"
+msgstr "ПОШУК ПОСТАЧАЛЬНИКА"
+
+
+#: mercearia:1006
+msgid "Nenhum fornecedor encontrado nos parâmetros informados"
+msgstr "За вказаними параметрами постачальників не знайдено"
+
+
+#: mercearia:1034
+msgid "Registro de venda efetuado"
+msgstr "Реєстрація продажу зроблена"
+
+
+#: mercearia:1043
+msgid "Baixa de estoque efetuado"
+msgstr "Проведено списання запасів"
+
+
+#: mercearia:1053
+msgid "VENDA"
+msgstr "ПРОДАЖ"
+
+
+#: mercearia:1054
+msgid "CUPOM PDV"
+msgstr "POS КУПОН"
+
+
+#: mercearia:1070 mercearia:1224
+msgid "ID/nome/CodeBar (deixe em branco para concluir)"
+msgstr "Ідентифікатор/ім’я/кодовий рядок (залиште порожнім для заповнення)"
+
+
+#: mercearia:1087 mercearia:1241
+msgid "Produto não encontrado"
+msgstr "Товар не знайдено"
+
+
+#: mercearia:1093 mercearia:1248
+msgid "Quantidade (0 para remover o item)"
+msgstr "Кількість (0, щоб видалити товар)"
+
+
+#: mercearia:1100 mercearia:1255
+msgid "Quantidade inválida ou item não tem na lista"
+msgstr "Недійсна кількість або товару немає в списку"
+
+
+#: mercearia:1106
+msgid "Quantidade insuficiente de"
+msgstr "Недостатня кількість"
+
+
+#: mercearia:1106
+msgid "no estoque"
+msgstr "в наявності"
+
+
+#: mercearia:1126
+msgid "Confirma o fetchamento do CUPOM?"
+msgstr "Ви підтверджуєте отримання КУПОНУ?"
+
+
+#: mercearia:1145
+msgid "Registro de entradas efetuado"
+msgstr "Реєстрація записів зроблена"
+
+
+#: mercearia:1155
+msgid "Ajuste de estoque efetuado"
+msgstr "Зроблено коригування запасів"
+
+
+#: mercearia:1177
+msgid "ENTRADAS DE PRODUTOS"
+msgstr "ВХІД ПРОДУКТУ"
+
+
+#: mercearia:1178
+msgid "DADOS DA NFF"
+msgstr "ДАНІ NFF"
+
+
+#: mercearia:1180 mercearia:1184
+msgid "Fornecedor"
+msgstr "Постачальник"
+
+
+#: mercearia:1181 mercearia:1201
+msgid "Docnr/NFF"
+msgstr "Docnr/NFF"
+
+
+#: mercearia:1190
+msgid "O ID/nome não pode ser em branco. Cancelar?"
+msgstr "Ідентифікатор/ім’я не може бути пустим. Скасувати?"
+
+
+#: mercearia:1196
+msgid "Fornecedor não encontrado"
+msgstr "Постачальник не знайдено"
+
+
+#: mercearia:1209
+msgid "RELAÇAO DAS ENTRADAS"
+msgstr "СПИСОК ЗАХОДІВ"
+
+
+#: mercearia:1262
+msgid "Preço custo (ex: 4.40 ou 5)"
+msgstr "Собівартість (наприклад: 4,40 або 5)"
+
+
+#: mercearia:1286
+msgid "Confirma a entrada desses produtos?"
+msgstr "Ви підтверджуєте введення цих продуктів?"
+
+
+#: mercearia:1295
+msgid "Confirma a atualização?"
+msgstr "Підтвердити оновлення?"
+
+
+#: mercearia:1296
+msgid "Aguarde... Atualizando estoque"
+msgstr "Зачекайте... Оновлення запасів"
+
+
+#: mercearia:1332
+msgid "Atualização concluída"
+msgstr "Оновлення завершено"
+
+
+#: mercearia:1354
+msgid "Checando tabela de produtos."
+msgstr "Перевірка таблиці продуктів."
+
+
+#: mercearia:1356
+msgid "Checando tabela de vendas."
+msgstr "Перевірка таблиці продажів."
+
+
+#: mercearia:1358
+msgid "Checando tabela de compras."
+msgstr "Перевірка таблиці закупівель."
+
+
+#: mercearia:1360
+msgid "Checando tabela de fornecedores."
+msgstr "Перевірка таблиці постачальника."
+
+
+#: mercearia:1388 mercearia:1389
+msgid "MENU FORNECEDORES"
+msgstr "МЕНЮ ПОСТАЧАЛЬНИКІВ"
+
+
+#: mercearia:1390
+msgid "Cadastrar Fornecedor"
+msgstr "Зареєструвати постачальника"
+
+
+#: mercearia:1391
+msgid "Alterar Fornecedor"
+msgstr "Змінити постачальника"
+
+
+#: mercearia:1392
+msgid "Pesquisar Fornecedor"
+msgstr "Пошук постачальника"
+
+
+#: mercearia:1393 mercearia:1425
+msgid "Voltar"
+msgstr "Повертатися"
+
+
+#: mercearia:1394 mercearia:1426 mercearia:1469
+msgid "Opção"
+msgstr "Варіант"
+
+
+#: mercearia:1416 mercearia:1417
+msgid "MENU PRODUTOS"
+msgstr "ПРОДУКТОВЕ МЕНЮ"
+
+
+#: mercearia:1418
+msgid "Cadastrar Produtos"
+msgstr "Реєстрація продуктів"
+
+
+#: mercearia:1419
+msgid "Alterar Produtos"
+msgstr "Змінити продукти"
+
+
+#: mercearia:1420
+msgid "Remover Produtos"
+msgstr "Видалити продукти"
+
+
+#: mercearia:1421
+msgid "Pesquisar Produtos"
+msgstr "Пошук продуктів"
+
+
+#: mercearia:1422
+msgid "Atualizar Estoque (conciliação)"
+msgstr "Оновити запас (узгодження)"
+
+
+#: mercearia:1423
+msgid "Listagem Produtos Vendidos"
+msgstr "Список проданої продукції"
+
+
+#: mercearia:1424
+msgid "Listagem Entradas de Produtos"
+msgstr "Список товарів"
+
+
+#: mercearia:1463
+msgid "Produtos"
+msgstr "Продукти"
+
+
+#: mercearia:1464
+msgid "Realizar Venda"
+msgstr "Зробіть продаж"
+
+
+#: mercearia:1465
+msgid "Exibir Vendas Diárias"
+msgstr "Перегляньте щоденні продажі"
+
+
+#: mercearia:1466
+msgid "Entradas de Produtos"
+msgstr "Записи продуктів"
+
+
+#: mercearia:1467
+msgid "Fornecedores"
+msgstr "Постачальники"
+
+
+#: mercearia:1468
+msgid "Sair"
+msgstr "Вийти"
+
+
+#: mercearia:1491
