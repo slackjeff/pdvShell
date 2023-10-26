@@ -1,14 +1,41 @@
 #!/usr/bin/env bash
-# shellcheck shell=bash disable=SC1091,SC2039,SC2166,SC2162,SC2155,SC2005,SC2034,SC2154,SC2229
+#   shellcheck shell=bash disable=SC1091,SC2039,SC2166,SC2162,SC2155,SC2005,SC2034,SC2154,SC2229
+
+#   mercearia - simple cashier front for small grocery stores made with shell script and sqlite!
+#   Created: 2023/10/21
+#   Altered: 2023/10/26
+#
+#   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
+#   Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
+#   All rights reserved.
+#
+#   Redistribution and use in source and binary forms, with or without
+#   modification, are permitted provided that the following conditions
+#   are met:
+#   1.  Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#   2.  Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#
+#   THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+#   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+#   OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+#   IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+#   INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+#   NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+#   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # TODO
-
 
 export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.0.0-20231020"
+declare _VERSION_="1.0.0-20231026"
 declare DEPENDENCIES=(tput gettext sqlite3 bc)
 declare database='estoque.db'
 
@@ -25,10 +52,63 @@ sh_config() {
 	sh_setvarcolors
 }
 
+# Função para validar uma data no formato "dd-mm-yyyy"
+# Retorna 0 se a data for válida e 1 se for inválida
+validar_data() {
+	local data=$1
+	local dia
+	local mes
+	local ano
+
+	IFS='-' read -r -a data_parts <<<"$data"
+	if [[ ${#data_parts[@]} -ne 3 ]]; then
+		return 1 # Formato inválido
+	fi
+
+	dia=${data_parts[0]}
+	mes=${data_parts[1]}
+	ano=${data_parts[2]}
+
+	# Verifica se o ano é bissexto
+	if ((ano % 4 == 0 && ano % 100 != 0)) || ((ano % 400 == 0)); then
+		bissexto=true
+	else
+		bissexto=false
+	fi
+
+	# Verifica se o mês é válido
+	if ((mes < 1 || mes > 12)); then
+		return 1
+	fi
+
+	# Verifica os dias para meses com 31 dias
+	if ((mes == 1 || mes == 3 || mes == 5 || mes == 7 || mes == 8 || mes == 10 || mes == 12)); then
+		if ((dia < 1 || dia > 31)); then
+			return 1
+		fi
+	fi
+
+	# Verifica os dias para fevereiro
+	if ((mes == 2)); then
+		if ((bissexto && (dia < 1 || dia > 29))) || ((!bissexto && (dia < 1 || dia > 28))); then
+			return 1
+		fi
+	fi
+
+	# Verifica os dias para meses com 30 dias
+	if ((mes == 4 || mes == 6 || mes == 9 || mes == 11)); then
+		if ((dia < 1 || dia > 30)); then
+			return 1
+		fi
+	fi
+
+	return 0 # Data válida
+}
+
 replicate() {
 	local Var
-	printf -v Var %$2s " "  #  Coloca em $Var $1 espaços
-	echo ${Var// /$1}       #  Troca os espaços pelo caractere escolhido
+	printf -v Var %$2s " " #  Coloca em $Var $1 espaços
+	echo ${Var// /$1}      #  Troca os espaços pelo caractere escolhido
 }
 
 debug() {
@@ -144,7 +224,7 @@ lastcol() {
 	echo "$(tput cols)"
 }
 
-imprimir_quadro() {
+box() {
 	local linha="$1"
 	local col="$2"
 	local altura="$3"
@@ -267,7 +347,7 @@ mensagem() {
 	setpos "$row" "$coluna_inicio"
 	printf "$reverse$color%s" "$msg"
 	tput sgr0
-	(( tempo > 0 )) && inkey "$tempo"
+	((tempo > 0)) && inkey "$tempo"
 	setpos "$row" 0
 	tput el
 	tput rc
@@ -314,12 +394,11 @@ logo() {
 	setpos 1 0
 	echo -e "$red"
 	cat <<-'EOF'
-		  __  __                              _
-		 |  \/  |                            (_)
-		 | \  / | ___ _ __ ___ ___  __ _ _ __ _  __ _
-		 | |\/| |/ _ \ '__/ __/ _ \/ _` | '__| |/ _` |
-		 | |  | |  __/ | | (_|  __/ (_| | |  | | (_| |
-		 |_|  |_|\___|_|  \___\___|\__,_|_|  |_|\__,_|
+		 ____  ______     __
+		|  _ \|  _ \ \   / /
+		| |_) | | | \ \ / /
+		|  __/| |_| |\ V /
+		|_|   |____/  \_/
 	EOF
 	echo "$reset"
 }
@@ -437,7 +516,7 @@ adicionar_produto() {
 		ultimo_registro="$(lastrec 'produtos')"
 		tela
 		titulo 1 "$(gettext "CADASTRO DE PRODUTO")" "$ciano"
-		imprimir_quadro 11 10 6 100 "$(gettext "CADASTRO DE PRODUTO")" "$ciano"
+		box 11 10 6 100 "$(gettext "CADASTRO DE PRODUTO")" "$ciano"
 		print 10 11 "$ultimo_registro"
 		print 12 11 "$(gettext "Descrição")            : "
 		print 13 11 "$(gettext "Código Barras")        : "
@@ -508,7 +587,7 @@ adicionar_fornecedor() {
 		ultimo_registro="$(lastrec 'fornecedor')"
 		tela
 		titulo 1 "$(gettext "CADASTRO DE FORNECEDOR")" "$ciano"
-		imprimir_quadro 11 10 7 80 "$(gettext "CADASTRO DE FORNECEDOR")" "$ciano"
+		box 11 10 7 80 "$(gettext "CADASTRO DE FORNECEDOR")" "$ciano"
 		print 10 11 "$ultimo_registro"
 		print 12 11 "$(gettext "Nome")                 : "
 		print 13 11 "$(gettext "Endereço")             : "
@@ -575,7 +654,7 @@ alterar_produto() {
 		ultimo_registro="$(lastrec 'produtos')"
 		tela
 		titulo 1 "$(gettext "ALTERAÇÃO DE PRODUTO")" "$ciano"
-		imprimir_quadro 11 10 7 100 "$(gettext "ALTERAÇÃO DE PRODUTO")" "$ciano"
+		box 11 10 7 100 "$(gettext "ALTERAÇÃO DE PRODUTO")" "$ciano"
 		print 10 11 "$ultimo_registro"
 		print 12 11 "$(gettext "ID/Nome")              : "
 		print 13 11 "$(gettext "Descrição")            : "
@@ -657,7 +736,7 @@ alterar_fornecedor() {
 		ultimo_registro="$(lastrec 'fornecedor')"
 		tela
 		titulo 1 "$(gettext "ALTERAÇÃO DE FORNECEDOR")" "$ciano"
-		imprimir_quadro 11 10 8 80 "$(gettext "ALTERACÃO DE FORNECEDOR")" "$ciano"
+		box 11 10 8 80 "$(gettext "ALTERACÃO DE FORNECEDOR")" "$ciano"
 		print 10 11 "$ultimo_registro"
 		print 12 11 "$(gettext "ID/Nome")              : "
 		print 13 11 "$(gettext "Nome")                 : "
@@ -731,7 +810,7 @@ remover_produto() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "REMOÇÃO DE PRODUTO")" "$ciano"
-		imprimir_quadro 10 0 4 $(($(lastcol) - 1))
+		box 10 0 4 $(($(lastcol) - 1))
 
 		get 11 01 "$(gettext "Digite o ID ou nome do produto que deseja remover: ")" identificador
 		identificador=${identificador^^}
@@ -768,19 +847,113 @@ remover_produto() {
 	done
 }
 
-# Função para exibir as vendas diárias
-exibir_vendas_diarias() {
+function listagem_vendas_diarias() {
+	local query_result
+	local nrow
+	local lines
+	local lastrow=$(lastrow)
+	local lastcol=$(lastcol)
+	local dini
+	local dfim
+	local data_inicio="01-$(date +"%m-%Y")"
+	local data_fim=$(date +"%d-%m-%Y")
+	local data_inicio="01-01-2023"
+	local data_fim="31-12-2023"
+
 	tela
-	titulo 1 "$(gettext "TOTAL VENDAS DIÁRIAS")" "$ciano"
-	sqlite3 -column -header "$database" "SELECT date(data) AS DATA, SUM(total) AS 'TOTAL DIA' FROM vendas GROUP BY date(data) ORDER BY data DESC"
-	mensagem 2 "" "$green" 10
+	titulo 1 "$(gettext "LISTAGEM DE VENDAS DIÁRIAS")" "$ciano"
+	box 10 0 4 "$((lastcol - 1))" "$(gettext "PERÍODO DE CONSULTA")" "$ciano"
+	print 11 01 "$(gettext "Data Inicial")    : "
+	print 12 01 "$(gettext "Data Final")      : "
+
+	while true; do
+		get 11 01 "$(gettext "Data Inicial")    : " dini "$data_inicio"
+		if [[ -n "$dini" ]]; then
+			if validar_data "$dini"; then
+				break
+			else
+				mensagem 2 "$(gettext "Data inválida")" "$red"
+				continue
+			fi
+		else
+			setpos 14 01
+			if readconf "$(gettext "A data não pode ser em branco. Cancelar?")"; then
+				return
+			fi
+		fi
+	done
+
+	while true; do
+		get 12 01 "$(gettext "Data Final")      : " dfim "$data_fim"
+		if [[ -n "$dfim" ]]; then
+			if validar_data "$dfim"; then
+				break
+			else
+				mensagem 2 "$(gettext "Data inválida")" "$red"
+				continue
+			fi
+		else
+			setpos 14 01
+			if readconf "$(gettext "A data não pode ser em branco. Cancelar?")"; then
+				return
+			fi
+		fi
+	done
+
+	# Função para converter o formato de data de dd-mm-yyyy para yyyy-MM-01 e yyyy-MM-31
+	convert_data() {
+		local data_in=$1
+		local data_out
+
+		IFS='-' read -r -a data_parts <<<"$data_in"
+		data_out="${data_parts[2]}-${data_parts[1]}-${data_parts[0]}"
+		echo "$data_out"
+	}
+
+	dini=$(convert_data "$dini")
+	dfim=$(convert_data "$dfim")
+
+	# Consulta para obter resultados diários agrupados por ano e mês
+	query_results=()
+
+	mes_inicial="$(date -d "$dini" +"%m")"
+	mes_final="$(date -d "$dfim" +"%m")"
+	ano_inicial="$(date -d "$dini" +"%Y")"
+	ano_final="$(date -d "$dfim" +"%Y")"
+
+	ncol=01
+	box 14 0 "$((lastrow - 29))" "$((lastcol - 2))" "$(gettext "LISTAGEM DE VENDAS DIÁRIAS")" "$ciano"
+	for i in $(seq $mes_inicial $mes_final); do
+		mes_atual=$(date -d "$ano_inicial-$i-01" +"%Y-%m")
+		query_result=$(sqlite3 "$database" "SELECT date(data) AS data, SUM(total) AS 'total dia' FROM vendas WHERE data LIKE '$mes_atual%' GROUP BY date(data) ORDER BY data ASC")
+
+		# Verifica se há dados no resultado da consulta
+		if [[ -n "${query_result}" ]]; then
+			#			lines=$(wc -l <<<"$query_result")
+			setpos 15 "$ncol"
+			printf "${yellow}%-10s %10s\n" "data" "total dia"
+			setpos 16 "$ncol"
+			replicate "-" 21
+			nrow=17
+			while IFS='|' read -r data total; do
+				total=$(bc -l <<<"$total" | tr "." ",")
+				setpos "$nrow" "$ncol"
+				#			printf "${blue}%-30s ${red}R\$ %10.2f${reset}\n" "$data" "$total"
+				#				printf "${blue}%-10s ${red}%10.2f${reset}\n" "$(date -d "$data" +"%d-%m-%Y")" "$total"
+				printf "${blue}%s ${red}%10.2f${yellow}|${reset}\n" "$data" "$total"
+				((++nrow))
+			done <<<"${query_result}"
+			ncol=$((ncol + 22))
+		fi
+	done
+	mensagem 2 "" "$green" 300
 }
 
 pesquisar_produto() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
-		imprimir_quadro 10 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
+		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
 		get 11 1 "$(gettext "Pesquisar por (nome, id ou *=tudo)") : " produto
 
 		[[ -z "$produto" ]] && return
@@ -793,7 +966,7 @@ pesquisar_produto() {
 		fi
 		if resultado_sqlite=$(sqlite3 -column -header "$database" "$QUERY_SEARCH_PRODUCT") && [[ -n "$resultado_sqlite" ]]; then
 			# Imprimir o resultado dentro do quadro
-			#imprimir_quadro 13 0 $(($(lastrow)-3)) $(($(lastcol)-1))
+			#box 13 0 $(($(lastrow)-3)) $(($(lastcol)-1))
 
 			setpos 13 1
 			nRow=13
@@ -813,7 +986,7 @@ listagem_produtos_vendidos() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
-		imprimir_quadro 10 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
+		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
 		get 11 1 "$(gettext "Pesquisar por (id, docnr, data ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
@@ -876,8 +1049,8 @@ listagem_produtos_vendidos() {
 					current_docnr="$docnr"
 				fi
 				total_formatado=$(echo "$quantidade * $preco" | bc -l | tr "." ",")
-				preco=$( bc -l <<< "$preco" | tr "." ",")
-				total=$( bc -l <<< "$total" | tr "." ",")
+				preco=$(bc -l <<<"$preco" | tr "." ",")
+				total=$(bc -l <<<"$total" | tr "." ",")
 				printf "%-40s %s ${cyan}%3d x %10.2f = %10.2f ${red}%10.2f${reset}\n" "$produto" "$un" "$quantidade" "$preco" "$total_formatado" "$total"
 			done <<<"$result"
 			mensagem 2 "" "$green" 300
@@ -891,7 +1064,7 @@ listagem_entradas_produtos() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
-		imprimir_quadro 10 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
+		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
 		get 11 1 "$(gettext "Pesquisar por (id, docnr, data ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
@@ -964,8 +1137,8 @@ listagem_entradas_produtos() {
 					current_docnr="$docnr"
 				fi
 				total_formatado=$(echo "$quantidade * $preco" | bc -l | tr "." ",")
-				preco=$( bc -l <<< "$preco" | tr "." ",")
-				total=$( bc -l <<< "$total" | tr "." ",")
+				preco=$(bc -l <<<"$preco" | tr "." ",")
+				total=$(bc -l <<<"$total" | tr "." ",")
 				printf "%-40s %s ${cyan}%3d x %10.2f = %10.2f ${red}%10.2f${reset}\n" "$produto" "$un" "$quantidade" "$preco" "$total_formatado" "$total"
 			done <<<"$result"
 			mensagem 2 "" "$green" 300
@@ -982,7 +1155,7 @@ pesquisar_fornecedor() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
-		imprimir_quadro 10 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
+		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
 		get 11 1 "Pesquisar por (nome, id ou *=tudo) : " identificador
 
 		[[ -z "$identificador" ]] && return
@@ -1175,7 +1348,7 @@ entrada_produtos() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "ENTRADAS DE PRODUTOS")" "$ciano"
-		imprimir_quadro 11 00 4 70 "$(gettext "DADOS DA NFF")" "$ciano"
+		box 11 00 4 70 "$(gettext "DADOS DA NFF")" "$ciano"
 		# Solicita a descrição (nome) do produto e verifica se não está em branco
 		print 12 01 "$(gettext "Fornecedor") : "
 		print 13 01 "$(gettext "Docnr/NFF")  : "
@@ -1377,16 +1550,47 @@ sh_show_tabelas() {
 	inkey 10
 }
 
+populate_database() {
+	# Inicialize o mês e o dia
+	mes=1
+	dia=1
+
+	# Loop para inserir 100 registros na tabela 'vendas'
+	for ((i = 1; i <= 1000; i++)); do
+		# Construir a data no formato 'AAAA-MM-DD'
+		data="2023-$(printf "%02d" $mes)-$(printf "%02d" $dia)"
+
+		quantidade=$((RANDOM % 10 + 1))                    # Gere uma quantidade aleatória entre 1 e 10
+		preco=$(echo "scale=2; $RANDOM / 100.0" | bc)      # Gere um preço aleatório com duas casas decimais
+		total=$(echo "scale=2; $quantidade * $preco" | bc) # Calcule o total
+		docnr="DOC$i"
+
+		# Inserir o registro na tabela 'vendas' no banco de dados
+		sqlite3 "$database" "INSERT INTO vendas (data, quantidade, preco, total, docnr) VALUES ('$data', $quantidade, $preco, $total, '$docnr');"
+
+		# Avançar para o próximo dia
+		dia=$((dia + 1))
+
+		# Verificar se o mês mudou
+		if [ $dia -gt 30 ]; then
+			dia=1
+			mes=$((mes + 1))
+		fi
+	done
+
+	# Exemplo: exibir os primeiros 10 registros da tabela 'vendas'
+	sqlite3 "$database" "SELECT * FROM vendas LIMIT 10;"
+}
+
 random_docnr() {
 	date "+%Y%m%d-%H%M%S"
 }
-
 
 menu_fornecedores() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "MENU FORNECEDORES")" "$ciano"
-		imprimir_quadro 11 10 8 80 "$(gettext "MENU FORNECEDORES")" "$azul"
+		box 11 10 8 80 "$(gettext "MENU FORNECEDORES")" "$azul"
 		print 12 11 " 1 - $(gettext "Cadastrar Fornecedor")"
 		print 13 11 " 2 - $(gettext "Alterar Fornecedor")"
 		print 14 11 " 3 - $(gettext "Pesquisar Fornecedor")"
@@ -1414,7 +1618,7 @@ menu_produtos() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "MENU PRODUTOS")" "$ciano"
-		imprimir_quadro 11 10 12 80 "$(gettext "MENU PRODUTOS")" "$azul"
+		box 11 10 12 80 "$(gettext "MENU PRODUTOS")" "$azul"
 		print 12 11 " 1 - $(gettext "Cadastrar Produtos")"
 		print 13 11 " 2 - $(gettext "Alterar Produtos")"
 		print 14 11 " 3 - $(gettext "Remover Produtos")"
@@ -1459,7 +1663,7 @@ main() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "MENU PRINCIPAL")" "$ciano"
-		imprimir_quadro 11 10 10 80 "$(gettext "MENU PRINCIPAL")" "$azul"
+		box 11 10 10 80 "$(gettext "MENU PRINCIPAL")" "$azul"
 		print 12 11 " 1 - $(gettext "Produtos")"
 		print 13 11 " 2 - $(gettext "Realizar Venda")"
 		print 14 11 " 3 - $(gettext "Exibir Vendas Diárias")"
@@ -1476,7 +1680,7 @@ main() {
 			realizar_venda
 			;;
 		3)
-			exibir_vendas_diarias
+			listagem_vendas_diarias
 			;;
 		4)
 			entrada_produtos
