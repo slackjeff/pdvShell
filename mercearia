@@ -712,7 +712,7 @@ alterar_produto() {
 			un=${un^^}
 			query="INSERT OR REPLACE INTO produtos (id, nome, un, preco, codebar) VALUES (
 		        (SELECT id FROM produtos WHERE id='$produto_id'),
-		        '$nome', '$un', $preco, $codebar
+		        '$nome', '$un', '$preco', '$codebar'
 		    );"
 
 			if sqlite3 "$database" "$query"; then
@@ -857,8 +857,6 @@ function listagem_vendas_diarias() {
 	local dfim
 	local data_inicio="01-$(date +"%m-%Y")"
 	local data_fim=$(date +"%d-%m-%Y")
-	local data_inicio="01-01-2023"
-	local data_fim="31-12-2023"
 
 	tela
 	titulo 1 "$(gettext "LISTAGEM DE VENDAS DIÁRIAS")" "$ciano"
@@ -929,20 +927,23 @@ function listagem_vendas_diarias() {
 
 		# Verifica se há dados no resultado da consulta
 		if [[ -n "${query_result}" ]]; then
-			#			lines=$(wc -l <<<"$query_result")
 			setpos 15 "$ncol"
 			printf "${yellow}%-10s %10s\n" "data" "total dia"
 			setpos 16 "$ncol"
 			replicate "-" 21
 			nrow=17
+			total_mes=0
 			while IFS='|' read -r data total; do
+				total_mes=$(echo "$total_mes + $total" | bc -l)
 				total=$(bc -l <<<"$total" | tr "." ",")
 				setpos "$nrow" "$ncol"
-				#			printf "${blue}%-30s ${red}R\$ %10.2f${reset}\n" "$data" "$total"
-				#				printf "${blue}%-10s ${red}%10.2f${reset}\n" "$(date -d "$data" +"%d-%m-%Y")" "$total"
+				#			printf "${blue}%-10s ${red}%10.2f${reset}\n" "$(date -d "$data" +"%d-%m-%Y")" "$total"
 				printf "${blue}%s ${red}%10.2f${yellow}|${reset}\n" "$data" "$total"
 				((++nrow))
 			done <<<"${query_result}"
+			((++nrow))
+			setpos "$nrow" "$ncol"
+			printf "${blue}%-10s ${red}%'10.2f${reset}\n" "SOMA" "$(tr "." "," <<<"$total_mes")"
 			ncol=$((ncol + 22))
 		fi
 	done
@@ -1452,7 +1453,7 @@ entrada_produtos() {
 			# Se o produto não existe na lista, adiciona
 			lista_produtos[$id]="$id|$produto_nome|$quantidade|$custo"
 		fi
-		total_compra=$(echo "$total_venda + $subtotal" | bc -l)
+		total_compra=$(echo "$total_compra + $subtotal" | bc -l)
 	done
 
 	if [[ "${#lista_produtos[@]}" -gt 0 ]]; then
@@ -1551,35 +1552,44 @@ sh_show_tabelas() {
 }
 
 populate_database() {
-	# Inicialize o mês e o dia
-	mes=1
-	dia=1
+    # Inicialize o mês e o dia
+    mes=1
+    dia=1
+    id=1
 
-	# Loop para inserir 100 registros na tabela 'vendas'
-	for ((i = 1; i <= 1000; i++)); do
-		# Construir a data no formato 'AAAA-MM-DD'
-		data="2023-$(printf "%02d" $mes)-$(printf "%02d" $dia)"
+    # Loop para inserir 100 registros na tabela 'vendas'
+    for ((i = 1; i <= 100; i++)); do
+        # Construir a data no formato 'AAAA-MM-DD'
+        data="2023-$(printf "%02d" $mes)-$(printf "%02d" $dia)"
 
-		quantidade=$((RANDOM % 10 + 1))                    # Gere uma quantidade aleatória entre 1 e 10
-		preco=$(echo "scale=2; $RANDOM / 100.0" | bc)      # Gere um preço aleatório com duas casas decimais
-		total=$(echo "scale=2; $quantidade * $preco" | bc) # Calcule o total
-		docnr="DOC$i"
+        quantidade=$((RANDOM % 10 + 1))                    # Gere uma quantidade aleatória entre 1 e 10
+        preco=$(echo "scale=2; $RANDOM / 100.0" | bc)      # Gere um preço aleatório com duas casas decimais
+        total=$(echo "scale=2; $quantidade * $preco" | bc) # Calcule o total
+        docnr="DOC$i"
 
-		# Inserir o registro na tabela 'vendas' no banco de dados
-		sqlite3 "$database" "INSERT INTO vendas (data, quantidade, preco, total, docnr) VALUES ('$data', $quantidade, $preco, $total, '$docnr');"
+        # Inserir o registro na tabela 'vendas' no banco de dados
+        sqlite3 "$database" "INSERT INTO vendas (id, data, quantidade, preco, total, docnr) VALUES ('$id', '$data', $quantidade, $preco, $total, '$docnr');"
 
-		# Avançar para o próximo dia
-		dia=$((dia + 1))
+        # Avançar para o próximo dia
+        dia=$((dia + 1))
 
-		# Verificar se o mês mudou
-		if [ $dia -gt 30 ]; then
-			dia=1
-			mes=$((mes + 1))
-		fi
-	done
+        # Avançar para o próximo id
+        id=$((id + 1))
 
-	# Exemplo: exibir os primeiros 10 registros da tabela 'vendas'
-	sqlite3 "$database" "SELECT * FROM vendas LIMIT 10;"
+        # Verificar se o mês mudou
+        if [ $id -gt 10 ]; then
+            id=1
+        fi
+
+        # Verificar se o mês mudou
+        if [ $dia -gt 30 ]; then
+            dia=1
+            mes=$((mes + 1))
+        fi
+    done
+
+    # Exemplo: exibir os primeiros 10 registros da tabela 'vendas'
+    sqlite3 "$database" "SELECT * FROM vendas LIMIT 10;"
 }
 
 random_docnr() {
