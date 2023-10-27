@@ -1,0 +1,542 @@
+# Japanese translations for PACKAGE package.
+# Copyright (C) 2023 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2023.
+#
+msgid ""
+msgstr ""
+
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-23 23:18-0400\n"
+"PO-Revision-Date: 2023-10-23 23:18-0400\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: mercearia:257
+msgid " Pressione qualquer tecla para continuar"
+msgstr "何かキーを押すと続行します"
+
+
+#: mercearia:299
+msgid "ERRO: não consegui encontrar o comando"
+msgstr "エラー: コマンドが見つかりませんでした"
+
+
+#: mercearia:303 mercearia:306
+msgid "IMPOSSÍVEL CONTINUAR"
+msgstr "続行不可能"
+
+
+#: mercearia:304
+msgid "Este script precisa dos comandos listados acima"
+msgstr "このスクリプトには上記のコマンドが必要です"
+
+
+#: mercearia:305
+msgid "Instale-os e/ou verifique se eles estão em seu"
+msgstr "それらをインストールするか、それらがあなたのコンピュータにあることを確認してください。"
+
+
+#: mercearia:307
+msgid "Instalação abortada!"
+msgstr "インストール中止！"
+
+
+#: mercearia:329
+msgid "SISTEMA PDV"
+msgstr "POSシステム"
+
+
+#: mercearia:330 mercearia:1461 mercearia:1462
+msgid "MENU PRINCIPAL"
+msgstr "メインメニュー"
+
+
+#: mercearia:394
+msgid "Pressione qualquer tecla para continuar..."
+msgstr "何かキーを押すと続行します..."
+
+
+#: mercearia:439 mercearia:440
+msgid "CADASTRO DE PRODUTO"
+msgstr "製品登録"
+
+
+#: mercearia:442 mercearia:448 mercearia:452 mercearia:581 mercearia:606
+msgid "Descrição"
+msgstr "説明"
+
+
+#: mercearia:443 mercearia:467 mercearia:582 mercearia:617
+msgid "Código Barras"
+msgstr "バーコード"
+
+
+#: mercearia:444 mercearia:468 mercearia:583 mercearia:618
+msgid "Unidade"
+msgstr "ユニット"
+
+
+#: mercearia:445 mercearia:472 mercearia:584 mercearia:622
+msgid "Preço (ex: 4.40 ou 5)"
+msgstr "価格 (例: 4.40 または 5)"
+
+
+#: mercearia:454
+msgid "Descrição não pode ser em branco"
+msgstr "説明を空白にすることはできません"
+
+
+#: mercearia:461 mercearia:611
+msgid "A descrição não pode ser em branco. Cancelar?"
+msgstr "説明を空白にすることはできません。キャンセル？"
+
+
+#: mercearia:476 mercearia:626 mercearia:1266
+msgid ""
+"Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro."
+msgstr "「無効な価格形式です。小数点 (例: 4.40) または整数を使用してください。"
+
+
+#: mercearia:481 mercearia:631
+msgid "Confirma inclusão/atualização do produto?"
+msgstr "製品の組み込み/更新を確認しますか?"
+
+
+#: mercearia:491 mercearia:640
+msgid "Produto cadastrado/atualizado com sucesso!"
+msgstr "製品の登録/更新が正常に完了しました。"
+
+
+#: mercearia:493 mercearia:642
+msgid "Erro no cadastro/atualização do produto."
+msgstr "製品の登録/更新中にエラーが発生しました。"
+
+
+#: mercearia:496 mercearia:561 mercearia:645 mercearia:722
+msgid "Inclusão/alteração não efetuada."
+msgstr "組み込み/変更は行われません。"
+
+
+#: mercearia:510 mercearia:511
+msgid "CADASTRO DE FORNECEDOR"
+msgstr "サプライヤー登録"
+
+
+#: mercearia:513 mercearia:520 mercearia:524 mercearia:663 mercearia:689
+msgid "Nome"
+msgstr "名前"
+
+
+#: mercearia:514 mercearia:539 mercearia:664 mercearia:700
+msgid "Endereço"
+msgstr "住所"
+
+
+#: mercearia:515 mercearia:540 mercearia:665 mercearia:701
+msgid "Cidade"
+msgstr "市"
+
+
+#: mercearia:516 mercearia:541 mercearia:666 mercearia:702
+msgid "Estado"
+msgstr "州"
+
+
+#: mercearia:517 mercearia:542 mercearia:667 mercearia:703
+msgid "Cnpj"
+msgstr "CNPJ"
+
+
+#: mercearia:526
+msgid "Nome não pode ser em branco"
+msgstr "名前を空白にすることはできません"
+
+
+#: mercearia:533 mercearia:694
+msgid "O nome não pode ser em branco. Cancelar?"
+msgstr "名前を空白にすることはできません。キャンセル？"
+
+
+#: mercearia:545 mercearia:706
+msgid "Confirma inclusão/atualização do fornecedor?"
+msgstr "サプライヤーの追加/更新を確認しますか?"
+
+
+#: mercearia:556 mercearia:717
+msgid "Fornecedor cadastrado/atualizado com sucesso!"
+msgstr "サプライヤーは正常に登録/更新されました。"
+
+
+#: mercearia:558 mercearia:719
+msgid "Erro no cadastro/atualização do fornecedor"
+msgstr "サプライヤー登録/更新エラー"
+
+
+#: mercearia:577 mercearia:578
+msgid "ALTERAÇÃO DE PRODUTO"
+msgstr "製品の変更"
+
+
+#: mercearia:580 mercearia:586 mercearia:662 mercearia:669
+msgid "ID/Nome"
+msgstr "ID/名前"
+
+
+#: mercearia:590 mercearia:673
+msgid "ID/Nome não pode ser em branco. Cancelar?"
+msgstr "ID/名前を空白にすることはできません。キャンセル？"
+
+
+#: mercearia:600
+msgid "Produto não encontrado nos parâmetros informados"
+msgstr "指定されたパラメータに製品が見つかりません"
+
+
+#: mercearia:659
+msgid "ALTERAÇÃO DE FORNECEDOR"
+msgstr "サプライヤーの変更"
+
+
+#: mercearia:660
+msgid "ALTERACÃO DE FORNECEDOR"
+msgstr "サプライヤーの変更"
+
+
+#: mercearia:683
+msgid "Fornecedor não encontrado nos parâmetros informados"
+msgstr "指定されたパラメータにサプライヤーが見つかりません"
+
+
+#: mercearia:733
+msgid "REMOÇÃO DE PRODUTO"
+msgstr "製品の削除"
+
+
+#: mercearia:736
+msgid "Digite o ID ou nome do produto que deseja remover: "
+msgstr "削除する製品の ID または名前を入力します:"
+
+
+#: mercearia:741
+msgid "O ID não pode ser em branco. Cancelar?"
+msgstr "ID を空白にすることはできません。キャンセル？"
+
+
+#: mercearia:755
+msgid "Confirma exclusão do produto?"
+msgstr "商品の削除を確認しますか?"
+
+
+#: mercearia:763
+msgid "Produto removido com sucesso!"
+msgstr "製品は正常に削除されました。"
+
+
+#: mercearia:766 mercearia:807
+msgid "Nenhum produto encontrado nos parâmetros informados"
+msgstr "指定されたパラメータで製品が見つかりませんでした"
+
+
+#: mercearia:774
+msgid "TOTAL VENDAS DIÁRIAS"
+msgstr "一日の総売上高"
+
+
+#: mercearia:782 mercearia:783
+msgid "PESQUISAR PRODUTOS"
+msgstr "製品を探す"
+
+
+#: mercearia:784
+msgid "Pesquisar por (nome, id ou *=tudo)"
+msgstr "(名前、ID、または *=すべて) で検索します"
+
+
+#: mercearia:815 mercearia:816
+msgid "LISTAGEM PRODUTOS VENDIDOS"
+msgstr "販売商品一覧"
+
+
+#: mercearia:817 mercearia:895
+msgid "Pesquisar por (id, docnr, data ou *=tudo)"
+msgstr "(id、docnr、日付、または *=all) で検索します"
+
+
+#: mercearia:840 mercearia:928
+msgid "Formato de data inválido."
+msgstr "無効な日付形式です。"
+
+
+#: mercearia:885
+msgid "Nenhum produto vendido nos parâmetros informados"
+msgstr "指定されたパラメータ内で販売された製品はありません"
+
+
+#: mercearia:893 mercearia:894
+msgid "LISTAGEM ENTRADAS DE PRODUTOS"
+msgstr "製品エントリー一覧"
+
+
+#: mercearia:973
+msgid "Nenhum produto comprado nos parâmetros informados"
+msgstr "指定されたパラメータ内で購入された製品はありません"
+
+
+#: mercearia:984 mercearia:985
+msgid "PESQUISAR FORNECEDOR"
+msgstr "サプライヤーを探す"
+
+
+#: mercearia:1006
+msgid "Nenhum fornecedor encontrado nos parâmetros informados"
+msgstr "指定されたパラメーターでサプライヤーが見つかりませんでした"
+
+
+#: mercearia:1034
+msgid "Registro de venda efetuado"
+msgstr "販売登録が完了しました"
+
+
+#: mercearia:1043
+msgid "Baixa de estoque efetuado"
+msgstr "株式の償却を実施"
+
+
+#: mercearia:1053
+msgid "VENDA"
+msgstr "セール"
+
+
+#: mercearia:1054
+msgid "CUPOM PDV"
+msgstr "POSクーポン"
+
+
+#: mercearia:1070 mercearia:1224
+msgid "ID/nome/CodeBar (deixe em branco para concluir)"
+msgstr "ID/名前/コードバー (空白のままにしてください)"
+
+
+#: mercearia:1087 mercearia:1241
+msgid "Produto não encontrado"
+msgstr "製品が見つかりません"
+
+
+#: mercearia:1093 mercearia:1248
+msgid "Quantidade (0 para remover o item)"
+msgstr "数量 (アイテムを削除するには 0)"
+
+
+#: mercearia:1100 mercearia:1255
+msgid "Quantidade inválida ou item não tem na lista"
+msgstr "無効な数量またはリストにないアイテム"
+
+
+#: mercearia:1106
+msgid "Quantidade insuficiente de"
+msgstr "不十分な量"
+
+
+#: mercearia:1106
+msgid "no estoque"
+msgstr "在庫あり"
+
+
+#: mercearia:1126
+msgid "Confirma o fetchamento do CUPOM?"
+msgstr "COUPONの取得を確認していますか？"
+
+
+#: mercearia:1145
+msgid "Registro de entradas efetuado"
+msgstr "エントリーの登録"
+
+
+#: mercearia:1155
+msgid "Ajuste de estoque efetuado"
+msgstr "在庫調整が行われました"
+
+
+#: mercearia:1177
+msgid "ENTRADAS DE PRODUTOS"
+msgstr "製品の入力"
+
+
+#: mercearia:1178
+msgid "DADOS DA NFF"
+msgstr "NFFデータ"
+
+
+#: mercearia:1180 mercearia:1184
+msgid "Fornecedor"
+msgstr "サプライヤー"
+
+
+#: mercearia:1181 mercearia:1201
+msgid "Docnr/NFF"
+msgstr "ドキュメント/NFF"
+
+
+#: mercearia:1190
+msgid "O ID/nome não pode ser em branco. Cancelar?"
+msgstr "ID/名前を空白にすることはできません。キャンセル？"
+
+
+#: mercearia:1196
+msgid "Fornecedor não encontrado"
+msgstr "サプライヤーが見つかりません"
+
+
+#: mercearia:1209
+msgid "RELAÇAO DAS ENTRADAS"
+msgstr "エントリーのリスト"
+
+
+#: mercearia:1262
+msgid "Preço custo (ex: 4.40 ou 5)"
+msgstr "原価 (例: 4.40 または 5)"
+
+
+#: mercearia:1286
+msgid "Confirma a entrada desses produtos?"
+msgstr "これらの商品の入力を確認していますか？"
+
+
+#: mercearia:1295
+msgid "Confirma a atualização?"
+msgstr "アップデートを確認しますか?"
+
+
+#: mercearia:1296
+msgid "Aguarde... Atualizando estoque"
+msgstr "お待ちください...在庫を更新中です"
+
+
+#: mercearia:1332
+msgid "Atualização concluída"
+msgstr "アップデート完了"
+
+
+#: mercearia:1354
+msgid "Checando tabela de produtos."
+msgstr "商品表を確認中。"
+
+
+#: mercearia:1356
+msgid "Checando tabela de vendas."
+msgstr "売上表を確認中。"
+
+
+#: mercearia:1358
+msgid "Checando tabela de compras."
+msgstr "購入表を確認しています。"
+
+
+#: mercearia:1360
+msgid "Checando tabela de fornecedores."
+msgstr "サプライヤーテーブルを確認しています。"
+
+
+#: mercearia:1388 mercearia:1389
+msgid "MENU FORNECEDORES"
+msgstr "サプライヤーメニュー"
+
+
+#: mercearia:1390
+msgid "Cadastrar Fornecedor"
+msgstr "サプライヤーを登録する"
+
+
+#: mercearia:1391
+msgid "Alterar Fornecedor"
+msgstr "サプライヤーの変更"
+
+
+#: mercearia:1392
+msgid "Pesquisar Fornecedor"
+msgstr "サプライヤーを検索"
+
+
+#: mercearia:1393 mercearia:1425
+msgid "Voltar"
+msgstr "戻る"
+
+
+#: mercearia:1394 mercearia:1426 mercearia:1469
+msgid "Opção"
+msgstr "オプション"
+
+
+#: mercearia:1416 mercearia:1417
+msgid "MENU PRODUTOS"
+msgstr "商品メニュー"
+
+
+#: mercearia:1418
+msgid "Cadastrar Produtos"
+msgstr "製品を登録する"
+
+
+#: mercearia:1419
+msgid "Alterar Produtos"
+msgstr "製品の変更"
+
+
+#: mercearia:1420
+msgid "Remover Produtos"
+msgstr "製品の削除"
+
+
+#: mercearia:1421
+msgid "Pesquisar Produtos"
+msgstr "製品を探す"
+
+
+#: mercearia:1422
+msgid "Atualizar Estoque (conciliação)"
+msgstr "在庫の更新 (調整)"
+
+
+#: mercearia:1423
+msgid "Listagem Produtos Vendidos"
+msgstr "販売商品一覧"
+
+
+#: mercearia:1424
+msgid "Listagem Entradas de Produtos"
+msgstr "製品エントリーリスト"
+
+
+#: mercearia:1463
+msgid "Produtos"
+msgstr "製品"
+
+
+#: mercearia:1464
+msgid "Realizar Venda"
+msgstr "セールを行う"
+
+
+#: mercearia:1465
+msgid "Exibir Vendas Diárias"
+msgstr "毎日の売上を見る"
+
+
+#: mercearia:1466
+msgid "Entradas de Produtos"
+msgstr "製品エントリー"
+
+
+#: mercearia:1467
+msgid "Fornecedores"
+msgstr "サプライヤー"
+
+
+#: mercearia:1468

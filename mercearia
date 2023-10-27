@@ -1,0 +1,1719 @@
+#!/usr/bin/env bash
+#   shellcheck shell=bash disable=SC1091,SC2039,SC2166,SC2162,SC2155,SC2005,SC2034,SC2154,SC2229
+
+#   mercearia - simple cashier front for small grocery stores made with shell script and sqlite!
+#   Created: 2023/10/21
+#   Altered: 2023/10/26
+#
+#   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
+#   Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
+#   All rights reserved.
+#
+#   Redistribution and use in source and binary forms, with or without
+#   modification, are permitted provided that the following conditions
+#   are met:
+#   1.  Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#   2.  Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#
+#   THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+#   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+#   OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+#   IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+#   INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+#   NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+#   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+#   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+#   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# TODO
+
+export TEXTDOMAINDIR=/usr/share/locale
+export TEXTDOMAIN=mercearia
+
+declare APP="${0##*/}"
+declare _VERSION_="1.0.0-20231026"
+declare DEPENDENCIES=(tput gettext sqlite3 bc)
+declare database='estoque.db'
+
+# BEGIN FUNCTIONS
+sh_config() {
+	declare COL_NC='\e[0m' # No Color
+	declare COL_LIGHT_GREEN='\e[1;32m'
+	declare COL_LIGHT_RED='\e[1;31m'
+	declare -g TICK="${white}[${COL_LIGHT_GREEN}✓${COL_NC}${white}]"
+	declare -g CROSS="${white}[${COL_LIGHT_RED}✗${COL_NC}${white}]"
+	declare -gi lastrow=$(lastrow)
+	declare -gi lastcol=$(lastcol)
+	declare -gi LC_DEFAULT=0
+	sh_setvarcolors
+}
+
+# Função para validar uma data no formato "dd-mm-yyyy"
+# Retorna 0 se a data for válida e 1 se for inválida
+validar_data() {
+	local data=$1
+	local dia
+	local mes
+	local ano
+
+	IFS='-' read -r -a data_parts <<<"$data"
+	if [[ ${#data_parts[@]} -ne 3 ]]; then
+		return 1 # Formato inválido
+	fi
+
+	dia=${data_parts[0]}
+	mes=${data_parts[1]}
+	ano=${data_parts[2]}
+
+	# Verifica se o ano é bissexto
+	if ((ano % 4 == 0 && ano % 100 != 0)) || ((ano % 400 == 0)); then
+		bissexto=true
+	else
+		bissexto=false
+	fi
+
+	# Verifica se o mês é válido
+	if ((mes < 1 || mes > 12)); then
+		return 1
+	fi
+
+	# Verifica os dias para meses com 31 dias
+	if ((mes == 1 || mes == 3 || mes == 5 || mes == 7 || mes == 8 || mes == 10 || mes == 12)); then
+		if ((dia < 1 || dia > 31)); then
+			return 1
+		fi
+	fi
+
+	# Verifica os dias para fevereiro
+	if ((mes == 2)); then
+		if ((bissexto && (dia < 1 || dia > 29))) || ((!bissexto && (dia < 1 || dia > 28))); then
+			return 1
+		fi
+	fi
+
+	# Verifica os dias para meses com 30 dias
+	if ((mes == 4 || mes == 6 || mes == 9 || mes == 11)); then
+		if ((dia < 1 || dia > 30)); then
+			return 1
+		fi
+	fi
+
+	return 0 # Data válida
+}
+
+replicate() {
+	local Var
+	printf -v Var %$2s " " #  Coloca em $Var $1 espaços
+	echo ${Var// /$1}      #  Troca os espaços pelo caractere escolhido
+}
+
+debug() {
+	whiptail \
+		--fb \
+		--clear \
+		--backtitle "[debug]$0" \
+		--title "[debug]$0" \
+		--yesno "${*}\n" \
+		0 40
+	result=$?
+	if ((result)); then
+		exit
+	fi
+	return $result
+}
+
+inkey() {
+	tempo="$1"
+	[[ -z "$tempo" ]] && tempo=-1
+	IFS= read -t "$tempo" -n 1 -s lastkey
+	[[ -z "$lastkey" ]] && lastkey=""
+}
+
+die() {
+	local msg=$1
+	shift
+	printf "  %b %s\\n" "${CROSS}" "${bold}${red}${msg}"
+	exit 1
+}
+
+info_msg() {
+	local retval="${PIPESTATUS[0]}"
+
+	if [[ $retval -eq 0 ]]; then
+		printf "  %b %s\\n" "${TICK}" "${*}"
+	else
+		printf "  %b %s\\n" "${CROSS}" "${*}"
+	fi
+}
+
+sh_setvarcolors() {
+	# does the terminal support true-color?
+	if [[ -n "$(command -v "tput")" ]]; then
+		#tput setaf 127 | cat -v  #capturar saida
+		# Definir a variável de controle para restaurar a formatação original
+		reset=$(tput sgr0)
+
+		# Definir os estilos de texto como variáveis
+		bold=$(tput bold)
+		underline=$(tput smul)   # Início do sublinhado
+		nounderline=$(tput rmul) # Fim do sublinhado
+		reverse=$(tput rev)      # Inverte as cores de fundo e texto
+
+		# Definir as cores ANSI como variáveis
+		black=$(tput bold)$(tput setaf 0)
+		red=$(tput bold)$(tput setaf 196)
+		green=$(tput bold)$(tput setaf 2)
+		yellow=$(tput bold)$(tput setaf 3)
+		blue=$(tput setaf 4)
+		pink=$(tput setaf 5)
+		magenta=$(tput setaf 5)
+		cyan=$(tput setaf 6)
+		white=$(tput setaf 7)
+		gray=$(tput setaf 8)
+		orange=$(tput setaf 202)
+		purple=$(tput setaf 125)
+		violet=$(tput setaf 61)
+		light_red=$(tput setaf 9)
+		light_green=$(tput setaf 10)
+		light_yellow=$(tput setaf 11)
+		light_blue=$(tput setaf 12)
+		light_magenta=$(tput setaf 13)
+		light_cyan=$(tput setaf 14)
+		light_white=$(tput setaf 15)
+
+		# Definir cores de fundo
+		azul=$(tput setab 4)
+		vermelho=$(tput setab 196)
+		roxo=$(tput setab 5)
+		ciano=$(tput setab 6)
+
+		# Definição de cores para formatação de texto
+		cor_vermelha=$(tput setaf 1)
+		cor_verde=$(tput setaf 2)
+		cor_amarela=$(tput setaf 3)
+		cor_reset=$(tput sgr0)
+	else
+		sh_unsetVarColors
+	fi
+}
+
+sh_unsetVarColors() {
+	unset reset bold underline nounderline reverse
+	unset black red green yellow blue pink magenta cyan white gray orange purple violet
+	unset light_red light_yellow light_blue light_magenta light_cyan light_white
+	unset azul vermelho roxo ciano
+	unset cor_vermelha cor_verde cor_amarela cor_reset
+}
+
+# Função para posicionar o cursor em uma linha e coluna específicas
+setpos() {
+	local row="$1"
+	local col="$2"
+	tput cup "$row" "$col"
+}
+
+lastrow() {
+	echo "$(tput lines)"
+}
+
+lastcol() {
+	echo "$(tput cols)"
+}
+
+box() {
+	local linha="$1"
+	local col="$2"
+	local altura="$3"
+	local largura="$4"
+	local mensagem="$5"
+	local color="$6"
+	local tamanho=$((largura - 2))
+	local largura_mensagem=${#mensagem}
+	local coluna_inicio=$(((largura - largura_mensagem) / 2 + col))
+
+	# Imprime o quadro com base nas coordenadas, largura e altura
+	for ((i = 0; i < altura; i++)); do
+		tput cup $((linha + i)) "$col"
+		if [ $i -eq 0 ]; then
+			echo "┌$(printf '─%.0s' $(seq 1 $((largura - 2))))┐"
+		elif [ $i -eq $((altura - 1)) ]; then
+			echo "└$(printf '─%.0s' $(seq 1 $((largura - 2))))┘"
+		else
+			echo "│$(printf ' %.0s' $(seq 1 $((largura - 2))))│"
+		fi
+	done
+
+	if [[ -n "$mensagem" ]]; then
+		setpos "$linha" "$((col + 1))"
+		printf "$color%-${tamanho}s" " "
+		setpos "$linha" "$coluna_inicio"
+		echo -e "$bold$white$mensagem"
+	fi
+	tput sgr0
+}
+
+print() {
+	local row="$1"
+	local col="$2"
+	local msg="$3"
+	local color="$4"
+
+	setpos "$row" "$col"
+	printf "%s" "$color"
+	echo -e -n "$bold$white$msg"
+	echo -e "$reset"
+}
+
+get() {
+	local row="$1"
+	local col="$2"
+	local prompt="$3"
+	local new_value="$4"
+	local old_value="$5"
+
+	setpos "$row" "$col"
+	#	read -p "$propt$reverse" "$new_value"
+	read -p "$prompt$reverse" -e -i "$old_value" "$new_value"
+	tput sc
+	echo -e "$reset"
+}
+
+readconf() {
+	tput el
+	if [[ $LC_DEFAULT -eq 0 ]]; then
+		read -n1 -s -r -p "$1 [S/n]"
+	else
+		read -n1 -s -r -p "$1 [Y/n]"
+	fi
+	[[ ${REPLY^} == $'\e' ]] && return 1
+	[[ ${REPLY^} == "" ]] && return 0
+	[[ ${REPLY^} == N ]] && return 1 || return 0
+}
+
+titulo() {
+	local row="$1"
+	local mensagem="$2"
+	local color="$3"
+	local extra_left="$4"
+	local extra_right="$5"
+	local largura_terminal=$(tput cols)
+	local largura_mensagem=${#mensagem}
+	local coluna_inicio=$(((largura_terminal - largura_mensagem) / 2))
+	local nlen
+
+	[[ -z "$color" ]] && color=$black
+	tput sc # Salva a posição atual do cursor
+
+	setpos "$row" 0
+	printf "$color%-${largura_terminal}s" " "
+
+	if [[ -n "$extra_left" ]]; then
+		setpos "$row" 0
+		echo -e "$bold$white$extra_left"
+	fi
+
+	if [[ -n "$extra_right" ]]; then
+		nlen=${#extra_right}
+		setpos "$row" $((largura_terminal - nlen))
+		echo -e "$bold$white$extra_right"
+	fi
+
+	setpos "$row" "$coluna_inicio"
+	echo -e "$bold$white$mensagem"
+	tput sgr0
+	tput rc
+}
+
+mensagem() {
+	local row="$1"
+	local msg="$2"
+	local color="$3"
+	local tempo="$4"
+
+	msg+="$(gettext " Pressione qualquer tecla para continuar")"
+	local largura_terminal=$(tput cols)
+	local largura_mensagem=${#msg}
+	local coluna_inicio=$(((largura_terminal - largura_mensagem) / 2))
+
+	[[ -z "$color" ]] && color=$green
+	[[ -z "$tempo" ]] && tempo=1
+	tput sc
+	setpos "$row" 0
+	printf "$reverse$color%-${largura_terminal}s" " "
+	setpos "$row" "$coluna_inicio"
+	printf "$reverse$color%s" "$msg"
+	tput sgr0
+	((tempo > 0)) && inkey "$tempo"
+	setpos "$row" 0
+	tput el
+	tput rc
+}
+
+clear_eol() {
+	local coluna_inicial="$1"
+	local coluna_final="$2"
+
+	# Posiciona o cursor na coluna_inicial
+	echo -en "\033[6;${coluna_inicial}H"
+
+	# Limpa o conteúdo até a coluna_final
+	for ((i = coluna_inicial; i <= coluna_final; i++)); do
+		setpos $i 0
+		tput el
+	done
+
+	# Retorna o cursor para a posição inicial
+	echo -en "\033[6;${coluna_inicial}H"
+}
+
+sh_checkDependencies() {
+	local d
+	local errorFound=0
+	declare -a missing
+
+	for d in "${DEPENDENCIES[@]}"; do
+		[[ -z $(command -v "$d") ]] && missing+=("$d") && errorFound=1 && info_msg "${red}$(gettext "ERRO: não consegui encontrar o comando")${reset}: ${cyan}'$d'${reset}"
+	done
+
+	if ((errorFound)); then
+		echo "${yellow}---------------$(gettext "IMPOSSÍVEL CONTINUAR")-------------${reset}"
+		echo "$(gettext "Este script precisa dos comandos listados acima")"
+		echo "$(gettext "Instale-os e/ou verifique se eles estão em seu") ${red}\$PATH${reset}"
+		echo "${yellow}---------------$(gettext "IMPOSSÍVEL CONTINUAR")-------------${reset}"
+		die "$(gettext "Instalação abortada!")"
+	fi
+}
+# END FUNCTIONS
+
+# BEGIN PROCEDURES
+logo() {
+	setpos 1 0
+	echo -e "$red"
+	cat <<-'EOF'
+		 ____  ______     __
+		|  _ \|  _ \ \   / /
+		| |_) | | | \ \ / /
+		|  __/| |_| |\ V /
+		|_|   |____/  \_/
+	EOF
+	echo "$reset"
+}
+
+tela() {
+	clear
+	titulo 0 "$(gettext "SISTEMA PDV")" "$roxo" "$(date)"
+	titulo 1 "$(gettext "MENU PRINCIPAL")" "$ciano"
+	titulo "$(($(lastrow) - 2))" "MERCEARIA TEMDTUDO" "$azul" "$PWD" "$USER"
+	logo
+}
+
+# Função para criar a tabela de produtos se não existir
+criar_tabela_produtos() {
+	query="CREATE TABLE IF NOT EXISTS produtos (
+        id INTEGER PRIMARY KEY,
+        nome TEXT,
+        un TEXT,
+        quantidade INTEGER,
+        preco REAL,
+        codebar TEXT
+    );"
+	sqlite3 "$database" "$query"
+}
+
+# Função para criar a tabela de vendas se não existir
+criar_tabela_vendas() {
+	query="CREATE TABLE IF NOT EXISTS vendas (
+        id INTEGER,
+        data DATE,
+        quantidade INTEGER,
+        preco REAL,
+        total REAL,
+        docnr TEXT
+    );"
+	sqlite3 "$database" "$query"
+}
+
+# Função para criar a tabela de compras se não existir
+criar_tabela_compras() {
+	query="CREATE TABLE IF NOT EXISTS compras (
+        id INTEGER,
+        fornecedor INTEGER,
+        data DATE,
+        docnr TEXT,
+        quantidade INTEGER,
+        custo REAL,
+        total REAL
+    );"
+	sqlite3 "$database" "$query"
+}
+
+# Função para criar a tabela de fornecedores se não existir
+criar_tabela_fornecedor() {
+	query="CREATE TABLE IF NOT EXISTS fornecedor (
+        id INTEGER PRIMARY KEY,
+        data DATE,
+        nome TEXT,
+        ende TEXT,
+        cida TEXT,
+        esta TEXT,
+        cnpj TEXT
+    );"
+	sqlite3 "$database" "$query"
+}
+
+# Função para pausar a execução e aguardar um pressionamento de tecla
+pressione_para_continuar() {
+	tput cuu1 # Move o cursor para a linha anterior
+	tput sc   # Salva a posição do cursor
+	echo ""
+	read -n 1 -s -p "========> $(gettext "Pressione qualquer tecla para continuar...")"
+	tput rc # Restaura a posição do cursor
+}
+
+# função para retornar o ultimo registro de uma determinada tabela passada por parâmetro
+lastrec() {
+	local tabela="$1"
+	local consulta_sql
+	local resultado_info
+
+	consulta_sql="SELECT * FROM '$tabela' ORDER BY id DESC LIMIT 1;"
+	resultado_info="$(sqlite3 "$database" "$consulta_sql")"
+	echo "$resultado_info"
+}
+
+# Função para encontrar um produto
+seek() {
+	local tabela="$1"
+	local campo="$2"
+	local search="$3"
+	local result_info
+	local retval=1
+
+	if [[ $search =~ ^[0-9]+$ ]]; then
+		if result_info=$(sqlite3 $database "SELECT * FROM '$tabela' WHERE $campo=$search;") && [[ -n "$result_info" ]]; then
+			retval=0
+		fi
+	else
+		if result_info=$(sqlite3 $database "SELECT * FROM $tabela WHERE $campo LIKE '%$search%';") && [[ -n "$result_info" ]]; then
+			retval=0
+		fi
+	fi
+	echo "$result_info"
+	return $retval
+}
+
+# Função para adicionar um novo produto ao banco de dados
+adicionar_produto() {
+	local produto_info
+	local ultimo_registro
+
+	while true; do
+		produto_info=
+		ultimo_registro="$(lastrec 'produtos')"
+		tela
+		titulo 1 "$(gettext "CADASTRO DE PRODUTO")" "$ciano"
+		box 11 10 6 100 "$(gettext "CADASTRO DE PRODUTO")" "$ciano"
+		print 10 11 "$ultimo_registro"
+		print 12 11 "$(gettext "Descrição")            : "
+		print 13 11 "$(gettext "Código Barras")        : "
+		print 14 11 "$(gettext "Unidade")              : "
+		print 15 11 "$(gettext "Preço (ex: 4.40 ou 5)"): "
+
+		while true; do
+			get 12 11 "$(gettext "Descrição")            : " nome
+			if [[ -n "$nome" ]]; then
+				if produto_info=$(seek produtos nome "$nome") && [ -n "$produto_info" ]; then
+					IFS='|' read -r produto_id produto_nome produto_unidade produto_quantidade produto_preco produto_codebar <<<"$produto_info"
+					get 12 11 "$(gettext "Descrição")            : " nome "$produto_nome"
+					if [[ -z "$nome" ]]; then
+						mensagem 2 "$(gettext "Descrição não pode ser em branco")" "$red"
+						continue
+					fi
+				fi
+				break
+			else
+				setpos 18 10
+				if readconf "$(gettext "A descrição não pode ser em branco. Cancelar?")"; then
+					return
+				fi
+			fi
+		done
+
+		get 13 11 "$(gettext "Código Barras")        : " codebar "$produto_codebar"
+		get 14 11 "$(gettext "Unidade")              : " un "$produto_unidade"
+
+		# Solicita o preço como número inteiro ou decimal com ponto (ex: 4.40) e verifica se não está em branco
+		while true; do
+			get 15 11 "$(gettext "Preço (ex: 4.40 ou 5)"): " preco "$produto_preco"
+			if [[ -n "$preco" ]] && [[ $preco =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+				break
+			else
+				mensagem 2 "$(gettext "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro.")" "$red"
+			fi
+		done
+
+		setpos 18 10
+		if readconf "$(gettext "Confirma inclusão/atualização do produto?")"; then
+			nome=${nome^^}
+			un=${un^^}
+			codebar=${codebar^^}
+			query="INSERT OR REPLACE INTO produtos (id, nome, un, preco, codebar) VALUES (
+		        (SELECT id FROM produtos WHERE id='$produto_id'),
+		        '$nome', '$un', '$preco', '$codebar'
+		    );"
+
+			if sqlite3 "$database" "$query"; then
+				mensagem 2 "$(gettext "Produto cadastrado/atualizado com sucesso!")" "$green"
+			else
+				mensagem 2 "$(gettext "Erro no cadastro/atualização do produto.")" "$red"
+			fi
+		else
+			mensagem 2 "$(gettext "Inclusão/alteração não efetuada.")" "$red"
+		fi
+	done
+}
+
+adicionar_fornecedor() {
+	local date_time=$(date +"%Y-%m-%d %H:%M:%S")
+	local fornecedor_info
+	local ultimo_registro
+
+	while true; do
+		fornecedor_info=
+		ultimo_registro="$(lastrec 'fornecedor')"
+		tela
+		titulo 1 "$(gettext "CADASTRO DE FORNECEDOR")" "$ciano"
+		box 11 10 7 80 "$(gettext "CADASTRO DE FORNECEDOR")" "$ciano"
+		print 10 11 "$ultimo_registro"
+		print 12 11 "$(gettext "Nome")                 : "
+		print 13 11 "$(gettext "Endereço")             : "
+		print 14 11 "$(gettext "Cidade")               : "
+		print 15 11 "$(gettext "Estado")               : "
+		print 16 11 "$(gettext "Cnpj")                 : "
+
+		while true; do
+			get 12 11 "$(gettext "Nome")                 : " nome
+			if [[ -n "$nome" ]]; then
+				if fornecedor_info=$(seek fornecedor nome "$nome") && [ -n "$fornecedor_info" ]; then
+					IFS='|' read -r fornecedor_id fornecedor_data fornecedor_nome fornecedor_ende fornecedor_cida fornecedor_esta fornecedor_cnpj <<<"$fornecedor_info"
+					get 12 11 "$(gettext "Nome")                 : " nome "$fornecedor_nome"
+					if [[ -z "$nome" ]]; then
+						mensagem 2 "$(gettext "Nome não pode ser em branco")" "$red"
+						continue
+					fi
+				fi
+				break
+			else
+				setpos 18 10
+				if readconf "$(gettext "O nome não pode ser em branco. Cancelar?")"; then
+					return
+				fi
+			fi
+		done
+
+		get 13 11 "$(gettext "Endereço")             : " ende "$fornecedor_ende"
+		get 14 11 "$(gettext "Cidade")               : " cida "$fornecedor_cida"
+		get 15 11 "$(gettext "Estado")               : " esta "$fornecedor_esta"
+		get 16 11 "$(gettext "Cnpj")                 : " cnpj "$fornecedor_cnpj"
+
+		setpos 18 10
+		if readconf "$(gettext "Confirma inclusão/atualização do fornecedor?")"; then
+			nome=${nome^^}
+			ende=${ende^^}
+			cida=${cida^^}
+			esta=${esta^^}
+			query="INSERT OR REPLACE INTO fornecedor (id,data, nome, ende, cida, esta, cnpj) VALUES (
+		        (SELECT id FROM fornecedor WHERE id='$fornecedor_id'),
+				'$date_time', '$nome', '$ende', '$cida', '$esta', '$cnpj'
+			);"
+
+			if sqlite3 "$database" "$query"; then
+				mensagem 2 "$(gettext "Fornecedor cadastrado/atualizado com sucesso!")" "$green"
+			else
+				mensagem 2 "$(gettext "Erro no cadastro/atualização do fornecedor")" "$red"
+			fi
+		else
+			mensagem 2 "$(gettext "Inclusão/alteração não efetuada.")" "$red"
+		fi
+	done
+}
+
+# Função para alterar dados de produtos
+alterar_produto() {
+	local produto_info
+	local ultimo_registro
+	local produto_info
+
+	while true; do
+		produto_info=
+		identificador=
+		ultimo_registro="$(lastrec 'produtos')"
+		tela
+		titulo 1 "$(gettext "ALTERAÇÃO DE PRODUTO")" "$ciano"
+		box 11 10 7 100 "$(gettext "ALTERAÇÃO DE PRODUTO")" "$ciano"
+		print 10 11 "$ultimo_registro"
+		print 12 11 "$(gettext "ID/Nome")              : "
+		print 13 11 "$(gettext "Descrição")            : "
+		print 14 11 "$(gettext "Código Barras")        : "
+		print 15 11 "$(gettext "Unidade")              : "
+		print 16 11 "$(gettext "Preço (ex: 4.40 ou 5)"): "
+
+		get 12 11 "$(gettext "ID/Nome")              : " identificador
+		setpos 18 10
+
+		if [[ -z "$identificador" ]]; then
+			if readconf "$(gettext "ID/Nome não pode ser em branco. Cancelar?")"; then
+				return
+			fi
+		fi
+		if [[ $identificador =~ ^[0-9]+$ ]]; then
+			produto_info=$(seek produtos id "$identificador")
+		else
+			produto_info=$(seek produtos nome "$identificador")
+		fi
+		if [[ -z "$produto_info" ]]; then
+			mensagem 2 "$(gettext "Produto não encontrado nos parâmetros informados")" "$red"
+			continue
+		fi
+		IFS='|' read -r produto_id produto_nome produto_unidade produto_quantidade produto_preco produto_codebar <<<"$produto_info"
+
+		while true; do
+			get 13 11 "$(gettext "Descrição")            : " nome "$produto_nome"
+			if [[ -n "$nome" ]]; then
+				break
+			else
+				setpos 18 10
+				if readconf "$(gettext "A descrição não pode ser em branco. Cancelar?")"; then
+					return
+				fi
+			fi
+		done
+
+		get 14 11 "$(gettext "Código Barras")        : " codebar "$produto_codebar"
+		get 15 11 "$(gettext "Unidade")              : " un "$produto_unidade"
+
+		# Solicita o preço como número inteiro ou decimal com ponto (ex: 4.40) e verifica se não está em branco
+		while true; do
+			get 16 11 "$(gettext "Preço (ex: 4.40 ou 5)"): " preco "$produto_preco"
+			if [[ -n "$preco" ]] && [[ $preco =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+				break
+			else
+				mensagem 2 "$(gettext "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro.")" "$red"
+			fi
+		done
+
+		setpos 18 10
+		if readconf "$(gettext "Confirma inclusão/atualização do produto?")"; then
+			nome=${nome^^}
+			un=${un^^}
+			query="INSERT OR REPLACE INTO produtos (id, nome, un, preco, codebar) VALUES (
+		        (SELECT id FROM produtos WHERE id='$produto_id'),
+		        '$nome', '$un', '$preco', '$codebar'
+		    );"
+
+			if sqlite3 "$database" "$query"; then
+				mensagem 2 "$(gettext "Produto cadastrado/atualizado com sucesso!")" "$green"
+			else
+				mensagem 2 "$(gettext "Erro no cadastro/atualização do produto.")" "$red"
+			fi
+		else
+			mensagem 2 "$(gettext "Inclusão/alteração não efetuada.")" "$red"
+		fi
+	done
+}
+
+alterar_fornecedor() {
+	local date_time=$(date +"%Y-%m-%d %H:%M:%S")
+	local fornecedor_info
+	local ultimo_registro
+
+	while true; do
+		fornecedor_info=
+		ultimo_registro="$(lastrec 'fornecedor')"
+		tela
+		titulo 1 "$(gettext "ALTERAÇÃO DE FORNECEDOR")" "$ciano"
+		box 11 10 8 80 "$(gettext "ALTERACÃO DE FORNECEDOR")" "$ciano"
+		print 10 11 "$ultimo_registro"
+		print 12 11 "$(gettext "ID/Nome")              : "
+		print 13 11 "$(gettext "Nome")                 : "
+		print 14 11 "$(gettext "Endereço")             : "
+		print 15 11 "$(gettext "Cidade")               : "
+		print 16 11 "$(gettext "Estado")               : "
+		print 17 11 "$(gettext "Cnpj")                 : "
+
+		get 12 11 "$(gettext "ID/Nome")              : " identificador
+		setpos 19 10
+
+		if [[ -z "$identificador" ]]; then
+			if readconf "$(gettext "ID/Nome não pode ser em branco. Cancelar?")"; then
+				return
+			fi
+		fi
+		if [[ $identificador =~ ^[0-9]+$ ]]; then
+			fornecedor_info=$(seek fornecedor id "$identificador")
+		else
+			fornecedor_info=$(seek fornecedor nome "$identificador")
+		fi
+		if [[ -z "$fornecedor_info" ]]; then
+			mensagem 2 "$(gettext "Fornecedor não encontrado nos parâmetros informados")" "$red"
+			continue
+		fi
+		IFS='|' read -r fornecedor_id fornecedor_data fornecedor_nome fornecedor_ende fornecedor_cida fornecedor_esta fornecedor_cnpj <<<"$fornecedor_info"
+
+		while true; do
+			get 13 11 "$(gettext "Nome")                 : " nome "$fornecedor_nome"
+			if [[ -n "$nome" ]]; then
+				break
+			else
+				setpos 19 10
+				if readconf "$(gettext "O nome não pode ser em branco. Cancelar?")"; then
+					return
+				fi
+			fi
+		done
+
+		get 14 11 "$(gettext "Endereço")             : " ende "$fornecedor_ende"
+		get 15 11 "$(gettext "Cidade")               : " cida "$fornecedor_cida"
+		get 16 11 "$(gettext "Estado")               : " esta "$fornecedor_esta"
+		get 17 11 "$(gettext "Cnpj")                 : " cnpj "$fornecedor_cnpj"
+
+		setpos 19 10
+		if readconf "$(gettext "Confirma inclusão/atualização do fornecedor?")"; then
+			nome=${nome^^}
+			ende=${ende^^}
+			cida=${cida^^}
+			esta=${esta^^}
+			query="INSERT OR REPLACE INTO fornecedor (id,data, nome, ende, cida, esta, cnpj) VALUES (
+		        (SELECT id FROM fornecedor WHERE id='$fornecedor_id'),
+				'$date_time', '$nome', '$ende', '$cida', '$esta', '$cnpj'
+			);"
+
+			if sqlite3 "$database" "$query"; then
+				mensagem 2 "$(gettext "Fornecedor cadastrado/atualizado com sucesso!")" "$green"
+			else
+				mensagem 2 "$(gettext "Erro no cadastro/atualização do fornecedor")" "$red"
+			fi
+		else
+			mensagem 2 "$(gettext "Inclusão/alteração não efetuada.")" "$red"
+		fi
+	done
+}
+
+# Função para remover um produto do banco de dados
+remover_produto() {
+	local resultado
+
+	while true; do
+		tela
+		titulo 1 "$(gettext "REMOÇÃO DE PRODUTO")" "$ciano"
+		box 10 0 4 $(($(lastcol) - 1))
+
+		get 11 01 "$(gettext "Digite o ID ou nome do produto que deseja remover: ")" identificador
+		identificador=${identificador^^}
+
+		if [[ -z "$identificador" ]]; then
+			setpos 14 01
+			if readconf "$(gettext "O ID não pode ser em branco. Cancelar?")"; then
+				return
+			fi
+		fi
+		if [[ $identificador =~ ^[0-9]+$ ]]; then
+			consulta_sql="SELECT * FROM produtos WHERE id='$identificador'"
+			resultado="$(sqlite3 "$database" "$consulta_sql")"
+		else
+			consulta_sql="SELECT * FROM produtos WHERE nome='$identificador'"
+			resultado="$(sqlite3 "$database" "$consulta_sql")"
+		fi
+		if [[ -n "$resultado" ]]; then
+			print 12 01 "$resultado" "$azul"
+			setpos 14 01
+			if readconf "$(gettext "Confirma exclusão do produto?")"; then
+				# Verifica se o identificador é um número (ID) ou uma string (nome)
+				if [[ $identificador =~ ^[0-9]+$ ]]; then
+					query="DELETE FROM produtos WHERE id='$identificador';"
+				else
+					query="DELETE FROM produtos WHERE nome='$identificador';"
+				fi
+				sqlite3 "$database" "$query"
+				mensagem 2 "$(gettext "Produto removido com sucesso!")" "$green"
+			fi
+		else
+			mensagem 2 "$(gettext "Nenhum produto encontrado nos parâmetros informados")" "$red" 10
+		fi
+	done
+}
+
+function listagem_vendas_diarias() {
+	local query_result
+	local nrow
+	local lines
+	local lastrow=$(lastrow)
+	local lastcol=$(lastcol)
+	local dini
+	local dfim
+	local data_inicio="01-$(date +"%m-%Y")"
+	local data_fim=$(date +"%d-%m-%Y")
+
+	tela
+	titulo 1 "$(gettext "LISTAGEM DE VENDAS DIÁRIAS")" "$ciano"
+	box 10 0 4 "$((lastcol - 1))" "$(gettext "PERÍODO DE CONSULTA")" "$ciano"
+	print 11 01 "$(gettext "Data Inicial")    : "
+	print 12 01 "$(gettext "Data Final")      : "
+
+	while true; do
+		get 11 01 "$(gettext "Data Inicial")    : " dini "$data_inicio"
+		if [[ -n "$dini" ]]; then
+			if validar_data "$dini"; then
+				break
+			else
+				mensagem 2 "$(gettext "Data inválida")" "$red"
+				continue
+			fi
+		else
+			setpos 14 01
+			if readconf "$(gettext "A data não pode ser em branco. Cancelar?")"; then
+				return
+			fi
+		fi
+	done
+
+	while true; do
+		get 12 01 "$(gettext "Data Final")      : " dfim "$data_fim"
+		if [[ -n "$dfim" ]]; then
+			if validar_data "$dfim"; then
+				break
+			else
+				mensagem 2 "$(gettext "Data inválida")" "$red"
+				continue
+			fi
+		else
+			setpos 14 01
+			if readconf "$(gettext "A data não pode ser em branco. Cancelar?")"; then
+				return
+			fi
+		fi
+	done
+
+	# Função para converter o formato de data de dd-mm-yyyy para yyyy-MM-01 e yyyy-MM-31
+	convert_data() {
+		local data_in=$1
+		local data_out
+
+		IFS='-' read -r -a data_parts <<<"$data_in"
+		data_out="${data_parts[2]}-${data_parts[1]}-${data_parts[0]}"
+		echo "$data_out"
+	}
+
+	dini=$(convert_data "$dini")
+	dfim=$(convert_data "$dfim")
+
+	# Consulta para obter resultados diários agrupados por ano e mês
+	query_results=()
+
+	mes_inicial="$(date -d "$dini" +"%m")"
+	mes_final="$(date -d "$dfim" +"%m")"
+	ano_inicial="$(date -d "$dini" +"%Y")"
+	ano_final="$(date -d "$dfim" +"%Y")"
+
+	ncol=01
+	box 14 0 "$((lastrow - 29))" "$((lastcol - 2))" "$(gettext "LISTAGEM DE VENDAS DIÁRIAS")" "$ciano"
+	for i in $(seq $mes_inicial $mes_final); do
+		mes_atual=$(date -d "$ano_inicial-$i-01" +"%Y-%m")
+		query_result=$(sqlite3 "$database" "SELECT date(data) AS data, SUM(total) AS 'total dia' FROM vendas WHERE data LIKE '$mes_atual%' GROUP BY date(data) ORDER BY data ASC")
+
+		# Verifica se há dados no resultado da consulta
+		if [[ -n "${query_result}" ]]; then
+			setpos 15 "$ncol"
+			printf "${yellow}%-10s %10s\n" "data" "total dia"
+			setpos 16 "$ncol"
+			replicate "-" 21
+			nrow=17
+			total_mes=0
+			while IFS='|' read -r data total; do
+				total_mes=$(echo "$total_mes + $total" | bc -l)
+				total=$(bc -l <<<"$total" | tr "." ",")
+				setpos "$nrow" "$ncol"
+				#			printf "${blue}%-10s ${red}%10.2f${reset}\n" "$(date -d "$data" +"%d-%m-%Y")" "$total"
+				printf "${blue}%s ${red}%10.2f${yellow}|${reset}\n" "$data" "$total"
+				((++nrow))
+			done <<<"${query_result}"
+			((++nrow))
+			setpos "$nrow" "$ncol"
+			printf "${blue}%-10s ${red}%'10.2f${reset}\n" "SOMA" "$(tr "." "," <<<"$total_mes")"
+			ncol=$((ncol + 22))
+		fi
+	done
+	mensagem 2 "" "$green" 300
+}
+
+pesquisar_produto() {
+	while true; do
+		tela
+		titulo 1 "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
+		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
+		get 11 1 "$(gettext "Pesquisar por (nome, id ou *=tudo)") : " produto
+
+		[[ -z "$produto" ]] && return
+		[[ "$produto" == "*" ]] && produto=
+
+		if [[ $produto =~ ^[0-9]+$ ]]; then
+			QUERY_SEARCH_PRODUCT="SELECT * FROM produtos WHERE id='$produto'"
+		else
+			QUERY_SEARCH_PRODUCT="SELECT * FROM produtos WHERE nome LIKE '%$produto%'"
+		fi
+		if resultado_sqlite=$(sqlite3 -column -header "$database" "$QUERY_SEARCH_PRODUCT") && [[ -n "$resultado_sqlite" ]]; then
+			# Imprimir o resultado dentro do quadro
+			#box 13 0 $(($(lastrow)-3)) $(($(lastcol)-1))
+
+			setpos 13 1
+			nRow=13
+			while IFS='|' read -r id nome un quantidade preco; do
+				setpos $nRow 1
+				printf "%-s %s %s %s %s" "$id" "$nome" "$un" "$quantidade" "$preco"
+				((++nRow))
+			done < <(tr '\t' '|' <<<"$resultado_sqlite")
+			mensagem 2 "" "$green" 10
+		else
+			mensagem 2 "$(gettext "Nenhum produto encontrado nos parâmetros informados")" "$red" 10
+		fi
+	done
+}
+
+listagem_produtos_vendidos() {
+	while true; do
+		tela
+		titulo 1 "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
+		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
+		get 11 1 "$(gettext "Pesquisar por (id, docnr, data ou *=tudo)") : " identificador
+
+		[[ -z "$identificador" ]] && return
+		[[ "$identificador" == "*" ]] && identificador=
+
+		# por id
+		if [[ $identificador =~ ^[0-9]+$ ]]; then
+			query="SELECT vendas.data, vendas.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', vendas.quantidade AS 'Quantidade', vendas.preco AS 'Preço', vendas.total AS 'Total'
+				FROM vendas
+				JOIN produtos ON vendas.id = produtos.id
+				WHERE vendas.id = '$identificador'
+				ORDER BY vendas.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
+		# por data
+		elif [[ $identificador =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ || $identificador =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ || $identificador =~ ^[0-9]{2}/[0-9]{2}/[0-9]{4}$ ]]; then
+			# Remove caracteres não numéricos da data de entrada
+			identificador=$(echo "$identificador" | tr -cd '0-9')
+
+			# Converte a data para o formato "2023-10-23" aceito pelo banco de dados
+			if [[ ${#identificador} -eq 8 ]]; then
+				data_banco="${identificador:4}-${identificador:2:2}-${identificador:0:2}"
+			else
+				mensagem 2 "$(gettext "Formato de data inválido.")" "$red"
+				continue
+			fi
+			query="SELECT vendas.data, vendas.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', vendas.quantidade AS 'Quantidade', vendas.preco AS 'Preço', vendas.total AS 'Total'
+				FROM vendas
+				JOIN produtos ON vendas.id = produtos.id
+				WHERE strftime('%Y-%m-%d', vendas.data) = '$data_banco'
+				ORDER BY vendas.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
+		# por docnr
+		elif [[ $identificador =~ ^[0-9]{8}-[0-9]{8}$ ]]; then
+			query="SELECT vendas.data, vendas.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', vendas.quantidade AS 'Quantidade', vendas.preco AS 'Preço', vendas.total AS 'Total'
+				FROM vendas
+				JOIN produtos ON vendas.id = produtos.id
+				WHERE vendas.docnr = '$identificador'
+				ORDER BY vendas.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
+		# todos
+		else
+			query="SELECT vendas.data, vendas.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', vendas.quantidade AS 'Quantidade', vendas.preco AS 'Preço', vendas.total AS 'Total'
+				FROM vendas
+				JOIN produtos ON vendas.id = produtos.id
+				ORDER BY vendas.docnr;"
+			result=$(sqlite3 "$database" "$query")
+		fi
+
+		# Verifica se há dados no resultado da consulta
+		if [ -n "$result" ]; then
+			current_docnr=""
+			while IFS='|' read -r data docnr un produto quantidade preco total codebar; do
+				if [[ "$docnr" != "$current_docnr" ]]; then
+					echo
+					echo "${blue}docnr: ${yellow}$docnr - ${blue}data: ${yellow}$data${reset}"
+					replicate "-" 84
+					current_docnr="$docnr"
+				fi
+				total_formatado=$(echo "$quantidade * $preco" | bc -l | tr "." ",")
+				preco=$(bc -l <<<"$preco" | tr "." ",")
+				total=$(bc -l <<<"$total" | tr "." ",")
+				printf "%-40s %s ${cyan}%3d x %10.2f = %10.2f ${red}%10.2f${reset}\n" "$produto" "$un" "$quantidade" "$preco" "$total_formatado" "$total"
+			done <<<"$result"
+			mensagem 2 "" "$green" 300
+		else
+			mensagem 2 "$(gettext "Nenhum produto vendido nos parâmetros informados")" "$red" 10
+		fi
+	done
+}
+
+listagem_entradas_produtos() {
+	while true; do
+		tela
+		titulo 1 "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
+		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
+		get 11 1 "$(gettext "Pesquisar por (id, docnr, data ou *=tudo)") : " identificador
+
+		[[ -z "$identificador" ]] && return
+		[[ "$identificador" == "*" ]] && identificador=
+
+		# por id / por docnr
+		if [[ $identificador =~ ^[0-9]+$ ]]; then
+
+			query="SELECT compras.data, compras.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', compras.quantidade AS 'Quantidade', compras.custo AS 'Preço', compras.total AS 'Total'
+				FROM compras
+				JOIN produtos ON compras.id = produtos.id
+				WHERE compras.docnr = '$identificador'
+				ORDER BY compras.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
+			if [ -z "$result" ]; then
+				query="SELECT compras.data, compras.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', compras.quantidade AS 'Quantidade', compras.custo AS 'Custo', compras.total AS 'Total'
+					FROM compras
+					JOIN produtos ON compras.id = produtos.id
+					WHERE compras.id = '$identificador'
+					ORDER BY compras.docnr;"
+				result=$(sqlite3 "$database" "$query")
+			fi
+
+		# por data
+		elif [[ $identificador =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ || $identificador =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ || $identificador =~ ^[0-9]{2}/[0-9]{2}/[0-9]{4}$ ]]; then
+			# Remove caracteres não numéricos da data de entrada
+			identificador=$(echo "$identificador" | tr -cd '0-9')
+
+			# Converte a data para o formato "2023-10-23" aceito pelo banco de dados
+			if [[ ${#identificador} -eq 8 ]]; then
+				data_banco="${identificador:4}-${identificador:2:2}-${identificador:0:2}"
+			else
+				mensagem 2 "$(gettext "Formato de data inválido.")" "$red"
+				continue
+			fi
+			query="SELECT compras.data, compras.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', compras.quantidade AS 'Quantidade', compras.custo AS 'Preço', compras.total AS 'Total'
+				FROM compras
+				JOIN produtos ON compras.id = produtos.id
+				WHERE strftime('%Y-%m-%d', compras.data) = '$data_banco'
+				ORDER BY compras.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
+		# por docnr
+		elif [[ $identificador =~ ^[0-9]{8}-[0-9]{8}$ ]]; then
+			query="SELECT compras.data, compras.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', compras.quantidade AS 'Quantidade', compras.custo AS 'Preço', compras.total AS 'Total'
+				FROM compras
+				JOIN produtos ON compras.id = produtos.id
+				WHERE compras.docnr = '$identificador'
+				ORDER BY compras.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
+		# todos
+		else
+			query="SELECT compras.data, compras.docnr AS 'Doc. Número', produtos.un, produtos.nome AS 'Produto', compras.quantidade AS 'Quantidade', compras.custo AS 'Preço', compras.total AS 'Total'
+				FROM compras
+				JOIN produtos ON compras.id = produtos.id
+				ORDER BY compras.docnr;"
+			result=$(sqlite3 "$database" "$query")
+		fi
+
+		# Verifica se há dados no resultado da consulta
+		if [ -n "$result" ]; then
+			current_docnr=""
+			while IFS='|' read -r data docnr un produto quantidade preco total codebar; do
+				if [[ "$docnr" != "$current_docnr" ]]; then
+					echo
+					echo "${blue}docnr: ${yellow}$docnr - ${blue}data: ${yellow}$data${reset}"
+					replicate "-" 84
+					current_docnr="$docnr"
+				fi
+				total_formatado=$(echo "$quantidade * $preco" | bc -l | tr "." ",")
+				preco=$(bc -l <<<"$preco" | tr "." ",")
+				total=$(bc -l <<<"$total" | tr "." ",")
+				printf "%-40s %s ${cyan}%3d x %10.2f = %10.2f ${red}%10.2f${reset}\n" "$produto" "$un" "$quantidade" "$preco" "$total_formatado" "$total"
+			done <<<"$result"
+			mensagem 2 "" "$green" 300
+		else
+			mensagem 2 "$(gettext "Nenhum produto comprado nos parâmetros informados")" "$red" 10
+		fi
+	done
+}
+
+pesquisar_fornecedor() {
+	local identificador
+	local resultado_sqlite
+
+	while true; do
+		tela
+		titulo 1 "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
+		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
+		get 11 1 "Pesquisar por (nome, id ou *=tudo) : " identificador
+
+		[[ -z "$identificador" ]] && return
+		[[ "$identificador" == "*" ]] && identificador=
+
+		if [[ $identificador =~ ^[0-9]+$ ]]; then
+			QUERY_SEARCH_PRODUCT="SELECT * FROM fornecedor WHERE id='$identificador'"
+		else
+			QUERY_SEARCH_PRODUCT="SELECT * FROM fornecedor WHERE nome LIKE '%$identificador%'"
+		fi
+		if resultado_sqlite=$(sqlite3 -column -header "$database" "$QUERY_SEARCH_PRODUCT") && [[ -n "$resultado_sqlite" ]]; then
+			setpos 13 1
+			nRow=13
+			while IFS='|' read -r id data nome ende cida esta cnpj; do
+				setpos $nRow 1
+				printf "%-s %s %s %s %s %s %s" "$id" "$data" "$nome" "$ende" "$cida" "$esta" "$cnpj"
+				((++nRow))
+			done < <(tr '\t' '|' <<<"$resultado_sqlite")
+			mensagem 2 "" "$green" 10
+		else
+			mensagem 2 "$(gettext "Nenhum fornecedor encontrado nos parâmetros informados")" "$red" 10
+		fi
+	done
+}
+
+# Função para buscar informações do produto
+buscar_produto() {
+	local identificador="$1"
+	local produto_info
+
+	if [[ $identificador =~ ^[0-9]+$ ]]; then
+		produto_info=$(sqlite3 "$database" "SELECT id, nome, quantidade, preco FROM produtos WHERE id='$identificador';")
+	else
+		produto_info=$(sqlite3 "$database" "SELECT id, nome, quantidade, preco FROM produtos WHERE nome LIKE '%$identificador%';")
+	fi
+	echo "$produto_info"
+}
+
+registrar_venda() {
+	local total_venda="$1"
+	local data_venda="$(date +"%Y-%m-%d %H:%M:%S")"
+	local docnr="$(random_docnr)"
+
+	for key in "${!lista_produtos[@]}"; do
+		produto="${lista_produtos[$key]}"
+		IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
+		sqlite3 "$database" "INSERT INTO vendas (id, data, quantidade, preco, total, docnr) VALUES ('$id', '$data_venda', '$quantidade', '$valor', '$total_venda', '$docnr');"
+	done
+	mensagem 2 "$(gettext "Registro de venda efetuado")" "$green"
+}
+
+atualizar_estoque_vendas() {
+	for key in "${!lista_produtos[@]}"; do
+		produto="${lista_produtos[$key]}"
+		IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
+		sqlite3 "$database" "UPDATE produtos SET quantidade = COALESCE(quantidade, 0) - $quantidade WHERE id='$id';"
+	done
+	mensagem 2 "$(gettext "Baixa de estoque efetuado")" "$green"
+}
+
+# Função para realizar uma venda de múltiplos produtos
+realizar_venda() {
+	declare -A lista_produtos # Declarar um array associativo para armazenar produtos
+	total_venda=0
+
+	while true; do
+		tela
+		titulo 1 "$(gettext "VENDA")" "$ciano"
+		echo "==============================$(gettext "CUPOM PDV")=============================="
+		total_venda=0
+		for key in "${!lista_produtos[@]}"; do
+			produto="${lista_produtos[$key]}"
+			IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
+			subtotal=$(echo "$quantidade * $valor" | bc -l | tr "." ",")
+			valor_formatado=$(echo "$valor" | tr '.' ',')
+			# Adicione espaços extras para alinhar os campos
+			#			printf "${yellow}%s\t%s\t%s\t%8.2f\t%8.2f\n${reset}" "$id" "$produto_nome" "$quantidade" "$valor_formatado" "$subtotal"
+			printf "${yellow}%2s  %-41s  %2s  %8.2f  %8.2f${reset}\n" "$id" "$produto_nome" "$quantidade" "$valor_formatado" "$subtotal"
+			total_venda=$(echo "$total_venda + ( $quantidade * $valor)" | bc -l)
+		done
+		echo "====================================================================="
+		printf "${red}%2s  %-41s  %2s  %8s  %8.2f${reset}\n" "" "SUBTOTAL R$" "" "" "$(tr '.' ',' <<<"$total_venda")"
+		echo "====================================================================="
+
+		read -p "$(gettext "ID/nome/CodeBar (deixe em branco para concluir)")   : " identificador
+		identificador=${identificador^^}
+		if [ -z "$identificador" ]; then
+			break
+		fi
+
+		#código de barras
+		if [[ $identificador =~ ^[0-9]{13}$ ]]; then
+			produto_info=$(seek produtos codebar "$identificador")
+		#id
+		elif [[ $identificador =~ ^[0-9]+$ ]]; then
+			produto_info=$(seek produtos id "$identificador")
+		else
+			produto_info=$(seek produtos nome "$identificador")
+		fi
+
+		if [[ -z "$produto_info" ]]; then
+			mensagem 2 "$(gettext "Produto não encontrado")" "$red"
+			continue
+		fi
+		IFS='|' read -r id produto_nome unidade estoque valor codebar <<<"$produto_info"
+
+		# Solicita a quantidade e verifica se não está em branco
+		read -p "$(gettext "Quantidade (0 para remover o item)")                : " quantidade
+
+		if [[ "$quantidade" = 0 ]]; then
+			if [[ -v lista_produtos[$id] ]]; then
+				unset lista_produtos[$id]
+				continue
+			else
+				mensagem 2 "$(gettext "Quantidade inválida ou item não tem na lista")" "$red"
+				continue
+			fi
+		fi
+
+		if [ "$estoque" -lt "$quantidade" ]; then
+			mensagem 2 "$(gettext "Quantidade insuficiente de") '$produto_nome' $(gettext "no estoque")" "$red"
+			continue
+		fi
+		subtotal=$(echo "$quantidade * $valor" | bc -l)
+
+		# Atualiza o array associativo com informações do produto
+		if [[ -v lista_produtos[$id] ]]; then
+			# Se o produto já existe na lista, atualiza a quantidade
+			produto="${lista_produtos[$id]}"
+			IFS='|' read -r produto_id produto_nome produto_quantidade produto_valor <<<"$produto"
+			nova_quantidade=$((produto_quantidade + quantidade))
+			lista_produtos[$id]="$produto_id|$produto_nome|$nova_quantidade|$valor"
+		else
+			# Se o produto não existe na lista, adiciona
+			lista_produtos[$id]="$id|$produto_nome|$quantidade|$valor"
+		fi
+		total_venda=$(echo "$total_venda + $subtotal" | bc -l)
+	done
+
+	if [[ "${#lista_produtos[@]}" -gt 0 ]]; then
+		if readconf "$(gettext "Confirma o fetchamento do CUPOM?")"; then
+			registrar_venda "$total_venda"
+			atualizar_estoque_vendas
+		fi
+	fi
+}
+
+registrar_compra() {
+	local total_compra="$1"
+	local data_compra=$(date +"%Y-%m-%d %H:%M:%S")
+	local fornecedor="${notafiscal[fornecedor]}"
+	local docnr="${notafiscal[docnr]}"
+
+	# Itera sobre os produtos vendidos no array associativo
+	for key in "${!lista_produtos[@]}"; do
+		produto="${lista_produtos[$key]}"
+		IFS='|' read -r id produto_nome quantidade custo <<<"$produto"
+		sqlite3 "$database" "INSERT INTO compras (id, fornecedor, data, docnr, quantidade, custo, total) VALUES ('$id', '$fornecedor', '$data_compra', '$docnr', '$quantidade', '$custo','$total_compra');"
+	done
+	mensagem 2 "$(gettext "Registro de entradas efetuado")" "$green"
+}
+
+atualizar_estoque_compras() {
+	# Iterar sobre os elementos do array lista_produtos
+	for key in "${!lista_produtos[@]}"; do
+		produto="${lista_produtos[$key]}"
+		IFS='|' read -r id nome quantidade custo <<<"$produto"
+		sqlite3 "$database" "UPDATE produtos SET quantidade = COALESCE(quantidade, 0) + $quantidade WHERE id=$id;"
+	done
+	mensagem 2 "$(gettext "Ajuste de estoque efetuado")" "$green"
+}
+
+buscar_fornecedor() {
+	local identificador="$1"
+	local fornecedor_info
+
+	if [[ $identificador =~ ^[0-9]+$ ]]; then
+		fornecedor_info=$(sqlite3 "$database" "SELECT id, nome, ende, cida, esta, cnpj FROM fornecedor WHERE id='$identificador';")
+	else
+		fornecedor_info=$(sqlite3 "$database" "SELECT id, nome, ende, cida, esta, cnpj FROM fornecedor WHERE nome LIKE '%$identificador%';")
+	fi
+	echo "$fornecedor_info"
+}
+
+entrada_produtos() {
+	declare -gA lista_produtos=() # Declarar um array associativo para armazenar produtos
+	declare -gA notafiscal=()
+	total_compra=0
+
+	while true; do
+		tela
+		titulo 1 "$(gettext "ENTRADAS DE PRODUTOS")" "$ciano"
+		box 11 00 4 70 "$(gettext "DADOS DA NFF")" "$ciano"
+		# Solicita a descrição (nome) do produto e verifica se não está em branco
+		print 12 01 "$(gettext "Fornecedor") : "
+		print 13 01 "$(gettext "Docnr/NFF")  : "
+
+		while true; do
+			get 12 01 "$(gettext "Fornecedor") : " identificador
+			identificador=${identificador^^}
+			if [[ -n "$identificador" ]]; then
+				break
+			else
+				setpos 15 10
+				if readconf "$(gettext "O ID/nome não pode ser em branco. Cancelar?")"; then
+					return
+				fi
+			fi
+		done
+		if fornecedor_info=$(buscar_fornecedor "$identificador") && [ -z "$fornecedor_info" ]; then
+			mensagem 2 "$(gettext "Fornecedor não encontrado")" "$red"
+			continue
+		fi
+		IFS='|' read -r id nome ende cida esta cnpj <<<"$fornecedor_info"
+		print 10 01 "${azul}${nome}${reset}"
+		get 13 01 "$(gettext "Docnr/NFF")  : " docnr "$(random_docnr)"
+		notafiscal=([fornecedor]="$id" [nome]="$nome" [docnr]="$docnr")
+		break
+	done
+
+	while true; do
+		clear_eol 15 "$(($(lastrow) - 4))"
+		setpos 15 00
+		echo "========================$(gettext "RELAÇAO DAS ENTRADAS")========================="
+		total_compra=0
+		for key in "${!lista_produtos[@]}"; do
+			produto="${lista_produtos[$key]}"
+			IFS='|' read -r id produto_nome quantidade custo <<<"$produto"
+			subtotal=$(echo "$quantidade * $custo" | bc -l | tr "." ",")
+			custo_formatado=$(echo "$custo" | tr '.' ',')
+			# Adicione espaços extras para alinhar os campos
+			printf "${yellow}%2s  %-41s  %2s  %8.2f  %8.2f${reset}\n" "$id" "$produto_nome" "$quantidade" "$custo_formatado" "$subtotal"
+			total_compra=$(echo "$total_compra + ( $quantidade * $custo)" | bc -l)
+		done
+		echo "====================================================================="
+		printf "${red}%2s  %-41s  %2s  %8s  %8.2f${reset}\n" "" "SUBTOTAL R$" "" "" "$(tr '.' ',' <<<"$total_compra")"
+		echo "====================================================================="
+
+		read -p "$(gettext "ID/nome/CodeBar (deixe em branco para concluir)")   : " identificador
+		identificador=${identificador^^}
+		if [ -z "$identificador" ]; then
+			break
+		fi
+
+		#código de barras
+		if [[ $identificador =~ ^[0-9]{13}$ ]]; then
+			produto_info=$(seek produtos codebar "$identificador")
+		#id
+		elif [[ $identificador =~ ^[0-9]+$ ]]; then
+			produto_info=$(seek produtos id "$identificador")
+		else
+			produto_info=$(seek produtos nome "$identificador")
+		fi
+
+		if [[ -z "$produto_info" ]]; then
+			mensagem 2 "$(gettext "Produto não encontrado")" "$red"
+			continue
+		fi
+		IFS='|' read -r id produto_nome unidade estoque preco codebar <<<"$produto_info"
+		echo -e "$azul$produto_nome$reset"
+
+		# Solicita a quantidade e verifica se não está em branco
+		read -p "$(gettext "Quantidade (0 para remover o item)")                : " quantidade
+
+		if [[ "$quantidade" = 0 ]]; then
+			if [[ -v lista_produtos[$id] ]]; then
+				unset lista_produtos[$id]
+				continue
+			else
+				mensagem 2 "$(gettext "Quantidade inválida ou item não tem na lista")" "$red"
+				continue
+			fi
+		fi
+
+		# Solicita o preço como número inteiro ou decimal com ponto (ex: 4.40) e verifica se não está em branco
+		while true; do
+			read -p "$(gettext "Preço custo (ex: 4.40 ou 5)")                       : " custo
+			if [[ -n "$custo" ]] && [[ $custo =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+				break
+			else
+				mensagem 2 "$(gettext "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro.")" "$red"
+			fi
+		done
+		subtotal=$(echo "$quantidade * $custo" | bc -l)
+
+		# Atualiza o array associativo com informações do produto
+		if [[ -v lista_produtos[$id] ]]; then
+			# Se o produto já existe na lista, atualiza a quantidade
+			produto="${lista_produtos[$id]}"
+			IFS='|' read -r produto_id produto_nome produto_quantidade produto_custo <<<"$produto"
+			nova_quantidade=$((produto_quantidade + quantidade))
+			lista_produtos[$id]="$produto_id|$produto_nome|$nova_quantidade|$custo"
+		else
+			# Se o produto não existe na lista, adiciona
+			lista_produtos[$id]="$id|$produto_nome|$quantidade|$custo"
+		fi
+		total_compra=$(echo "$total_compra + $subtotal" | bc -l)
+	done
+
+	if [[ "${#lista_produtos[@]}" -gt 0 ]]; then
+		if readconf "$(gettext "Confirma a entrada desses produtos?")"; then
+			registrar_compra "$total_compra"
+			atualizar_estoque_compras
+		fi
+	fi
+}
+
+conciliar_estoque() {
+	setpos 23 11
+	if readconf "$(gettext "Confirma a atualização?")"; then
+		mensagem 2 "$(gettext "Aguarde... Atualizando estoque")" "$yellow"
+
+		sqlite3 estoque.db "UPDATE produtos
+	SET quantidade = 0
+	WHERE produtos.id IN (
+    	SELECT produtos.id
+	    FROM produtos
+	    LEFT JOIN compras ON produtos.id = compras.id
+	    GROUP BY produtos.id
+	);"
+
+		sqlite3 estoque.db "UPDATE produtos
+	SET quantidade = quantidade + (
+    	SELECT SUM(compras.quantidade)
+	    FROM compras
+	    WHERE produtos.id = compras.id
+	)
+	WHERE produtos.id IN (
+    	SELECT produtos.id
+	    FROM produtos
+	    LEFT JOIN compras ON produtos.id = compras.id
+	    GROUP BY produtos.id
+	);"
+
+		sqlite3 estoque.db "UPDATE produtos
+	SET quantidade = quantidade - (
+	    SELECT SUM(vendas.quantidade)
+	    FROM vendas
+	    WHERE produtos.id = vendas.id
+	)
+	WHERE produtos.id IN (
+	    SELECT produtos.id
+	    FROM produtos
+	    LEFT JOIN vendas ON produtos.id = vendas.id
+	    GROUP BY produtos.id
+	);"
+		mensagem 2 "$(gettext "Atualização concluída")" "$green"
+	fi
+}
+
+soma_teste() {
+	sqlite3 estoque.db "SELECT produtos.nome, SUM(compras.quantidade) AS total_compras
+	FROM produtos
+	LEFT JOIN compras ON produtos.id = compras.id
+	GROUP BY produtos.nome;"
+
+	sqlite3 estoque.db "SELECT p.nome,
+                            SUM(c.quantidade) AS total_compras,
+                            SUM(v.quantidade) AS total_vendas
+                    FROM produtos AS p
+                    LEFT JOIN (SELECT id, SUM(quantidade) AS quantidade
+                               FROM compras GROUP BY id) AS c ON p.id = c.id
+                    LEFT JOIN (SELECT id, SUM(quantidade) AS quantidade
+                               FROM vendas GROUP BY id) AS v ON p.id = v.id
+                    GROUP BY p.nome;"
+}
+
+sh_criar_tabelas() {
+	mensagem 2 "$(gettext "Checando tabela de produtos.")" "$green" 0
+	criar_tabela_produtos
+	mensagem 2 "$(gettext "Checando tabela de vendas.")" "$green" 0
+	criar_tabela_vendas
+	mensagem 2 "$(gettext "Checando tabela de compras.")" "$green" 0
+	criar_tabela_compras
+	mensagem 2 "$(gettext "Checando tabela de fornecedores.")" "$green" 0
+	criar_tabela_fornecedor
+}
+
+sh_manutencao_tabelas() {
+	#	sqlite3 "$database" "DROP TABLE produtos;"
+	#	sqlite3 "$database" "DROP TABLE vendas;"
+	#	sqlite3 "$database" "DROP TABLE fornecedor;"
+	#	sqlite3 "$database" "DROP TABLE compras;"
+	:
+}
+
+sh_show_tabelas() {
+	sqlite3 "$database" "SELECT * FROM produtos;"
+	sqlite3 "$database" "SELECT * FROM fornecedor;"
+	sqlite3 "$database" "SELECT * FROM vendas;"
+	sqlite3 "$database" "SELECT * FROM compras;"
+	inkey 10
+}
+
+populate_database() {
+    # Inicialize o mês e o dia
+    mes=1
+    dia=1
+    id=1
+
+    # Loop para inserir 100 registros na tabela 'vendas'
+    for ((i = 1; i <= 100; i++)); do
+        # Construir a data no formato 'AAAA-MM-DD'
+        data="2023-$(printf "%02d" $mes)-$(printf "%02d" $dia)"
+
+        quantidade=$((RANDOM % 10 + 1))                    # Gere uma quantidade aleatória entre 1 e 10
+        preco=$(echo "scale=2; $RANDOM / 100.0" | bc)      # Gere um preço aleatório com duas casas decimais
+        total=$(echo "scale=2; $quantidade * $preco" | bc) # Calcule o total
+        docnr="DOC$i"
+
+        # Inserir o registro na tabela 'vendas' no banco de dados
+        sqlite3 "$database" "INSERT INTO vendas (id, data, quantidade, preco, total, docnr) VALUES ('$id', '$data', $quantidade, $preco, $total, '$docnr');"
+
+        # Avançar para o próximo dia
+        dia=$((dia + 1))
+
+        # Avançar para o próximo id
+        id=$((id + 1))
+
+        # Verificar se o mês mudou
+        if [ $id -gt 10 ]; then
+            id=1
+        fi
+
+        # Verificar se o mês mudou
+        if [ $dia -gt 30 ]; then
+            dia=1
+            mes=$((mes + 1))
+        fi
+    done
+
+    # Exemplo: exibir os primeiros 10 registros da tabela 'vendas'
+    sqlite3 "$database" "SELECT * FROM vendas LIMIT 10;"
+}
+
+random_docnr() {
+	date "+%Y%m%d-%H%M%S"
+}
+
+menu_fornecedores() {
+	while true; do
+		tela
+		titulo 1 "$(gettext "MENU FORNECEDORES")" "$ciano"
+		box 11 10 8 80 "$(gettext "MENU FORNECEDORES")" "$azul"
+		print 12 11 " 1 - $(gettext "Cadastrar Fornecedor")"
+		print 13 11 " 2 - $(gettext "Alterar Fornecedor")"
+		print 14 11 " 3 - $(gettext "Pesquisar Fornecedor")"
+		print 15 11 " 0 - $(gettext "Voltar")"
+		get 17 12 "$(gettext "Opção"): " opcao
+
+		case "$opcao" in
+		1)
+			adicionar_fornecedor
+			;;
+		2)
+			alterar_fornecedor
+			;;
+		3)
+			pesquisar_fornecedor
+			;;
+		*)
+			return
+			;;
+		esac
+	done
+}
+
+menu_produtos() {
+	while true; do
+		tela
+		titulo 1 "$(gettext "MENU PRODUTOS")" "$ciano"
+		box 11 10 12 80 "$(gettext "MENU PRODUTOS")" "$azul"
+		print 12 11 " 1 - $(gettext "Cadastrar Produtos")"
+		print 13 11 " 2 - $(gettext "Alterar Produtos")"
+		print 14 11 " 3 - $(gettext "Remover Produtos")"
+		print 15 11 " 4 - $(gettext "Pesquisar Produtos")"
+		print 16 11 " 5 - $(gettext "Atualizar Estoque (conciliação)")"
+		print 17 11 " 6 - $(gettext "Listagem Produtos Vendidos")"
+		print 18 11 " 7 - $(gettext "Listagem Entradas de Produtos")"
+		print 19 11 " 0 - $(gettext "Voltar")"
+		get 21 12 "$(gettext "Opção"): " opcao
+
+		case "$opcao" in
+		1)
+			adicionar_produto
+			;;
+		2)
+			alterar_produto
+			;;
+		3)
+			remover_produto
+			;;
+		4)
+			pesquisar_produto
+			;;
+		5)
+			conciliar_estoque
+			;;
+		6)
+			listagem_produtos_vendidos
+			;;
+		7)
+			listagem_entradas_produtos
+			;;
+		*)
+			return
+			;;
+		esac
+	done
+}
+
+# menu principal
+main() {
+	while true; do
+		tela
+		titulo 1 "$(gettext "MENU PRINCIPAL")" "$ciano"
+		box 11 10 10 80 "$(gettext "MENU PRINCIPAL")" "$azul"
+		print 12 11 " 1 - $(gettext "Produtos")"
+		print 13 11 " 2 - $(gettext "Realizar Venda")"
+		print 14 11 " 3 - $(gettext "Exibir Vendas Diárias")"
+		print 15 11 " 4 - $(gettext "Entradas de Produtos")"
+		print 16 11 " 5 - $(gettext "Fornecedores")"
+		print 17 11 " 0 - $(gettext "Sair")"
+		get 19 12 "$(gettext "Opção"): " opcao
+
+		case "$opcao" in
+		1)
+			menu_produtos
+			;;
+		2)
+			realizar_venda
+			;;
+		3)
+			listagem_vendas_diarias
+			;;
+		4)
+			entrada_produtos
+			;;
+		5)
+			menu_fornecedores
+			;;
+
+		0)
+			clear_eol 21 "$(lastrow)"
+			setpos 21 0
+			echo "$(gettext "Saindo do programa.")"
+			exit 0
+			;;
+		*)
+			mensagem 2 "$(gettext "Opção inválida. Tente novamente.")" "$red"
+			;;
+		esac
+	done
+}
+# END PROCEDURES
+
+sh_config
+sh_checkDependencies
+sh_criar_tabelas
+main

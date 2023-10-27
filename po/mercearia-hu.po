@@ -1,0 +1,551 @@
+# Hungarian translations for PACKAGE package.
+# Copyright (C) 2023 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2023.
+#
+msgid ""
+msgstr ""
+
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-23 23:18-0400\n"
+"PO-Revision-Date: 2023-10-23 23:18-0400\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: mercearia:257
+msgid " Pressione qualquer tecla para continuar"
+msgstr "nyomjon meg egy gombot a folytatáshoz"
+
+
+#: mercearia:299
+msgid "ERRO: não consegui encontrar o comando"
+msgstr "HIBA: nem található a parancs"
+
+
+#: mercearia:303 mercearia:306
+msgid "IMPOSSÍVEL CONTINUAR"
+msgstr "LEHETETLEN FOLYTATNI"
+
+
+#: mercearia:304
+msgid "Este script precisa dos comandos listados acima"
+msgstr "Ehhez a szkripthez a fent felsorolt parancsokra van szükség"
+
+
+#: mercearia:305
+msgid "Instale-os e/ou verifique se eles estão em seu"
+msgstr "Telepítse őket, és/vagy győződjön meg arról, hogy rajta vannak"
+
+
+#: mercearia:307
+msgid "Instalação abortada!"
+msgstr "Telepítés megszakítva!"
+
+
+#: mercearia:329
+msgid "SISTEMA PDV"
+msgstr "POS RENDSZER"
+
+
+#: mercearia:330 mercearia:1461 mercearia:1462
+msgid "MENU PRINCIPAL"
+msgstr "FŐMENÜ"
+
+
+#: mercearia:394
+msgid "Pressione qualquer tecla para continuar..."
+msgstr "Nyomjon meg egy gombot a folytatáshoz..."
+
+
+#: mercearia:439 mercearia:440
+msgid "CADASTRO DE PRODUTO"
+msgstr "TERMÉK REGISZTRÁCIÓ"
+
+
+#: mercearia:442 mercearia:448 mercearia:452 mercearia:581 mercearia:606
+msgid "Descrição"
+msgstr "Leírás"
+
+
+#: mercearia:443 mercearia:467 mercearia:582 mercearia:617
+msgid "Código Barras"
+msgstr "Vonalkód"
+
+
+#: mercearia:444 mercearia:468 mercearia:583 mercearia:618
+msgid "Unidade"
+msgstr "Mértékegység"
+
+
+#: mercearia:445 mercearia:472 mercearia:584 mercearia:622
+msgid "Preço (ex: 4.40 ou 5)"
+msgstr "Ár (pl.: 4,40 vagy 5)"
+
+
+#: mercearia:454
+msgid "Descrição não pode ser em branco"
+msgstr "A leírás nem lehet üres"
+
+
+#: mercearia:461 mercearia:611
+msgid "A descrição não pode ser em branco. Cancelar?"
+msgstr "A leírás nem lehet üres. Megszünteti?"
+
+
+#: mercearia:476 mercearia:626 mercearia:1266
+msgid "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro."
+msgstr "Érvénytelen árformátum. Használjon tizedesvesszőt (pl. 4,40) vagy egész számot."
+
+
+#: mercearia:481 mercearia:631
+msgid "Confirma inclusão/atualização do produto?"
+msgstr "Megerősíti a termék felvételét/frissítését?"
+
+
+#: mercearia:491 mercearia:640
+msgid "Produto cadastrado/atualizado com sucesso!"
+msgstr "A termék regisztrációja/frissítése sikeres!"
+
+
+#: mercearia:493 mercearia:642
+msgid "Erro no cadastro/atualização do produto."
+msgstr "Hiba a termék regisztrációja/frissítése során."
+
+
+#: mercearia:496 mercearia:561 mercearia:645 mercearia:722
+msgid "Inclusão/alteração não efetuada."
+msgstr "Bevétel/módosítás nem történt."
+
+
+#: mercearia:510 mercearia:511
+msgid "CADASTRO DE FORNECEDOR"
+msgstr "BESZÁLLÍTÓI REGISZTRÁCIÓ"
+
+
+#: mercearia:513 mercearia:520 mercearia:524 mercearia:663 mercearia:689
+msgid "Nome"
+msgstr "Név"
+
+
+#: mercearia:514 mercearia:539 mercearia:664 mercearia:700
+msgid "Endereço"
+msgstr "Cím"
+
+
+#: mercearia:515 mercearia:540 mercearia:665 mercearia:701
+msgid "Cidade"
+msgstr "Város"
+
+
+#: mercearia:516 mercearia:541 mercearia:666 mercearia:702
+msgid "Estado"
+msgstr "állapot"
+
+
+#: mercearia:517 mercearia:542 mercearia:667 mercearia:703
+msgid "Cnpj"
+msgstr "CNPJ"
+
+
+#: mercearia:526
+msgid "Nome não pode ser em branco"
+msgstr "A név nem lehet üres"
+
+
+#: mercearia:533 mercearia:694
+msgid "O nome não pode ser em branco. Cancelar?"
+msgstr "A név nem lehet üres. Megszünteti?"
+
+
+#: mercearia:545 mercearia:706
+msgid "Confirma inclusão/atualização do fornecedor?"
+msgstr "Megerősíti a beszállító felvételét/frissítését?"
+
+
+#: mercearia:556 mercearia:717
+msgid "Fornecedor cadastrado/atualizado com sucesso!"
+msgstr "Szállító sikeresen regisztrálva/frissítve!"
+
+
+#: mercearia:558 mercearia:719
+msgid "Erro no cadastro/atualização do fornecedor"
+msgstr "Hiba a beszállítói regisztráció/frissítés során"
+
+
+#: mercearia:577 mercearia:578
+msgid "ALTERAÇÃO DE PRODUTO"
+msgstr "TERMÉKVÁLTOZÁS"
+
+
+#: mercearia:580 mercearia:586 mercearia:662 mercearia:669
+msgid "ID/Nome"
+msgstr "ID/Név"
+
+
+#: mercearia:590 mercearia:673
+msgid "ID/Nome não pode ser em branco. Cancelar?"
+msgstr "Az azonosító/név mező nem lehet üres. Megszünteti?"
+
+
+#: mercearia:600
+msgid "Produto não encontrado nos parâmetros informados"
+msgstr "A termék nem található a megadott paraméterekben"
+
+
+#: mercearia:659
+msgid "ALTERAÇÃO DE FORNECEDOR"
+msgstr "BESZÁLLÍTÓVÁLTOZÁS"
+
+
+#: mercearia:660
+msgid "ALTERACÃO DE FORNECEDOR"
+msgstr "SZÁLLÍTÓVÁLTÁS"
+
+
+#: mercearia:683
+msgid "Fornecedor não encontrado nos parâmetros informados"
+msgstr "A beszállító nem található a megadott paraméterekben"
+
+
+#: mercearia:733
+msgid "REMOÇÃO DE PRODUTO"
+msgstr "TERMÉK ELTÁVOLÍTÁSA"
+
+
+#: mercearia:736
+msgid "Digite o ID ou nome do produto que deseja remover: "
+msgstr "Adja meg az eltávolítani kívánt termék azonosítóját vagy nevét:"
+
+
+#: mercearia:741
+msgid "O ID não pode ser em branco. Cancelar?"
+msgstr "Az azonosító nem lehet üres. Megszünteti?"
+
+
+#: mercearia:755
+msgid "Confirma exclusão do produto?"
+msgstr "Megerősíti a termék törlését?"
+
+
+#: mercearia:763
+msgid "Produto removido com sucesso!"
+msgstr "A termék sikeresen eltávolítva!"
+
+
+#: mercearia:766 mercearia:807
+msgid "Nenhum produto encontrado nos parâmetros informados"
+msgstr "A megadott paraméterekben nem található termék"
+
+
+#: mercearia:774
+msgid "TOTAL VENDAS DIÁRIAS"
+msgstr "NAPI ÉRTÉKESÍTÉS ÖSSZESEN"
+
+
+#: mercearia:782 mercearia:783
+msgid "PESQUISAR PRODUTOS"
+msgstr "TERMÉKEK KERESÉSE"
+
+
+#: mercearia:784
+msgid "Pesquisar por (nome, id ou *=tudo)"
+msgstr "Keresés (név, azonosító vagy *=minden)"
+
+
+#: mercearia:815 mercearia:816
+msgid "LISTAGEM PRODUTOS VENDIDOS"
+msgstr "AZ ELADÓ TERMÉKEK LISTÁJA"
+
+
+#: mercearia:817 mercearia:895
+msgid "Pesquisar por (id, docnr, data ou *=tudo)"
+msgstr "Keresés (azonosító, doknr, dátum vagy *=összes)"
+
+
+#: mercearia:840 mercearia:928
+msgid "Formato de data inválido."
+msgstr "Érvénytelen dátumformátum."
+
+
+#: mercearia:885
+msgid "Nenhum produto vendido nos parâmetros informados"
+msgstr "A megadott paramétereken belül nem értékesítettek termékeket"
+
+
+#: mercearia:893 mercearia:894
+msgid "LISTAGEM ENTRADAS DE PRODUTOS"
+msgstr "TERMÉKBEJEGYZÉSEK LISTÁJA"
+
+
+#: mercearia:973
+msgid "Nenhum produto comprado nos parâmetros informados"
+msgstr "A megadott paramétereken belül nem vásárolt terméket"
+
+
+#: mercearia:984 mercearia:985
+msgid "PESQUISAR FORNECEDOR"
+msgstr "KERESÉS BESZÁLLÍTÓT"
+
+
+#: mercearia:1006
+msgid "Nenhum fornecedor encontrado nos parâmetros informados"
+msgstr "A megadott paraméterek között nem található beszállító"
+
+
+#: mercearia:1034
+msgid "Registro de venda efetuado"
+msgstr "Eladási regisztráció megtörtént"
+
+
+#: mercearia:1043
+msgid "Baixa de estoque efetuado"
+msgstr "Készletleírás megtörtént"
+
+
+#: mercearia:1053
+msgid "VENDA"
+msgstr "ELADÁS"
+
+
+#: mercearia:1054
+msgid "CUPOM PDV"
+msgstr "POS KUPON"
+
+
+#: mercearia:1070 mercearia:1224
+msgid "ID/nome/CodeBar (deixe em branco para concluir)"
+msgstr "ID/név/Kódsáv (a kitöltéshez hagyja üresen)"
+
+
+#: mercearia:1087 mercearia:1241
+msgid "Produto não encontrado"
+msgstr "A termék nem található"
+
+
+#: mercearia:1093 mercearia:1248
+msgid "Quantidade (0 para remover o item)"
+msgstr "Mennyiség (0 a tétel eltávolításához)"
+
+
+#: mercearia:1100 mercearia:1255
+msgid "Quantidade inválida ou item não tem na lista"
+msgstr "Érvénytelen mennyiség vagy cikk nincs a listában"
+
+
+#: mercearia:1106
+msgid "Quantidade insuficiente de"
+msgstr "Nem elegendő mennyiség"
+
+
+#: mercearia:1106
+msgid "no estoque"
+msgstr "raktáron"
+
+
+#: mercearia:1126
+msgid "Confirma o fetchamento do CUPOM?"
+msgstr "Megerősíti a KUPON lekérését?"
+
+
+#: mercearia:1145
+msgid "Registro de entradas efetuado"
+msgstr "Megtörtént nevezések regisztrációja"
+
+
+#: mercearia:1155
+msgid "Ajuste de estoque efetuado"
+msgstr "Készletkorrekció megtörtént"
+
+
+#: mercearia:1177
+msgid "ENTRADAS DE PRODUTOS"
+msgstr "TERMÉKBEMENETEK"
+
+
+#: mercearia:1178
+msgid "DADOS DA NFF"
+msgstr "NFF ADATOK"
+
+
+#: mercearia:1180 mercearia:1184
+msgid "Fornecedor"
+msgstr "Támogató"
+
+
+#: mercearia:1181 mercearia:1201
+msgid "Docnr/NFF"
+msgstr "Docnr/NFF"
+
+
+#: mercearia:1190
+msgid "O ID/nome não pode ser em branco. Cancelar?"
+msgstr "Az azonosító/név mező nem lehet üres. Megszünteti?"
+
+
+#: mercearia:1196
+msgid "Fornecedor não encontrado"
+msgstr "Szállító nem található"
+
+
+#: mercearia:1209
+msgid "RELAÇAO DAS ENTRADAS"
+msgstr "BEVEZETŐK LISTÁJA"
+
+
+#: mercearia:1262
+msgid "Preço custo (ex: 4.40 ou 5)"
+msgstr "Önköltségi ár (pl.: 4,40 vagy 5)"
+
+
+#: mercearia:1286
+msgid "Confirma a entrada desses produtos?"
+msgstr "Megerősíti ezeknek a termékeknek a bejegyzését?"
+
+
+#: mercearia:1295
+msgid "Confirma a atualização?"
+msgstr "Megerősíti a frissítést?"
+
+
+#: mercearia:1296
+msgid "Aguarde... Atualizando estoque"
+msgstr "Kérjük, várjon... Raktárkészlet frissítése"
+
+
+#: mercearia:1332
+msgid "Atualização concluída"
+msgstr "Frissítés kész"
+
+
+#: mercearia:1354
+msgid "Checando tabela de produtos."
+msgstr "Terméktáblázat ellenőrzése."
+
+
+#: mercearia:1356
+msgid "Checando tabela de vendas."
+msgstr "Értékesítési táblázat ellenőrzése."
+
+
+#: mercearia:1358
+msgid "Checando tabela de compras."
+msgstr "Beszerzési táblázat ellenőrzése."
+
+
+#: mercearia:1360
+msgid "Checando tabela de fornecedores."
+msgstr "Beszállítói táblázat ellenőrzése."
+
+
+#: mercearia:1388 mercearia:1389
+msgid "MENU FORNECEDORES"
+msgstr "BESZÁLLÍTÓK MENÜ"
+
+
+#: mercearia:1390
+msgid "Cadastrar Fornecedor"
+msgstr "Regisztráljon beszállítót"
+
+
+#: mercearia:1391
+msgid "Alterar Fornecedor"
+msgstr "Beszállító módosítása"
+
+
+#: mercearia:1392
+msgid "Pesquisar Fornecedor"
+msgstr "Keressen beszállítót"
+
+
+#: mercearia:1393 mercearia:1425
+msgid "Voltar"
+msgstr "Vissza menni"
+
+
+#: mercearia:1394 mercearia:1426 mercearia:1469
+msgid "Opção"
+msgstr "választási lehetőség"
+
+
+#: mercearia:1416 mercearia:1417
+msgid "MENU PRODUTOS"
+msgstr "TERMÉKMENÜ"
+
+
+#: mercearia:1418
+msgid "Cadastrar Produtos"
+msgstr "Termékek regisztrálása"
+
+
+#: mercearia:1419
+msgid "Alterar Produtos"
+msgstr "Termékek módosítása"
+
+
+#: mercearia:1420
+msgid "Remover Produtos"
+msgstr "Termékek eltávolítása"
+
+
+#: mercearia:1421
+msgid "Pesquisar Produtos"
+msgstr "Termékek keresése"
+
+
+#: mercearia:1422
+msgid "Atualizar Estoque (conciliação)"
+msgstr "Készlet frissítése (egyeztetés)"
+
+
+#: mercearia:1423
+msgid "Listagem Produtos Vendidos"
+msgstr "Eladott termékek listája"
+
+
+#: mercearia:1424
+msgid "Listagem Entradas de Produtos"
+msgstr "Termékbejegyzési lista"
+
+
+#: mercearia:1463
+msgid "Produtos"
+msgstr "Termékek"
+
+
+#: mercearia:1464
+msgid "Realizar Venda"
+msgstr "Eladó"
+
+
+#: mercearia:1465
+msgid "Exibir Vendas Diárias"
+msgstr "Tekintse meg a napi értékesítést"
+
+
+#: mercearia:1466
+msgid "Entradas de Produtos"
+msgstr "Termékbejegyzések"
+
+
+#: mercearia:1467
+msgid "Fornecedores"
+msgstr "Szállítók"
+
+
+#: mercearia:1468
+msgid "Sair"
+msgstr "Kimenni"
+
+
+#: mercearia:1491
+msgid "Saindo do programa."
+msgstr "A program elhagyása."
+
+
+#: mercearia:1495

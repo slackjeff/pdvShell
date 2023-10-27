@@ -1,0 +1,551 @@
+# French translations for PACKAGE package.
+# Copyright (C) 2023 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2023.
+#
+msgid ""
+msgstr ""
+
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-23 23:18-0400\n"
+"PO-Revision-Date: 2023-10-23 23:18-0400\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: mercearia:257
+msgid " Pressione qualquer tecla para continuar"
+msgstr "Appuyez sur n'importe quelle touche pour continuer"
+
+
+#: mercearia:299
+msgid "ERRO: não consegui encontrar o comando"
+msgstr "ERREUR : impossible de trouver la commande"
+
+
+#: mercearia:303 mercearia:306
+msgid "IMPOSSÍVEL CONTINUAR"
+msgstr "IMPOSSIBLE DE CONTINUER"
+
+
+#: mercearia:304
+msgid "Este script precisa dos comandos listados acima"
+msgstr "Ce script nécessite les commandes répertoriées ci-dessus"
+
+
+#: mercearia:305
+msgid "Instale-os e/ou verifique se eles estão em seu"
+msgstr "Installez-les et/ou assurez-vous qu'ils sont sur votre"
+
+
+#: mercearia:307
+msgid "Instalação abortada!"
+msgstr "Installation interrompue !"
+
+
+#: mercearia:329
+msgid "SISTEMA PDV"
+msgstr "SYSTÈME DE PDV"
+
+
+#: mercearia:330 mercearia:1461 mercearia:1462
+msgid "MENU PRINCIPAL"
+msgstr "MENU PRINCIPAL"
+
+
+#: mercearia:394
+msgid "Pressione qualquer tecla para continuar..."
+msgstr "Appuyez sur n'importe quelle touche pour continuer..."
+
+
+#: mercearia:439 mercearia:440
+msgid "CADASTRO DE PRODUTO"
+msgstr "ENREGISTREMENT DU PRODUIT"
+
+
+#: mercearia:442 mercearia:448 mercearia:452 mercearia:581 mercearia:606
+msgid "Descrição"
+msgstr "Description"
+
+
+#: mercearia:443 mercearia:467 mercearia:582 mercearia:617
+msgid "Código Barras"
+msgstr "Code à barre"
+
+
+#: mercearia:444 mercearia:468 mercearia:583 mercearia:618
+msgid "Unidade"
+msgstr "Unité"
+
+
+#: mercearia:445 mercearia:472 mercearia:584 mercearia:622
+msgid "Preço (ex: 4.40 ou 5)"
+msgstr "Prix (ex : 4,40 ou 5)"
+
+
+#: mercearia:454
+msgid "Descrição não pode ser em branco"
+msgstr "La description ne peut pas être vide"
+
+
+#: mercearia:461 mercearia:611
+msgid "A descrição não pode ser em branco. Cancelar?"
+msgstr "La description ne peut pas être vide. Annuler?"
+
+
+#: mercearia:476 mercearia:626 mercearia:1266
+msgid "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro."
+msgstr "Format de prix invalide. Utilisez un point décimal (ex : 4,40) ou un nombre entier."
+
+
+#: mercearia:481 mercearia:631
+msgid "Confirma inclusão/atualização do produto?"
+msgstr "Confirmer l'inclusion/la mise à jour du produit ?"
+
+
+#: mercearia:491 mercearia:640
+msgid "Produto cadastrado/atualizado com sucesso!"
+msgstr "Produit enregistré/mis à jour avec succès !"
+
+
+#: mercearia:493 mercearia:642
+msgid "Erro no cadastro/atualização do produto."
+msgstr "Erreur lors de l'enregistrement/de la mise à jour du produit."
+
+
+#: mercearia:496 mercearia:561 mercearia:645 mercearia:722
+msgid "Inclusão/alteração não efetuada."
+msgstr "Inclusion/modification non effectuée."
+
+
+#: mercearia:510 mercearia:511
+msgid "CADASTRO DE FORNECEDOR"
+msgstr "INSCRIPTION DES FOURNISSEURS"
+
+
+#: mercearia:513 mercearia:520 mercearia:524 mercearia:663 mercearia:689
+msgid "Nome"
+msgstr "Nom"
+
+
+#: mercearia:514 mercearia:539 mercearia:664 mercearia:700
+msgid "Endereço"
+msgstr "Adresse"
+
+
+#: mercearia:515 mercearia:540 mercearia:665 mercearia:701
+msgid "Cidade"
+msgstr "Ville"
+
+
+#: mercearia:516 mercearia:541 mercearia:666 mercearia:702
+msgid "Estado"
+msgstr "État"
+
+
+#: mercearia:517 mercearia:542 mercearia:667 mercearia:703
+msgid "Cnpj"
+msgstr "CNPJ"
+
+
+#: mercearia:526
+msgid "Nome não pode ser em branco"
+msgstr "Le nom ne peut pas être vide"
+
+
+#: mercearia:533 mercearia:694
+msgid "O nome não pode ser em branco. Cancelar?"
+msgstr "Le nom ne peut pas être vide. Annuler?"
+
+
+#: mercearia:545 mercearia:706
+msgid "Confirma inclusão/atualização do fornecedor?"
+msgstr "Confirmer l'inclusion/mise à jour du fournisseur ?"
+
+
+#: mercearia:556 mercearia:717
+msgid "Fornecedor cadastrado/atualizado com sucesso!"
+msgstr "Fournisseur enregistré/mis à jour avec succès !"
+
+
+#: mercearia:558 mercearia:719
+msgid "Erro no cadastro/atualização do fornecedor"
+msgstr "Erreur lors de l'enregistrement/mise à jour du fournisseur"
+
+
+#: mercearia:577 mercearia:578
+msgid "ALTERAÇÃO DE PRODUTO"
+msgstr "CHANGEMENT DE PRODUIT"
+
+
+#: mercearia:580 mercearia:586 mercearia:662 mercearia:669
+msgid "ID/Nome"
+msgstr "ID/Nom"
+
+
+#: mercearia:590 mercearia:673
+msgid "ID/Nome não pode ser em branco. Cancelar?"
+msgstr "L'ID/Nom ne peut pas être vide. Annuler?"
+
+
+#: mercearia:600
+msgid "Produto não encontrado nos parâmetros informados"
+msgstr "Produit introuvable dans les paramètres spécifiés"
+
+
+#: mercearia:659
+msgid "ALTERAÇÃO DE FORNECEDOR"
+msgstr "CHANGEMENT DE FOURNISSEUR"
+
+
+#: mercearia:660
+msgid "ALTERACÃO DE FORNECEDOR"
+msgstr "CHANGEMENT DE FOURNISSEUR"
+
+
+#: mercearia:683
+msgid "Fornecedor não encontrado nos parâmetros informados"
+msgstr "Fournisseur introuvable dans les paramètres spécifiés"
+
+
+#: mercearia:733
+msgid "REMOÇÃO DE PRODUTO"
+msgstr "RETRAIT DU PRODUIT"
+
+
+#: mercearia:736
+msgid "Digite o ID ou nome do produto que deseja remover: "
+msgstr "Saisissez l'ID ou le nom du produit que vous souhaitez supprimer :"
+
+
+#: mercearia:741
+msgid "O ID não pode ser em branco. Cancelar?"
+msgstr "L'ID ne peut pas être vide. Annuler?"
+
+
+#: mercearia:755
+msgid "Confirma exclusão do produto?"
+msgstr "Confirmer la suppression du produit ?"
+
+
+#: mercearia:763
+msgid "Produto removido com sucesso!"
+msgstr "Produit supprimé avec succès !"
+
+
+#: mercearia:766 mercearia:807
+msgid "Nenhum produto encontrado nos parâmetros informados"
+msgstr "Aucun produit trouvé dans les paramètres spécifiés"
+
+
+#: mercearia:774
+msgid "TOTAL VENDAS DIÁRIAS"
+msgstr "VENTES QUOTIDIENNES TOTALES"
+
+
+#: mercearia:782 mercearia:783
+msgid "PESQUISAR PRODUTOS"
+msgstr "RECHERCHE DE PRODUITS"
+
+
+#: mercearia:784
+msgid "Pesquisar por (nome, id ou *=tudo)"
+msgstr "Rechercher par (nom, identifiant ou *=tous)"
+
+
+#: mercearia:815 mercearia:816
+msgid "LISTAGEM PRODUTOS VENDIDOS"
+msgstr "LISTE DES PRODUITS VENDUS"
+
+
+#: mercearia:817 mercearia:895
+msgid "Pesquisar por (id, docnr, data ou *=tudo)"
+msgstr "Recherche par (id, docnr, date ou *=all)"
+
+
+#: mercearia:840 mercearia:928
+msgid "Formato de data inválido."
+msgstr "Format de date invalide."
+
+
+#: mercearia:885
+msgid "Nenhum produto vendido nos parâmetros informados"
+msgstr "Aucun produit vendu dans les paramètres spécifiés"
+
+
+#: mercearia:893 mercearia:894
+msgid "LISTAGEM ENTRADAS DE PRODUTOS"
+msgstr "LISTE DES ENTRÉES DE PRODUITS"
+
+
+#: mercearia:973
+msgid "Nenhum produto comprado nos parâmetros informados"
+msgstr "Aucun produit acheté dans les paramètres spécifiés"
+
+
+#: mercearia:984 mercearia:985
+msgid "PESQUISAR FORNECEDOR"
+msgstr "RECHERCHER UN FOURNISSEUR"
+
+
+#: mercearia:1006
+msgid "Nenhum fornecedor encontrado nos parâmetros informados"
+msgstr "Aucun fournisseur trouvé dans les paramètres donnés"
+
+
+#: mercearia:1034
+msgid "Registro de venda efetuado"
+msgstr "Enregistrement des ventes effectué"
+
+
+#: mercearia:1043
+msgid "Baixa de estoque efetuado"
+msgstr "Abandon de stock effectué"
+
+
+#: mercearia:1053
+msgid "VENDA"
+msgstr "VENTE"
+
+
+#: mercearia:1054
+msgid "CUPOM PDV"
+msgstr "COUPON PDV"
+
+
+#: mercearia:1070 mercearia:1224
+msgid "ID/nome/CodeBar (deixe em branco para concluir)"
+msgstr "ID/nom/CodeBar (laisser vide pour compléter)"
+
+
+#: mercearia:1087 mercearia:1241
+msgid "Produto não encontrado"
+msgstr "Produit non trouvé"
+
+
+#: mercearia:1093 mercearia:1248
+msgid "Quantidade (0 para remover o item)"
+msgstr "Quantité (0 pour supprimer l'article)"
+
+
+#: mercearia:1100 mercearia:1255
+msgid "Quantidade inválida ou item não tem na lista"
+msgstr "Quantité invalide ou article ne figurant pas dans la liste"
+
+
+#: mercearia:1106
+msgid "Quantidade insuficiente de"
+msgstr "Quantité insuffisante de"
+
+
+#: mercearia:1106
+msgid "no estoque"
+msgstr "en stock"
+
+
+#: mercearia:1126
+msgid "Confirma o fetchamento do CUPOM?"
+msgstr "Confirmez-vous la récupération du COUPON ?"
+
+
+#: mercearia:1145
+msgid "Registro de entradas efetuado"
+msgstr "Enregistrement des inscriptions effectuées"
+
+
+#: mercearia:1155
+msgid "Ajuste de estoque efetuado"
+msgstr "Ajustement des stocks effectué"
+
+
+#: mercearia:1177
+msgid "ENTRADAS DE PRODUTOS"
+msgstr "INTRANTS PRODUIT"
+
+
+#: mercearia:1178
+msgid "DADOS DA NFF"
+msgstr "DONNÉES DU FFN"
+
+
+#: mercearia:1180 mercearia:1184
+msgid "Fornecedor"
+msgstr "Fournisseur"
+
+
+#: mercearia:1181 mercearia:1201
+msgid "Docnr/NFF"
+msgstr "Numéro de document/NFF"
+
+
+#: mercearia:1190
+msgid "O ID/nome não pode ser em branco. Cancelar?"
+msgstr "L'ID/nom ne peut pas être vide. Annuler?"
+
+
+#: mercearia:1196
+msgid "Fornecedor não encontrado"
+msgstr "Fournisseur introuvable"
+
+
+#: mercearia:1209
+msgid "RELAÇAO DAS ENTRADAS"
+msgstr "LISTE DES INSCRIPTIONS"
+
+
+#: mercearia:1262
+msgid "Preço custo (ex: 4.40 ou 5)"
+msgstr "Prix de revient (ex : 4,40 ou 5)"
+
+
+#: mercearia:1286
+msgid "Confirma a entrada desses produtos?"
+msgstr "Confirmez-vous l'entrée de ces produits ?"
+
+
+#: mercearia:1295
+msgid "Confirma a atualização?"
+msgstr "Confirmer la mise à jour ?"
+
+
+#: mercearia:1296
+msgid "Aguarde... Atualizando estoque"
+msgstr "Veuillez patienter... Mise à jour du stock"
+
+
+#: mercearia:1332
+msgid "Atualização concluída"
+msgstr "Mise à jour terminée"
+
+
+#: mercearia:1354
+msgid "Checando tabela de produtos."
+msgstr "Vérification du tableau des produits."
+
+
+#: mercearia:1356
+msgid "Checando tabela de vendas."
+msgstr "Vérification du tableau des ventes."
+
+
+#: mercearia:1358
+msgid "Checando tabela de compras."
+msgstr "Vérification du tableau d'achat."
+
+
+#: mercearia:1360
+msgid "Checando tabela de fornecedores."
+msgstr "Vérification du tableau des fournisseurs."
+
+
+#: mercearia:1388 mercearia:1389
+msgid "MENU FORNECEDORES"
+msgstr "MENU FOURNISSEURS"
+
+
+#: mercearia:1390
+msgid "Cadastrar Fornecedor"
+msgstr "Enregistrer le fournisseur"
+
+
+#: mercearia:1391
+msgid "Alterar Fornecedor"
+msgstr "Changer de fournisseur"
+
+
+#: mercearia:1392
+msgid "Pesquisar Fornecedor"
+msgstr "Rechercher un fournisseur"
+
+
+#: mercearia:1393 mercearia:1425
+msgid "Voltar"
+msgstr "Retourner"
+
+
+#: mercearia:1394 mercearia:1426 mercearia:1469
+msgid "Opção"
+msgstr "Option"
+
+
+#: mercearia:1416 mercearia:1417
+msgid "MENU PRODUTOS"
+msgstr "CARTE DES PRODUITS"
+
+
+#: mercearia:1418
+msgid "Cadastrar Produtos"
+msgstr "Enregistrer les produits"
+
+
+#: mercearia:1419
+msgid "Alterar Produtos"
+msgstr "Changer de produits"
+
+
+#: mercearia:1420
+msgid "Remover Produtos"
+msgstr "Supprimer des produits"
+
+
+#: mercearia:1421
+msgid "Pesquisar Produtos"
+msgstr "Recherche de produits"
+
+
+#: mercearia:1422
+msgid "Atualizar Estoque (conciliação)"
+msgstr "Mettre à jour le stock (rapprochement)"
+
+
+#: mercearia:1423
+msgid "Listagem Produtos Vendidos"
+msgstr "Liste des produits vendus"
+
+
+#: mercearia:1424
+msgid "Listagem Entradas de Produtos"
+msgstr "Liste des entrées de produits"
+
+
+#: mercearia:1463
+msgid "Produtos"
+msgstr "Des produits"
+
+
+#: mercearia:1464
+msgid "Realizar Venda"
+msgstr "Faire une vente"
+
+
+#: mercearia:1465
+msgid "Exibir Vendas Diárias"
+msgstr "Voir les ventes quotidiennes"
+
+
+#: mercearia:1466
+msgid "Entradas de Produtos"
+msgstr "Entrées de produits"
+
+
+#: mercearia:1467
+msgid "Fornecedores"
+msgstr "Fournisseurs"
+
+
+#: mercearia:1468
+msgid "Sair"
+msgstr "Sortir"
+
+
+#: mercearia:1491
+msgid "Saindo do programa."
+msgstr "Quitter le programme."
+
+
+#: mercearia:1495

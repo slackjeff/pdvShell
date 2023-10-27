@@ -1,0 +1,546 @@
+# Finnish translations for PACKAGE package.
+# Copyright (C) 2023 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Automatically generated, 2023.
+#
+msgid ""
+msgstr ""
+
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-23 23:18-0400\n"
+"PO-Revision-Date: 2023-10-23 23:18-0400\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: mercearia:257
+msgid " Pressione qualquer tecla para continuar"
+msgstr "paina mitä tahansa näppäintä jatkaaksesi"
+
+
+#: mercearia:299
+msgid "ERRO: não consegui encontrar o comando"
+msgstr "VIRHE: komentoa ei löytynyt"
+
+
+#: mercearia:303 mercearia:306
+msgid "IMPOSSÍVEL CONTINUAR"
+msgstr "MAHDOLLINEN JATKAA"
+
+
+#: mercearia:304
+msgid "Este script precisa dos comandos listados acima"
+msgstr "Tämä komentosarja tarvitsee yllä luetellut komennot"
+
+
+#: mercearia:305
+msgid "Instale-os e/ou verifique se eles estão em seu"
+msgstr "Asenna ne ja/tai varmista, että ne ovat käytössäsi"
+
+
+#: mercearia:307
+msgid "Instalação abortada!"
+msgstr "Asennus keskeytetty!"
+
+
+#: mercearia:329
+msgid "SISTEMA PDV"
+msgstr "POS-JÄRJESTELMÄ"
+
+
+#: mercearia:330 mercearia:1461 mercearia:1462
+msgid "MENU PRINCIPAL"
+msgstr "PÄÄVALIKKO"
+
+
+#: mercearia:394
+msgid "Pressione qualquer tecla para continuar..."
+msgstr "Paina mitä tahansa näppäintä jatkaaksesi..."
+
+
+#: mercearia:439 mercearia:440
+msgid "CADASTRO DE PRODUTO"
+msgstr "TUOTEREKISTERÖINTI"
+
+
+#: mercearia:442 mercearia:448 mercearia:452 mercearia:581 mercearia:606
+msgid "Descrição"
+msgstr "Kuvaus"
+
+
+#: mercearia:443 mercearia:467 mercearia:582 mercearia:617
+msgid "Código Barras"
+msgstr "Viivakoodi"
+
+
+#: mercearia:444 mercearia:468 mercearia:583 mercearia:618
+msgid "Unidade"
+msgstr "Yksikkö"
+
+
+#: mercearia:445 mercearia:472 mercearia:584 mercearia:622
+msgid "Preço (ex: 4.40 ou 5)"
+msgstr "Hinta (esim. 4,40 tai 5)"
+
+
+#: mercearia:454
+msgid "Descrição não pode ser em branco"
+msgstr "Kuvaus ei voi olla tyhjä"
+
+
+#: mercearia:461 mercearia:611
+msgid "A descrição não pode ser em branco. Cancelar?"
+msgstr "Kuvaus ei voi olla tyhjä. Peruuttaa?"
+
+
+#: mercearia:476 mercearia:626 mercearia:1266
+msgid "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro."
+msgstr "Virheellinen hintamuoto. Käytä desimaalipistettä (esim. 4,40) tai kokonaislukua."
+
+
+#: mercearia:481 mercearia:631
+msgid "Confirma inclusão/atualização do produto?"
+msgstr "Vahvistatko tuotteen sisällyttämisen/päivityksen?"
+
+
+#: mercearia:491 mercearia:640
+msgid "Produto cadastrado/atualizado com sucesso!"
+msgstr "Tuote rekisteröity/päivitetty onnistuneesti!"
+
+
+#: mercearia:493 mercearia:642
+msgid "Erro no cadastro/atualização do produto."
+msgstr "Virhe tuotteen rekisteröimisessä/päivityksessä."
+
+
+#: mercearia:496 mercearia:561 mercearia:645 mercearia:722
+msgid "Inclusão/alteração não efetuada."
+msgstr "Sisällytystä/muutosta ei tehty."
+
+
+#: mercearia:510 mercearia:511
+msgid "CADASTRO DE FORNECEDOR"
+msgstr "TOIMITTAJIEN REKISTERÖINTI"
+
+
+#: mercearia:513 mercearia:520 mercearia:524 mercearia:663 mercearia:689
+msgid "Nome"
+msgstr "Nimi"
+
+
+#: mercearia:514 mercearia:539 mercearia:664 mercearia:700
+msgid "Endereço"
+msgstr "Osoite"
+
+
+#: mercearia:515 mercearia:540 mercearia:665 mercearia:701
+msgid "Cidade"
+msgstr "Kaupunki"
+
+
+#: mercearia:516 mercearia:541 mercearia:666 mercearia:702
+msgid "Estado"
+msgstr "osavaltio"
+
+
+#: mercearia:517 mercearia:542 mercearia:667 mercearia:703
+msgid "Cnpj"
+msgstr "CNPJ"
+
+
+#: mercearia:526
+msgid "Nome não pode ser em branco"
+msgstr "Nimi ei voi olla tyhjä"
+
+
+#: mercearia:533 mercearia:694
+msgid "O nome não pode ser em branco. Cancelar?"
+msgstr "Nimi ei voi olla tyhjä. Peruuttaa?"
+
+
+#: mercearia:545 mercearia:706
+msgid "Confirma inclusão/atualização do fornecedor?"
+msgstr "Vahvistatko toimittajan sisällyttämisen/päivityksen?"
+
+
+#: mercearia:556 mercearia:717
+msgid "Fornecedor cadastrado/atualizado com sucesso!"
+msgstr "Toimittaja rekisteröity/päivitetty onnistuneesti!"
+
+
+#: mercearia:558 mercearia:719
+msgid "Erro no cadastro/atualização do fornecedor"
+msgstr "Virhe toimittajan rekisteröinnissä/päivityksessä"
+
+
+#: mercearia:577 mercearia:578
+msgid "ALTERAÇÃO DE PRODUTO"
+msgstr "TUOTTEEN VAIHTO"
+
+
+#: mercearia:580 mercearia:586 mercearia:662 mercearia:669
+msgid "ID/Nome"
+msgstr "ID/nimi"
+
+
+#: mercearia:590 mercearia:673
+msgid "ID/Nome não pode ser em branco. Cancelar?"
+msgstr "Tunnus/nimi ei voi olla tyhjä. Peruuttaa?"
+
+
+#: mercearia:600
+msgid "Produto não encontrado nos parâmetros informados"
+msgstr "Tuotetta ei löydy määritetyistä parametreista"
+
+
+#: mercearia:659
+msgid "ALTERAÇÃO DE FORNECEDOR"
+msgstr "TOIMITTAJAN VAIHTO"
+
+
+#: mercearia:660
+msgid "ALTERACÃO DE FORNECEDOR"
+msgstr "TOIMITTAJAN VAIHTO"
+
+
+#: mercearia:683
+msgid "Fornecedor não encontrado nos parâmetros informados"
+msgstr "Toimittajaa ei löydy määritetyistä parametreista"
+
+
+#: mercearia:733
+msgid "REMOÇÃO DE PRODUTO"
+msgstr "TUOTTEEN POISTAMINEN"
+
+
+#: mercearia:736
+msgid "Digite o ID ou nome do produto que deseja remover: "
+msgstr "Anna poistettavan tuotteen tunnus tai nimi:"
+
+
+#: mercearia:741
+msgid "O ID não pode ser em branco. Cancelar?"
+msgstr "Tunnus ei voi olla tyhjä. Peruuttaa?"
+
+
+#: mercearia:755
+msgid "Confirma exclusão do produto?"
+msgstr "Vahvistatko tuotteen poistamisen?"
+
+
+#: mercearia:763
+msgid "Produto removido com sucesso!"
+msgstr "Tuote poistettu onnistuneesti!"
+
+
+#: mercearia:766 mercearia:807
+msgid "Nenhum produto encontrado nos parâmetros informados"
+msgstr "Määritetyillä parametreilla ei löytynyt tuotteita"
+
+
+#: mercearia:774
+msgid "TOTAL VENDAS DIÁRIAS"
+msgstr "PÄIVITTÄINEN MYYNTI YHTEENSÄ"
+
+
+#: mercearia:782 mercearia:783
+msgid "PESQUISAR PRODUTOS"
+msgstr "HAE TUOTTEET"
+
+
+#: mercearia:784
+msgid "Pesquisar por (nome, id ou *=tudo)"
+msgstr "Hae (nimi, tunnus tai *=kaikki)"
+
+
+#: mercearia:815 mercearia:816
+msgid "LISTAGEM PRODUTOS VENDIDOS"
+msgstr "LUETTELO MYYTYISTÄ TUOTTEISTA"
+
+
+#: mercearia:817 mercearia:895
+msgid "Pesquisar por (id, docnr, data ou *=tudo)"
+msgstr "Hae (id, docnr, päivämäärä tai *=kaikki)"
+
+
+#: mercearia:840 mercearia:928
+msgid "Formato de data inválido."
+msgstr "Virheellinen päivämäärän muoto."
+
+
+#: mercearia:885
+msgid "Nenhum produto vendido nos parâmetros informados"
+msgstr "Määritetyillä parametreilla olevia tuotteita ei myydä"
+
+
+#: mercearia:893 mercearia:894
+msgid "LISTAGEM ENTRADAS DE PRODUTOS"
+msgstr "LUETTELO TUOTTEISTÄ"
+
+
+#: mercearia:973
+msgid "Nenhum produto comprado nos parâmetros informados"
+msgstr "Ei tuotteita ostettu määritetyillä parametreilla"
+
+
+#: mercearia:984 mercearia:985
+msgid "PESQUISAR FORNECEDOR"
+msgstr "HAE TOIMITTAJAA"
+
+
+#: mercearia:1006
+msgid "Nenhum fornecedor encontrado nos parâmetros informados"
+msgstr "Toimittajia ei löytynyt annetuista parametreista"
+
+
+#: mercearia:1034
+msgid "Registro de venda efetuado"
+msgstr "Myyntirekisteröinti tehty"
+
+
+#: mercearia:1043
+msgid "Baixa de estoque efetuado"
+msgstr "Osakkeiden alaskirjaus suoritettu"
+
+
+#: mercearia:1053
+msgid "VENDA"
+msgstr "MYYNTI"
+
+
+#: mercearia:1054
+msgid "CUPOM PDV"
+msgstr "POS-KUUPONKI"
+
+
+#: mercearia:1070 mercearia:1224
+msgid "ID/nome/CodeBar (deixe em branco para concluir)"
+msgstr "ID/nimi/koodipalkki (jätä tyhjäksi täydentääksesi)"
+
+
+#: mercearia:1087 mercearia:1241
+msgid "Produto não encontrado"
+msgstr "Tuotetta ei löydy"
+
+
+#: mercearia:1093 mercearia:1248
+msgid "Quantidade (0 para remover o item)"
+msgstr "Määrä (0 tuotteen poistamiseksi)"
+
+
+#: mercearia:1100 mercearia:1255
+msgid "Quantidade inválida ou item não tem na lista"
+msgstr "Virheellinen määrä tai tuote ei ole luettelossa"
+
+
+#: mercearia:1106
+msgid "Quantidade insuficiente de"
+msgstr "Riittämätön määrä"
+
+
+#: mercearia:1106
+msgid "no estoque"
+msgstr "varastossa"
+
+
+#: mercearia:1126
+msgid "Confirma o fetchamento do CUPOM?"
+msgstr "Vahvistatko COUPONIN haun?"
+
+
+#: mercearia:1145
+msgid "Registro de entradas efetuado"
+msgstr "Tehtyjen merkintöjen rekisteröinti"
+
+
+#: mercearia:1155
+msgid "Ajuste de estoque efetuado"
+msgstr "Varaston säätö tehty"
+
+
+#: mercearia:1177
+msgid "ENTRADAS DE PRODUTOS"
+msgstr "TUOTTEEN SYÖTTÖT"
+
+
+#: mercearia:1178
+msgid "DADOS DA NFF"
+msgstr "NFF-TIEDOT"
+
+
+#: mercearia:1180 mercearia:1184
+msgid "Fornecedor"
+msgstr "Toimittaja"
+
+
+#: mercearia:1181 mercearia:1201
+msgid "Docnr/NFF"
+msgstr "Asiakirja/NFF"
+
+
+#: mercearia:1190
+msgid "O ID/nome não pode ser em branco. Cancelar?"
+msgstr "Tunnus/nimi ei voi olla tyhjä. Peruuttaa?"
+
+
+#: mercearia:1196
+msgid "Fornecedor não encontrado"
+msgstr "Toimittajaa ei löydy"
+
+
+#: mercearia:1209
+msgid "RELAÇAO DAS ENTRADAS"
+msgstr "LUETTELO KÄYTTÖÖN"
+
+
+#: mercearia:1262
+msgid "Preço custo (ex: 4.40 ou 5)"
+msgstr "Omakustannushinta (esim. 4,40 tai 5)"
+
+
+#: mercearia:1286
+msgid "Confirma a entrada desses produtos?"
+msgstr "Vahvistatko näiden tuotteiden syöttämisen?"
+
+
+#: mercearia:1295
+msgid "Confirma a atualização?"
+msgstr "Vahvistatko päivityksen?"
+
+
+#: mercearia:1296
+msgid "Aguarde... Atualizando estoque"
+msgstr "Odota... Varastoa päivitetään"
+
+
+#: mercearia:1332
+msgid "Atualização concluída"
+msgstr "Päivitys valmis"
+
+
+#: mercearia:1354
+msgid "Checando tabela de produtos."
+msgstr "Tarkistetaan tuotetaulukkoa."
+
+
+#: mercearia:1356
+msgid "Checando tabela de vendas."
+msgstr "Tarkastetaan myyntitaulukkoa."
+
+
+#: mercearia:1358
+msgid "Checando tabela de compras."
+msgstr "Ostotaulukon tarkistus."
+
+
+#: mercearia:1360
+msgid "Checando tabela de fornecedores."
+msgstr "Tarkastetaan toimittajataulukkoa."
+
+
+#: mercearia:1388 mercearia:1389
+msgid "MENU FORNECEDORES"
+msgstr "TOIMITTAJIEN VALIKKO"
+
+
+#: mercearia:1390
+msgid "Cadastrar Fornecedor"
+msgstr "Rekisteröidy Toimittaja"
+
+
+#: mercearia:1391
+msgid "Alterar Fornecedor"
+msgstr "Vaihda toimittaja"
+
+
+#: mercearia:1392
+msgid "Pesquisar Fornecedor"
+msgstr "Hae Toimittaja"
+
+
+#: mercearia:1393 mercearia:1425
+msgid "Voltar"
+msgstr "Mennä takaisin"
+
+
+#: mercearia:1394 mercearia:1426 mercearia:1469
+msgid "Opção"
+msgstr "Vaihtoehto"
+
+
+#: mercearia:1416 mercearia:1417
+msgid "MENU PRODUTOS"
+msgstr "TUOTEVALIKKO"
+
+
+#: mercearia:1418
+msgid "Cadastrar Produtos"
+msgstr "Rekisteröi tuotteet"
+
+
+#: mercearia:1419
+msgid "Alterar Produtos"
+msgstr "Vaihda tuotteita"
+
+
+#: mercearia:1420
+msgid "Remover Produtos"
+msgstr "Poista tuotteet"
+
+
+#: mercearia:1421
+msgid "Pesquisar Produtos"
+msgstr "Etsi tuotteita"
+
+
+#: mercearia:1422
+msgid "Atualizar Estoque (conciliação)"
+msgstr "Päivitä varasto (sovitus)"
+
+
+#: mercearia:1423
+msgid "Listagem Produtos Vendidos"
+msgstr "Luettelo myydyistä tuotteista"
+
+
+#: mercearia:1424
+msgid "Listagem Entradas de Produtos"
+msgstr "Tuoteluettelo"
+
+
+#: mercearia:1463
+msgid "Produtos"
+msgstr "Tuotteet"
+
+
+#: mercearia:1464
+msgid "Realizar Venda"
+msgstr "Tee Myynti"
+
+
+#: mercearia:1465
+msgid "Exibir Vendas Diárias"
+msgstr "Näytä päivämyynti"
+
+
+#: mercearia:1466
+msgid "Entradas de Produtos"
+msgstr "Tuotemerkinnät"
+
+
+#: mercearia:1467
+msgid "Fornecedores"
+msgstr "Toimittajat"
+
+
+#: mercearia:1468
+msgid "Sair"
+msgstr "Mennä ulos"
+
+
+#: mercearia:1491
