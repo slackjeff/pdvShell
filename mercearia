@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/10/28
+#	Altered: 2023/10/29
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -33,7 +33,7 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.0.0-20231028"
+declare _VERSION_="1.0.0-20231029"
 declare DEPENDENCIES=(tput gettext sqlite3 bc tr)
 declare database='pdv.db'
 
@@ -434,9 +434,10 @@ function criar_tabela_produtos() {
         id INTEGER PRIMARY KEY,
         nome TEXT,
         un TEXT,
-        quantidade INTEGER,
+        estoque INTEGER,
         preco REAL,
-        codebar TEXT
+        codebar TEXT,
+        data DATE
     );"
 	sqlite3 "$database" "$query"
 }
@@ -552,7 +553,7 @@ function produto_inclusao() {
 			get 12 11 "$(gettext "Descrição")            : " nome
 			if [[ -n "$nome" ]]; then
 				if produto_info=$(dbseek 'produtos' 'nome' "$nome" "$IsHeader" "$IsLike") && [ -n "$produto_info" ]; then
-					IFS='|' read -r produto_id produto_nome produto_unidade produto_quantidade produto_preco produto_codebar <<<"$produto_info"
+					IFS='|' read -r produto_id produto_nome produto_unidade produto_estoque produto_preco produto_codebar <<<"$produto_info"
 					get 12 11 "$(gettext "Descrição")            : " nome "$produto_nome"
 					if [[ -z "$nome" ]]; then
 						mensagem 2 "$(gettext "Descrição não pode ser em branco.")" "$red"
@@ -585,9 +586,9 @@ function produto_inclusao() {
 		if readconf "$(gettext "Confirma inclusão/atualização do produto?")"; then
 			nome=${nome^^}
 			un=${un^^}
-			query="INSERT OR REPLACE INTO produtos (id, nome, un, preco, codebar) VALUES (
+			query="INSERT OR REPLACE INTO produtos (id, nome, un, preco, codebar, estoque) VALUES (
 		        (SELECT id FROM produtos WHERE id='$produto_id'),
-		        '$nome', '$un', '$preco', '$codebar'
+		        '$nome', '$un', '$preco', '$codebar','0'
 		    );"
 
 			if sqlite3 "$database" "$query"; then
@@ -639,8 +640,7 @@ function produto_alteracao() {
 			mensagem 2 "$(gettext "Produto não encontrado nos parâmetros informados")" "$red"
 			continue
 		fi
-		IFS='|' read -r produto_id produto_nome produto_unidade produto_quantidade produto_preco produto_codebar <<<"$produto_info"
-
+		IFS='|' read -r produto_id produto_nome produto_unidade produto_estoque produto_preco produto_codebar produto_data <<<"$produto_info"
 		while true; do
 			get 13 11 "$(gettext "Descrição")            : " nome "$produto_nome"
 			if [[ -n "$nome" ]]; then
@@ -670,9 +670,9 @@ function produto_alteracao() {
 		if readconf "$(gettext "Confirma inclusão/atualização do produto?")"; then
 			nome=${nome^^}
 			un=${un^^}
-			query="INSERT OR REPLACE INTO produtos (id, nome, un, preco, codebar) VALUES (
+			query="INSERT OR REPLACE INTO produtos (id, nome, un, estoque, preco, codebar, data) VALUES (
 		        (SELECT id FROM produtos WHERE id='$produto_id'),
-		        '$nome', '$un', '$preco', '$codebar'
+		        '$nome', '$un', '$produto_estoque', '$preco', '$codebar', '$(sh_date)'
 		    );"
 
 			if sqlite3 "$database" "$query"; then
@@ -735,32 +735,60 @@ function produto_remocao() {
 }
 
 function produto_pesquisa() {
+	local produto_info
+	local IsHeader=0
+	local IsLike=0
+	local id nome un estoque preco
+	local ncol
+	local nrow
+	local nlastrow
+	local half_lastcol
+
 	while true; do
 		tela
 		titulo 1 "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
 		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
-		get 11 1 "$(gettext "Pesquisar por (nome, id ou *=tudo)") : " produto
+		get 11 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
-		[[ -z "$produto" ]] && return
-		[[ "$produto" == "*" ]] && produto=
+		[[ -z "$identificador" ]] && return
+		[[ "$identificador" == "*" ]] && identificador=
 
-		if [[ $produto =~ ^[0-9]+$ ]]; then
-			QUERY_SEARCH_PRODUCT="SELECT * FROM produtos WHERE id='$produto'"
+		if [[ $identificador =~ ^[0-9]+$ ]]; then
+			IsLike=0
+			produto_info=$(dbseek 'produtos' 'id' "$identificador" "$IsHeader" "$IsLike")
+		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
+			id_ini=${BASH_REMATCH[1]}
+			id_fim=${BASH_REMATCH[2]}
+			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id >= $id_ini AND id <= $id_fim;")
 		else
-			QUERY_SEARCH_PRODUCT="SELECT * FROM produtos WHERE nome LIKE '%$produto%'"
+			IsLike=1
+			produto_info=$(dbseek 'produtos' 'nome' "$identificador" "$IsHeader" "$IsLike")
 		fi
-		if resultado_sqlite=$(sqlite3 -column -header "$database" "$QUERY_SEARCH_PRODUCT") && [[ -n "$resultado_sqlite" ]]; then
-			# Imprimir o resultado dentro do quadro
-			#box 13 0 $(($(lastrow)-3)) $(($(lastcol)-1))
-
+		if [[ -n "$produto_info" ]]; then
 			setpos 13 1
-			nRow=13
-			while IFS='|' read -r id nome un quantidade preco; do
-				setpos $nRow 1
-				printf "%-s %s %s %s %s" "$id" "$nome" "$un" "$quantidade" "$preco"
-				((++nRow))
-			done < <(tr '\t' '|' <<<"$resultado_sqlite")
-			mensagem 2 "" "$green" 10
+			nrow=15
+            ncol=01
+            half_lastcol=$(($(lastcol)/2))
+            nlastrow="$(( $(lastrow) -2))"
+            setpos 13 "$ncol"
+            printf "${yellow}%-10s %-5s %-40s   %s %5s %11s %13s${reset}\n" "DATA" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "CODEBAR"
+            setpos 14 "$ncol"
+            replicate '-' "$half_lastcol"
+			while IFS='|' read -r id nome un estoque preco codebar data; do
+				setpos "$nrow" "$ncol"
+				preco=$(bc -l <<<"$preco" | tr "." ",")
+				printf "%-10s %-5s %-40s %s ${cyan}%5s ${red}%10.2f${reset} %s" "$(convert_data_to_ptBR "$data")" "$id" "$nome" "$un" "$estoque" "$preco" "$codebar"
+				((++nrow))
+				if (( nrow >= nlastrow )); then
+					nrow=15
+					ncol="$half_lastcol"
+					setpos 13 "$ncol"
+		            printf "${yellow}%-10s %-5s %-40s   %s %5s %11s %13s${reset}\n" "DATA" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "CODEBAR"
+					setpos 14 "$ncol"
+					replicate '-' "$half_lastcol"
+				fi
+			done <<<"$produto_info"
+			mensagem 2 "" "$green" 300
 		else
 			mensagem 2 "$(gettext "Nenhum produto encontrado nos parâmetros informados")" "$red" 10
 		fi
@@ -1075,14 +1103,14 @@ function listagem_vendas_diarias() {
 	if [[ -n "${query_result}" ]]; then
 		setpos 14 "$ncol"
 		printf "${yellow}%-10s %10s\n" "data" "total dia"
-#		setpos 14 "$ncol"
-#		replicate "-" 21
+		#		setpos 14 "$ncol"
+		#		replicate "-" 21
 		nrow=15
 		total_mes=0
 		current_mes=
 		while IFS='|' read -r data total; do
-		  	new_mes=$(date -d "$data" +"%m")
-        	if [[ -n "$current_mes" && "$current_mes" != "$new_mes" ]]; then
+			new_mes=$(date -d "$data" +"%m")
+			if [[ -n "$current_mes" && "$current_mes" != "$new_mes" ]]; then
 				((++nrow))
 				setpos "$nrow" "$ncol"
 				printf "${blue}%-10s ${red}%'10.2f${reset}\n" "SOMA" "$(tr "." "," <<<"$total_mes")"
@@ -1090,7 +1118,7 @@ function listagem_vendas_diarias() {
 				setpos 14 "$ncol"
 				printf "${yellow}%-10s %10s\n" "data" "total dia"
 				setpos 16 "$ncol"
-#				replicate "-" 21
+				#				replicate "-" 21
 				nrow=15
 				total_mes=0
 			fi
@@ -1099,7 +1127,7 @@ function listagem_vendas_diarias() {
 			setpos "$nrow" "$ncol"
 			printf "${blue}%s ${red}%10.2f${yellow}|${reset}\n" "$(convert_data_to_ptBR "$data")" "$total"
 			((++nrow))
-		 	current_mes="$new_mes"
+			current_mes="$new_mes"
 		done <<<"${query_result}"
 		((++nrow))
 		setpos "$nrow" "$ncol"
@@ -1204,11 +1232,17 @@ function listagem_vendas_mensal() {
 }
 
 function listagem_produtos_vendidos() {
+	local current_docnr
+	local nrow
+	local ncol
+	local half_lastcol
+	local nlastcol
+
 	while true; do
 		tela
 		titulo 1 "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
 		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
-		get 11 1 "$(gettext "Pesquisar por (id, docnr, data ou *=tudo)") : " identificador
+		get 11 1 "$(gettext "Pesquisar por (docnr, data, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -1228,6 +1262,16 @@ function listagem_produtos_vendidos() {
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				WHERE vendas.id = '$identificador'
+				ORDER BY vendas.data, vendas.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
+		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
+		    id_ini="${BASH_REMATCH[1]}"
+		    id_fim="${BASH_REMATCH[2]}"
+			query="SELECT vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
+				FROM vendas
+				JOIN produtos ON vendas.id = produtos.id
+				WHERE vendas.id >= '$id_ini' AND vendas.id <= '$id_fim'
 				ORDER BY vendas.data, vendas.docnr;"
 			result=$(sqlite3 "$database" "$query")
 
@@ -1257,18 +1301,28 @@ function listagem_produtos_vendidos() {
 		# Verifica se há dados no resultado da consulta
 		if [ -n "$result" ]; then
 			current_docnr=""
+			nrow=15
+			ncol=01
+			half_lastcol=$(($(lastcol)/2))
+			nlastrow="$(( $(lastrow) -2))"
+			setpos 13 "$ncol"
 			printf "%-10s %-8s %5s %-40s   %s %s %13s %12s\n" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "TOTAL"
-			replicate '-' "$lastcol"
+			setpos 14 "$ncol"
+			replicate '-' "$half_lastcol"
 			while IFS='|' read -r data docnr id un produto quantidade preco total codebar; do
-				#				if [[ "$docnr" != "$current_docnr" ]]; then
-				#					echo
-				#					echo "${blue}docnr: ${yellow}$docnr - ${blue}data: ${yellow}$data${reset}"
-				#					replicate "-" 84
-				#					current_docnr="$docnr"
-				#				fi
 				total_formatado=$(echo "$quantidade * $preco" | bc -l | tr "." ",")
 				preco=$(bc -l <<<"$preco" | tr "." ",")
+				setpos "$nrow" "$ncol"
 				printf "%-10s %-8s %5s %-40s %-2s ${cyan}%3d x %10.2f = ${red}%10.2f${reset}\n" "$(convert_data_to_ptBR "$data")" "$docnr" "$id" "$produto" "$un" "$quantidade" "$preco" "$total_formatado"
+				((++nrow))
+				if (( nrow >= nlastrow )); then
+					nrow=15
+					ncol="$half_lastcol"
+					setpos 13 "$ncol"
+					printf "%-10s %-8s %5s %-40s   %s %s %13s %12s\n" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "TOTAL"
+					setpos 14 "$ncol"
+					replicate '-' "$half_lastcol"
+				fi
 			done <<<"$result"
 			mensagem 2 "" "$green" 300
 		else
@@ -1377,7 +1431,7 @@ function atualizar_estoque_vendas() {
 	for key in "${!lista_produtos[@]}"; do
 		produto="${lista_produtos[$key]}"
 		IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
-		sqlite3 "$database" "UPDATE produtos SET quantidade = COALESCE(quantidade, 0) - $quantidade WHERE id='$id';"
+		sqlite3 "$database" "UPDATE produtos SET estoque = COALESCE(estoque, 0) - $quantidade WHERE id='$id';"
 	done
 	mensagem 2 "$(gettext "Baixa de estoque efetuado")" "$green"
 }
@@ -1495,7 +1549,7 @@ function atualizar_estoque_compras() {
 	for key in "${!lista_produtos[@]}"; do
 		produto="${lista_produtos[$key]}"
 		IFS='|' read -r id nome quantidade custo <<<"$produto"
-		sqlite3 "$database" "UPDATE produtos SET quantidade = COALESCE(quantidade, 0) + $quantidade WHERE id=$id;"
+		sqlite3 "$database" "UPDATE produtos SET estoque = COALESCE(estoque, 0) + $quantidade WHERE id=$id;"
 	done
 	mensagem 2 "$(gettext "Ajuste de estoque efetuado")" "$green"
 }
@@ -1635,55 +1689,39 @@ function produtos_entradas() {
 }
 
 function conciliar_estoque() {
+	local query
 	setpos 23 11
 	if readconf "$(gettext "Confirma a atualização?")"; then
 		mensagem 2 "$(gettext "Aguarde... Atualizando estoque")" "$yellow"
-
-		sqlite3 estoque.db "UPDATE produtos
-	SET quantidade = 0
-	WHERE produtos.id IN (
-    	SELECT produtos.id
-	    FROM produtos
-	    LEFT JOIN compras ON produtos.id = compras.id
-	    GROUP BY produtos.id
-	);"
-
-		sqlite3 estoque.db "UPDATE produtos
-	SET quantidade = quantidade + (
-    	SELECT SUM(compras.quantidade)
-	    FROM compras
-	    WHERE produtos.id = compras.id
-	)
-	WHERE produtos.id IN (
-    	SELECT produtos.id
-	    FROM produtos
-	    LEFT JOIN compras ON produtos.id = compras.id
-	    GROUP BY produtos.id
-	);"
-
-		sqlite3 estoque.db "UPDATE produtos
-	SET quantidade = quantidade - (
-	    SELECT SUM(vendas.quantidade)
-	    FROM vendas
-	    WHERE produtos.id = vendas.id
-	)
-	WHERE produtos.id IN (
-	    SELECT produtos.id
-	    FROM produtos
-	    LEFT JOIN vendas ON produtos.id = vendas.id
-	    GROUP BY produtos.id
-	);"
-		mensagem 2 "$(gettext "Atualização concluída")" "$green"
+		if sqlite3 "$database" "UPDATE produtos SET estoque = 0;"; then
+			query="UPDATE produtos
+				SET estoque = estoque + (
+			    SELECT IFNULL(SUM(quantidade), 0)
+			    FROM compras
+			    WHERE produtos.id = compras.id
+			);"
+			sqlite3 "$database" "$query"
+			query="UPDATE produtos
+				SET estoque = estoque - (
+				SELECT IFNULL(SUM(quantidade), 0)
+				FROM vendas
+				WHERE produtos.id = vendas.id
+			);"
+			sqlite3 "$database" "$query"
+			mensagem 2 "$(gettext "Atualização concluída")" "$green"
+		else
+			mensagem 2 "$(gettext "Erro durante a atualização")" "$red"
+		fi
 	fi
 }
 
 function soma_teste() {
-	sqlite3 estoque.db "SELECT produtos.nome, SUM(compras.quantidade) AS total_compras
+	sqlite3 "$database" "SELECT produtos.nome, SUM(compras.quantidade) AS total_compras
 	FROM produtos
 	LEFT JOIN compras ON produtos.id = compras.id
 	GROUP BY produtos.nome;"
 
-	sqlite3 estoque.db "SELECT p.nome,
+	sqlite3 "$database" "SELECT p.nome,
                             SUM(c.quantidade) AS total_compras,
                             SUM(v.quantidade) AS total_vendas
                     FROM produtos AS p
@@ -1721,7 +1759,20 @@ function sh_show_tabelas() {
 	inkey 10
 }
 
-populate_database() {
+populate_database_produtos() {
+	mensagem 2 "$(gettext "Populando tabela de produtos.")" "$green" 0
+	for ((i = 1; i <= 100; i++)); do
+		nome="Produto $i"
+		un="UN"
+		estoque=$((RANDOM % 1000))                            # Estoque aleatório entre 0 e 999
+		preco=$(echo "scale=2; $((RANDOM % 1000)) / 10" | bc) # Preço aleatório entre 0.0 e 99.9
+		codebar=$(printf "%013d" $i)                          # Gere um código de barras simples
+		data=$(sh_date)
+		sqlite3 "$database" "INSERT INTO produtos (nome, un, estoque, preco, codebar, data) VALUES ('$nome', '$un', $estoque, $preco, '$codebar', '$data');"
+	done
+}
+
+populate_database_vendas() {
 	# Inicialize o mês e o dia
 	mes=10
 	dia=1
@@ -1825,20 +1876,20 @@ function show_menu() {
 				selected=0
 			fi
 			;;
-#		"5") # Tecla PgUp
-#			if ((selected <= 0)); then
-#				selected=$((itens - 1))
-#			else
-#				selected=0
-#			fi
-#			;;
-#		"6") # Tecla PgDn
-#			if ((selected >= (itens - 1))); then
-#				selected=0
-#			else
-#				selected=$((itens - 1))
-#			fi
-#			;;
+			#		"5") # Tecla PgUp
+			#			if ((selected <= 0)); then
+			#				selected=$((itens - 1))
+			#			else
+			#				selected=0
+			#			fi
+			#			;;
+			#		"6") # Tecla PgDn
+			#			if ((selected >= (itens - 1))); then
+			#				selected=0
+			#			else
+			#				selected=$((itens - 1))
+			#			fi
+			#			;;
 		[0-9]) return "$key" ;;
 		"") # Tecla Enter
 			case $selected in
