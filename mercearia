@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/10/29
+#	Altered: 2023/10/30
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -33,7 +33,7 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.0.0-20231029"
+declare _VERSION_="1.0.0-20231030"
 declare DEPENDENCIES=(tput gettext sqlite3 bc tr)
 declare database='pdv.db'
 
@@ -421,7 +421,7 @@ function logo() {
 
 function tela() {
 	clear
-	titulo 0 "$(gettext "SISTEMA PDV")" "$roxo" "$(date)"
+	titulo 0 "$(gettext "SISTEMA PDV")" "$roxo" "$(date)" "$_VERSION_"
 	titulo 1 "$(gettext "MENU PRINCIPAL")" "$ciano"
 	logo
 	titulo "$(($(lastrow) - 1))" "MERCEARIA TemDTudo" "$azul" "$PWD" "$USER"
@@ -764,29 +764,30 @@ function produto_pesquisa() {
 			IsLike=1
 			produto_info=$(dbseek 'produtos' 'nome' "$identificador" "$IsHeader" "$IsLike")
 		fi
+
+		function imprimirCabecalhoPesquisaProdutos() {
+			setpos 13 "$ncol"
+			printf "${yellow}%-10s %-5s %-40s   %s %5s %11s %13s${reset}\n" "DATA" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "CODEBAR"
+			setpos 14 "$ncol"
+			replicate '-' "$half_lastcol"
+		}
+
 		if [[ -n "$produto_info" ]]; then
-			setpos 13 1
 			nrow=15
-            ncol=01
-            half_lastcol=$(($(lastcol)/2))
-            nlastrow="$(( $(lastrow) -2))"
-            setpos 13 "$ncol"
-            printf "${yellow}%-10s %-5s %-40s   %s %5s %11s %13s${reset}\n" "DATA" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "CODEBAR"
-            setpos 14 "$ncol"
-            replicate '-' "$half_lastcol"
+			ncol=01
+			half_lastcol=$(($(lastcol) / 2))
+			nlastrow="$(($(lastrow) - 1))"
+			imprimirCabecalhoPesquisaProdutos
 			while IFS='|' read -r id nome un estoque preco codebar data; do
+				if ((nrow >= nlastrow)); then
+					nrow=15
+					ncol="$half_lastcol"
+					imprimirCabecalhoPesquisaProdutos
+				fi
 				setpos "$nrow" "$ncol"
 				preco=$(bc -l <<<"$preco" | tr "." ",")
 				printf "%-10s %-5s %-40s %s ${cyan}%5s ${red}%10.2f${reset} %s" "$(convert_data_to_ptBR "$data")" "$id" "$nome" "$un" "$estoque" "$preco" "$codebar"
 				((++nrow))
-				if (( nrow >= nlastrow )); then
-					nrow=15
-					ncol="$half_lastcol"
-					setpos 13 "$ncol"
-		            printf "${yellow}%-10s %-5s %-40s   %s %5s %11s %13s${reset}\n" "DATA" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "CODEBAR"
-					setpos 14 "$ncol"
-					replicate '-' "$half_lastcol"
-				fi
 			done <<<"$produto_info"
 			mensagem 2 "" "$green" 300
 		else
@@ -998,36 +999,78 @@ function fornecedor_exclusao() {
 function fornecedor_pesquisa() {
 	local identificador
 	local fornecedor_info
+	local id_ini
+	local id_fim
 	local IsHeader=1
 	local IsLike=1
-	local nRow
+	local nrow
+	local ncol
+	local cabecalho
+	local traco
+	local nlastrow
+	local nconta
+	local half_lastcol
+	local line
 
 	while true; do
 		tela
 		titulo 1 "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
 		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
-		get 11 1 "Pesquisar por (id, nome ou *=tudo) : " identificador
+		get 11 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
 
 		if [[ $identificador =~ ^[0-9]+$ ]]; then
 			fornecedor_info=$(dbseek 'fornecedor' 'id' "$identificador" "$IsHeader")
+		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
+			id_ini=${BASH_REMATCH[1]}
+			id_fim=${BASH_REMATCH[2]}
+			fornecedor_info=$(sqlite3 $database -column -header "SELECT * FROM fornecedor WHERE id >= $id_ini AND id <= $id_fim;")
 		else
 			fornecedor_info=$(dbseek 'fornecedor' 'nome' "$identificador" "$IsHeader" "$IsLike")
 		fi
+
+		function imprimirCabecalhoPesquisaFornecedor() {
+			setpos 13 "$ncol"
+			printf "${yellow}%s${reset}" "$cabecalho"
+			setpos 14 "$ncol"
+			printf "${yellow}%s${reset}" "$traco"
+		}
+
 		if [[ -n "$fornecedor_info" ]]; then
-			setpos 13 1
-			nRow=13
-			while IFS='|' read -r id data nome ende cida esta cnpj; do
-				setpos $nRow 1
-				printf "%-s %s %s %s %s %s %s" "$id" "$data" "$nome" "$ende" "$cida" "$esta" "$cnpj"
-				((++nRow))
-			done < <(tr '\t' '|' <<<"$fornecedor_info")
-			mensagem 2 "" "$green" 10
+			nrow=13
+			ncol=01
+			nconta=0
+			half_lastcol=$(($(lastcol) / 3))
+			nlastrow="$(($(lastrow) - 1))"
+			while IFS='|' read -r line; do
+				if [[ $nconta -eq 0 ]]; then
+					cabecalho="$(printf "%s" "$line")"
+					((++nconta))
+					continue
+				elif [[ $nconta -eq 1 ]]; then
+					traco="$(printf "%s" "$line")"
+					imprimirCabecalhoPesquisaFornecedor
+					((++nconta))
+					nrow=15
+					continue
+				fi
+				if ((nrow >= nlastrow)); then
+					nrow=13
+					ncol=$(( ncol + half_lastcol ))
+					imprimirCabecalhoPesquisaFornecedor
+					nrow=15
+				fi
+				setpos "$nrow" "$ncol"
+				printf "%s" "$line"
+				((++nrow))
+			done <<< "$fornecedor_info"
+			mensagem 2 "" "$green" 300
 		else
 			mensagem 2 "$(gettext "Nenhum fornecedor encontrado nos parâmetros informados")" "$red" 10
 		fi
+
 	done
 }
 
@@ -1103,8 +1146,6 @@ function listagem_vendas_diarias() {
 	if [[ -n "${query_result}" ]]; then
 		setpos 14 "$ncol"
 		printf "${yellow}%-10s %10s\n" "data" "total dia"
-		#		setpos 14 "$ncol"
-		#		replicate "-" 21
 		nrow=15
 		total_mes=0
 		current_mes=
@@ -1266,8 +1307,8 @@ function listagem_produtos_vendidos() {
 			result=$(sqlite3 "$database" "$query")
 
 		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
-		    id_ini="${BASH_REMATCH[1]}"
-		    id_fim="${BASH_REMATCH[2]}"
+			id_ini="${BASH_REMATCH[1]}"
+			id_fim="${BASH_REMATCH[2]}"
 			query="SELECT vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
@@ -1298,31 +1339,32 @@ function listagem_produtos_vendidos() {
 			result=$(sqlite3 "$database" "$query")
 		fi
 
+		function imprimirCabecalhoProdutosVendidos() {
+			setpos 13 "$ncol"
+			printf "%-10s %-8s %5s %-40s   %s %s %13s %12s\n" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "TOTAL"
+			setpos 14 "$ncol"
+			replicate '-' "$half_lastcol"
+		}
+
 		# Verifica se há dados no resultado da consulta
 		if [ -n "$result" ]; then
 			current_docnr=""
 			nrow=15
 			ncol=01
-			half_lastcol=$(($(lastcol)/2))
-			nlastrow="$(( $(lastrow) -2))"
-			setpos 13 "$ncol"
-			printf "%-10s %-8s %5s %-40s   %s %s %13s %12s\n" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "TOTAL"
-			setpos 14 "$ncol"
-			replicate '-' "$half_lastcol"
+			half_lastcol=$(($(lastcol) / 2))
+			nlastrow="$(($(lastrow) - 2))"
+			imprimirCabecalhoProdutosVendidos
 			while IFS='|' read -r data docnr id un produto quantidade preco total codebar; do
+				if ((nrow >= nlastrow)); then
+					nrow=15
+					ncol="$half_lastcol"
+					imprimirCabecalhoProdutosVendidos
+				fi
 				total_formatado=$(echo "$quantidade * $preco" | bc -l | tr "." ",")
 				preco=$(bc -l <<<"$preco" | tr "." ",")
 				setpos "$nrow" "$ncol"
 				printf "%-10s %-8s %5s %-40s %-2s ${cyan}%3d x %10.2f = ${red}%10.2f${reset}\n" "$(convert_data_to_ptBR "$data")" "$docnr" "$id" "$produto" "$un" "$quantidade" "$preco" "$total_formatado"
 				((++nrow))
-				if (( nrow >= nlastrow )); then
-					nrow=15
-					ncol="$half_lastcol"
-					setpos 13 "$ncol"
-					printf "%-10s %-8s %5s %-40s   %s %s %13s %12s\n" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "TOTAL"
-					setpos 14 "$ncol"
-					replicate '-' "$half_lastcol"
-				fi
 			done <<<"$result"
 			mensagem 2 "" "$green" 300
 		else
@@ -1743,11 +1785,11 @@ function sh_criar_tabelas() {
 	criar_tabela_fornecedor
 }
 
-function sh_manutencao_tabelas() {
-	#	sqlite3 "$database" "DROP TABLE produtos;"
-	#	sqlite3 "$database" "DROP TABLE vendas;"
-	#	sqlite3 "$database" "DROP TABLE fornecedor;"
-	#	sqlite3 "$database" "DROP TABLE compras;"
+function sh_drop_tabelas() {
+	sqlite3 "$database" "DROP TABLE produtos;"
+	sqlite3 "$database" "DROP TABLE vendas;"
+	sqlite3 "$database" "DROP TABLE fornecedor;"
+	sqlite3 "$database" "DROP TABLE compras;"
 	:
 }
 
@@ -1769,6 +1811,19 @@ populate_database_produtos() {
 		codebar=$(printf "%013d" $i)                          # Gere um código de barras simples
 		data=$(sh_date)
 		sqlite3 "$database" "INSERT INTO produtos (nome, un, estoque, preco, codebar, data) VALUES ('$nome', '$un', $estoque, $preco, '$codebar', '$data');"
+	done
+}
+
+populate_database_fornecedor() {
+	mensagem 2 "$(gettext "Populando tabela de fornecedor.")" "$green" 0
+	for ((i = 1; i <= 99; i++)); do
+		data=$(sh_date)
+		nome="FORNECEDOR $i LTDA"
+		ende="ENDERECO$i"
+		cida="CIDADE$i"
+		uf=$(printf "%02d" $i)
+		cnpj=$(printf "%02d.%03d.%03d/%04d-%02d" $i $i $i $i $i)
+		sqlite3 "$database" "INSERT INTO fornecedor (data, nome, ende, cida, uf, cnpj) VALUES ('$data', '$nome', '$ende', '$cida', '$uf', '$cnpj');"
 	done
 }
 
@@ -2013,5 +2068,9 @@ function sh_main_menu() {
 
 sh_config
 sh_checkDependencies
+#	sh_drop_tabelas
 sh_criar_tabelas
+#	populate_database_produtos
+#	populate_database_vendas
+#	populate_database_fornecedor
 sh_main_menu
