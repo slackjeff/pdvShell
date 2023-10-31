@@ -21,6 +21,7 @@
 #	THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
 #	IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 #	OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+
 #	IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
 #	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
 #	NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
@@ -47,6 +48,10 @@ function sh_config() {
 	declare -gi lastrow=$(lastrow)
 	declare -gi lastcol=$(lastcol)
 	declare -gi LC_DEFAULT=0
+	declare -gi nTop=8
+	declare -gi nLeft
+	declare -gi nBottom
+	declare -gi nRight
 	sh_setvarcolors
 }
 
@@ -432,11 +437,11 @@ function criar_tabela_produtos() {
 
 	query="CREATE TABLE IF NOT EXISTS produtos (
         id INTEGER PRIMARY KEY,
-        nome TEXT,
-        un TEXT,
+        nome VARCHAR(40),
+        un VARCHAR(2),
         estoque INTEGER,
         preco REAL,
-        codebar TEXT,
+        codebar VARCHAR(13),
         data DATE
     );"
 	sqlite3 "$database" "$query"
@@ -450,7 +455,7 @@ function criar_tabela_vendas() {
         quantidade INTEGER,
         preco REAL,
         total REAL,
-        docnr TEXT
+        docnr VARCHAR(7)
     );"
 	sqlite3 "$database" "$query"
 }
@@ -462,7 +467,7 @@ function criar_tabela_compras() {
         id INTEGER,
         fornecedor INTEGER,
         data DATE,
-        docnr TEXT,
+        docnr VARCHAR(7),
         quantidade INTEGER,
         custo REAL,
         total REAL
@@ -476,11 +481,11 @@ function criar_tabela_fornecedor() {
 	query="CREATE TABLE IF NOT EXISTS fornecedor (
         id INTEGER PRIMARY KEY,
         data DATE,
-        nome TEXT,
-        ende TEXT,
-        cida TEXT,
-        uf TEXT,
-        cnpj TEXT
+        nome VARCHAR(40),
+        ende VARCHAR(30),
+        cida VARCHAR(25),
+        uf VARCHAR(2),
+        cnpj VARCHAR(18)
     );"
 	sqlite3 "$database" "$query"
 }
@@ -747,8 +752,8 @@ function produto_pesquisa() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
-		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
-		get 11 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
+		get $((nTop+1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -766,27 +771,27 @@ function produto_pesquisa() {
 		fi
 
 		function imprimirCabecalhoPesquisaProdutos() {
-			setpos 13 "$ncol"
-			printf "${yellow}%-10s %-5s %-40s   %s %5s %11s %13s${reset}\n" "DATA" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "CODEBAR"
-			setpos 14 "$ncol"
+			setpos $((nTop+3)) "$ncol"
+			printf "${yellow}%-5s %-10s %-40s   %s %5s %11s %13s${reset}\n" "ID" "DATA" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "CODEBAR"
+			setpos $((nTop+4)) "$ncol"
 			replicate '-' "$half_lastcol"
 		}
 
 		if [[ -n "$produto_info" ]]; then
-			nrow=15
+			nrow=$((nTop+5))
 			ncol=01
-			half_lastcol=$(($(lastcol) / 2))
+			half_lastcol=$(($(lastcol) / 3))
 			nlastrow="$(($(lastrow) - 1))"
 			imprimirCabecalhoPesquisaProdutos
 			while IFS='|' read -r id nome un estoque preco codebar data; do
 				if ((nrow >= nlastrow)); then
-					nrow=15
-					ncol="$half_lastcol"
+					nrow=$((nTop+5))
+					ncol=$(( ncol + half_lastcol ))
 					imprimirCabecalhoPesquisaProdutos
 				fi
 				setpos "$nrow" "$ncol"
 				preco=$(bc -l <<<"$preco" | tr "." ",")
-				printf "%-10s %-5s %-40s %s ${cyan}%5s ${red}%10.2f${reset} %s" "$(convert_data_to_ptBR "$data")" "$id" "$nome" "$un" "$estoque" "$preco" "$codebar"
+				printf "%-5s %-10s %-40s %s ${cyan}%5s ${red}%10.2f${reset} %s" "$id" "$(convert_data_to_ptBR "$data")" "$nome" "$un" "$estoque" "$preco" "$codebar"
 				((++nrow))
 			done <<<"$produto_info"
 			mensagem 2 "" "$green" 300
@@ -1015,8 +1020,8 @@ function fornecedor_pesquisa() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
-		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
-		get 11 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
+		get $((nTop+1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -1032,14 +1037,14 @@ function fornecedor_pesquisa() {
 		fi
 
 		function imprimirCabecalhoPesquisaFornecedor() {
-			setpos 13 "$ncol"
+			setpos $((nTop+3)) "$ncol"
 			printf "${yellow}%s${reset}" "$cabecalho"
-			setpos 14 "$ncol"
+			setpos $((nTop+4)) "$ncol"
 			printf "${yellow}%s${reset}" "$traco"
 		}
 
 		if [[ -n "$fornecedor_info" ]]; then
-			nrow=13
+			nrow=$((nTop+5))
 			ncol=01
 			nconta=0
 			half_lastcol=$(($(lastcol) / 3))
@@ -1053,14 +1058,13 @@ function fornecedor_pesquisa() {
 					traco="$(printf "%s" "$line")"
 					imprimirCabecalhoPesquisaFornecedor
 					((++nconta))
-					nrow=15
+					nrow=$((nTop+5))
 					continue
 				fi
 				if ((nrow >= nlastrow)); then
-					nrow=13
 					ncol=$(( ncol + half_lastcol ))
 					imprimirCabecalhoPesquisaFornecedor
-					nrow=15
+					nrow=$((nTop+5))
 				fi
 				setpos "$nrow" "$ncol"
 				printf "%s" "$line"
@@ -1282,8 +1286,8 @@ function listagem_produtos_vendidos() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
-		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
-		get 11 1 "$(gettext "Pesquisar por (docnr, data, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
+		get $((nTop+1)) 1 "$(gettext "Pesquisar por (docnr, data, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -1340,24 +1344,24 @@ function listagem_produtos_vendidos() {
 		fi
 
 		function imprimirCabecalhoProdutosVendidos() {
-			setpos 13 "$ncol"
+			setpos $((nTop+3)) "$ncol"
 			printf "%-10s %-8s %5s %-40s   %s %s %13s %12s\n" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "TOTAL"
-			setpos 14 "$ncol"
+			setpos $((nTop+4)) "$ncol"
 			replicate '-' "$half_lastcol"
 		}
 
 		# Verifica se há dados no resultado da consulta
 		if [ -n "$result" ]; then
 			current_docnr=""
-			nrow=15
+			nrow=$((nTop+5))
 			ncol=01
-			half_lastcol=$(($(lastcol) / 2))
-			nlastrow="$(($(lastrow) - 2))"
+			half_lastcol=$(($(lastcol) / 3))
+			nlastrow="$(($(lastrow) - 1))"
 			imprimirCabecalhoProdutosVendidos
 			while IFS='|' read -r data docnr id un produto quantidade preco total codebar; do
 				if ((nrow >= nlastrow)); then
-					nrow=15
-					ncol="$half_lastcol"
+					nrow=$((nTop+5))
+					ncol=$(( ncol + half_lastcol ))
 					imprimirCabecalhoProdutosVendidos
 				fi
 				total_formatado=$(echo "$quantidade * $preco" | bc -l | tr "." ",")
@@ -1379,15 +1383,15 @@ function listagem_entradas_produtos() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
-		box 10 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
-		get 11 1 "$(gettext "Pesquisar por (id, docnr, data ou *=tudo)") : " identificador
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
+		get $((nTop+1)) 1 "$(gettext "Pesquisar por (id, docnr, data ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
 
 		# por id / por docnr
 		if [[ $identificador =~ ^[0-9]+$ ]]; then
-			query="SELECT compras.data, compras.docnr, produtos.un, produtos.nome, compras.quantidade, compras.custo, compras.total
+			query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 				FROM compras
 				JOIN produtos ON compras.id = produtos.id
 				WHERE compras.docnr = '$identificador'
@@ -1395,7 +1399,7 @@ function listagem_entradas_produtos() {
 			result=$(sqlite3 "$database" "$query")
 
 			if [ -z "$result" ]; then
-				query="SELECT compras.data, compras.docnr, produtos.un, produtos.nome, compras.quantidade, compras.custo, compras.total
+				query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 					FROM compras
 					JOIN produtos ON compras.id = produtos.id
 					WHERE compras.id = '$identificador'
@@ -1409,7 +1413,7 @@ function listagem_entradas_produtos() {
 				mensagem 2 "$(gettext "Formato de data inválido.")" "$red"
 				continue
 			fi
-			query="SELECT compras.data, compras.docnr, produtos.un, produtos.nome, compras.quantidade, compras.custo, compras.total
+			query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 				FROM compras
 				JOIN produtos ON compras.id = produtos.id
 				WHERE compras.data = '$(convert_data_to_US "$identificador")'
@@ -1418,7 +1422,7 @@ function listagem_entradas_produtos() {
 
 		# por docnr
 		elif [[ $identificador =~ ^[0-9]{7}$ ]]; then
-			query="SELECT compras.data, compras.docnr, produtos.un, produtos.nome, compras.quantidade, compras.custo, compras.total
+			query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 				FROM compras
 				JOIN produtos ON compras.id = produtos.id
 				WHERE compras.docnr = '$identificador'
@@ -1427,31 +1431,52 @@ function listagem_entradas_produtos() {
 
 		# todos
 		else
-			query="SELECT compras.data, compras.docnr, produtos.un, produtos.nome, compras.quantidade, compras.custo, compras.total
+			query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 				FROM compras
 				JOIN produtos ON compras.id = produtos.id
 				ORDER BY compras.docnr;"
 			result=$(sqlite3 "$database" "$query")
 		fi
 
+		function imprimirCabecalhoProdutosComprados() {
+			setpos $((nTop+3)) "$ncol"
+			printf "%-5s %-10s %-8s %-5s %-40s   %s %s %13s %12s\n" "FORNE" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "TOTAL"
+			setpos $((nTop+4)) "$ncol"
+			replicate '-' "$half_lastcol"
+		}
+
 		# Verifica se há dados no resultado da consulta
 		if [ -n "$result" ]; then
 			current_docnr=""
-			while IFS='|' read -r data docnr un produto quantidade preco total codebar; do
+			nrow=$((nTop+5))
+			ncol=01
+			half_lastcol=$(($(lastcol) / 3))
+			nlastrow="$(($(lastrow) - 1))"
+			imprimirCabecalhoProdutosComprados
+			while IFS='|' read -r fornecedor data docnr un produto quantidade custo total; do
 				if [[ "$docnr" != "$current_docnr" ]]; then
-					echo
-					echo "${blue}docnr: ${yellow}$docnr - ${blue}data: ${yellow}$(convert_data_to_ptBR "$data")${reset}"
-					replicate "-" 84
+#					echo
+#					echo "${blue}docnr: ${yellow}$docnr - ${blue}data: ${yellow}$(convert_data_to_ptBR "$data")${reset}"
+#					replicate "-" 84
 					current_docnr="$docnr"
+					((++nrow))
 				fi
-				total_formatado=$(echo "$quantidade * $preco" | bc -l | tr "." ",")
-				preco=$(bc -l <<<"$preco" | tr "." ",")
+
+				if ((nrow >= nlastrow)); then
+					nrow=$((nTop+5))
+					ncol=$(( ncol + half_lastcol ))
+					imprimirCabecalhoProdutosComprados
+				fi
+				total_formatado=$(echo "$quantidade * $custo" | bc -l | tr "." ",")
+				custo=$(bc -l <<<"$custo" | tr "." ",")
 				total=$(bc -l <<<"$total" | tr "." ",")
-				printf "%-40s %s ${cyan}%3d x %10.2f = %10.2f ${red}%10.2f${reset}\n" "$produto" "$un" "$quantidade" "$preco" "$total_formatado" "$total"
+				setpos "$nrow" "$ncol"
+				printf "%-5s %-10s %-7s %-40s %s ${cyan}%3d x %10.2f${reset}\n" "$fornecedor" "$data" "$docnr" "$produto" "$un" "$quantidade" "$custo"
+				((++nrow))
 			done <<<"$result"
 			mensagem 2 "" "$green" 300
 		else
-			mensagem 2 "$(gettext "Nenhum produto comprado nos parâmetros informados")" "$red" 10
+			mensagem 2 "$(gettext "Não consta entradas nos parâmetros informados")" "$red" 10
 		fi
 	done
 }
@@ -1793,6 +1818,13 @@ function sh_drop_tabelas() {
 	:
 }
 
+function populate_databases() {
+	populate_database_produtos
+	populate_database_fornecedor
+	populate_database_vendas
+	populate_database_compras
+}
+
 function sh_show_tabelas() {
 	sqlite3 "$database" "SELECT * FROM produtos;"
 	sqlite3 "$database" "SELECT * FROM fornecedor;"
@@ -1832,7 +1864,6 @@ populate_database_vendas() {
 	mes=10
 	dia=1
 	ano=2023
-	id=1
 
 	# Loop para inserir 100 registros na tabela 'vendas'
 	for ((i = 1; i <= 100; i++)); do
@@ -1843,6 +1874,7 @@ populate_database_vendas() {
 		preco=$(echo "scale=2; $RANDOM / 100.0" | bc)      # Gere um preço aleatório com duas casas decimais
 		total=$(echo "scale=2; $quantidade * $preco" | bc) # Calcule o total
 		docnr="$(obterProximoNumeroDocumento 'vendas')"
+		id=$i
 
 		# Inserir o registro na tabela 'vendas' no banco de dados
 		sqlite3 "$database" "INSERT INTO vendas (id, data, quantidade, preco, total, docnr) VALUES ('$id', '$data', $quantidade, $preco, $total, '$docnr');"
@@ -1873,9 +1905,56 @@ populate_database_vendas() {
 			fi
 		fi
 	done
+}
 
-	# Exemplo: exibir os primeiros 10 registros da tabela 'vendas'
-	sqlite3 "$database" "SELECT * FROM vendas LIMIT 10;"
+populate_database_compras() {
+	# Inicialize o mês e o dia
+	mes=10
+	dia=1
+	ano=2023
+
+	# Loop para inserir 100 registros na tabela 'vendas'
+	for ((i = 1; i <= 100; i++)); do
+		# Construir a data no formato 'AAAA-MM-DD'
+		data="$ano-$(printf "%02d" $mes)-$(printf "%02d" $dia)"
+		quantidade=$((RANDOM % 10 + 1))                    # Gere uma quantidade aleatória entre 1 e 10
+		custo=$(echo "scale=2; $RANDOM / 100.0" | bc)      # Gere um custo aleatório com duas casas decimais
+		total=$(echo "scale=2; $quantidade * $custo" | bc)
+		if [[ $(($i%5)) -eq 0 ]]; then
+			docnr="$(obterProximoNumeroDocumento 'compras')"
+		fi
+		id="$i"
+		fornecedor="$i"
+
+		# Inserir o registro na tabela 'vendas' no banco de dados
+		sqlite3 "$database" "INSERT INTO compras (id, fornecedor, data, docnr, quantidade, custo, total) VALUES ('$id', '$fornecedor', '$data', '$docnr', '$quantidade', '$custo', '$total');"
+
+		# Avançar para o próximo dia
+		dia=$((dia + 1))
+
+		# Avançar para o próximo id
+		id=$((id + 1))
+
+		# Verificar se o mês mudou
+		if [ $id -gt 10 ]; then
+			id=1
+		fi
+
+		if [[ $mes -eq 2 && $dia -gt 28 ]]; then
+			dia=1
+			mes=$((mes + 1))
+		fi
+
+		# Verificar se o mês mudou
+		if [ $dia -gt 30 ]; then
+			dia=1
+			mes=$((mes + 1))
+			if [[ $mes -gt 12 ]]; then
+				mes=1
+				ano=$((ano + 1))
+			fi
+		fi
+	done
 }
 
 find_max_length() {
@@ -2070,7 +2149,5 @@ sh_config
 sh_checkDependencies
 #	sh_drop_tabelas
 sh_criar_tabelas
-#	populate_database_produtos
-#	populate_database_vendas
-#	populate_database_fornecedor
+#	populate_databases
 sh_main_menu
