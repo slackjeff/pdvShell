@@ -298,6 +298,18 @@ function readconf() {
 	[[ ${REPLY^} == N ]] && return 1 || return 0
 }
 
+function readnotconf() {
+	tput el
+	if [[ $LC_DEFAULT -eq 0 ]]; then
+		read -n1 -s -r -p "$1 [N/s]"
+	else
+		read -n1 -s -r -p "$1 [N/y]"
+	fi
+	[[ ${REPLY^} == $'\e' ]] && return 1
+	[[ ${REPLY^} == "" ]] && return 1
+	[[ ${REPLY^} == N ]] && return 1 || return 0
+}
+
 function titulo() {
 	local row="$1"
 	local mensagem="$2"
@@ -1310,6 +1322,7 @@ function listagem_produtos_vendidos() {
 				ORDER BY vendas.data, vendas.docnr;"
 			result=$(sqlite3 "$database" "$query")
 
+		#id parcial
 		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
 			id_ini="${BASH_REMATCH[1]}"
 			id_fim="${BASH_REMATCH[2]}"
@@ -1378,20 +1391,45 @@ function listagem_produtos_vendidos() {
 }
 
 function listagem_entradas_produtos() {
-	local query
+	local identificador query result
+	local dini dfim
+	local id_ini id_fim
+	local current_docnr
+	local nrow ncol half_lastcol nlastrow
+	local total_formatado total
+	local fornecedor id data custo docnr un produto quantidade
 
 	while true; do
 		tela
 		titulo 1 "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
 		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
-		get $((nTop+1)) 1 "$(gettext "Pesquisar por (id, docnr, data ou *=tudo)") : " identificador
+		get $((nTop+1)) 1 "$(gettext "Pesquisar por (docnr, data <dd-mm-aaaa>, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
 
+		# por data parcial
+		if [[ "$identificador" =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}\s[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
+			dini="${BASH_REMATCH[1]}"
+			dfim="${BASH_REMATCH[2]}"
+			if ! validar_data "$dini"; then
+				mensagem 2 "$(gettext "Formato de data inicial inválido.")" "$red"
+				continue
+			fi
+			if ! validar_data "$dfim"; then
+				mensagem 2 "$(gettext "Formato de data final inválido.")" "$red"
+				continue
+			fi
+			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+				FROM compras
+				JOIN produtos ON compras.id = produtos.id
+				WHERE compras.data BETWEEN "$(convert_data_to_US "$dini")" AND "$(convert_data_to_US "$dfim")"
+				ORDER BY compras.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
 		# por id / por docnr
-		if [[ $identificador =~ ^[0-9]+$ ]]; then
-			query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+		elif [[ $identificador =~ ^[0-9]+$ ]]; then
+			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 				FROM compras
 				JOIN produtos ON compras.id = produtos.id
 				WHERE compras.docnr = '$identificador'
@@ -1399,7 +1437,7 @@ function listagem_entradas_produtos() {
 			result=$(sqlite3 "$database" "$query")
 
 			if [ -z "$result" ]; then
-				query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+				query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 					FROM compras
 					JOIN produtos ON compras.id = produtos.id
 					WHERE compras.id = '$identificador'
@@ -1407,13 +1445,24 @@ function listagem_entradas_produtos() {
 				result=$(sqlite3 "$database" "$query")
 			fi
 
+		#id parcial
+		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
+			id_ini="${BASH_REMATCH[1]}"
+			id_fim="${BASH_REMATCH[2]}"
+			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+				FROM compras
+				JOIN produtos ON compras.id = produtos.id
+				WHERE compras.id >= '$id_ini' AND compras.id <= '$id_fim'
+				ORDER BY compras.data, compras.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
 		# por data
-		elif [[ $identificador =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ || $identificador =~ ^[0-9]{2}/[0-9]{2}/[0-9]{4}$ ]]; then
+		elif [[ $identificador =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
 			if ! validar_data "$identificador"; then
 				mensagem 2 "$(gettext "Formato de data inválido.")" "$red"
 				continue
 			fi
-			query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 				FROM compras
 				JOIN produtos ON compras.id = produtos.id
 				WHERE compras.data = '$(convert_data_to_US "$identificador")'
@@ -1422,16 +1471,16 @@ function listagem_entradas_produtos() {
 
 		# por docnr
 		elif [[ $identificador =~ ^[0-9]{7}$ ]]; then
-			query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 				FROM compras
 				JOIN produtos ON compras.id = produtos.id
 				WHERE compras.docnr = '$identificador'
 				ORDER BY compras.docnr;"
 			result=$(sqlite3 "$database" "$query")
 
-		# todos
+		# *=todos
 		else
-			query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 				FROM compras
 				JOIN produtos ON compras.id = produtos.id
 				ORDER BY compras.docnr;"
@@ -1440,7 +1489,7 @@ function listagem_entradas_produtos() {
 
 		function imprimirCabecalhoProdutosComprados() {
 			setpos $((nTop+3)) "$ncol"
-			printf "%-5s %-10s %-8s %-5s %-40s   %s %s %13s %12s\n" "FORNE" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "TOTAL"
+			printf "%4s %10s %7s %4s %-38s   %2s %3s %11s\n" "FORN" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO"
 			setpos $((nTop+4)) "$ncol"
 			replicate '-' "$half_lastcol"
 		}
@@ -1453,12 +1502,8 @@ function listagem_entradas_produtos() {
 			half_lastcol=$(($(lastcol) / 3))
 			nlastrow="$(($(lastrow) - 1))"
 			imprimirCabecalhoProdutosComprados
-			while IFS='|' read -r fornecedor data docnr un produto quantidade custo total; do
-				if [[ "$docnr" != "$current_docnr" ]]; then
-#					echo
-#					echo "${blue}docnr: ${yellow}$docnr - ${blue}data: ${yellow}$(convert_data_to_ptBR "$data")${reset}"
-#					replicate "-" 84
-					current_docnr="$docnr"
+			while IFS='|' read -r fornecedor id data docnr un produto quantidade custo total; do
+				if [[ "$current_docnr" != "" && "$docnr" != "$current_docnr" ]]; then
 					((++nrow))
 				fi
 
@@ -1467,12 +1512,13 @@ function listagem_entradas_produtos() {
 					ncol=$(( ncol + half_lastcol ))
 					imprimirCabecalhoProdutosComprados
 				fi
-				total_formatado=$(echo "$quantidade * $custo" | bc -l | tr "." ",")
+#				total_formatado=$(echo "$quantidade * $custo" | bc -l | tr "." ",")
+#				total=$(bc -l <<<"$total" | tr "." ",")
 				custo=$(bc -l <<<"$custo" | tr "." ",")
-				total=$(bc -l <<<"$total" | tr "." ",")
 				setpos "$nrow" "$ncol"
-				printf "%-5s %-10s %-7s %-40s %s ${cyan}%3d x %10.2f${reset}\n" "$fornecedor" "$data" "$docnr" "$produto" "$un" "$quantidade" "$custo"
+				printf "${yellow}%4s${reset} %10s %7s %4s %-38s %2s %3s %10.2f\n" "$fornecedor" "$(convert_data_to_ptBR "$data")" "$docnr" "$id" "$produto" "$un" "$quantidade" "$custo"
 				((++nrow))
+				current_docnr="$docnr"
 			done <<<"$result"
 			mensagem 2 "" "$green" 300
 		else
@@ -1485,6 +1531,8 @@ function registrar_venda() {
 	local total_venda="$1"
 	local data_venda="$(sh_date)"
 	local docnr="$(obterProximoNumeroDocumento 'vendas')"
+	local key produto
+	local id produto_nome quantidade valor
 
 	for key in "${!lista_produtos[@]}"; do
 		produto="${lista_produtos[$key]}"
@@ -1495,6 +1543,9 @@ function registrar_venda() {
 }
 
 function atualizar_estoque_vendas() {
+	local key
+	local id produto_nome quantidade valor
+
 	for key in "${!lista_produtos[@]}"; do
 		produto="${lista_produtos[$key]}"
 		IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
@@ -1601,8 +1652,10 @@ function registrar_compra() {
 	local data_compra="$(sh_date)"
 	local fornecedor="${notafiscal[fornecedor]}"
 	local docnr="${notafiscal[docnr]}"
+	local key produto
+	local id produto_nome quantidade custo
 
-	# Itera sobre os produtos vendidos no array associativo
+	# Iterar sobre os produtos vendidos no array associativo lista_produtos
 	for key in "${!lista_produtos[@]}"; do
 		produto="${lista_produtos[$key]}"
 		IFS='|' read -r id produto_nome quantidade custo <<<"$produto"
@@ -1612,7 +1665,10 @@ function registrar_compra() {
 }
 
 function atualizar_estoque_compras() {
-	# Iterar sobre os elementos do array lista_produtos
+	local key produto
+	local id nome quantidade custo
+
+	# Iterar sobre os produtos vendidos no array associativo lista_produtos
 	for key in "${!lista_produtos[@]}"; do
 		produto="${lista_produtos[$key]}"
 		IFS='|' read -r id nome quantidade custo <<<"$produto"
@@ -1757,6 +1813,7 @@ function produtos_entradas() {
 
 function conciliar_estoque() {
 	local query
+
 	setpos 23 11
 	if readconf "$(gettext "Confirma a atualização?")"; then
 		mensagem 2 "$(gettext "Aguarde... Atualizando estoque")" "$yellow"
@@ -1800,22 +1857,30 @@ function soma_teste() {
 }
 
 function sh_criar_tabelas() {
-	mensagem 2 "$(gettext "Checando tabela de produtos.")" "$green" 0
+	mensagem 2 "$(gettext "Checando tabela produtos")" "$green" 0
 	criar_tabela_produtos
-	mensagem 2 "$(gettext "Checando tabela de vendas.")" "$green" 0
-	criar_tabela_vendas
-	mensagem 2 "$(gettext "Checando tabela de compras.")" "$green" 0
-	criar_tabela_compras
-	mensagem 2 "$(gettext "Checando tabela de fornecedores.")" "$green" 0
+	mensagem 2 "$(gettext "Checando tabela fornecedor")" "$green" 0
 	criar_tabela_fornecedor
+	mensagem 2 "$(gettext "Checando tabela vendas")" "$green" 0
+	criar_tabela_vendas
+	mensagem 2 "$(gettext "Checando tabela compras")" "$green" 0
+	criar_tabela_compras
 }
 
 function sh_drop_tabelas() {
-	sqlite3 "$database" "DROP TABLE produtos;"
-	sqlite3 "$database" "DROP TABLE vendas;"
-	sqlite3 "$database" "DROP TABLE fornecedor;"
-	sqlite3 "$database" "DROP TABLE compras;"
-	:
+	setpos 18 11
+	if readnotconf "$(gettext "CUIDADO! ESTE PROCEDIMENTO IRÁ APAGAR TODOS OS REGISTROS. Confirma ?")"; then
+		mensagem 2 "$(gettext "Aguarde, Droping tabela produtos")" "$red"
+		sqlite3 "$database" "DROP TABLE produtos;"
+		mensagem 2 "$(gettext "Aguarde, Droping tabela fornecedor")" "$red"
+		sqlite3 "$database" "DROP TABLE fornecedor;"
+		mensagem 2 "$(gettext "Aguarde, Droping tabela vendas")" "$red"
+		sqlite3 "$database" "DROP TABLE vendas;"
+		mensagem 2 "$(gettext "Aguarde, Droping tabela compra")" "$red"
+		sqlite3 "$database" "DROP TABLE compras;"
+		sh_criar_tabelas
+		:
+	fi
 }
 
 function populate_databases() {
@@ -1834,7 +1899,7 @@ function sh_show_tabelas() {
 }
 
 populate_database_produtos() {
-	mensagem 2 "$(gettext "Populando tabela de produtos.")" "$green" 0
+	mensagem 2 "$(gettext "Populando tabela produtos")" "$green"
 	for ((i = 1; i <= 100; i++)); do
 		nome="Produto $i"
 		un="UN"
@@ -1847,7 +1912,7 @@ populate_database_produtos() {
 }
 
 populate_database_fornecedor() {
-	mensagem 2 "$(gettext "Populando tabela de fornecedor.")" "$green" 0
+	mensagem 2 "$(gettext "Populando tabela fornecedor")" "$green"
 	for ((i = 1; i <= 99; i++)); do
 		data=$(sh_date)
 		nome="FORNECEDOR $i LTDA"
@@ -1860,36 +1925,32 @@ populate_database_fornecedor() {
 }
 
 populate_database_vendas() {
-	# Inicialize o mês e o dia
-	mes=10
+	mensagem 2 "$(gettext "Populando tabela vendas")" "$green"
+	# Inicialize o dia, mês e ano
 	dia=1
+	mes=10
 	ano=2023
 
-	# Loop para inserir 100 registros na tabela 'vendas'
+	# Loop para inserir 100 registros
 	for ((i = 1; i <= 100; i++)); do
-		# Construir a data no formato 'AAAA-MM-DD'
-		data="$ano-$(printf "%02d" $mes)-$(printf "%02d" $dia)"
-
-		quantidade=$((RANDOM % 10 + 1))                    # Gere uma quantidade aleatória entre 1 e 10
-		preco=$(echo "scale=2; $RANDOM / 100.0" | bc)      # Gere um preço aleatório com duas casas decimais
-		total=$(echo "scale=2; $quantidade * $preco" | bc) # Calcule o total
+		data="$ano-$(printf "%02d" $mes)-$(printf "%02d" $dia)"		# Construir a data no formato 'AAAA-MM-DD'
+		quantidade=$((RANDOM % 10 + 1))                    			# Gere uma quantidade aleatória entre 1 e 10
+		preco=$(echo "scale=2; $RANDOM / 100.0" | bc)      			# Gere um preço aleatório com duas casas decimais
+		total=$(echo "scale=2; $quantidade * $preco" | bc) 			# Calcule o total
 		docnr="$(obterProximoNumeroDocumento 'vendas')"
 		id=$i
 
 		# Inserir o registro na tabela 'vendas' no banco de dados
 		sqlite3 "$database" "INSERT INTO vendas (id, data, quantidade, preco, total, docnr) VALUES ('$id', '$data', $quantidade, $preco, $total, '$docnr');"
 
-		# Avançar para o próximo dia
 		dia=$((dia + 1))
-
-		# Avançar para o próximo id
 		id=$((id + 1))
 
-		# Verificar se o mês mudou
 		if [ $id -gt 10 ]; then
 			id=1
 		fi
 
+		# Verificar mês fevereiro
 		if [[ $mes -eq 2 && $dia -gt 28 ]]; then
 			dia=1
 			mes=$((mes + 1))
@@ -1908,38 +1969,36 @@ populate_database_vendas() {
 }
 
 populate_database_compras() {
-	# Inicialize o mês e o dia
-	mes=10
+	mensagem 2 "$(gettext "Populando tabela compras")" "$green"
+	# Inicialize dia, mes e ano
 	dia=1
+	mes=10
 	ano=2023
 
-	# Loop para inserir 100 registros na tabela 'vendas'
+	# Loop para inserir 100 registros
 	for ((i = 1; i <= 100; i++)); do
-		# Construir a data no formato 'AAAA-MM-DD'
-		data="$ano-$(printf "%02d" $mes)-$(printf "%02d" $dia)"
-		quantidade=$((RANDOM % 10 + 1))                    # Gere uma quantidade aleatória entre 1 e 10
-		custo=$(echo "scale=2; $RANDOM / 100.0" | bc)      # Gere um custo aleatório com duas casas decimais
+		data="$ano-$(printf "%02d" $mes)-$(printf "%02d" $dia)"		# Construir a data no formato 'AAAA-MM-DD'
+		quantidade=$((RANDOM % 10 + 1))                    			# Gere uma quantidade aleatória entre 1 e 10
+		custo=$(echo "scale=2; $RANDOM / 100.0" | bc)      			# Gere um custo aleatório com duas casas decimais
 		total=$(echo "scale=2; $quantidade * $custo" | bc)
-		if [[ $(($i%5)) -eq 0 ]]; then
-			docnr="$(obterProximoNumeroDocumento 'compras')"
-		fi
 		id="$i"
 		fornecedor="$i"
 
-		# Inserir o registro na tabela 'vendas' no banco de dados
+		if [[ $(($i%5)) -eq 0 ]]; then								# a cada 5 registros manter o docnr
+			docnr="$(obterProximoNumeroDocumento 'compras')"
+		fi
+
+		# Inserir o registro na tabela 'compras' no banco de dados
 		sqlite3 "$database" "INSERT INTO compras (id, fornecedor, data, docnr, quantidade, custo, total) VALUES ('$id', '$fornecedor', '$data', '$docnr', '$quantidade', '$custo', '$total');"
 
-		# Avançar para o próximo dia
 		dia=$((dia + 1))
-
-		# Avançar para o próximo id
 		id=$((id + 1))
 
-		# Verificar se o mês mudou
 		if [ $id -gt 10 ]; then
 			id=1
 		fi
 
+		# Verificar mês fevereiro
 		if [[ $mes -eq 2 && $dia -gt 28 ]]; then
 			dia=1
 			mes=$((mes + 1))
@@ -1959,7 +2018,9 @@ populate_database_compras() {
 
 find_max_length() {
 	local array=("$@")
+	local length
 	local max_length=0
+	local item
 
 	for item in "${array[@]}"; do
 		length=${#item}
@@ -2064,7 +2125,7 @@ function menu_produtos() {
 		print 12 11 " 1 - $(gettext "Cadastrar Produtos")"
 		print 13 11 " 2 - $(gettext "Alterar Produtos")"
 		print 14 11 " 3 - $(gettext "Remover Produtos")"
-		print 15 11 " 4 - $(gettext "Pesquisar Produtos")"
+		print 15 11 " 4 - $(gettext "Pesquisar Produtos/Inventário")"
 		print 16 11 " 5 - $(gettext "Atualizar Estoque (conciliação)")"
 		print 17 11 " 6 - $(gettext "Listagem Produtos Vendidos")"
 		print 18 11 " 7 - $(gettext "Listagem Entradas de Produtos")"
@@ -2084,7 +2145,7 @@ function menu_produtos() {
 	done
 }
 
-function main() {
+function sh_old_main_menu() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "MENU PRINCIPAL")" "$ciano"
@@ -2113,6 +2174,25 @@ function main() {
 		esac
 	done
 }
+
+function menu_manutencao() {
+	while true; do
+		tela
+		titulo 1 "$(gettext "MENU MANUTENCAO")" "$ciano"
+		box 11 10 7 80 "$(gettext "MENU MANUTENCAO")" "$azul"
+		print 12 11 " 1 - $(gettext "Popular databases para testes")"
+		print 13 11 " 2 - $(gettext "Zerar/Limpar databases")"
+		print 14 11 " 0 - $(gettext "Voltar")"
+		get 16 12 "$(gettext "Opção"): " opcao
+
+		case "$opcao" in
+		1) populate_databases ;;
+		2) sh_drop_tabelas ;;
+		*) return ;;
+		esac
+	done
+}
+
 function sh_main_menu() {
 	local options=(
 		"$(gettext "Produtos")"
@@ -2120,6 +2200,7 @@ function sh_main_menu() {
 		"$(gettext "Exibir Vendas Diárias")"
 		"$(gettext "Entradas de Produtos")"
 		"$(gettext "Fornecedores")"
+		"$(gettext "Manutenção")"
 		"$(gettext "Sair")"
 	)
 
@@ -2135,7 +2216,8 @@ function sh_main_menu() {
 		3) listagem_vendas_diarias ;;
 		4) produtos_entradas ;;
 		5) menu_fornecedores ;;
-		6 | 0)
+		6) menu_manutencao ;;
+		7 | 0)
 			setpos 18 0
 			exit 0
 			;;
@@ -2147,7 +2229,5 @@ function sh_main_menu() {
 
 sh_config
 sh_checkDependencies
-#	sh_drop_tabelas
 sh_criar_tabelas
-#	populate_databases
 sh_main_menu
