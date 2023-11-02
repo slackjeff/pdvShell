@@ -1,16 +1,32 @@
 # pdvShell
 PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell script e sqlite!
 
-* Adicionar Novo Produto
-* Remover Produto
+* Produtos
+	- Cadastrar Produtos
+    - Alterar Produtos
+    - Remover Produtos
+    - Pesquisar Produtos/Inventário
+    - Atualizar Estoque (conciliação)
+    - Listagem Produtos Vendidos
+    - Listagem Entradas de Produtos
+    - Listagem Produtos abaixo estoque mínimo
+    - Listagem Produtos fora da validade
 * Realizar Venda
-* Visualizar Todos Produtos
-* Exibir vendas Diarias
-* Pesquisar Produtos
+* Exibir Vendas Diárias
+* Entradas de Produtos
+* Fornecedores
+	- Cadastrar Fornecedor
+	- Alterar Fornecedor
+	- Remover Fornecedor
+	- Pesquisar Fornecedor
+* Manutenção
+	- Popular databases para testes
+	- Zerar/Limpar databases
+
 
 ## Futuras Features
-* Adicionar validade do produto
-* Suporte a código de barra e Beep
+* Adicionar marca/fornecedor do produto
+* Listagem de produtos por marca/fornecedor
 
 <img alt="mercearia-main-menu" src="assets/mercearia-main-menu.png" width="600" />
 <img alt="mercearia-produtos" src="assets/mercearia-produtos.png" width="600" />

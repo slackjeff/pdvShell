@@ -297,7 +297,7 @@ function readconf() {
 	tput el
 	[[ -z "$color" ]] && color=$red
 	echo -n -e "$color"
-	printf '\a'	# beep
+	printf '\a' # beep
 	if [[ $LC_DEFAULT -eq 0 ]]; then
 		read -n1 -s -r -p "$1 [S/n]"
 	else
@@ -379,7 +379,7 @@ function mensagem() {
 	setpos "$row" 0
 	printf "$reverse$color%-${largura_terminal}s" " "
 	setpos "$row" "$coluna_inicio"
-	(( IsBeep )) && printf '\a'
+	((IsBeep)) && printf '\a'
 	printf "$reverse$color%s" "$msg"
 	tput sgr0
 	((tempo > 0)) && inkey "$tempo"
@@ -436,29 +436,29 @@ function sh_random_docnr() {
 }
 
 function sh_random_date() {
-    local year=$(shuf -i 2000-2022 -n 1)
-    local month=$(shuf -i 1-12 -n 1)
-    
-    # Definir o número máximo de dias com base no mês gerado
-    case $month in
-        4|6|9|11)
-            local max_day=30
-            ;;
-        2)
-            if ((year % 4 == 0 && year % 100 != 0)) || ((year % 400 == 0)); then
-                local max_day=29
-            else
-                local max_day=28
-            fi
-            ;;
-        *)
-            local max_day=31
-            ;;
-    esac
-    
-    local day=$(shuf -i 1-"$max_day" -n 1)
-    local random_date=$(date -d "$year-$month-$day" +%F)
-    echo "$random_date"
+	local year=$(shuf -i 2000-2022 -n 1)
+	local month=$(shuf -i 1-12 -n 1)
+
+	# Definir o número máximo de dias com base no mês gerado
+	case $month in
+	4 | 6 | 9 | 11)
+		local max_day=30
+		;;
+	2)
+		if ((year % 4 == 0 && year % 100 != 0)) || ((year % 400 == 0)); then
+			local max_day=29
+		else
+			local max_day=28
+		fi
+		;;
+	*)
+		local max_day=31
+		;;
+	esac
+
+	local day=$(shuf -i 1-"$max_day" -n 1)
+	local random_date=$(date -d "$year-$month-$day" +%F)
+	echo "$random_date"
 }
 
 function sh_date() {
@@ -872,7 +872,7 @@ function produto_pesquisa() {
 		tela
 		titulo 1 "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
 		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
-		get $((nTop+1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -890,22 +890,22 @@ function produto_pesquisa() {
 		fi
 
 		function imprimirCabecalhoPesquisaProdutos() {
-			setpos $((nTop+3)) "$ncol"
+			setpos $((nTop + 3)) "$ncol"
 			printf "${yellow}%-5s %-10s %-40s   %s %5s %11s %13s${reset}\n" "ID" "DATA" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "CODEBAR"
-			setpos $((nTop+4)) "$ncol"
+			setpos $((nTop + 4)) "$ncol"
 			replicate '-' "$half_lastcol"
 		}
 
 		if [[ -n "$produto_info" ]]; then
-			nrow=$((nTop+5))
+			nrow=$((nTop + 5))
 			ncol=01
 			half_lastcol=$(($(lastcol) / 3))
 			nlastrow="$(($(lastrow) - 1))"
 			imprimirCabecalhoPesquisaProdutos
 			while IFS='|' read -r id nome un estoque preco codebar data validade qmin; do
 				if ((nrow >= nlastrow)); then
-					nrow=$((nTop+5))
-					ncol=$(( ncol + half_lastcol ))
+					nrow=$((nTop + 5))
+					ncol=$((ncol + half_lastcol))
 					imprimirCabecalhoPesquisaProdutos
 				fi
 				setpos "$nrow" "$ncol"
@@ -932,7 +932,7 @@ function listagem_produtos_minimo() {
 		tela
 		titulo 1 "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
 		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
-		get $((nTop+1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -948,22 +948,22 @@ function listagem_produtos_minimo() {
 		fi
 
 		function imprimirCabecalhoPesquisaProdutos() {
-			setpos $((nTop+3)) "$ncol"
+			setpos $((nTop + 3)) "$ncol"
 			printf "${yellow}%-5s %-10s %-40s   %2s %7s %7s${reset}\n" "ID" "VALIDADE" "DESCRIÇÃO DO PRODUTO" "UN" "QMINIMA" "ESTOQUE"
-			setpos $((nTop+4)) "$ncol"
+			setpos $((nTop + 4)) "$ncol"
 			replicate '-' "$half_lastcol"
 		}
 
 		if [[ -n "$produto_info" ]]; then
-			nrow=$((nTop+5))
+			nrow=$((nTop + 5))
 			ncol=01
 			half_lastcol=$(($(lastcol) / 3))
 			nlastrow="$(($(lastrow) - 1))"
 			imprimirCabecalhoPesquisaProdutos
 			while IFS='|' read -r id nome un estoque preco codebar data validade qmin; do
 				if ((nrow >= nlastrow)); then
-					nrow=$((nTop+5))
-					ncol=$(( ncol + half_lastcol ))
+					nrow=$((nTop + 5))
+					ncol=$((ncol + half_lastcol))
 					imprimirCabecalhoPesquisaProdutos
 				fi
 				setpos "$nrow" "$ncol"
@@ -987,12 +987,13 @@ function listagem_produtos_fora_validade() {
 	local nrow
 	local nlastrow
 	local half_lastcol
+	local today="$(sh_date)"
 
 	while true; do
 		tela
 		titulo 1 "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
 		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
-		get $((nTop+1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -1008,26 +1009,26 @@ function listagem_produtos_fora_validade() {
 		fi
 
 		function imprimirCabecalhoPesquisaProdutos() {
-			setpos $((nTop+3)) "$ncol"
+			setpos $((nTop + 3)) "$ncol"
 			printf "${yellow}%-5s %-10s %-40s   %2s %7s %7s${reset}\n" "ID" "VALIDADE" "DESCRIÇÃO DO PRODUTO" "UN" "QMINIMA" "ESTOQUE"
-			setpos $((nTop+4)) "$ncol"
+			setpos $((nTop + 4)) "$ncol"
 			replicate '-' "$half_lastcol"
 		}
 
 		if [[ -n "$produto_info" ]]; then
-			nrow=$((nTop+5))
+			nrow=$((nTop + 5))
 			ncol=01
 			half_lastcol=$(($(lastcol) / 3))
 			nlastrow="$(($(lastrow) - 1))"
 			imprimirCabecalhoPesquisaProdutos
 			while IFS='|' read -r id nome un estoque preco codebar data validade qmin; do
 				if ((nrow >= nlastrow)); then
-					nrow=$((nTop+5))
-					ncol=$(( ncol + half_lastcol ))
+					nrow=$((nTop + 5))
+					ncol=$((ncol + half_lastcol))
 					imprimirCabecalhoPesquisaProdutos
 				fi
 				setpos "$nrow" "$ncol"
-				if [[ $estoque -lt $qmin ]]; then
+				if [[ "$validade" < "$today" ]]; then
 					printf "%-5s ${red}%-10s${reset} %-40s %2s ${cyan}%7s ${red}%7s${reset}" "$id" "$(convert_data_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
 				else
 					printf "%-5s ${green}%-10s${reset} %-40s %2s ${cyan}%7s ${green}%7s${reset}" "$id" "$(convert_data_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
@@ -1261,7 +1262,7 @@ function fornecedor_pesquisa() {
 		tela
 		titulo 1 "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
 		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
-		get $((nTop+1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -1277,14 +1278,14 @@ function fornecedor_pesquisa() {
 		fi
 
 		function imprimirCabecalhoPesquisaFornecedor() {
-			setpos $((nTop+3)) "$ncol"
+			setpos $((nTop + 3)) "$ncol"
 			printf "${yellow}%s${reset}" "$cabecalho"
-			setpos $((nTop+4)) "$ncol"
+			setpos $((nTop + 4)) "$ncol"
 			printf "${yellow}%s${reset}" "$traco"
 		}
 
 		if [[ -n "$fornecedor_info" ]]; then
-			nrow=$((nTop+5))
+			nrow=$((nTop + 5))
 			ncol=01
 			nconta=0
 			half_lastcol=$(($(lastcol) / 3))
@@ -1298,18 +1299,18 @@ function fornecedor_pesquisa() {
 					traco="$(printf "%s" "$line")"
 					imprimirCabecalhoPesquisaFornecedor
 					((++nconta))
-					nrow=$((nTop+5))
+					nrow=$((nTop + 5))
 					continue
 				fi
 				if ((nrow >= nlastrow)); then
-					ncol=$(( ncol + half_lastcol ))
+					ncol=$((ncol + half_lastcol))
 					imprimirCabecalhoPesquisaFornecedor
-					nrow=$((nTop+5))
+					nrow=$((nTop + 5))
 				fi
 				setpos "$nrow" "$ncol"
 				printf "%s" "$line"
 				((++nrow))
-			done <<< "$fornecedor_info"
+			done <<<"$fornecedor_info"
 			mensagem 2 "" "$green" 300
 		else
 			mensagem 2 "$(gettext "Nenhum fornecedor encontrado nos parâmetros informados")" "$red" 10
@@ -1527,7 +1528,7 @@ function listagem_produtos_vendidos() {
 		tela
 		titulo 1 "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
 		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
-		get $((nTop+1)) 1 "$(gettext "Pesquisar por (docnr, data, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -1585,24 +1586,24 @@ function listagem_produtos_vendidos() {
 		fi
 
 		function imprimirCabecalhoProdutosVendidos() {
-			setpos $((nTop+3)) "$ncol"
+			setpos $((nTop + 3)) "$ncol"
 			printf "%-10s %-8s %5s %-40s   %s %s %13s %12s\n" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "TOTAL"
-			setpos $((nTop+4)) "$ncol"
+			setpos $((nTop + 4)) "$ncol"
 			replicate '-' "$half_lastcol"
 		}
 
 		# Verifica se há dados no resultado da consulta
 		if [ -n "$result" ]; then
 			current_docnr=""
-			nrow=$((nTop+5))
+			nrow=$((nTop + 5))
 			ncol=01
 			half_lastcol=$(($(lastcol) / 3))
 			nlastrow="$(($(lastrow) - 1))"
 			imprimirCabecalhoProdutosVendidos
 			while IFS='|' read -r data docnr id un produto quantidade preco total codebar; do
 				if ((nrow >= nlastrow)); then
-					nrow=$((nTop+5))
-					ncol=$(( ncol + half_lastcol ))
+					nrow=$((nTop + 5))
+					ncol=$((ncol + half_lastcol))
 					imprimirCabecalhoProdutosVendidos
 				fi
 				total_formatado=$(echo "$quantidade * $preco" | bc -l | tr "." ",")
@@ -1631,7 +1632,7 @@ function listagem_entradas_produtos() {
 		tela
 		titulo 1 "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
 		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
-		get $((nTop+1)) 1 "$(gettext "Pesquisar por (docnr, data <dd-mm-aaaa>, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data <dd-mm-aaaa>, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -1716,16 +1717,16 @@ function listagem_entradas_produtos() {
 		fi
 
 		function imprimirCabecalhoProdutosComprados() {
-			setpos $((nTop+3)) "$ncol"
+			setpos $((nTop + 3)) "$ncol"
 			printf "%4s %10s %7s %4s %-38s   %2s %3s %11s\n" "FORN" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO"
-			setpos $((nTop+4)) "$ncol"
+			setpos $((nTop + 4)) "$ncol"
 			replicate '-' "$half_lastcol"
 		}
 
 		# Verifica se há dados no resultado da consulta
 		if [ -n "$result" ]; then
 			current_docnr=""
-			nrow=$((nTop+5))
+			nrow=$((nTop + 5))
 			ncol=01
 			half_lastcol=$(($(lastcol) / 3))
 			nlastrow="$(($(lastrow) - 1))"
@@ -1736,12 +1737,12 @@ function listagem_entradas_produtos() {
 				fi
 
 				if ((nrow >= nlastrow)); then
-					nrow=$((nTop+5))
-					ncol=$(( ncol + half_lastcol ))
+					nrow=$((nTop + 5))
+					ncol=$((ncol + half_lastcol))
 					imprimirCabecalhoProdutosComprados
 				fi
-#				total_formatado=$(echo "$quantidade * $custo" | bc -l | tr "." ",")
-#				total=$(bc -l <<<"$total" | tr "." ",")
+				#				total_formatado=$(echo "$quantidade * $custo" | bc -l | tr "." ",")
+				#				total=$(bc -l <<<"$total" | tr "." ",")
 				custo=$(bc -l <<<"$custo" | tr "." ",")
 				setpos "$nrow" "$ncol"
 				printf "${yellow}%4s${reset} %10s %7s %4s %-38s %2s %3s %10.2f\n" "$fornecedor" "$(convert_data_to_ptBR "$data")" "$docnr" "$id" "$produto" "$un" "$quantidade" "$custo"
@@ -2131,10 +2132,10 @@ populate_database_produtos() {
 	for ((i = 1; i <= 100; i++)); do
 		nome="Produto $i"
 		un="UN"
-		estoque=$((RANDOM % 1000))                            	# Estoque aleatório entre 0 e 999
-		qmin=$((RANDOM % 100))                            		# Quantidade minima aleatório entre 0 e 99
-		preco=$(echo "scale=2; $((RANDOM % 1000)) / 10" | bc) 	# Preço aleatório entre 0.0 e 99.9
-		codebar=$(printf "%013d" $i)                          	# Gere um código de barras simples
+		estoque=$((RANDOM % 1000))                            # Estoque aleatório entre 0 e 999
+		qmin=$((RANDOM % 100))                                # Quantidade minima aleatório entre 0 e 99
+		preco=$(echo "scale=2; $((RANDOM % 1000)) / 10" | bc) # Preço aleatório entre 0.0 e 99.9
+		codebar=$(printf "%013d" $i)                          # Gere um código de barras simples
 		data=$(sh_date)
 		validade=$(sh_random_date)
 		sqlite3 "$database" "INSERT INTO produtos (nome, un, estoque, preco, codebar, data, validade, qmin) VALUES ('$nome', '$un', $estoque, $preco, '$codebar', '$data', '$validade', '$qmin');"
@@ -2163,10 +2164,10 @@ populate_database_vendas() {
 
 	# Loop para inserir 100 registros
 	for ((i = 1; i <= 100; i++)); do
-		data="$ano-$(printf "%02d" $mes)-$(printf "%02d" $dia)"		# Construir a data no formato 'AAAA-MM-DD'
-		quantidade=$((RANDOM % 10 + 1))                    			# Gere uma quantidade aleatória entre 1 e 10
-		preco=$(echo "scale=2; $RANDOM / 100.0" | bc)      			# Gere um preço aleatório com duas casas decimais
-		total=$(echo "scale=2; $quantidade * $preco" | bc) 			# Calcule o total
+		data="$ano-$(printf "%02d" $mes)-$(printf "%02d" $dia)" # Construir a data no formato 'AAAA-MM-DD'
+		quantidade=$((RANDOM % 10 + 1))                         # Gere uma quantidade aleatória entre 1 e 10
+		preco=$(echo "scale=2; $RANDOM / 100.0" | bc)           # Gere um preço aleatório com duas casas decimais
+		total=$(echo "scale=2; $quantidade * $preco" | bc)      # Calcule o total
 		docnr="$(obterProximoNumeroDocumento 'vendas')"
 		id=$i
 
@@ -2207,14 +2208,14 @@ populate_database_compras() {
 
 	# Loop para inserir 100 registros
 	for ((i = 1; i <= 100; i++)); do
-		data="$ano-$(printf "%02d" $mes)-$(printf "%02d" $dia)"		# Construir a data no formato 'AAAA-MM-DD'
-		quantidade=$((RANDOM % 10 + 1))                    			# Gere uma quantidade aleatória entre 1 e 10
-		custo=$(echo "scale=2; $RANDOM / 100.0" | bc)      			# Gere um custo aleatório com duas casas decimais
+		data="$ano-$(printf "%02d" $mes)-$(printf "%02d" $dia)" # Construir a data no formato 'AAAA-MM-DD'
+		quantidade=$((RANDOM % 10 + 1))                         # Gere uma quantidade aleatória entre 1 e 10
+		custo=$(echo "scale=2; $RANDOM / 100.0" | bc)           # Gere um custo aleatório com duas casas decimais
 		total=$(echo "scale=2; $quantidade * $custo" | bc)
 		id="$i"
 		fornecedor="$i"
 
-		if [[ $(($i%5)) -eq 0 ]]; then								# a cada 5 registros manter o docnr
+		if [[ $(($i % 5)) -eq 0 ]]; then # a cada 5 registros manter o docnr
 			docnr="$(obterProximoNumeroDocumento 'compras')"
 		fi
 
@@ -2429,13 +2430,13 @@ function menu_manutencao() {
 
 function sh_main_menu() {
 	local options=(
-		"$(gettext "Produtos")"
-		"$(gettext "Realizar Venda")"
-		"$(gettext "Exibir Vendas Diárias")"
-		"$(gettext "Entradas de Produtos")"
-		"$(gettext "Fornecedores")"
-		"$(gettext "Manutenção")"
-		"$(gettext "Sair")"
+		"$(gettext 'Produtos')"
+		"$(gettext 'Realizar Venda')"
+		"$(gettext 'Exibir Vendas Diárias')"
+		"$(gettext 'Entradas de Produtos')"
+		"$(gettext 'Fornecedores')"
+		"$(gettext 'Manutenção')"
+		"$(gettext 'Sair')"
 	)
 
 	while true; do
