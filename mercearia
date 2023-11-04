@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/11/02
+#	Altered: 2023/11/04
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -34,7 +34,7 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.2.0-20231102"
+declare _VERSION_="1.2.0-20231104"
 declare _SYSTEM_='SISTEMA PDV'
 declare empresa='MERCEARIA TemDTudo'
 declare DEPENDENCIES=(tput gettext sqlite3 bc tr)
@@ -54,7 +54,255 @@ function sh_config() {
 	declare -gi nLeft
 	declare -gi nBottom
 	declare -gi nRight
-	sh_setvarcolors
+}
+
+function sh_setvarcolors() {
+	# does the terminal support true-color?
+	if [[ -n "$(command -v "tput")" ]]; then
+		#tput setaf 127 | cat -v  #capturar saida
+		reset=$(tput sgr0)
+		bold=$(tput bold)
+		underline=$(tput smul)
+		nounderline=$(tput rmul)
+		reverse=$(tput rev)
+
+		black=$(tput bold)$(tput setaf 0)
+		red=$(tput bold)$(tput setaf 196)
+		green=$(tput bold)$(tput setaf 2)
+		yellow=$(tput bold)$(tput setaf 3)
+		blue=$(tput setaf 4)
+		pink=$(tput setaf 5)
+		magenta=$(tput setaf 5)
+		cyan=$(tput setaf 6)
+		white=$(tput setaf 7)
+		gray=$(tput setaf 8)
+		orange=$(tput setaf 202)
+		purple=$(tput setaf 125)
+		violet=$(tput setaf 61)
+		light_red=$(tput setaf 9)
+		light_green=$(tput setaf 10)
+		light_yellow=$(tput setaf 11)
+		light_blue=$(tput setaf 12)
+		light_magenta=$(tput setaf 13)
+		light_cyan=$(tput setaf 14)
+		light_white=$(tput setaf 15)
+
+		# Definir cores de fundo
+		azul=$(tput setab 4)
+		vermelho=$(tput setab 196)
+		roxo=$(tput setab 5)
+		ciano=$(tput setab 6)
+		marrom=$(tput setab 8)
+	else
+		sh_unsetvarcolors
+	fi
+}
+
+function sh_unsetvarcolors() {
+	unset reset bold underline nounderline reverse
+	unset black red green yellow blue pink magenta cyan white gray orange purple violet
+	unset light_red light_yellow light_blue light_magenta light_cyan light_white
+	unset azul vermelho roxo ciano
+}
+
+function sh_checkDependencies() {
+	local d
+	local errorFound=0
+	declare -a missing
+
+	for d in "${DEPENDENCIES[@]}"; do
+		[[ -z $(command -v "$d") ]] && missing+=("$d") && errorFound=1 && info_msg "${red}$(gettext "ERRO: não consegui encontrar o comando")${reset}: ${cyan}'$d'${reset}"
+	done
+
+	if ((errorFound)); then
+		echo "${yellow}---------------$(gettext "IMPOSSÍVEL CONTINUAR")-------------${reset}"
+		echo "$(gettext "Este script precisa dos comandos listados acima")"
+		echo "$(gettext "Instale-os e/ou verifique se eles estão em seu") ${red}\$PATH${reset}"
+		echo "${yellow}---------------$(gettext "IMPOSSÍVEL CONTINUAR")-------------${reset}"
+		die "$(gettext "Instalação abortada!")"
+	fi
+}
+
+function sh_splitarray() {
+	local str=("$1")
+	local pos="$2"
+	local sep="${3:-'|'}"
+	local array
+
+	[[ $# -eq 3 && "$pos" = "|" && "$sep" =~ ^[0-9]+$ ]] && {
+		sep="$2"
+		pos="$3"
+	}
+	[[ $# -eq 2 && "$pos" = "$sep" ]] && {
+		sep="$pos"
+		pos=1
+	}
+	[[ $# -eq 1 || ! "$pos" =~ ^[0-9]+$ ]] && { pos=1; }
+
+	IFS="$sep" read -r -a array <<<"$str"
+	echo "${array[pos - 1]}"
+}
+
+function len_split_str() {
+	local anew
+	IFS='|' read -r -a anew <<<"$1"
+	echo "${#anew[@]}"
+}
+
+# dispbox "0|0|6" "ID|DESCRICAO DO PRODUTO|ESTOQUE|PREÇO" "5|40|5|11" "$marrom" 'left'
+function dispbox() {
+	local -A Aarray
+	Aarray[coord]="$1"
+	Aarray[cabec]="$2"
+	Aarray[len]="$3"
+	local color="$4"
+	local align="$5"
+
+	local aCoord="${Aarray[coord]}"
+	local aCabec="${Aarray[cabec]}"
+	local aLen="${Aarray[len]}"
+
+	local linha="$(sh_splitarray "$aCoord" 1)"
+	local col="$(sh_splitarray "$aCoord" 2)"
+	local altura="$(sh_splitarray "$aCoord" 3)"
+
+	local cprintf=
+	local nmaxlen=0
+	local str
+	local lenstr
+	local max_width
+	local nlen="$(len_split_str "${aCabec[@]}")"
+
+	local frame_top
+	local frame_bottom
+	local line
+
+	[[ -n "$align" && ($align != 'right' && $align != 'left') ]] && align='right'
+	[[ -z "$align" ]] && align='right'
+
+	# Função para alinhar à esquerda
+	function dispbox::align_left() {
+		local field_width="$1"
+		local str="$2"
+		local i="$3"
+		local nlen="$4"
+		local str_width=${#str}
+		local sep='|'
+
+		if [[ "$i" -eq "$nlen" ]]; then
+			sep=''
+		fi
+		if ((str_width < field_width)); then
+			local extra_space=$((field_width - str_width))
+			printf "%s%*s${sep}\n" "$str" "$extra_space" " "
+		else
+			printf "%s${sep}\n" "$str"
+		fi
+	}
+
+	# Função para alinhar à direita
+	function dispbox::align_right() {
+		local field_width="$1"
+		local str="$2"
+		local i="$3"
+		local nlen="$4"
+		local str_width=${#str}
+		local sep='|'
+
+		if [[ "$i" -eq "$nlen" ]]; then
+			sep=''
+		fi
+
+		if ((str_width < field_width)); then
+			local extra_space=$((field_width - str_width))
+			printf "%*s%*s${sep}\n" "$extra_space" " " "$str_width" "$str"
+		else
+			printf "%*s${sep}\n" "$str_width" "$str"
+		fi
+	}
+
+	function dispbox::calculate_field_width() {
+		local field="$1"
+		local max_width="$2"
+		local field_width="${#field}"
+
+		if ((field_width > max_width)); then
+			echo "$field_width"
+		else
+			echo "$max_width"
+		fi
+	}
+
+	for ((i = 1; i <= nlen; i++)); do
+		str="$(sh_splitarray "$aCabec" $i)"
+		max_width="$(sh_splitarray "$aLen" $i)"
+		field_width=$(dispbox::calculate_field_width "$str" "$max_width")
+		if [[ "$align" = 'left' ]]; then
+			cprintf+="$(dispbox::align_left "${field_width}" "$str" "$i" "$nlen")"
+		else
+			cprintf+="$(dispbox::align_right "${field_width}" "$str" "$i" "$nlen")"
+		fi
+		nmaxlen=$((nmaxlen + field_width + 1))
+	done
+
+	function dispbox::print_boxold() {
+		# Move o cursor para a posição inicial da primeira linha do quadro
+		tput cup $linha $col
+
+		# Imprime o quadro com base nas coordenadas, largura e altura
+		for ((i = 0; i < altura; i++)); do
+			if [ $i -eq 0 ]; then
+				echo -n "┌"
+				for ((j = 1; j < nmaxlen - 1; j++)); do
+					echo -n "─"
+				done
+				echo "┐"
+			elif [ $i -eq $((altura - 1)) ]; then
+				echo -n "└"
+				for ((j = 1; j < nmaxlen - 1; j++)); do
+					echo -n "─"
+				done
+				echo "┘"
+			else
+				echo -n "│"
+				for ((j = 1; j < nmaxlen - 1; j++)); do
+					echo -n " "
+				done
+				echo "│"
+			fi
+			((++linha))
+			tput cup $linha $col
+		done
+		setpos "$linha" "$((col + 1))"
+		printf "$color%-${nmaxlen}s${reset}" "$cprintf"
+	}
+
+	function dispbox::print_box() {
+		# Constrói as linhas superior e inferior do quadro
+		frame_top="┌$(printf '─%.0s' $(seq 1 $((nmaxlen - 1))))┐"
+		frame_bottom="└$(printf '─%.0s' $(seq 1 $((nmaxlen - 1))))┘"
+
+		# Constrói uma única linha com espaços
+		line="│$(printf ' %.0s' $(seq 1 $((nmaxlen - 1))))│"
+
+		# Imprime o quadro com base nas coordenadas, largura e altura
+		for ((i = 0; i < altura; i++)); do
+			setpos $((linha + i)) "$col"
+			if [ $i -eq 0 ]; then
+				echo "$frame_top"
+				# Imprime o conteúdo centralizado
+				setpos "$linha" "$((col + 1))"
+				printf "$color%-${nmaxlen}s${reset}" "$cprintf"
+			elif [ $i -eq $((altura - 1)) ]; then
+				echo "$frame_bottom"
+			else
+				echo "$line"
+			fi
+		done
+	}
+
+	dispbox::print_box
+	tput sgr0
 }
 
 function convert_data_to_ptBR() {
@@ -72,7 +320,7 @@ function convert_data_to_US() {
 }
 
 # Função para validar uma data no formato "dd-mm-yyyy"
-# Retorna 0 se a data for válida e 1 se for inválida
+# Retorna 0 se a data for válida e 1 se inválida
 function validar_data() {
 	local data=$1
 	local dia
@@ -172,54 +420,6 @@ function info_msg() {
 	else
 		printf "  %b %s\\n" "${CROSS}" "${*}"
 	fi
-}
-
-function sh_setvarcolors() {
-	# does the terminal support true-color?
-	if [[ -n "$(command -v "tput")" ]]; then
-		#tput setaf 127 | cat -v  #capturar saida
-		reset=$(tput sgr0)
-		bold=$(tput bold)
-		underline=$(tput smul)
-		nounderline=$(tput rmul)
-		reverse=$(tput rev)
-
-		black=$(tput bold)$(tput setaf 0)
-		red=$(tput bold)$(tput setaf 196)
-		green=$(tput bold)$(tput setaf 2)
-		yellow=$(tput bold)$(tput setaf 3)
-		blue=$(tput setaf 4)
-		pink=$(tput setaf 5)
-		magenta=$(tput setaf 5)
-		cyan=$(tput setaf 6)
-		white=$(tput setaf 7)
-		gray=$(tput setaf 8)
-		orange=$(tput setaf 202)
-		purple=$(tput setaf 125)
-		violet=$(tput setaf 61)
-		light_red=$(tput setaf 9)
-		light_green=$(tput setaf 10)
-		light_yellow=$(tput setaf 11)
-		light_blue=$(tput setaf 12)
-		light_magenta=$(tput setaf 13)
-		light_cyan=$(tput setaf 14)
-		light_white=$(tput setaf 15)
-
-		# Definir cores de fundo
-		azul=$(tput setab 4)
-		vermelho=$(tput setab 196)
-		roxo=$(tput setab 5)
-		ciano=$(tput setab 6)
-	else
-		sh_unsetvarcolors
-	fi
-}
-
-function sh_unsetvarcolors() {
-	unset reset bold underline nounderline reverse
-	unset black red green yellow blue pink magenta cyan white gray orange purple violet
-	unset light_red light_yellow light_blue light_magenta light_cyan light_white
-	unset azul vermelho roxo ciano
 }
 
 function setpos() {
@@ -405,24 +605,6 @@ function sh_clear_eol() {
 
 	# Retorna o cursor para a posição inicial
 	echo -en "\033[6;${coluna_inicial}H"
-}
-
-function sh_checkDependencies() {
-	local d
-	local errorFound=0
-	declare -a missing
-
-	for d in "${DEPENDENCIES[@]}"; do
-		[[ -z $(command -v "$d") ]] && missing+=("$d") && errorFound=1 && info_msg "${red}$(gettext "ERRO: não consegui encontrar o comando")${reset}: ${cyan}'$d'${reset}"
-	done
-
-	if ((errorFound)); then
-		echo "${yellow}---------------$(gettext "IMPOSSÍVEL CONTINUAR")-------------${reset}"
-		echo "$(gettext "Este script precisa dos comandos listados acima")"
-		echo "$(gettext "Instale-os e/ou verifique se eles estão em seu") ${red}\$PATH${reset}"
-		echo "${yellow}---------------$(gettext "IMPOSSÍVEL CONTINUAR")-------------${reset}"
-		die "$(gettext "Instalação abortada!")"
-	fi
 }
 
 # Função para obter o próximo número de documento com zeros à esquerda
@@ -745,7 +927,7 @@ function produto_inclusao_alteracao() {
 	done
 }
 
-function produto_remocao() {
+function produto_exclusao() {
 	local identificador
 	local half_lastcol=$(($(lastcol) / 2))
 	local posmsg=21
@@ -804,7 +986,7 @@ function produto_remocao() {
 			if readconf "$(gettext "Confirma exclusão do produto?")" "$green"; then
 				mensagem 2 "$(gettext "Removendo cadastro do produto")" "$green" 0
 				sqlite3 "$database" "DELETE FROM produtos WHERE id = $p_id;"
-				setpos "$((posmsg+1))" 11
+				setpos "$((posmsg + 1))" 11
 				if readconf "$(gettext "Deseja remover registros de vendas e compras desse produto?")" "$green"; then
 					mensagem 2 "$(gettext "Removendo registros de vendas")" "$green" 0
 					sqlite3 "$database" "DELETE FROM vendas WHERE id = $p_id;"
@@ -819,21 +1001,56 @@ function produto_remocao() {
 	done
 }
 
+function pauseinkey() {
+	read -t "$1" -n1 -r -p "" lastkey
+}
+
+function pause() {
+	# Redireciona o descritor de arquivo 0 (stdin) para um arquivo temporário
+	tempfile=$(mktemp)
+	exec 0<"$tempfile"
+	# Exibe uma mensagem
+	echo "Pressione qualquer tecla para continuar..."
+
+	# Loop que aguarda a entrada do teclado
+	while true; do
+		read -n 1 -s -r -t 1 key
+		if [ -n "$key" ]; then
+			break
+		fi
+	done
+
+	# Restaura o descritor de arquivo 0 original e remove o arquivo temporário
+	exec 0<&-
+	rm "$tempfile"
+	# Continua a execução
+	echo "Continuando a execução..."
+}
+
 function produto_pesquisa() {
 	local produto_info
+	local fornecedor_info
 	local IsHeader=0
 	local IsLike=0
 	local id nome un estoque preco codebar data validade qmin fabricante
+	local f_id f_data f_nome f_ende f_cida f_uf f_cnpj
 	local ncol
 	local nrow
 	local nlastrow
 	local half_lastcol
+	local Coordenadas
+	local Cabecalho
+	local Max_field_width
+	local Color
+	local Align_field
 
 	while true; do
 		tela
 		titulo 1 "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
 		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
-		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]), f<id>, ou *=tudo)") : " identificador
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id <x>|<x-y>, f<id> ou *=tudo)") : " identificador
+
+		#ORDER BY id DESC
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -845,6 +1062,10 @@ function produto_pesquisa() {
 			identificador=${BASH_REMATCH[1]}
 			IsLike=0
 			produto_info=$(dbseek 'produtos' 'fabricante' "$identificador" "$IsHeader" "$IsLike")
+			if fornecedor_info=$(dbseek 'fornecedor' 'id' "$identificador") && [ -n "$fornecedor_info" ]; then
+				IFS='|' read -r f_id f_data f_nome f_ende f_cida f_uf f_cnpj <<<"$fornecedor_info"
+				print $((nTop + 1)) 61 "${yellow}${f_nome}"
+			fi
 		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
 			id_ini=${BASH_REMATCH[1]}
 			id_fim=${BASH_REMATCH[2]}
@@ -855,27 +1076,38 @@ function produto_pesquisa() {
 		fi
 
 		function imprimirCabecalhoPesquisaProdutos() {
-			setpos $((nTop + 3)) "$ncol"
-			printf "${yellow}%-5s %-40s   %2s %-10s %5s %5s %11s %-13s${reset}\n" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "VALIDADE" "QMIN" "QTD" "PREÇO" "CODEBAR"
-			setpos $((nTop + 4)) "$ncol"
-			replicate '-' "$((half_lastcol-1))"
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+			Cabecalho="ID|DESCRIÇÃO DO PRODUTO|UN|FABRI|VALIDADE|QMIN|ESTOQUE|PREÇO|CODEBAR"
+			Max_field_width="5|40|2|5|10|5|7|10|13"
+			Color="$marrom"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
 		}
 
 		if [[ -n "$produto_info" ]]; then
-			nrow=$((nTop + 5))
-			ncol=01
+			nrow=$((nTop + 4))
+			ncol=0
 			half_lastcol=$(($(lastcol) / 2))
-			nlastrow="$(($(lastrow) - 1))"
+			nlastrow="$(($(lastrow) - 2))"
 			imprimirCabecalhoPesquisaProdutos
+			npage=1
 			while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
 				if ((nrow >= nlastrow)); then
-					nrow=$((nTop + 5))
-					ncol=$((ncol + half_lastcol))
+					if [[ $((npage % 2)) -eq 0 ]]; then
+						mensagem 2 "" "$green"
+						nrow=$((nTop + 4))
+						ncol=0
+						sleep 1
+					else
+						nrow=$((nTop + 4))
+						ncol=$((ncol + half_lastcol))
+					fi
 					imprimirCabecalhoPesquisaProdutos
+					((++npage))
 				fi
-				setpos "$nrow" "$ncol"
+				setpos "$nrow" "$((ncol + 1))"
 				preco=$(bc -l <<<"$preco" | tr "." ",")
-				printf "%-5s %-40s %2s %-10s ${cyan}%5s %5s ${red}%10.2f${reset} %-13s" "$id" "$nome" "$un" "$(convert_data_to_ptBR "$validade")" "$qmin" "$estoque" "$preco" "$codebar"
+				printf "%5s|%-40s|%2s|%5s|%10s|${cyan}%5s|%7s|${red}%10.2f${reset}|%-13s" "$id" "$nome" "$un" "$fabricante" "$(convert_data_to_ptBR "$validade")" "$qmin" "$estoque" "$preco" "$codebar"
 				((++nrow))
 			done <<<"$produto_info"
 			mensagem 2 "" "$green" 300
@@ -916,7 +1148,7 @@ function listagem_produtos_minimo() {
 			setpos $((nTop + 3)) "$ncol"
 			printf "${yellow}%-5s %-10s %-40s   %2s %7s %7s${reset}\n" "ID" "VALIDADE" "DESCRIÇÃO DO PRODUTO" "UN" "QMIN" "ESTOQUE"
 			setpos $((nTop + 4)) "$ncol"
-			replicate '-' "$((half_lastcol-1))"
+			replicate '-' "$((half_lastcol - 1))"
 		}
 
 		if [[ -n "$produto_info" ]]; then
@@ -977,7 +1209,7 @@ function listagem_produtos_fora_validade() {
 			setpos $((nTop + 3)) "$ncol"
 			printf "${yellow}%-5s %-10s %-40s   %2s %7s %7s${reset}\n" "ID" "VALIDADE" "DESCRIÇÃO DO PRODUTO" "UN" "QMIN" "ESTOQUE"
 			setpos $((nTop + 4)) "$ncol"
-			replicate '-' "$((half_lastcol-1))"
+			replicate '-' "$((half_lastcol - 1))"
 		}
 
 		if [[ -n "$produto_info" ]]; then
@@ -1555,7 +1787,7 @@ function listagem_produtos_vendidos() {
 			setpos $((nTop + 3)) "$ncol"
 			printf "%-10s %-8s %5s %-40s   %s %s %13s %12s\n" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "TOTAL"
 			setpos $((nTop + 4)) "$ncol"
-			replicate '-' "$((half_lastcol-1))"
+			replicate '-' "$((half_lastcol - 1))"
 		}
 
 		# Verifica se há dados no resultado da consulta
@@ -1696,7 +1928,7 @@ function listagem_entradas_produtos() {
 			setpos $((nTop + 3)) "$ncol"
 			printf "%4s %-10s %-7s %4s %-36s   %2s %3s %10s\n" "FORN" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "CUSTO"
 			setpos $((nTop + 4)) "$ncol"
-			replicate '-' "$((half_lastcol-1))"
+			replicate '-' "$((half_lastcol - 1))"
 		}
 
 		# Verifica se há dados no resultado da consulta
@@ -2149,9 +2381,9 @@ populate_database_vendas() {
 	# Loop para inserir 100 registros
 	for ((i = 1; i <= 100; i++)); do
 		data="$ano-$(printf "%02d" "$mes")-$(printf "%02d" "$dia")" # Construir a data no formato 'AAAA-MM-DD'
-		quantidade=$((RANDOM % 10 + 1))                         # Gere uma quantidade aleatória entre 1 e 10
-		preco=$(echo "scale=2; $RANDOM / 100.0" | bc)           # Gere um preço aleatório com duas casas decimais
-		total=$(echo "scale=2; $quantidade * $preco" | bc)      # Calcule o total
+		quantidade=$((RANDOM % 10 + 1))                             # Gere uma quantidade aleatória entre 1 e 10
+		preco=$(echo "scale=2; $RANDOM / 100.0" | bc)               # Gere um preço aleatório com duas casas decimais
+		total=$(echo "scale=2; $quantidade * $preco" | bc)          # Calcule o total
 		docnr="$(obterProximoNumeroDocumento 'vendas')"
 		id=$i
 
@@ -2195,8 +2427,8 @@ populate_database_compras() {
 	# Loop para inserir 100 registros
 	for ((i = 1; i <= 100; i++)); do
 		data="$ano-$(printf "%02d" "$mes")-$(printf "%02d" "$dia")" # Construir a data no formato 'AAAA-MM-DD'
-		quantidade=$((RANDOM % 10 + 1))                         # Gere uma quantidade aleatória entre 1 e 10
-		custo=$(echo "scale=2; $RANDOM / 100.0" | bc)           # Gere um custo aleatório com duas casas decimais
+		quantidade=$((RANDOM % 10 + 1))                             # Gere uma quantidade aleatória entre 1 e 10
+		custo=$(echo "scale=2; $RANDOM / 100.0" | bc)               # Gere um custo aleatório com duas casas decimais
 		total=$(echo "scale=2; $quantidade * $custo" | bc)
 		id="$i"
 
@@ -2341,7 +2573,7 @@ function menu_produtos() {
 		box 11 10 14 80 "$(gettext "MENU PRODUTOS")" "$azul"
 		print 12 11 " 1 - $(gettext "Cadastrar Produtos")"
 		print 13 11 " 2 - $(gettext "Alterar Produtos")"
-		print 14 11 " 3 - $(gettext "Remover Produtos")"
+		print 14 11 " 3 - $(gettext "Remover/Excluir Produtos")"
 		print 15 11 " 4 - $(gettext "Pesquisar Produtos/Inventário")"
 		print 16 11 " 5 - $(gettext "Atualizar Estoque (conciliação)")"
 		print 17 11 " 6 - $(gettext "Listagem Produtos Vendidos")"
@@ -2354,7 +2586,7 @@ function menu_produtos() {
 		case "$opcao" in
 		1) produto_inclusao_alteracao 'I' ;;
 		2) produto_inclusao_alteracao 'A' ;;
-		3) produto_remocao ;;
+		3) produto_exclusao ;;
 		4) produto_pesquisa ;;
 		5) conciliar_estoque ;;
 		6) listagem_produtos_vendidos ;;
@@ -2448,7 +2680,10 @@ function sh_main_menu() {
 }
 # END PROCEDURES
 
+#entrypoint
 sh_config
+sh_setvarcolors
 sh_checkDependencies
 sh_criar_tabelas
 sh_main_menu
+#end
