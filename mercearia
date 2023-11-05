@@ -1513,7 +1513,7 @@ function fornecedor_pesquisa() {
 			nrow=$((nTop + 4))
 			ncol=0
 			nconta=0
-			nlastrow="$(($(lastrow) - 1))"
+			nlastrow="$(($(lastrow) - 2))"
 			half_lastcol=$(($(lastcol) / 1))
 			imprimirCabecalhoPesquisaFornecedor
 			npage=1
