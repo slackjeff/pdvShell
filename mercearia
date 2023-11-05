@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/11/04
+#	Altered: 2023/11/05
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -34,10 +34,10 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.2.0-20231104"
+declare _VERSION_="1.2.0-20231105"
 declare _SYSTEM_='SISTEMA PDV'
 declare empresa='MERCEARIA TemDTudo'
-declare DEPENDENCIES=(tput gettext sqlite3 bc tr)
+declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed)
 declare database='pdv.db'
 
 # BEGIN FUNCTIONS
@@ -398,13 +398,6 @@ function debug() {
 	return $result
 }
 
-function inkey() {
-	tempo="$1"
-	[[ -z "$tempo" ]] && tempo=-1
-	IFS= read -t "$tempo" -n 1 -s lastkey
-	[[ -z "$lastkey" ]] && lastkey=""
-}
-
 function die() {
 	local msg=$1
 	shift
@@ -565,7 +558,7 @@ function mensagem() {
 	local row="$1"
 	local msg="$2"
 	local color="$3"
-	local tempo="$4"
+	local timeout="$4"
 	local IsBeep=0
 
 	msg+="$(gettext " Pressione qualquer tecla para continuar")"
@@ -574,7 +567,7 @@ function mensagem() {
 	local coluna_inicio=$(((largura_terminal - largura_mensagem) / 2))
 
 	[[ -z "$color" ]] && color=$green
-	[[ -z "$tempo" ]] && tempo=1
+	[[ -z "$timeout" ]] && timeout=1
 	[[ "$color" == "$red" ]] && IsBeep=1
 
 	tput sc
@@ -583,8 +576,9 @@ function mensagem() {
 	setpos "$row" "$coluna_inicio"
 	((IsBeep)) && printf '\a'
 	printf "$reverse$color%s" "$msg"
+	(( timeout < 0 )) && sed -n q </dev/tty
+	(( timeout > 0 )) && pause "$timeout"
 	tput sgr0
-	((tempo > 0)) && inkey "$tempo"
 	setpos "$row" 0
 	tput el
 	tput rc
@@ -1001,30 +995,25 @@ function produto_exclusao() {
 	done
 }
 
-function pauseinkey() {
-	read -t "$1" -n1 -r -p "" lastkey
+function inkey() {
+	timeout="$1"
+	[[ -z "$timeout" ]] && timeout=-1
+	IFS= read -t "$timeout" -n 1 -s lastkey
+	[[ -z "$lastkey" ]] && lastkey=""
 }
 
 function pause() {
-	# Redireciona o descritor de arquivo 0 (stdin) para um arquivo temporário
-	tempfile=$(mktemp)
-	exec 0<"$tempfile"
-	# Exibe uma mensagem
-	echo "Pressione qualquer tecla para continuar..."
+	timeout="$1"
+	msg="$2"
+#	>/dev/tty printf '%s' "${msg:-Pressione qualquer tecla para continuar...}"
+	>/dev/tty printf '%s' "${msg:-""}"
+	[[ $ZSH_VERSION ]] && read -krs  # Use -u0 to read from STDIN
+	[[ $BASH_VERSION ]] && </dev/tty read -t "$timeout" -rsn1
+	printf '\n'
+}
 
-	# Loop que aguarda a entrada do teclado
-	while true; do
-		read -n 1 -s -r -t 1 key
-		if [ -n "$key" ]; then
-			break
-		fi
-	done
-
-	# Restaura o descritor de arquivo 0 original e remove o arquivo temporário
-	exec 0<&-
-	rm "$tempfile"
-	# Continua a execução
-	echo "Continuando a execução..."
+function pausesed() {
+	sed -n q </dev/tty
 }
 
 function produto_pesquisa() {
@@ -1076,9 +1065,10 @@ function produto_pesquisa() {
 		fi
 
 		function imprimirCabecalhoPesquisaProdutos() {
-			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
-			Cabecalho="ID|DESCRIÇÃO DO PRODUTO|UN|FABRI|VALIDADE|QMIN|ESTOQUE|PREÇO|CODEBAR"
-			Max_field_width="5|40|2|5|10|5|7|10|13"
+#			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="ID|DESCRIÇÃO DO PRODUTO|UN|FABRI|VALIDADE|QMIN|ESTOQ|PREÇO|CODEBAR"
+			Max_field_width="5|40|2|5|10|5|5|10|13"
 			Color="$marrom"
 			Align_field='left'
 			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
@@ -1093,13 +1083,11 @@ function produto_pesquisa() {
 			npage=1
 			while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
 				if ((nrow >= nlastrow)); then
+					nrow=$((nTop + 4))
 					if [[ $((npage % 2)) -eq 0 ]]; then
-						mensagem 2 "" "$green"
-						nrow=$((nTop + 4))
 						ncol=0
-						sleep 1
+						mensagem 2 "Página: $npage" "$green" -1
 					else
-						nrow=$((nTop + 4))
 						ncol=$((ncol + half_lastcol))
 					fi
 					imprimirCabecalhoPesquisaProdutos
@@ -1107,10 +1095,10 @@ function produto_pesquisa() {
 				fi
 				setpos "$nrow" "$((ncol + 1))"
 				preco=$(bc -l <<<"$preco" | tr "." ",")
-				printf "%5s|%-40s|%2s|%5s|%10s|${cyan}%5s|%7s|${red}%10.2f${reset}|%-13s" "$id" "$nome" "$un" "$fabricante" "$(convert_data_to_ptBR "$validade")" "$qmin" "$estoque" "$preco" "$codebar"
+				printf "%5s|%-40s|%2s|%5s|%10s|${cyan}%5s|%5s|${red}%10.2f${reset}|%-13s" "$id" "$nome" "$un" "$fabricante" "$(convert_data_to_ptBR "$validade")" "$qmin" "$estoque" "$preco" "$codebar"
 				((++nrow))
 			done <<<"$produto_info"
-			mensagem 2 "" "$green" 300
+			mensagem 2 "Página: $npage" "$green" -1
 		else
 			mensagem 2 "$(gettext "Nenhum produto encontrado nos parâmetros informados")" "$red" 10
 		fi
@@ -1129,13 +1117,20 @@ function listagem_produtos_minimo() {
 		tela
 		titulo 1 "$(gettext "LISTAGEM DE PRODUTOS ABAIXO DO MINIMO")" "$ciano"
 		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM DE PRODUTOS ABAIXO DO MINIMO")" "$ciano"
-		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id <x>|<x-y>, f<id> ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
 
 		if [[ $identificador =~ ^[0-9]+$ ]]; then
 			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id='$identificador';")
+		elif [[ $identificador =~ ^[fF]([0-9]+)$ ]]; then
+			identificador=${BASH_REMATCH[1]}
+			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE fabricante = '$identificador' AND produtos.estoque < produtos.qmin;")
+			if fornecedor_info=$(dbseek 'fornecedor' 'id' "$identificador") && [ -n "$fornecedor_info" ]; then
+				IFS='|' read -r f_id f_data f_nome f_ende f_cida f_uf f_cnpj <<<"$fornecedor_info"
+				print $((nTop + 1)) 61 "${yellow}${f_nome}"
+			fi
 		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
 			id_ini=${BASH_REMATCH[1]}
 			id_fim=${BASH_REMATCH[2]}
@@ -1144,39 +1139,51 @@ function listagem_produtos_minimo() {
 			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id LIKE '%$identificador%' AND produtos.estoque < produtos.qmin;")
 		fi
 
-		function imprimirCabecalhoPesquisaProdutos() {
-			setpos $((nTop + 3)) "$ncol"
-			printf "${yellow}%-5s %-10s %-40s   %2s %7s %7s${reset}\n" "ID" "VALIDADE" "DESCRIÇÃO DO PRODUTO" "UN" "QMIN" "ESTOQUE"
-			setpos $((nTop + 4)) "$ncol"
-			replicate '-' "$((half_lastcol - 1))"
+		function imprimirCabecalhoProdutosMinimo() {
+#			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="ID|VALIDADE|DESCRIÇÃO DO PRODUTO|UN|QMIN|ESTOQUE"
+			Max_field_width="5|10|40|2|7|7"
+			Color="$marrom"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
 		}
 
 		if [[ -n "$produto_info" ]]; then
-			nrow=$((nTop + 5))
-			ncol=01
-			half_lastcol=$(($(lastcol) / 3))
+			nrow=$((nTop + 4))
+			ncol=0
+			half_lastcol=$(($(lastcol) / 2))
 			nlastrow="$(($(lastrow) - 1))"
-			imprimirCabecalhoPesquisaProdutos
+			imprimirCabecalhoProdutosMinimo
+			npage=1
 			while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
 				if ((nrow >= nlastrow)); then
-					nrow=$((nTop + 5))
-					ncol=$((ncol + half_lastcol))
-					imprimirCabecalhoPesquisaProdutos
+					nrow=$((nTop + 4))
+					if [[ $((npage % 2 )) -eq 0 ]]; then
+						ncol=0
+						mensagem 2 "Página: $npage" "$green" -1
+					else
+						ncol=$((ncol + half_lastcol))
+					fi
+					imprimirCabecalhoProdutosMinimo
+					((++npage))
 				fi
-				setpos "$nrow" "$ncol"
+				setpos "$nrow" "$((ncol + 1))"
+
 				if [[ $estoque -lt $qmin ]]; then
-					printf "%-5s %-10s %-40s %2s ${cyan}%7s ${red}%7s${reset}" "$id" "$(convert_data_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
+					printf "${yellow}%-5s${reset}|%-10s|%-40s|%2s|${cyan}%7s|${red}%7s${reset}" "$id" "$(convert_data_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
 				else
-					printf "%-5s %-10s %-40s %2s ${cyan}%7s ${green}%7s${reset}" "$id" "$(convert_data_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
+					printf "${yellow}%-5s${reset}|%-10s|%-40s|%2s|${cyan}%7s|${green}%7s${reset}" "$id" "$(convert_data_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
 				fi
 				((++nrow))
 			done <<<"$produto_info"
-			mensagem 2 "" "$green" 300
+			mensagem 2 "Página: $npage" "$green" -1
 		else
-			mensagem 2 "$(gettext "Nenhum produto encontrado nos parâmetros informados")" "$red" 10
+			mensagem 2 "$(gettext "Nenhum produto fora de validade nos parâmetros informados")" "$red" 10
 		fi
 	done
 }
+
 function listagem_produtos_fora_validade() {
 	local produto_info
 	local id nome un estoque preco codebar data validade qmin fabricante
@@ -1190,13 +1197,20 @@ function listagem_produtos_fora_validade() {
 		tela
 		titulo 1 "$(gettext "LISTAGEM DE PRODUTOS FORA DE VALIDADE")" "$ciano"
 		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM DE PRODUTOS FORA DE VALIDADE")" "$ciano"
-		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id <x>|<x-y>, f<id> ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
 
 		if [[ $identificador =~ ^[0-9]+$ ]]; then
 			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id='$identificador';")
+		elif [[ $identificador =~ ^[fF]([0-9]+)$ ]]; then
+			identificador=${BASH_REMATCH[1]}
+			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE fabricante = '$identificador' AND produtos.validade < '$(sh_date)';")
+			if fornecedor_info=$(dbseek 'fornecedor' 'id' "$identificador") && [ -n "$fornecedor_info" ]; then
+				IFS='|' read -r f_id f_data f_nome f_ende f_cida f_uf f_cnpj <<<"$fornecedor_info"
+				print $((nTop + 1)) 61 "${yellow}${f_nome}"
+			fi
 		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
 			id_ini=${BASH_REMATCH[1]}
 			id_fim=${BASH_REMATCH[2]}
@@ -1205,34 +1219,44 @@ function listagem_produtos_fora_validade() {
 			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id LIKE '%$identificador%' AND produtos.validade < '$(sh_date)';")
 		fi
 
-		function imprimirCabecalhoPesquisaProdutos() {
-			setpos $((nTop + 3)) "$ncol"
-			printf "${yellow}%-5s %-10s %-40s   %2s %7s %7s${reset}\n" "ID" "VALIDADE" "DESCRIÇÃO DO PRODUTO" "UN" "QMIN" "ESTOQUE"
-			setpos $((nTop + 4)) "$ncol"
-			replicate '-' "$((half_lastcol - 1))"
+		function imprimirCabecalhoProdutosForaValidade() {
+#			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="ID|VALIDADE|DESCRIÇÃO DO PRODUTO|UN|QMIN|ESTOQUE"
+			Max_field_width="5|10|40|2|7|7"
+			Color="$marrom"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
 		}
 
 		if [[ -n "$produto_info" ]]; then
-			nrow=$((nTop + 5))
-			ncol=01
-			half_lastcol=$(($(lastcol) / 3))
+			nrow=$((nTop + 4))
+			ncol=0
+			half_lastcol=$(($(lastcol) / 2))
 			nlastrow="$(($(lastrow) - 1))"
-			imprimirCabecalhoPesquisaProdutos
+			imprimirCabecalhoProdutosForaValidade
+			npage=1
 			while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
 				if ((nrow >= nlastrow)); then
-					nrow=$((nTop + 5))
-					ncol=$((ncol + half_lastcol))
-					imprimirCabecalhoPesquisaProdutos
+					nrow=$((nTop + 4))
+					if [[ $((npage % 2 )) -eq 0 ]]; then
+						ncol=0
+						mensagem 2 "Página: $npage" "$green" -1
+					else
+						ncol=$((ncol + half_lastcol))
+					fi
+					imprimirCabecalhoProdutosForaValidade
+					((++npage))
 				fi
-				setpos "$nrow" "$ncol"
+				setpos "$nrow" "$((ncol + 1))"
 				if [[ "$validade" < "$today" ]]; then
-					printf "%-5s ${red}%-10s${reset} %-40s %2s ${cyan}%7s ${red}%7s${reset}" "$id" "$(convert_data_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
+					printf "${yellow}%-5s|${red}%-10s${reset}|%-40s|%2s|${cyan}%7s|${red}%7s${reset}" "$id" "$(convert_data_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
 				else
-					printf "%-5s ${green}%-10s${reset} %-40s %2s ${cyan}%7s ${green}%7s${reset}" "$id" "$(convert_data_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
+					printf "${yellow}%-5s|${green}%-10s${reset}|%-40s|%2s|${cyan}%7s|${green}%7s${reset}" "$id" "$(convert_data_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
 				fi
 				((++nrow))
 			done <<<"$produto_info"
-			mensagem 2 "" "$green" 300
+			mensagem 2 "Página: $npage" "$green" -1
 		else
 			mensagem 2 "$(gettext "Nenhum produto fora de validade nos parâmetros informados")" "$red" 10
 		fi
@@ -1445,7 +1469,7 @@ function fornecedor_pesquisa() {
 	local fornecedor_info
 	local id_ini
 	local id_fim
-	local IsHeader=1
+	local IsHeader=0
 	local IsLike=1
 	local nrow
 	local ncol
@@ -1466,50 +1490,48 @@ function fornecedor_pesquisa() {
 		[[ "$identificador" == "*" ]] && identificador=
 
 		if [[ $identificador =~ ^[0-9]+$ ]]; then
-			fornecedor_info=$(dbseek 'fornecedor' 'id' "$identificador" "$IsHeader")
+			fornecedor_info=$(dbseek 'fornecedor' 'id' "$identificador")
 		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
 			id_ini=${BASH_REMATCH[1]}
 			id_fim=${BASH_REMATCH[2]}
-			fornecedor_info=$(sqlite3 $database -column -header "SELECT * FROM fornecedor WHERE id >= $id_ini AND id <= $id_fim;")
+			fornecedor_info=$(sqlite3 $database "SELECT * FROM fornecedor WHERE id >= $id_ini AND id <= $id_fim;")
 		else
 			fornecedor_info=$(dbseek 'fornecedor' 'nome' "$identificador" "$IsHeader" "$IsLike")
 		fi
 
 		function imprimirCabecalhoPesquisaFornecedor() {
-			setpos $((nTop + 3)) "$ncol"
-			printf "${yellow}%s${reset}" "$cabecalho"
-			setpos $((nTop + 4)) "$ncol"
-			printf "${yellow}%s${reset}" "$traco"
+#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+			Cabecalho="ID|DATA|NOME FORNECEDOR|ENDEREÇO|CIDADE|UF|CNPJ"
+			Max_field_width="5|10|40|40|25|2|18"
+			Color="$marrom"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
 		}
 
 		if [[ -n "$fornecedor_info" ]]; then
-			nrow=$((nTop + 5))
-			ncol=01
+			nrow=$((nTop + 4))
+			ncol=0
 			nconta=0
-			half_lastcol=$(($(lastcol) / 3))
 			nlastrow="$(($(lastrow) - 1))"
-			while IFS='|' read -r line; do
-				if [[ $nconta -eq 0 ]]; then
-					cabecalho="$(printf "%s" "$line")"
-					((++nconta))
-					continue
-				elif [[ $nconta -eq 1 ]]; then
-					traco="$(printf "%s" "$line")"
-					imprimirCabecalhoPesquisaFornecedor
-					((++nconta))
-					nrow=$((nTop + 5))
-					continue
-				fi
+			half_lastcol=$(($(lastcol) / 1))
+			imprimirCabecalhoPesquisaFornecedor
+			npage=1
+			while IFS='|' read -r id data nome ende cida uf cnpj; do
 				if ((nrow >= nlastrow)); then
-					ncol=$((ncol + half_lastcol))
+					if [[ $((npage % $npage)) -eq 0 ]]; then
+						nrow=$((nTop + 4))
+						ncol=0
+						mensagem 2 "Página: $npage" "$green" -1
+					fi
 					imprimirCabecalhoPesquisaFornecedor
-					nrow=$((nTop + 5))
+					((++npage))
 				fi
-				setpos "$nrow" "$ncol"
-				printf "%s" "$line"
+				setpos "$nrow" "$((ncol + 1))"
+				printf "%5s|%-10s|%-40s|%-40s|%-25s|%2s|%18s" "$id" "$(convert_data_to_ptBR "$data")" "$nome" "$ende" "$cida" "$uf" "$cnpj"
 				((++nrow))
 			done <<<"$fornecedor_info"
-			mensagem 2 "" "$green" 300
+			mensagem 2 "Página: $npage" "$green" -1
 		else
 			mensagem 2 "$(gettext "Nenhum fornecedor encontrado nos parâmetros informados")" "$red" 10
 		fi
@@ -2251,7 +2273,7 @@ function produtos_entradas() {
 function conciliar_estoque() {
 	local query
 
-	setpos 25 11
+	setpos 19 11
 	if readconf "$(gettext "Confirma a atualização?")"; then
 		mensagem 2 "$(gettext "Aguarde... Atualizando estoque")" "$yellow"
 		if sqlite3 "$database" "UPDATE produtos SET estoque = 0;"; then
@@ -2570,29 +2592,27 @@ function menu_produtos() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "MENU PRODUTOS")" "$ciano"
-		box 11 10 14 80 "$(gettext "MENU PRODUTOS")" "$azul"
+		box 11 10 13 80 "$(gettext "MENU PRODUTOS")" "$azul"
 		print 12 11 " 1 - $(gettext "Cadastrar Produtos")"
 		print 13 11 " 2 - $(gettext "Alterar Produtos")"
 		print 14 11 " 3 - $(gettext "Remover/Excluir Produtos")"
-		print 15 11 " 4 - $(gettext "Pesquisar Produtos/Inventário")"
-		print 16 11 " 5 - $(gettext "Atualizar Estoque (conciliação)")"
-		print 17 11 " 6 - $(gettext "Listagem Produtos Vendidos")"
-		print 18 11 " 7 - $(gettext "Listagem Entradas de Produtos")"
-		print 19 11 " 8 - $(gettext "Listagem Produtos abaixo estoque mínimo")"
-		print 20 11 " 9 - $(gettext "Listagem Produtos fora da validade")"
-		print 21 11 " 0 - $(gettext "Voltar")"
-		get 23 12 "$(gettext "Opção"): " opcao
+		print 15 11 " 4 - $(gettext "Pesquisar Produtos")"
+		print 16 11 " 5 - $(gettext "Listagem Produtos Vendidos")"
+		print 17 11 " 6 - $(gettext "Listagem Entradas de Produtos")"
+		print 18 11 " 7 - $(gettext "Listagem Produtos abaixo estoque mínimo")"
+		print 19 11 " 8 - $(gettext "Listagem Produtos fora da validade")"
+		print 20 11 " 0 - $(gettext "Voltar")"
+		get 22 12 "$(gettext "Opção"): " opcao
 
 		case "$opcao" in
 		1) produto_inclusao_alteracao 'I' ;;
 		2) produto_inclusao_alteracao 'A' ;;
 		3) produto_exclusao ;;
 		4) produto_pesquisa ;;
-		5) conciliar_estoque ;;
-		6) listagem_produtos_vendidos ;;
-		7) listagem_entradas_produtos ;;
-		8) listagem_produtos_minimo ;;
-		9) listagem_produtos_fora_validade ;;
+		5) listagem_produtos_vendidos ;;
+		6) listagem_entradas_produtos ;;
+		7) listagem_produtos_minimo ;;
+		8) listagem_produtos_fora_validade ;;
 		*) return ;;
 		esac
 	done
@@ -2632,15 +2652,17 @@ function menu_manutencao() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "MENU MANUTENCAO")" "$ciano"
-		box 11 10 7 80 "$(gettext "MENU MANUTENCAO")" "$azul"
+		box 11 10 8 80 "$(gettext "MENU MANUTENCAO")" "$azul"
 		print 12 11 " 1 - $(gettext "Popular databases para testes")"
 		print 13 11 " 2 - $(gettext "Zerar/Limpar databases")"
-		print 14 11 " 0 - $(gettext "Voltar")"
-		get 16 12 "$(gettext "Opção"): " opcao
+		print 14 11 " 3 - $(gettext "Atualizar Estoque (conciliação)")"
+		print 15 11 " 0 - $(gettext "Voltar")"
+		get 17 12 "$(gettext "Opção"): " opcao
 
 		case "$opcao" in
 		1) populate_databases ;;
 		2) sh_drop_tabelas ;;
+		3) conciliar_estoque ;;
 		*) return ;;
 		esac
 	done
