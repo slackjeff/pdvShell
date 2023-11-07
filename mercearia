@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/11/05
+#	Altered: 2023/11/06
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -34,9 +34,9 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.2.0-20231105"
+declare _VERSION_="1.2.0-20231106"
 declare _SYSTEM_='SISTEMA PDV'
-declare empresa='MERCEARIA TemDTudo'
+declare _EMPRESA_='MERCEARIA TemDTudo'
 declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed)
 declare database='pdv.db'
 
@@ -93,6 +93,7 @@ function sh_setvarcolors() {
 		roxo=$(tput setab 5)
 		ciano=$(tput setab 6)
 		marrom=$(tput setab 8)
+		branca="${black}$(tput setab 7)"
 	else
 		sh_unsetvarcolors
 	fi
@@ -292,6 +293,7 @@ function dispbox() {
 				echo "$frame_top"
 				# Imprime o conteúdo centralizado
 				setpos "$linha" "$((col + 1))"
+				((--nmaxlen))
 				printf "$color%-${nmaxlen}s${reset}" "$cprintf"
 			elif [ $i -eq $((altura - 1)) ]; then
 				echo "$frame_bottom"
@@ -300,7 +302,6 @@ function dispbox() {
 			fi
 		done
 	}
-
 	dispbox::print_box
 	tput sgr0
 }
@@ -664,7 +665,7 @@ function tela() {
 	titulo 0 "$(gettext "$_SYSTEM_")" "$roxo" "$(date)" "$_VERSION_"
 	titulo 1 "$(gettext "MENU PRINCIPAL")" "$ciano"
 	logo
-	titulo "$(($(lastrow) - 1))" "$empresa" "$azul" "$PWD" "$USER"
+	titulo "$(($(lastrow) - 1))" "$_EMPRESA_" "$azul" "$PWD" "$USER"
 }
 
 function criar_tabela_produtos() {
@@ -1039,8 +1040,6 @@ function produto_pesquisa() {
 		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
 		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id <x>|<x-y>, f<id> ou *=tudo)") : " identificador
 
-		#ORDER BY id DESC
-
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
 
@@ -1105,7 +1104,7 @@ function produto_pesquisa() {
 	done
 }
 
-function listagem_produtos_minimo() {
+function relatorio_produtos_minimo() {
 	local produto_info
 	local id nome un estoque preco codebar data validade qmin fabricante
 	local ncol
@@ -1115,8 +1114,8 @@ function listagem_produtos_minimo() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "LISTAGEM DE PRODUTOS ABAIXO DO MINIMO")" "$ciano"
-		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM DE PRODUTOS ABAIXO DO MINIMO")" "$ciano"
+		titulo 1 "$(gettext "RELATÓRIO DE PRODUTOS ABAIXO DO MINIMO")" "$ciano"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "RELATÓRIO DE PRODUTOS ABAIXO DO MINIMO")" "$ciano"
 		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id <x>|<x-y>, f<id> ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
@@ -1184,7 +1183,7 @@ function listagem_produtos_minimo() {
 	done
 }
 
-function listagem_produtos_fora_validade() {
+function relatorio_produtos_fora_validade() {
 	local produto_info
 	local id nome un estoque preco codebar data validade qmin fabricante
 	local ncol
@@ -1195,8 +1194,8 @@ function listagem_produtos_fora_validade() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "LISTAGEM DE PRODUTOS FORA DE VALIDADE")" "$ciano"
-		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM DE PRODUTOS FORA DE VALIDADE")" "$ciano"
+		titulo 1 "$(gettext "RELATÓRIO DE PRODUTOS FORA DE VALIDADE")" "$ciano"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "RELATÓRIO DE PRODUTOS FORA DE VALIDADE")" "$ciano"
 		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id <x>|<x-y>, f<id> ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
@@ -1539,25 +1538,25 @@ function fornecedor_pesquisa() {
 	done
 }
 
-function listagem_vendas_diarias() {
+function relatorio_vendas_diarias() {
 	local query_result
-	local nrow
-	local lines
-	local lastrow=$(lastrow)
-	local lastcol=$(lastcol)
-	local dini
-	local dfim
+	local dini dfim
 	local data_inicio="01-$(date +"%m-%Y")"
 	local data_fim=$(date +"%d-%m-%Y")
+	local Coordenadas Cabecalho Max_field_width Color Align_field
+	local ncol nrow half_lastcol nlastrow total_mes current_mes
+	local new_mes total
+	local mes_inicial mes_final
+	local ano_inicial ano_final
 
 	tela
-	titulo 1 "$(gettext "LISTAGEM DE VENDAS DIÁRIAS")" "$ciano"
-	box 10 0 4 "$((lastcol - 1))" "$(gettext "PERÍODO DE CONSULTA")" "$ciano"
-	print 11 01 "$(gettext "Data Inicial")    : "
-	print 12 01 "$(gettext "Data Final")      : "
+	titulo 1 "$(gettext "RELATÓRIO DE VENDAS DIÁRIAS")" "$ciano"
+	box "$nTop" 0 4 $(($(lastcol) - 1)) "$(gettext "PERÍODO DE CONSULTA")" "$ciano"
+ 	print $((nTop + 1)) 1 "$(gettext "Data Inicial")    : "
+	print $((nTop + 2)) 1 "$(gettext "Data Final")      : "
 
 	while true; do
-		get 11 01 "$(gettext "Data Inicial")    : " dini "$data_inicio"
+		get $((nTop + 1)) 1 "$(gettext "Data Inicial")    : " dini "$data_inicio"
 		if [[ -n "$dini" ]]; then
 			if validar_data "$dini"; then
 				break
@@ -1566,7 +1565,7 @@ function listagem_vendas_diarias() {
 				continue
 			fi
 		else
-			setpos 14 01
+			setpos 12 01
 			if readconf "$(gettext "A data não pode ser em branco. Cancelar?")"; then
 				return
 			fi
@@ -1574,7 +1573,7 @@ function listagem_vendas_diarias() {
 	done
 
 	while true; do
-		get 12 01 "$(gettext "Data Final")      : " dfim "$data_fim"
+		get $((nTop + 2)) 1 "$(gettext "Data Final")      : " dfim "$data_fim"
 		if [[ -n "$dfim" ]]; then
 			if validar_data "$dfim"; then
 				break
@@ -1583,7 +1582,7 @@ function listagem_vendas_diarias() {
 				continue
 			fi
 		else
-			setpos 14 01
+			setpos 12 01
 			if readconf "$(gettext "A data não pode ser em branco. Cancelar?")"; then
 				return
 			fi
@@ -1595,149 +1594,71 @@ function listagem_vendas_diarias() {
 
 	# Consulta para obter resultados diários agrupados por ano e mês
 	query_results=()
-
 	mes_inicial="$(date -d "$dini" +"%m")"
 	mes_final="$(date -d "$dfim" +"%m")"
 	ano_inicial="$(date -d "$dini" +"%Y")"
 	ano_final="$(date -d "$dfim" +"%Y")"
-	ncol=01
-
-	box 14 0 34 "$((lastcol - 1))" "$(gettext "")" "$ciano"
-	#	for i in $(seq "$mes_inicial" "$mes_final"); do
-	#		mes_atual=$(date -d "$ano_inicial-$i-01" +"%Y-%m")
-	#		query_result=$(sqlite3 "$database" "SELECT date(data), SUM(total) FROM vendas WHERE data LIKE '$mes_atual%' GROUP BY date(data) ORDER BY data ASC")
 	query_result=$(sqlite3 "$database" "SELECT date(data), SUM(total) FROM vendas WHERE date(data) BETWEEN '$dini' AND '$dfim' GROUP BY date(data) ORDER BY date(data) ASC")
 
+	function relatorio_vendas_diarias::imprimir_cabecalho_relatorio() {
+		Coordenadas="$((nTop + 4))|$ncol|$(($(lastrow) - $((nTop + 5))))"
+#		Coordenadas="$((nTop + 4))|$ncol|1"
+		Cabecalho="DATA|TOTAL DIA"
+		Max_field_width="10|10"
+		Color="$marrom"
+		Align_field='left'
+		dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
+	}
+
 	if [[ -n "${query_result}" ]]; then
-		setpos 14 "$ncol"
-		printf "${yellow}%-10s %10s\n" "data" "total dia"
-		nrow=15
+		ncol=0
+		nrow=$((nTop + 5))
+		npages=$(($(lastcol) / 22))
+		half_lastcol=$(($(lastcol) / npages))
+		nlastrow="$(($(lastrow) - 2))"
 		total_mes=0
 		current_mes=
+		relatorio_vendas_diarias::imprimir_cabecalho_relatorio
+		npage=1
 		while IFS='|' read -r data total; do
 			new_mes=$(date -d "$data" +"%m")
 			if [[ -n "$current_mes" && "$current_mes" != "$new_mes" ]]; then
 				((++nrow))
-				setpos "$nrow" "$ncol"
+				setpos $((ntop+44)) "$((ncol + 1))"
 				printf "${blue}%-10s ${red}%'10.2f${reset}\n" "SOMA" "$(tr "." "," <<<"$total_mes")"
-				ncol=$((ncol + 22))
-				setpos 14 "$ncol"
-				printf "${yellow}%-10s %10s\n" "data" "total dia"
-				setpos 16 "$ncol"
-				#				replicate "-" 21
-				nrow=15
 				total_mes=0
+
+				if [[ $((npage % npages)) -eq 0 ]]; then
+					ncol=0
+					mensagem 2 "Página: $npage" "$green" -1
+				else
+					ncol=$((ncol + half_lastcol))
+				fi
+
+				relatorio_vendas_diarias::imprimir_cabecalho_relatorio
+				nrow=$((nTop + 5))
+				((++npage))
 			fi
+
 			total_mes=$(echo "$total_mes + $total" | bc -l)
 			total=$(bc -l <<<"$total" | tr "." ",")
-			setpos "$nrow" "$ncol"
-			printf "${blue}%s ${red}%10.2f${yellow}|${reset}\n" "$(convert_data_to_ptBR "$data")" "$total"
+			setpos "$nrow" "$((ncol + 1))"
+			if [[ $((nrow % 2)) -eq 0 ]]; then
+				printf "${cyan}%s|%10.2f${reset}\n" "$(convert_data_to_ptBR "$data")" "$total"
+			else
+				printf "${black}%s|%10.2f${reset}\n" "$(convert_data_to_ptBR "$data")" "$total"
+			fi
 			((++nrow))
 			current_mes="$new_mes"
 		done <<<"${query_result}"
 		((++nrow))
-		setpos "$nrow" "$ncol"
+		setpos "$nrow" "$((ncol + 1))"
 		printf "${blue}%-10s ${red}%'10.2f${reset}\n" "SOMA" "$(tr "." "," <<<"$total_mes")"
 	fi
-
-	#	done
-	mensagem 2 "" "$green" 300
+	mensagem 2 "" "$green" -1
 }
 
-function listagem_vendas_mensal() {
-	local query_result
-	local nrow
-	local lines
-	local lastrow=$(lastrow)
-	local lastcol=$(lastcol)
-	local dini
-	local dfim
-	local data_inicio="01-$(date +"%m-%Y")"
-	local data_fim=$(date +"%d-%m-%Y")
-
-	tela
-	titulo 1 "$(gettext "LISTAGEM DE VENDAS DIÁRIAS")" "$ciano"
-	box 10 0 4 "$((lastcol - 1))" "$(gettext "PERÍODO DE CONSULTA")" "$ciano"
-	print 11 01 "$(gettext "Data Inicial")    : "
-	print 12 01 "$(gettext "Data Final")      : "
-
-	while true; do
-		get 11 01 "$(gettext "Data Inicial")    : " dini "$data_inicio"
-		if [[ -n "$dini" ]]; then
-			if validar_data "$dini"; then
-				break
-			else
-				mensagem 2 "$(gettext "Data inválida")" "$red"
-				continue
-			fi
-		else
-			setpos 14 01
-			if readconf "$(gettext "A data não pode ser em branco. Cancelar?")"; then
-				return
-			fi
-		fi
-	done
-
-	while true; do
-		get 12 01 "$(gettext "Data Final")      : " dfim "$data_fim"
-		if [[ -n "$dfim" ]]; then
-			if validar_data "$dfim"; then
-				break
-			else
-				mensagem 2 "$(gettext "Data inválida")" "$red"
-				continue
-			fi
-		else
-			setpos 14 01
-			if readconf "$(gettext "A data não pode ser em branco. Cancelar?")"; then
-				return
-			fi
-		fi
-	done
-
-	dini=$(convert_data_to_US "$dini")
-	dfim=$(convert_data_to_US "$dfim")
-
-	# Consulta para obter resultados diários agrupados por ano e mês
-	query_results=()
-
-	mes_inicial="$(date -d "$dini" +"%m")"
-	mes_final="$(date -d "$dfim" +"%m")"
-	ano_inicial="$(date -d "$dini" +"%Y")"
-	ano_final="$(date -d "$dfim" +"%Y")"
-	ncol=01
-
-	box 14 0 "$((lastrow - 29))" "$((lastcol - 2))" "$(gettext "LISTAGEM DE VENDAS DIÁRIAS")" "$ciano"
-	for i in $(seq "$mes_inicial" "$mes_final"); do
-		mes_atual=$(date -d "$ano_inicial-$i-01" +"%Y-%m")
-		query_result=$(sqlite3 "$database" "SELECT date(data), SUM(total) FROM vendas WHERE data LIKE '$mes_atual%' GROUP BY date(data) ORDER BY data ASC")
-		# Verifica se há dados no resultado da consulta
-		if [[ -n "${query_result}" ]]; then
-			setpos 15 "$ncol"
-			printf "${yellow}%-10s %10s\n" "data" "total dia"
-			setpos 16 "$ncol"
-			replicate "-" 21
-			nrow=17
-			total_mes=0
-			while IFS='|' read -r data total; do
-				total_mes=$(echo "$total_mes + $total" | bc -l)
-				total=$(bc -l <<<"$total" | tr "." ",")
-				setpos "$nrow" "$ncol"
-				#			printf "${blue}%-30s ${red}R\$ %10.2f${reset}\n" "$data" "$total"
-				#				printf "${blue}%-10s ${red}%10.2f${reset}\n" "$(date -d "$data" +"%d-%m-%Y")" "$total"
-				printf "${blue}%s ${red}%10.2f${yellow}|${reset}\n" "$(convert_data_to_ptBR "$data")" "$total"
-				((++nrow))
-			done <<<"${query_result}"
-			((++nrow))
-			setpos "$nrow" "$ncol"
-			printf "${blue}%-10s ${red}%'10.2f${reset}\n" "SOMA" "$(tr "." "," <<<"$total_mes")"
-			ncol=$((ncol + 22))
-		fi
-	done
-	mensagem 2 "" "$green" 300
-}
-
-function listagem_produtos_vendidos() {
+function relatorio_produtos_vendidos() {
 	local current_docnr
 	local nrow
 	local ncol
@@ -1746,8 +1667,8 @@ function listagem_produtos_vendidos() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
-		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
+		titulo 1 "$(gettext "RELATÓRIO PRODUTOS VENDIDOS")" "$ciano"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "RELATÓRIO PRODUTOS VENDIDOS")" "$ciano"
 		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
@@ -1785,7 +1706,7 @@ function listagem_produtos_vendidos() {
 		# por data
 		elif [[ $identificador =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ || $identificador =~ ^[0-9]{2}/[0-9]{2}/[0-9]{4}$ ]]; then
 			if ! validar_data "$identificador"; then
-				mensagem 2 "$(gettext "Formato de data inválido.")" "$red"
+				mensagem 2 "$(gettext "Formato de data inválida")" "$red"
 				continue
 			fi
 			identificador=$(convert_data_to_US "$identificador")
@@ -1839,7 +1760,7 @@ function listagem_produtos_vendidos() {
 	done
 }
 
-function listagem_entradas_produtos() {
+function relatorio_entradas_produtos() {
 	local identificador query result
 	local dini dfim
 	local id_ini id_fim
@@ -1850,8 +1771,8 @@ function listagem_entradas_produtos() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
-		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
+		titulo 1 "$(gettext "RELATÓRIO ENTRADAS DE PRODUTOS")" "$ciano"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "RELATÓRIO ENTRADAS DE PRODUTOS")" "$ciano"
 		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data <dd-mm-aaaa>, id (<x>|[<x-y>]), f<id>, ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
@@ -1862,11 +1783,11 @@ function listagem_entradas_produtos() {
 			dini="${BASH_REMATCH[1]}"
 			dfim="${BASH_REMATCH[2]}"
 			if ! validar_data "$dini"; then
-				mensagem 2 "$(gettext "Formato de data inicial inválido.")" "$red"
+				mensagem 2 "$(gettext "Formato de data inicial inválida")" "$red"
 				continue
 			fi
 			if ! validar_data "$dfim"; then
-				mensagem 2 "$(gettext "Formato de data final inválido.")" "$red"
+				mensagem 2 "$(gettext "Formato de data final inválida")" "$red"
 				continue
 			fi
 			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
@@ -1918,7 +1839,7 @@ function listagem_entradas_produtos() {
 		# por data
 		elif [[ $identificador =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
 			if ! validar_data "$identificador"; then
-				mensagem 2 "$(gettext "Formato de data inválido.")" "$red"
+				mensagem 2 "$(gettext "Formato de data inválida")" "$red"
 				continue
 			fi
 			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
@@ -1979,9 +1900,9 @@ function listagem_entradas_produtos() {
 				((++nrow))
 				current_docnr="$docnr"
 			done <<<"$result"
-			mensagem 2 "" "$green" 300
+			mensagem 2 "" "$green" -1
 		else
-			mensagem 2 "$(gettext "Não consta entradas nos parâmetros informados")" "$red" 10
+			mensagem 2 "$(gettext "Não consta entradas nos parâmetros informados")" "$red" 5
 		fi
 	done
 }
@@ -2397,11 +2318,12 @@ populate_database_vendas() {
 	mensagem 2 "$(gettext "Populando tabela vendas")" "$green"
 	# Inicialize o dia, mês e ano
 	dia=1
-	mes="$(date +"%m")"
+#	mes="$(date +"%m")"
+	mes=01
 	ano="$(date +"%Y")"
 
-	# Loop para inserir 100 registros
-	for ((i = 1; i <= 100; i++)); do
+	# Loop para inserir 365 registros
+	for ((i = 1; i <= 365; i++)); do
 		data="$ano-$(printf "%02d" "$mes")-$(printf "%02d" "$dia")" # Construir a data no formato 'AAAA-MM-DD'
 		quantidade=$((RANDOM % 10 + 1))                             # Gere uma quantidade aleatória entre 1 e 10
 		preco=$(echo "scale=2; $RANDOM / 100.0" | bc)               # Gere um preço aleatório com duas casas decimais
@@ -2597,10 +2519,10 @@ function menu_produtos() {
 		print 13 11 " 2 - $(gettext "Alterar Produtos")"
 		print 14 11 " 3 - $(gettext "Remover/Excluir Produtos")"
 		print 15 11 " 4 - $(gettext "Pesquisar Produtos")"
-		print 16 11 " 5 - $(gettext "Listagem Produtos Vendidos")"
-		print 17 11 " 6 - $(gettext "Listagem Entradas de Produtos")"
-		print 18 11 " 7 - $(gettext "Listagem Produtos abaixo estoque mínimo")"
-		print 19 11 " 8 - $(gettext "Listagem Produtos fora da validade")"
+		print 16 11 " 5 - $(gettext "Relatório Produtos Vendidos")"
+		print 17 11 " 6 - $(gettext "Relatório Entradas de Produtos")"
+		print 18 11 " 7 - $(gettext "Relatório Produtos abaixo estoque mínimo")"
+		print 19 11 " 8 - $(gettext "Relatório Produtos fora da validade")"
 		print 20 11 " 0 - $(gettext "Voltar")"
 		get 22 12 "$(gettext "Opção"): " opcao
 
@@ -2609,10 +2531,10 @@ function menu_produtos() {
 		2) produto_inclusao_alteracao 'A' ;;
 		3) produto_exclusao ;;
 		4) produto_pesquisa ;;
-		5) listagem_produtos_vendidos ;;
-		6) listagem_entradas_produtos ;;
-		7) listagem_produtos_minimo ;;
-		8) listagem_produtos_fora_validade ;;
+		5) relatorio_produtos_vendidos ;;
+		6) relatorio_entradas_produtos ;;
+		7) relatorio_produtos_minimo ;;
+		8) relatorio_produtos_fora_validade ;;
 		*) return ;;
 		esac
 	done
@@ -2625,7 +2547,7 @@ function sh_old_main_menu() {
 		box 11 10 10 80 "$(gettext "MENU PRINCIPAL")" "$azul"
 		print 12 11 " 1 - $(gettext "Produtos")"
 		print 13 11 " 2 - $(gettext "Realizar Venda")"
-		print 14 11 " 3 - $(gettext "Exibir Vendas Diárias")"
+		print 14 11 " 3 - $(gettext "Listaem Vendas Diárias")"
 		print 15 11 " 4 - $(gettext "Entradas de Produtos")"
 		print 16 11 " 5 - $(gettext "Fornecedores")"
 		print 17 11 " 0 - $(gettext "Sair")"
@@ -2635,7 +2557,7 @@ function sh_old_main_menu() {
 		case "$opcao" in
 		1) menu_produtos ;;
 		2) realizar_venda ;;
-		3) listagem_vendas_diarias ;;
+		3) relatorio_vendas_diarias ;;
 		4) produtos_entradas ;;
 		5) menu_fornecedores ;;
 		6 | 0)
@@ -2672,7 +2594,7 @@ function sh_main_menu() {
 	local options=(
 		"$(gettext 'Produtos')"
 		"$(gettext 'Realizar Venda')"
-		"$(gettext 'Exibir Vendas Diárias')"
+		"$(gettext 'Relatório Vendas Diárias')"
 		"$(gettext 'Entradas de Produtos')"
 		"$(gettext 'Fornecedores')"
 		"$(gettext 'Manutenção')"
@@ -2688,7 +2610,7 @@ function sh_main_menu() {
 		case "$opcao" in
 		1) menu_produtos ;;
 		2) realizar_venda ;;
-		3) listagem_vendas_diarias ;;
+		3) relatorio_vendas_diarias ;;
 		4) produtos_entradas ;;
 		5) menu_fornecedores ;;
 		6) menu_manutencao ;;
