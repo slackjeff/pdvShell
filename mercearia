@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/11/06
+#	Altered: 2023/11/07
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -34,7 +34,7 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.2.0-20231106"
+declare _VERSION_="1.3.0-20231107"
 declare _SYSTEM_='SISTEMA PDV'
 declare _EMPRESA_='MERCEARIA TemDTudo'
 declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed)
@@ -61,6 +61,7 @@ function sh_setvarcolors() {
 	if [[ -n "$(command -v "tput")" ]]; then
 		#tput setaf 127 | cat -v  #capturar saida
 		reset=$(tput sgr0)
+		rst=$(tput sgr0)
 		bold=$(tput bold)
 		underline=$(tput smul)
 		nounderline=$(tput rmul)
@@ -1064,8 +1065,8 @@ function produto_pesquisa() {
 		fi
 
 		function imprimirCabecalhoPesquisaProdutos() {
-#			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
-			Coordenadas="$((nTop + 3))|$ncol|1"
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+#			Coordenadas="$((nTop + 3))|$ncol|1"
 			Cabecalho="ID|DESCRIÇÃO DO PRODUTO|UN|FABRI|VALIDADE|QMIN|ESTOQ|PREÇO|CODEBAR"
 			Max_field_width="5|40|2|5|10|5|5|10|13"
 			Color="$marrom"
@@ -1139,8 +1140,8 @@ function relatorio_produtos_minimo() {
 		fi
 
 		function imprimirCabecalhoProdutosMinimo() {
-#			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
-			Coordenadas="$((nTop + 3))|$ncol|1"
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+#			Coordenadas="$((nTop + 3))|$ncol|1"
 			Cabecalho="ID|VALIDADE|DESCRIÇÃO DO PRODUTO|UN|QMIN|ESTOQUE"
 			Max_field_width="5|10|40|2|7|7"
 			Color="$marrom"
@@ -1152,7 +1153,7 @@ function relatorio_produtos_minimo() {
 			nrow=$((nTop + 4))
 			ncol=0
 			half_lastcol=$(($(lastcol) / 2))
-			nlastrow="$(($(lastrow) - 1))"
+			nlastrow="$(($(lastrow) - 2))"
 			imprimirCabecalhoProdutosMinimo
 			npage=1
 			while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
@@ -1178,7 +1179,7 @@ function relatorio_produtos_minimo() {
 			done <<<"$produto_info"
 			mensagem 2 "Página: $npage" "$green" -1
 		else
-			mensagem 2 "$(gettext "Nenhum produto fora de validade nos parâmetros informados")" "$red" 10
+			mensagem 2 "$(gettext "Nenhum produto nos parâmetros informados")" "$red" 10
 		fi
 	done
 }
@@ -1219,8 +1220,8 @@ function relatorio_produtos_fora_validade() {
 		fi
 
 		function imprimirCabecalhoProdutosForaValidade() {
-#			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
-			Coordenadas="$((nTop + 3))|$ncol|1"
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+#			Coordenadas="$((nTop + 3))|$ncol|1"
 			Cabecalho="ID|VALIDADE|DESCRIÇÃO DO PRODUTO|UN|QMIN|ESTOQUE"
 			Max_field_width="5|10|40|2|7|7"
 			Color="$marrom"
@@ -1232,7 +1233,7 @@ function relatorio_produtos_fora_validade() {
 			nrow=$((nTop + 4))
 			ncol=0
 			half_lastcol=$(($(lastcol) / 2))
-			nlastrow="$(($(lastrow) - 1))"
+			nlastrow="$(($(lastrow) - 2))"
 			imprimirCabecalhoProdutosForaValidade
 			npage=1
 			while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
@@ -1257,7 +1258,7 @@ function relatorio_produtos_fora_validade() {
 			done <<<"$produto_info"
 			mensagem 2 "Página: $npage" "$green" -1
 		else
-			mensagem 2 "$(gettext "Nenhum produto fora de validade nos parâmetros informados")" "$red" 10
+			mensagem 2 "$(gettext "Nenhum produto nos parâmetros informados")" "$red" 10
 		fi
 	done
 }
@@ -1659,7 +1660,7 @@ function relatorio_vendas_diarias() {
 }
 
 function relatorio_produtos_vendidos() {
-	local current_docnr
+	local current_index index
 	local nrow
 	local ncol
 	local half_lastcol
@@ -1669,14 +1670,18 @@ function relatorio_produtos_vendidos() {
 		tela
 		titulo 1 "$(gettext "RELATÓRIO PRODUTOS VENDIDOS")" "$ciano"
 		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "RELATÓRIO PRODUTOS VENDIDOS")" "$ciano"
-		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		print $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data <dd-mm-aaaa>, id (<x>|[<x-y>]), f<id>, ou *=tudo)") : "
+		print $((nTop + 1)) $(($(lastcol) / 2)) "$(gettext "Agrupar (n=docnr, d=data, i=id, f=forn ou *=nenhum)") : "
+
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data <dd-mm-aaaa>, id (<x>|[<x-y>]), f<id>, ou *=tudo)") : " identificador
+		get $((nTop + 1)) $(($(lastcol) / 2)) "$(gettext "Agrupar (n=docnr, d=data, i=id, f=forn ou *=nenhum)") : " index
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
 
 		# por docnr
 		if [[ $identificador =~ ^[0-9]{7}$ ]]; then
-			query="SELECT vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
+			query="SELECT produtos.fabricante, vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				WHERE vendas.docnr = '$identificador'
@@ -1685,7 +1690,7 @@ function relatorio_produtos_vendidos() {
 
 		# por id
 		elif [[ $identificador =~ ^[0-9]+$ ]]; then
-			query="SELECT vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
+			query="SELECT produtos.fabricante, vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				WHERE vendas.id = '$identificador'
@@ -1696,10 +1701,20 @@ function relatorio_produtos_vendidos() {
 		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
 			id_ini="${BASH_REMATCH[1]}"
 			id_fim="${BASH_REMATCH[2]}"
-			query="SELECT vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
+			query="SELECT produtos.fabricante, vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				WHERE vendas.id >= '$id_ini' AND vendas.id <= '$id_fim'
+				ORDER BY vendas.data, vendas.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
+		# por fornecedor
+		elif [[ $identificador =~ ^[fF]([0-9]+)$ ]]; then
+			identificador=${BASH_REMATCH[1]}
+			query="SELECT produtos.fabricante, vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
+				FROM vendas
+				JOIN produtos ON vendas.id = produtos.id
+				WHERE produtos.fabricante = '$identificador'
 				ORDER BY vendas.data, vendas.docnr;"
 			result=$(sqlite3 "$database" "$query")
 
@@ -1710,7 +1725,7 @@ function relatorio_produtos_vendidos() {
 				continue
 			fi
 			identificador=$(convert_data_to_US "$identificador")
-			query="SELECT vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
+			query="SELECT produtos.fabricante, vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				WHERE vendas.data = '$identificador'
@@ -1719,7 +1734,7 @@ function relatorio_produtos_vendidos() {
 
 		# todos
 		else
-			query="SELECT vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
+			query="SELECT produtos.fabricante, vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				ORDER BY vendas.data, vendas.docnr;"
@@ -1727,33 +1742,58 @@ function relatorio_produtos_vendidos() {
 		fi
 
 		function imprimirCabecalhoProdutosVendidos() {
-			setpos $((nTop + 3)) "$ncol"
-			printf "%-10s %-8s %5s %-40s   %s %s %13s %12s\n" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "TOTAL"
-			setpos $((nTop + 4)) "$ncol"
-			replicate '-' "$((half_lastcol - 1))"
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="DATA|DOCNR|FORN|ID|DESCRIÇÃO DO PRODUTO|UN|QTD|PREÇO|TOTAL"
+			Max_field_width="10|7|5|5|40|2|5|10|10"
+			Color="$marrom"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
 		}
 
 		# Verifica se há dados no resultado da consulta
 		if [ -n "$result" ]; then
-			current_docnr=""
-			nrow=$((nTop + 5))
-			ncol=01
+			current_index=""
+			nrow=$((nTop + 4))
+			ncol=0
 			half_lastcol=$(($(lastcol) / 2))
-			nlastrow="$(($(lastrow) - 1))"
+			nlastrow="$(($(lastrow) - 2))"
 			imprimirCabecalhoProdutosVendidos
-			while IFS='|' read -r data docnr id un produto quantidade preco total codebar; do
+			npage=1
+			while IFS='|' read -r fornecedor data docnr id un produto quantidade preco total codebar; do
+				case "$index" in
+				n) compare="$docnr" ;;
+				d) compare="$data" ;;
+				i) compare="$id" ;;
+				f) compare="$fornecedor" ;;
+				esac
+				if [[ "$current_index" != "" && "$compare" != "$current_index" ]]; then
+					((++nrow))
+				fi
 				if ((nrow >= nlastrow)); then
-					nrow=$((nTop + 5))
-					ncol=$((ncol + half_lastcol))
+					nrow=$((nTop + 4))
+					if [[ $((npage % 2)) -eq 0 ]]; then
+						ncol=0
+						mensagem 2 "Página: $npage" "$green" -1
+					else
+						ncol=$((ncol + half_lastcol))
+					fi
 					imprimirCabecalhoProdutosVendidos
+					((++npage))
 				fi
 				total_formatado=$(echo "$quantidade * $preco" | bc -l | tr "." ",")
 				preco=$(bc -l <<<"$preco" | tr "." ",")
-				setpos "$nrow" "$ncol"
-				printf "%-10s %-8s %5s %-40s %-2s ${cyan}%3d x %10.2f = ${red}%10.2f${reset}\n" "$(convert_data_to_ptBR "$data")" "$docnr" "$id" "$produto" "$un" "$quantidade" "$preco" "$total_formatado"
+				setpos "$nrow" "$((ncol + 1))"
+				printf "${yellow}%-10s${reset}|%-7s|%5s|%5s|%-40s|%-2s|${cyan}%5d|%10.2f|${red}%10.2f${reset}\n" "$(convert_data_to_ptBR "$data")" "$docnr" "$fornecedor" "$id" "$produto" "$un" "$quantidade" "$preco" "$total_formatado"
 				((++nrow))
+				case "$index" in
+				n) current_index="$docnr" ;;
+				d) current_index="$data" ;;
+				i) current_index="$id" ;;
+				f) current_index="$fornecedor" ;;
+				esac
 			done <<<"$result"
-			mensagem 2 "" "$green" 300
+			mensagem 2 "Página: $npage" "$green" -1
 		else
 			mensagem 2 "$(gettext "Nenhum produto vendido nos parâmetros informados")" "$red" 10
 		fi
@@ -1773,7 +1813,11 @@ function relatorio_entradas_produtos() {
 		tela
 		titulo 1 "$(gettext "RELATÓRIO ENTRADAS DE PRODUTOS")" "$ciano"
 		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "RELATÓRIO ENTRADAS DE PRODUTOS")" "$ciano"
+		print $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data <dd-mm-aaaa>, id (<x>|[<x-y>]), f<id>, ou *=tudo)") : "
+		print $((nTop + 1)) $(($(lastcol) / 2)) "$(gettext "Agrupar (n=docnr, d=data, i=id, f=forn ou *=nenhum)") : "
+
 		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data <dd-mm-aaaa>, id (<x>|[<x-y>]), f<id>, ou *=tudo)") : " identificador
+		get $((nTop + 1)) $(($(lastcol) / 2)) "$(gettext "Agrupar (n=docnr, d=data, i=id, f=forn ou *=nenhum)") : " index
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -1868,39 +1912,59 @@ function relatorio_entradas_produtos() {
 		fi
 
 		function imprimirCabecalhoProdutosComprados() {
-			setpos $((nTop + 3)) "$ncol"
-			printf "%4s %-10s %-7s %4s %-36s   %2s %3s %10s\n" "FORN" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "CUSTO"
-			setpos $((nTop + 4)) "$ncol"
-			replicate '-' "$((half_lastcol - 1))"
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="FORN|DATA|DOCNR|ID|DESCRIÇÃO DO PRODUTO|UN|QTD|CUSTO"
+			Max_field_width="5|10|7|5|40|2|5|10"
+			Color="$marrom"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
 		}
 
 		# Verifica se há dados no resultado da consulta
 		if [ -n "$result" ]; then
-			current_docnr=""
-			nrow=$((nTop + 5))
-			ncol=01
-			half_lastcol=$(($(lastcol) / 3))
-			nlastrow="$(($(lastrow) - 1))"
+			current_index=""
+			nrow=$((nTop + 4))
+			ncol=0
+			half_lastcol=$(($(lastcol) / 2))
+			nlastrow="$(($(lastrow) - 2))"
 			imprimirCabecalhoProdutosComprados
+			npage=1
 			while IFS='|' read -r fornecedor id data docnr un produto quantidade custo total; do
-				if [[ "$current_docnr" != "" && "$docnr" != "$current_docnr" ]]; then
+				case "$index" in
+				n) compare="$docnr" ;;
+				d) compare="$data" ;;
+				i) compare="$id" ;;
+				f) compare="$fornecedor" ;;
+				esac
+				if [[ "$current_index" != "" && "$compare" != "$current_index" ]]; then
 					((++nrow))
 				fi
-
 				if ((nrow >= nlastrow)); then
-					nrow=$((nTop + 5))
-					ncol=$((ncol + half_lastcol))
+					nrow=$((nTop + 4))
+					if [[ $((npage % 2)) -eq 0 ]]; then
+						ncol=0
+						mensagem 2 "Página: $npage" "$green" -1
+					else
+						ncol=$((ncol + half_lastcol))
+					fi
 					imprimirCabecalhoProdutosComprados
+					((++npage))
 				fi
 				#				total_formatado=$(echo "$quantidade * $custo" | bc -l | tr "." ",")
 				#				total=$(bc -l <<<"$total" | tr "." ",")
 				custo=$(bc -l <<<"$custo" | tr "." ",")
-				setpos "$nrow" "$ncol"
-				printf "${yellow}%4s${reset} %-10s %-7s %4s %-36s %2s ${cyan}%3s ${red}%10.2f${reset}\n" "$fornecedor" "$(convert_data_to_ptBR "$data")" "$docnr" "$id" "$produto" "$un" "$quantidade" "$custo"
+				setpos "$nrow" "$((ncol + 1))"
+				printf "${yellow}%5s${reset}|%-10s|%-7s|%5s|%-40s|%2s|${cyan}%5s|${red}%10.2f${reset}\n" "$fornecedor" "$(convert_data_to_ptBR "$data")" "$docnr" "$id" "$produto" "$un" "$quantidade" "$custo"
 				((++nrow))
-				current_docnr="$docnr"
+				case "$index" in
+				n) current_index="$docnr" ;;
+				d) current_index="$data" ;;
+				i) current_index="$id" ;;
+				f) current_index="$fornecedor" ;;
+				esac
 			done <<<"$result"
-			mensagem 2 "" "$green" -1
+			mensagem 2 "Página: $npage" "$green" -1
 		else
 			mensagem 2 "$(gettext "Não consta entradas nos parâmetros informados")" "$red" 5
 		fi

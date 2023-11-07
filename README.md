@@ -28,7 +28,7 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
 
 ## Telas
 * MENU PRINCIPAL
-<img alt="mercearia-main-menu" src="assets/mercearia-main-menu.png" width="400" />
+<img alt="mercearia-main-menu" src="assets/mercearia-main-menu.png" width="600" />
 * MENU PRODUTOS
 <img alt="mercearia-produtos" src="assets/mercearia-produtos.png" width="600" />
 * CADASTRAR PRODUTOS
