@@ -153,8 +153,6 @@ function sh_checkDependencies() {
 	fi
 }
 
-#begin tinilib
-
 # Função para atualizar um valor no arquivo INI ou criar o arquivo se não existir
 # Exemplo de uso: atualize o valor da chave "versao" da seção "App" no arquivo "config.ini"
 # TIni.Set "config.ini" "App" "versao" "2.0"
@@ -638,24 +636,6 @@ function TIni.WriteValue() {
 	echo "$key=$value" >>"$config_file"
 }
 export -f TIni.WriteValue
-
-function sh_main {
-	local execute_app="$1"
-
-	if test $# -ge 1; then
-		shift
-		eval "$execute_app"
-	fi
-	#  return
-}
-#end tinilib
-
-
-
-
-
-
-
 
 function sh_splitarray() {
 	local str=("$1")
