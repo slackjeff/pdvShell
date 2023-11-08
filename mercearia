@@ -36,9 +36,10 @@ export TEXTDOMAIN=mercearia
 declare APP="${0##*/}"
 declare _VERSION_="1.3.0-20231107"
 declare _SYSTEM_='SISTEMA PDV'
-declare _EMPRESA_='MERCEARIA TemDTudo'
-declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed)
+declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed awk)
+declare -A Aempresa=([razao]='EMPRESA MODELO LTDA' [ende]='Rua Modelo, 693 - Bairro Centro' [cida]='Cidade Modelo' [uf]='UF' [cnpj]='00.000.000/0001-00')
 declare database='pdv.db'
+declare INI_FILE="pdv.ini"
 
 # BEGIN FUNCTIONS
 function sh_config() {
@@ -54,6 +55,33 @@ function sh_config() {
 	declare -gi nLeft
 	declare -gi nBottom
 	declare -gi nRight
+}
+
+function sh_ambiente() {
+	declare -gA Acores=([cabecalho]="$roxo" [logo]="$red" [statussup]="$ciano" [statusinf]="$azul")
+	local razao ende cida uf cnpj
+
+	if [[ -e "$INI_FILE" ]]; then
+		if razao=$(TIni.ReadValue "$INI_FILE" "empresa" "razao") && [[ -n "$razao" ]]; then
+			Aempresa[razao]="$razao"
+		fi
+		Aempresa[ende]="$(TIni.Get "$INI_FILE" "empresa" "ende")"
+		Aempresa[cida]="$(TIni.Get "$INI_FILE" "empresa" "cida")"
+		Aempresa[uf]="$(TIni.Get "$INI_FILE" "empresa" "uf")"
+		Aempresa[cnpj]="$(TIni.Get "$INI_FILE" "empresa" "cnpj")"
+		if TIni.ReadValue "$INI_FILE" "cores" "cabecalho"; then
+			Acores[cabecalho]="$(TIni.Get "$INI_FILE" "cores" "cabecalho")"
+		fi
+		if TIni.ReadValue "$INI_FILE" "cores" "logo"; then
+			Acores[logo]="$(TIni.Get "$INI_FILE" "cores" "logo")"
+		fi
+		if TIni.ReadValue "$INI_FILE" "cores" "statussup"; then
+			Acores[statussup]="$(TIni.Get "$INI_FILE" "cores" "statussup")"
+		fi
+		if TIni.ReadValue "$INI_FILE" "cores" "statusinf"; then
+			Acores[statusinf]="$(TIni.Get "$INI_FILE" "cores" "statusinf")"
+		fi
+	fi
 }
 
 function sh_setvarcolors() {
@@ -124,6 +152,510 @@ function sh_checkDependencies() {
 		die "$(gettext "Instalação abortada!")"
 	fi
 }
+
+#begin tinilib
+
+# Função para atualizar um valor no arquivo INI ou criar o arquivo se não existir
+# Exemplo de uso: atualize o valor da chave "versao" da seção "App" no arquivo "config.ini"
+# TIni.Set "config.ini" "App" "versao" "2.0"
+function TIni.Set {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	local new_value="$4"
+	local ident_keys=1
+
+	declare -A ini_data # Array associativo para armazenar as seções e chaves
+
+	if [[ -f "$config_file" ]]; then
+		# Ler o arquivo INI e armazenar as informações em um array associativo
+		local current_section=""
+		while IFS= read -r line; do
+			if [[ "$line" =~ ^\[(.*)\] ]]; then
+				current_section="${BASH_REMATCH[1]}"
+			elif [[ "$line" =~ ^([^=]+)=(.*) ]]; then
+				local current_key="${BASH_REMATCH[1]}"
+				local current_value="${BASH_REMATCH[2]}"
+				ini_data["$current_section,$current_key"]="$current_value"
+			fi
+		done <"$config_file"
+	fi
+
+	# Atualizar o valor no array associativo
+	ini_data["$section,$key"]="$new_value"
+
+	# Reescrever o arquivo INI com as seções e chaves atualizadas
+	echo "" >"$config_file"
+	local current_section=""
+	for section_key in "${!ini_data[@]}"; do
+		local section_name="${section_key%,*}"
+		local key_name="${section_key#*,}"
+		local value="${ini_data[$section_key]}"
+
+		# Verifique se a seção já foi gravada
+		if [[ "$current_section" != "$section_name" ]]; then
+			echo "" >>"$config_file"
+			echo "[$section_name]" >>"$config_file"
+			current_section="$section_name"
+		fi
+		echo "$key_name=$value" >>"$config_file"
+	done
+#	TIni.AlignAllSections "$config_file"
+	big-tini-pretty -q "$config_file"
+}
+export -f TIni.Set
+
+# Função para atualizar o valor de uma chave em uma seção no arquivo INI
+function TIni.UpdateValue {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	local new_value="$4"
+
+	if [[ -f "$config_file" ]]; then
+		sed -i "/^\[$section\]/s/^$key=.*/$key=$new_value/" "$config_file"
+	fi
+}
+export -f TIni.UpdateValue
+
+# Função para verificar se um valor em uma seção corresponde a um valor de referência em um arquivo INI
+# TIni.ExistValue "config.ini" "flatpak" "active" '0'; echo $?
+function TIni.ExistValue {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	local comp_value="$4"
+
+	if [[ -f "$config_file" ]]; then
+		local section_found=false
+		local key_found=false
+		local value=""
+
+		while IFS= read -r line; do
+			if [[ "$line" == "[$section]" ]]; then
+				section_found=true
+			elif [[ "$line" == "["* ]]; then
+				section_found=false
+			fi
+
+			if [[ "$section_found" == true && "$line" == "$key="* ]]; then
+				value=$(echo "$line" | cut -d'=' -f2)
+				key_found=true
+			fi
+
+			if [[ "$section_found" == true && "$key_found" == true ]]; then
+				if [[ "$value" == "$comp_value" ]]; then
+					return 0 # Valor encontrado e corresponde ao valor de referência
+				else
+					return 1 # Valor encontrado, mas não corresponde ao valor de referência
+				fi
+			fi
+		done <"$config_file"
+	fi
+	return 2 # Seção ou chave não encontrada no arquivo INI
+}
+export -f TIni.ExistValue
+
+# Função para ler um valor do arquivo INI
+# TIni.ReadValue "config.ini" "flatpak" "active"
+function TIni.ReadValue() {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	local found_section=false
+
+	# Variável para armazenar o valor encontrado
+	local value=""
+
+	# Use grep para encontrar a chave na seção especificada no arquivo INI
+	while IFS= read -r line; do
+		if [[ "$line" =~ ^\[$section\] ]]; then
+			found_section=true
+		elif [[ "$found_section" == true && "$line" =~ ^$key= ]]; then
+			# Encontramos a chave dentro da seção
+			value=$(echo "$line" | cut -d'=' -f2)
+			break # Saia do loop, pois encontramos o valor
+		elif [[ "$line" =~ ^\[.*\] ]]; then
+			# Se encontrarmos outra seção, saia do loop para evitar procurar em outras seções
+			found_section=false
+		fi
+	done <"$config_file"
+
+	# Verifique se encontramos o valor
+	if [[ -n "$value" ]]; then
+		echo "$value"
+		return 0
+	fi
+	return 1
+}
+export -f TIni.ReadValue
+
+function TIni.AlignIniFileOLD() {
+	local fini="$1"
+	local fini_tmp
+
+	[[ ! -e "$fini" ]] && return 2
+	fini_tmp=(mktemp "$fini-xxx")
+	awk 'BEGIN { insection=0; } /^\[.*\]$/ { if (!seen[$0]++) print; insection=1; next; } insection { print; }' "$fini" >"$fini_tmp"
+	sed -i '/^[[:space:]]*$/d' "$fini_tmp"
+	mv -f "$fini_tmp" "$fini"
+}
+export -f TIni.AlignIniFileOLD
+
+function TIni.Get() {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	sed -nr "/^\[$section\]/ { :l /^[[:space:]]*${key}[[:space:]]*=/ { s/[^=]*=[[:space:]]*//; p; q;}; /^;/b; n; b l;}" "$config_file"
+}
+export -f TIni.Get
+
+function TIni.GetAwk() {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+
+	[[ ! -e "$config_file" ]] && return 2
+	awk -F "=" -v section="$section" -v key="$key" '{
+        gsub(/^[ \t]+|[ \t]+$/, "", $1);  # Remova espaços em branco em torno do nome da chave
+        if ($0 ~ "^\\[" section "\\]") {   # Verifique se estamos na seção correta
+            in_section = 1
+        } else if (in_section && $1 == key) {  # Se estivermos na seção correta, procure a chave
+            gsub(/^[ \t]+|[ \t]+$/, "", $2);  # Remova espaços em branco em torno do valor
+            print $2
+            found = 1
+        } else if ($0 ~ "^\\[.*\\]") {  # Se encontrarmos outra seção, saia da seção atual
+            in_section = 0
+        }
+    }
+    END {
+        if (found != 1) {
+            # print "Chave não encontrada"
+        }
+    }' "$config_file"
+}
+export -f TIni.GetAwk
+
+function TIni.GetAwk2() {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+
+	[[ ! -e "$config_file" ]] && return 2
+	awk -v chave="$key" -F '=' '!/^;/ && $0 ~ chave { gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2 }' "$config_file"
+}
+export -f TIni.GetAwk2
+
+function TIni.GetMaxKeySize() {
+	local config_file="$1"
+
+	[[ ! -e "$config_file" ]] && return 0
+	awk -F '=' '/^[^#]/ {
+        key = gensub(/^[[:space:]]+|[[:space:]]+$/, "", "g", $1); # Remove espaços em branco no início e no fim da chave
+        current_key_size = length(key);
+        if (current_key_size > max_key_size) {
+            max_key_size = current_key_size;
+        }
+    } END {
+        print max_key_size
+    }' "$config_file"
+}
+export -f TIni.GetMaxKeySize
+
+function TIni.GetSection() {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	sed -nr "/^\[$section\]/ { :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" "$config_file" | grep -E "^\s*[^#].*\s*=" | column -t
+}
+export -f TIni.GetSection
+
+function TIni.GetAllSections() {
+	local config_file="$1"
+	local key="$2"
+
+	# Obtém todas as seções do arquivo
+	local sections
+	sections=$(sed -n '/^\[.*\]$/s/\[\(.*\)\]/\1/p' "$config_file")
+
+	# Itera sobre cada seção
+	for section in $sections; do
+		echo "[$section]"
+		sed -nr "/^\[$section\]/,/^(\[|\s*$)/p" "$config_file" |
+			grep -E "^\s*[^#].*\s*=" |
+			sed 's/^\s*//;s/\s*$//' |
+			sed 's/=/ = /' |
+			column --table --table-columns chave,=,valor,valor1 --table-hide - |
+			sed 1d
+		echo # Adiciona uma linha em branco entre as seções
+	done
+}
+export -f TIni.GetAllSections
+
+function TIni.ParseToAssoc() {
+	local config_file="$1"
+
+	[[ ! -e "$config_file" ]] && return 2
+	awk -F ' *= *' '{
+	    if ($1 ~ /^\[/) {
+    	    section=substr($1, 2, length($1)-2);  # Remove os colchetes da seção
+	    } else if ($1 !~ /^$/ && $1 !~ /^;/) {
+    	    print section "[" $1 "]=\"" $2 "\""
+	    }
+	}' "$config_file"
+}
+export -f TIni.ParseToAssoc
+
+function TIni.ParseToVar() {
+	local config_file="$1"
+
+	[[ ! -e "$config_file" ]] && return 2
+	awk -F ' *= *' '{
+        if ($1 ~ /^\[/) {
+            section=substr($1, 2, length($1)-2);  # Remove os colchetes da seção
+        } else if ($1 !~ /^$/ && $1 !~ /^;/) {
+            print $1 "=" "\"" $2 "\""
+        }
+    }' "$config_file"
+}
+export -f TIni.ParseToVar
+
+function TIni.ParseToDeclareAssoc() {
+    local config_file="$1"
+
+	[[ ! -e "$config_file" ]] && return 2
+    while IFS='=' read key value; do
+        # Verifique se a chave não começa com ;
+        if [[ ! $key =~ ^\;.* ]]; then
+            if [[ $key == \[*] ]]; then
+	            # Remova os colchetes [ ]
+				key="${key/\[/}"
+				key="${key/\]/}"
+                section=$key
+            elif [[ $value ]]; then
+                declare "${section}[${key}]=\"${value}\""
+            fi
+        fi
+    done <"$config_file"
+}
+export -f TIni.ParseToDeclareAssoc
+
+function TIni.ParseToDeclareVar() {
+    local config_file="$1"
+
+	[[ ! -e "$config_file" ]] && return 2
+    while IFS='=' read key value; do
+        # Verifique se a chave não começa com ;
+        if [[ ! $key =~ ^\;.* ]]; then
+            if [[ $key == \[*] ]]; then
+	            # Remova os colchetes [ ]
+				key="${key/\[/}"
+				key="${key/\]/}"
+                section=$key
+            elif [[ $value ]]; then
+                declare "${key}=\"${value}\""
+            fi
+        fi
+    done <"$config_file"
+}
+export -f TIni.ParseToDeclareVar
+
+function TIni.ParseToDeclareArray() {
+    local config_file="$1"
+
+	[[ ! -e "$config_file" ]] && return 2
+    while IFS='=' read key value; do
+        # Verifique se a chave não começa com ;
+        if [[ ! $key =~ ^\;.* ]]; then
+            if [[ $key == \[*] ]]; then
+	            # Remova os colchetes [ ]
+				key="${key/\[/}"
+				key="${key/\]/}"
+                section=$key
+            elif [[ $value ]]; then
+                declare "${key}=(\"${value}\")"
+            fi
+        fi
+    done <"$config_file"
+}
+export -f TIni.ParseToDeclareArray
+
+function TIni.ParseToArray() {
+	local config_file="$1"
+
+	[[ ! -e "$config_file" ]] && return 2
+	awk -F ' *= *' '{
+        if ($1 ~ /^\[/) {
+            section=substr($1, 2, length($1)-2);  # Remove os colchetes da seção
+        } else if ($1 !~ /^$/ && $1 !~ /^;/) {
+            print section "-" $1 "=(" "\"" $2 "\"" ")"
+        }
+    }' "$config_file"
+}
+export -f TIni.ParseToArray
+
+function TIni.AlignAllSections() {
+	local config_file="$1"
+	local chave_identada="$2"
+	local print="$3"
+	local temp_file
+	local max_size
+	local sections
+	local current_section=""
+
+	[[ ! -e "$config_file" ]] && return 2
+	temp_file=$(mktemp)
+	if [[ -n "$chave_identada" || "$chave_identada" -eq 1 ]]; then
+		chave_identada=1
+		# Obtém o tamanho da string da maior chave (nome da chave) no arquivo INI
+		max_size=$(TIni.GetMaxKeySize $config_file)
+	else
+		chave_identada=0
+	fi
+	# Obtém todas as seções do arquivo
+	sections=$(sed -n '/^\[.*\]$/s/\[\(.*\)\]/\1/p' "$config_file")
+
+	# Itera sobre cada linha do arquivo
+	while IFS= read -r line; do
+		if [[ "$line" =~ ^\[(.*)\]$ ]]; then
+			current_section="${BASH_REMATCH[1]}"
+			echo "$line"
+		elif [[ "$line" =~ ^[^#]*= ]]; then
+			if ((chave_identada)); then
+				# formatar com identação
+				awk -F'=' -v section="$current_section" -v max="$max_size" '{ printf "%-*s= %s\n", max+1, $1, $2}' <<<"$line"
+			else
+				# formatar sem identação
+				echo "$current_section.$line"
+			fi
+		else
+			echo "$line"
+		fi
+	done <"$config_file" >>"$temp_file"
+
+	cp "$temp_file" "$config_file"
+	[[ -n "$print" ]] && echo "$(<$config_file)"
+}
+export -f TIni.AlignAllSections
+
+function TIni.AlignIniFile {
+	local config_file="$1"
+	local chave_identada="$2"
+	local print="$3"
+
+	[[ ! -e "$config_file" ]] && return 2
+	TIni.AlignAllSections "$config_file" "$chave_identada" "$print"
+}
+export -f TIni.AlignIniFile
+
+# Se a chave e o valor forem exatamente iguais, a função retorna 0.
+# Se a chave for encontrada, mas o valor não for igual, a função retorna 2.
+# Se a chave não for encontrada, a função retorna 1.
+# Se a chave for encontrada com um ponto e vírgula no início, a função também retorna 2.
+function TIni.Exist() {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	local value="$4"
+	local result=1 # Inicializa como 1, indicando que a chave não foi encontrada
+
+	[[ ! -e "$config_file" ]] && return 2
+	result=$(awk -F "=" -v section="$section" -v key="$key" -v value="$value" '
+        BEGIN {
+            encontrado = 1  # Inicializa como 1, indicando que a chave não foi encontrada
+        }
+        {
+            gsub(/^[ \t]+|[ \t]+$/, "", $1);  # Remova espaços em branco em torno do nome da chave
+            if ($0 ~ "^\\[" section "\\]") {   # Verifique se estamos na seção correta
+                in_section = 1
+            } else if (in_section) {
+                if ($1 == key) {  # Se estivermos na seção correta, procure a chave
+                    if ($0 ~ /^[[:space:]]*;/) {
+                        encontrado = 2  # Chave encontrada com ponto e vírgula no início
+                        exit
+                    }
+                    gsub(/^[ \t]+|[ \t]+$/, "", $2);  # Remova espaços em branco em torno do valor
+                    if ($0 !~ /^[[:space:]]*;/) {  # Verifique se não é um comentário
+                        if (value == "") {
+                            encontrado = 0  # Chave encontrada sem valor especificado
+                            exit
+                        } else if ($2 == value) {
+                            encontrado = 0  # Chave encontrada com o valor correto
+                            exit
+                        } else {
+                            encontrado = 2  # Valor fornecido não é igual ao valor da chave
+                            exit
+                        }
+                    }
+                }
+            } else if ($0 ~ "^\\[.*\\]") {  # Se encontrarmos outra seção, saia da seção atual
+                in_section = 0
+            }
+        }
+        END {
+            print encontrado
+        }
+    ' "$config_file")
+	return $result
+}
+export -f TIni.Exist
+
+# Exemplo de uso:
+# TIni.Set arquivo.ini snap vilmar 5.7
+function TIni.WriteValue() {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	local value="$4"
+	local found_section=0
+
+	if [ ! -f "$config_file" ]; then
+		# Se não existir, crie o arquivo com a seção, chave e valor fornecidos
+		{
+			echo "[$section]"
+			echo "$key=$value"
+		} >>"$config_file"
+		return
+	fi
+
+	while IFS= read -r line; do
+		if [[ "$line" =~ ^\[$section\] ]]; then
+			found_section=1
+		elif [[ "$found_section" -eq 1 && "${line}" =~ ^${key}[[:space:]]*=[[:space:]]* ]]; then
+			# Se a seção e a chave existem, atualize o valor
+			sed -i "s/^${key}[[:space:]]*=[[:space:]]*.*/${key}=${value}/" "$config_file"
+			return
+		fi
+	done <"$config_file"
+
+	# Se a seção não existir, crie-a e adicione a chave e o valor
+	if [[ "$found_section" -eq 0 ]]; then
+		{
+			echo ""
+			echo "[$section]"
+		} >>"$config_file"
+	fi
+	echo "$key=$value" >>"$config_file"
+}
+export -f TIni.WriteValue
+
+function sh_main {
+	local execute_app="$1"
+
+	if test $# -ge 1; then
+		shift
+		eval "$execute_app"
+	fi
+	#  return
+}
+#end tinilib
+
+
+
+
+
+
+
 
 function sh_splitarray() {
 	local str=("$1")
@@ -649,8 +1181,8 @@ function sh_date() {
 
 # BEGIN PROCEDURES
 function logo() {
-	setpos 1 0
-	echo -e "$red"
+	setpos 2 0
+	printf "${Acores[logo]}"
 	cat <<-'EOF'
 		 __  __                              _
 		|  \/  | ___ _ __ ___ ___  __ _ _ __(_) __ _
@@ -658,15 +1190,16 @@ function logo() {
 		| |  | |  __/ | | (_|  __/ (_| | |  | | (_| |
 		|_|  |_|\___|_|  \___\___|\__,_|_|  |_|\__,_|
 	EOF
-	echo "$reset"
+	printf "$reset"
 }
 
 function tela() {
+	tput sgr0
 	clear
-	titulo 0 "$(gettext "$_SYSTEM_")" "$roxo" "$(date)" "$_VERSION_"
-	titulo 1 "$(gettext "MENU PRINCIPAL")" "$ciano"
+	titulo 0 "$(gettext "$_SYSTEM_")" "${Acores[cabecalho]}" "$(date)" "$_VERSION_"
+	titulo 1 "$(gettext "MENU PRINCIPAL")" "${Acores[statussup]}"
 	logo
-	titulo "$(($(lastrow) - 1))" "$_EMPRESA_" "$azul" "$PWD" "$USER"
+	titulo "$(($(lastrow) - 1))" "${Aempresa[razao]}" "${Acores[statusinf]}" "$PWD" "$USER"
 }
 
 function criar_tabela_produtos() {
@@ -2493,24 +3026,39 @@ function show_menu() {
 	local col=$2
 	local titulo="$3"
 	local array=("${@:4}")
+	local length_title=${#titulo}
 	local itens="${#array[@]}"
 	local max_length=$(($(find_max_length "${array[@]}") + 15))
+	local i key selected formatted_item
 	local exit_menu=false
+
+	if (( max_length < length_title )); then
+		max_length="$length_title"
+	fi
+	if (( itens > 9 )); then
+		((++max_length))
+	fi
 
 	box "$row" "$col" "$((itens + 2))" "$((max_length + 5))" "$titulo" "$vermelho"
 	while ! $exit_menu; do
 		for i in "${!array[@]}"; do
 			tput cup $((row + i + 1)) $((col + 1))
 			local item="${array[i]}"
-			local padding=$((max_length - ${#item}))
+
+			if (( i < 9 )); then
+				local padding=$((max_length - ${#item}))
+			else
+				local padding=$((max_length - ${#item} -1))
+			fi
+
 			local bar=$(printf "%-${padding}s" "")
 			if [[ $i -eq $selected ]]; then
-				formatted_item="${reverse}${ciano}${bold}$((i + 1)). $item${bar}${reset}"
+#				formatted_item="${reverse}${ciano}${bold}$((i + 1)). $item${bar}${reset}"
+				formatted_item="${reverse}$((i + 1)). $item${bar}${reset}"
 			else
-				#				formatted_item="${azul}$((i + 1)). $item${bar}"
 				formatted_item="$((i + 1)). $item${bar}"
 			fi
-			printf "%s" "${formatted_item}"
+			printf "%-*s" "$max_length" "${formatted_item}"
 		done
 		read -r -n 1 -s key
 		case $key in
@@ -2557,10 +3105,10 @@ function menu_fornecedores() {
 		tela
 		titulo 1 "$(gettext "MENU FORNECEDORES")" "$ciano"
 		box 11 10 9 80 "$(gettext "MENU FORNECEDORES")" "$azul"
-		print 12 11 " 1 - $(gettext "Cadastrar Fornecedor")"
-		print 13 11 " 2 - $(gettext "Alterar Fornecedor")"
-		print 14 11 " 3 - $(gettext "Remover Fornecedor")"
-		print 15 11 " 4 - $(gettext "Pesquisar Fornecedor")"
+		print 12 11 " 1 - $(gettext "Cadastrar")"
+		print 13 11 " 2 - $(gettext "Alterar")"
+		print 14 11 " 3 - $(gettext "Remover/Excluir")"
+		print 15 11 " 4 - $(gettext "Pesquisar")"
 		print 16 11 " 0 - $(gettext "Voltar")"
 		get 18 12 "$(gettext "Opção"): " opcao
 
@@ -2578,58 +3126,20 @@ function menu_produtos() {
 	while true; do
 		tela
 		titulo 1 "$(gettext "MENU PRODUTOS")" "$ciano"
-		box 11 10 13 80 "$(gettext "MENU PRODUTOS")" "$azul"
-		print 12 11 " 1 - $(gettext "Cadastrar Produtos")"
-		print 13 11 " 2 - $(gettext "Alterar Produtos")"
-		print 14 11 " 3 - $(gettext "Remover/Excluir Produtos")"
-		print 15 11 " 4 - $(gettext "Pesquisar Produtos")"
-		print 16 11 " 5 - $(gettext "Relatório Produtos Vendidos")"
-		print 17 11 " 6 - $(gettext "Relatório Entradas de Produtos")"
-		print 18 11 " 7 - $(gettext "Relatório Produtos abaixo estoque mínimo")"
-		print 19 11 " 8 - $(gettext "Relatório Produtos fora da validade")"
-		print 20 11 " 0 - $(gettext "Voltar")"
-		get 22 12 "$(gettext "Opção"): " opcao
+		box 11 10 9 80 "$(gettext "MENU PRODUTOS")" "$azul"
+		print 12 11 " 1 - $(gettext "Cadastrar")"
+		print 13 11 " 2 - $(gettext "Alterar")"
+		print 14 11 " 3 - $(gettext "Remover/Excluir")"
+		print 15 11 " 4 - $(gettext "Pesquisar")"
+		print 16 11 " 0 - $(gettext "Voltar")"
+		get 18 12 "$(gettext "Opção"): " opcao
 
 		case "$opcao" in
 		1) produto_inclusao_alteracao 'I' ;;
 		2) produto_inclusao_alteracao 'A' ;;
 		3) produto_exclusao ;;
 		4) produto_pesquisa ;;
-		5) relatorio_produtos_vendidos ;;
-		6) relatorio_entradas_produtos ;;
-		7) relatorio_produtos_minimo ;;
-		8) relatorio_produtos_fora_validade ;;
 		*) return ;;
-		esac
-	done
-}
-
-function sh_old_main_menu() {
-	while true; do
-		tela
-		titulo 1 "$(gettext "MENU PRINCIPAL")" "$ciano"
-		box 11 10 10 80 "$(gettext "MENU PRINCIPAL")" "$azul"
-		print 12 11 " 1 - $(gettext "Produtos")"
-		print 13 11 " 2 - $(gettext "Realizar Venda")"
-		print 14 11 " 3 - $(gettext "Listaem Vendas Diárias")"
-		print 15 11 " 4 - $(gettext "Entradas de Produtos")"
-		print 16 11 " 5 - $(gettext "Fornecedores")"
-		print 17 11 " 0 - $(gettext "Sair")"
-		get 19 12 "$(gettext "Opção"): " opcao
-		opcao="$?"
-
-		case "$opcao" in
-		1) menu_produtos ;;
-		2) realizar_venda ;;
-		3) relatorio_vendas_diarias ;;
-		4) produtos_entradas ;;
-		5) menu_fornecedores ;;
-		6 | 0)
-			#			sh_clear_eol 21 "$(lastrow)"
-			setpos 18 0
-			exit 0
-			;;
-		*) mensagem 2 "$(gettext "Opção inválida. Tente novamente.")" "$red" ;;
 		esac
 	done
 }
@@ -2639,29 +3149,209 @@ function menu_manutencao() {
 		tela
 		titulo 1 "$(gettext "MENU MANUTENCAO")" "$ciano"
 		box 11 10 8 80 "$(gettext "MENU MANUTENCAO")" "$azul"
-		print 12 11 " 1 - $(gettext "Popular databases para testes")"
-		print 13 11 " 2 - $(gettext "Zerar/Limpar databases")"
-		print 14 11 " 3 - $(gettext "Atualizar Estoque (conciliação)")"
+		print 12 11 " 1 - $(gettext "Atualizar Estoque (conciliação)")"
+		print 13 11 " 2 - $(gettext "Popular DataBases para testes")"
+		print 14 11 " 3 - $(gettext "Zerar/Limpar DataBases")"
 		print 15 11 " 0 - $(gettext "Voltar")"
 		get 17 12 "$(gettext "Opção"): " opcao
 
 		case "$opcao" in
-		1) populate_databases ;;
-		2) sh_drop_tabelas ;;
-		3) conciliar_estoque ;;
+		1) conciliar_estoque ;;
+		2) populate_databases ;;
+		3) sh_drop_tabelas ;;
 		*) return ;;
 		esac
 	done
 }
 
+function menu_relatorios() {
+	while true; do
+		tela
+		titulo 1 "$(gettext "MENU PEQUISA/RELATÓRIOS/CONSULTA")" "$ciano"
+		box 11 10 12 80 "$(gettext "MENU PEQUISA/RELATÓRIOS/CONSULTA")" "$azul"
+		print 12 11 " 1 - $(gettext "Produtos")"
+		print 13 11 " 2 - $(gettext "Produtos Vendidos")"
+		print 14 11 " 3 - $(gettext "Entradas de Produtos")"
+		print 15 11 " 4 - $(gettext "Produtos abaixo estoque mínimo")"
+		print 16 11 " 5 - $(gettext "Produtos fora da validade")"
+		print 17 11 " 6 - $(gettext "Vendas Diárias")"
+		print 18 11 " 7 - $(gettext "Fornecedores")"
+		print 19 11 " 0 - $(gettext "Voltar")"
+		get 21 12 "$(gettext "Opção"): " opcao
+
+		case "$opcao" in
+		1) produto_pesquisa ;;
+		2) relatorio_produtos_vendidos ;;
+		3) relatorio_entradas_produtos ;;
+		4) relatorio_produtos_minimo ;;
+		5) relatorio_produtos_fora_validade ;;
+		6) relatorio_vendas_diarias ;;
+		7) fornecedor_pesquisa ;;
+		*) return ;;
+		esac
+	done
+}
+
+function sh_old_main_menu() {
+	while true; do
+		tela
+		titulo 1 "$(gettext "MENU PRINCIPAL")" "$ciano"
+		box 11 10 12 80 "$(gettext "MENU PRINCIPAL")" "$azul"
+		print 12 11 " 1 - $(gettext "Produtos")"
+		print 13 11 " 2 - $(gettext "Fornecedores")"
+		print 14 11 " 3 - $(gettext "Realizar Venda/Saída")"
+		print 15 11 " 4 - $(gettext "Entradas de Produtos")"
+		print 16 11 " 5 - $(gettext "Pesquisa/Relatórios/Consulta")"
+		print 17 11 " 6 - $(gettext "Manutenção")"
+		print 18 11 " 0 - $(gettext "Configuração")"
+		print 19 11 " 0 - $(gettext "Sair")"
+		get 21 12 "$(gettext "Opção"): " opcao
+		opcao="$?"
+
+		case "$opcao" in
+		1) menu_produtos ;;
+		2) menu_fornecedores ;;
+		3) realizar_venda ;;
+		4) produtos_entradas ;;
+		5) menu_relatorios ;;
+		6) menu_manutencao ;;
+		7) ;;
+		8 | 0)
+			#			sh_clear_eol 21 "$(lastrow)"
+			setpos 18 0
+			exit 0
+			;;
+		*) mensagem 2 "$(gettext "Opção inválida. Tente novamente.")" "$red" ;;
+		esac
+	done
+}
+
+function configuracao::dados_empresa() {
+	local data_dia="$(sh_date)"
+	local half_lastcol=$(($(lastcol) / 2))
+	local razao ende cida uf cnpj
+
+	tela
+	titulo 1 "$(gettext "DADOS DA EMPRESA")" "$ciano"
+	box 11 10 7 "$half_lastcol" "$(gettext "DADOS DA EMPRESA")" "$ciano"
+	print 12 11 "$(gettext "Nome")                 : "
+	print 13 11 "$(gettext "Endereço")             : "
+	print 14 11 "$(gettext "Cidade")               : "
+	print 15 11 "$(gettext "UF")                   : "
+	print 16 11 "$(gettext "Cnpj")                 : "
+
+	while true; do
+		get 12 11 "$(gettext "Nome")                 : " razao "${Aempresa[razao]}"
+		if [[ -n "$razao" ]]; then
+			break
+		else
+			setpos 18 10
+			if readconf "$(gettext "O Nome não pode ser em branco. Cancelar?")" "$red"; then
+				return
+			fi
+		fi
+	done
+
+	get 13 11 "$(gettext "Endereço")             : " ende "${Aempresa[ende]}"
+	get 14 11 "$(gettext "Cidade")               : " cida "${Aempresa[cida]}"
+	get 15 11 "$(gettext "UF")                   : " uf "${Aempresa[uf]}"
+	get 16 11 "$(gettext "Cnpj")                 : " cnpj "${Aempresa[cnpj]}"
+
+	setpos 18 10
+	if readconf "$(gettext "Confirma dados?")" "$green"; then
+		Aempresa[razao]="$razao"
+		Aempresa[ende]="$ende"
+		Aempresa[cida]="$cida"
+		Aempresa[uf]="$uf"
+		Aempresa[cnpj]="$cnpj"
+		TIni.Set "$INI_FILE" "empresa" "razao" "$razao"
+		TIni.Set "$INI_FILE" "empresa" "ende" "$ende"
+		TIni.Set "$INI_FILE" "empresa" "cida" "$cida"
+		TIni.Set "$INI_FILE" "empresa" "uf" "$uf"
+		TIni.Set "$INI_FILE" "empresa" "cnpj" "$cnpj"
+		mensagem 2 "$(gettext "Dados atualizados com sucesso!")" "$green"
+	else
+		mensagem 2 "$(gettext "Inclusão/alteração não efetuada.")" "$red"
+	fi
+}
+
+function configuracao::cores() {
+	local type="$1"
+	local ctitulo="$2"
+	local atype=('logo' 'cabecalho' 'statussup' 'statusinf' 'box' 'dispbox' 'msgok' 'msgerror')
+	local ctype="${atype[$type]}"
+	local acor=($black $vermelho $green $yellow $blue $magenta $cyan $white $roxo)
+	local opcao
+	local options=(
+		"$(gettext 'Black')"
+		"$(gettext 'Red')"
+		"$(gettext 'Green')"
+		"$(gettext 'Yellow')"
+		"$(gettext 'Blue')"
+		"$(gettext 'Magenta')"
+		"$(gettext 'Cyan')"
+		"$(gettext 'White')"
+		"$(gettext 'Roxo')"
+		"$(gettext 'Voltar')"
+	)
+
+	while true; do
+		tela
+		titulo 1 "$(gettext "CONFIGURAÇÃO CORES - $ctitulo")" "$ciano"
+		show_menu 11 10 "$(gettext "CONFIGURAÇÃO CORES - $ctitulo")" "${options[@]}"
+		opcao="$?"
+
+		case "$opcao" in
+		[1-9])
+			Acores[$ctype]="${acor["$((opcao-1))"]}"
+			TIni.Set "$INI_FILE" "cores" "$ctype" "${Acores[$ctype]}"
+			;;
+		10|0) return ;;
+		*) mensagem 2 "$(gettext "Opção inválida. Tente novamente.")" "$red" ;;
+		esac
+	done
+}
+
+function menu_configuracao() {
+	local opcao
+	local options=(
+		"$(gettext 'Dados Empresa')"
+		"$(gettext 'Cor Logo')"
+		"$(gettext 'Cor Cabecalho')"
+		"$(gettext 'Cor Status Superior')"
+		"$(gettext 'Cor Status Inferior')"
+		"$(gettext 'Cor Box')"
+		"$(gettext 'Cor DispBox')"
+		"$(gettext 'Cor Mensagem Info OK')"
+		"$(gettext 'Cor Mensagem Info ERRO')"
+		"$(gettext 'Voltar')"
+	)
+
+	while true; do
+		tela
+		titulo 1 "$(gettext "MENU CONFIGURAÇÃO")" "$ciano"
+		show_menu 11 10 "$(gettext "MENU CONFIGURAÇÃO")" "${options[@]}"
+		opcao="$?"
+
+		case "$opcao" in
+		1) configuracao::dados_empresa ;;
+		[2-9]) configuracao::cores "$((opcao-2))" "${options[$((opcao-1))]}" ;;
+		10 | 0) return ;;
+		*) mensagem 2 "$(gettext "Opção inválida. Tente novamente.")" "$red" ;;
+		esac
+	done
+}
+
 function sh_main_menu() {
+	local opcao
 	local options=(
 		"$(gettext 'Produtos')"
-		"$(gettext 'Realizar Venda')"
-		"$(gettext 'Relatório Vendas Diárias')"
-		"$(gettext 'Entradas de Produtos')"
 		"$(gettext 'Fornecedores')"
+		"$(gettext 'Realizar Venda/Saída')"
+		"$(gettext 'Entradas de Produtos')"
+		"$(gettext 'Pesquisa/Relatórios/Consulta')"
 		"$(gettext 'Manutenção')"
+		"$(gettext 'Configuração')"
 		"$(gettext 'Sair')"
 	)
 
@@ -2673,12 +3363,13 @@ function sh_main_menu() {
 
 		case "$opcao" in
 		1) menu_produtos ;;
-		2) realizar_venda ;;
-		3) relatorio_vendas_diarias ;;
+		2) menu_fornecedores ;;
+		3) realizar_venda ;;
 		4) produtos_entradas ;;
-		5) menu_fornecedores ;;
+		5) menu_relatorios ;;
 		6) menu_manutencao ;;
-		7 | 0)
+		7) menu_configuracao ;;
+		8 | 0)
 			setpos 18 0
 			exit 0
 			;;
@@ -2691,6 +3382,7 @@ function sh_main_menu() {
 #entrypoint
 sh_config
 sh_setvarcolors
+sh_ambiente
 sh_checkDependencies
 sh_criar_tabelas
 sh_main_menu
