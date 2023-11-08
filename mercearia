@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/11/07
+#	Altered: 2023/11/08
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -34,7 +34,7 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.3.0-20231107"
+declare _VERSION_="1.4.0-20231108"
 declare _SYSTEM_='SISTEMA PDV'
 declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed awk)
 declare -A Aempresa=([razao]='EMPRESA MODELO LTDA' [ende]='Rua Modelo, 693 - Bairro Centro' [cida]='Cidade Modelo' [uf]='UF' [cnpj]='00.000.000/0001-00')
@@ -115,7 +115,7 @@ function sh_setvarcolors() {
 		vermelho=$(tput setab 196)
 		verde=$(tput setab 2)
 		amarelo=$(tput setab 3)
-		azul=$(tput setab 4)
+		azul=$(tput setab 20)
 		roxo=$(tput setab 5)
 		ciano=$(tput setab 6)
 		branca="${black}$(tput setab 7)"
@@ -3080,15 +3080,19 @@ function menu_produtos() {
 }
 
 function menu_manutencao() {
+	local opcao
+	local options=(
+		"$(gettext 'Atualizar Estoque (conciliação)')"
+		"$(gettext 'Popular DataBases para testes')"
+		"$(gettext 'Zerar/Limpar DataBases')"
+		"$(gettext 'Voltar')"
+	)
+
 	while true; do
 		tela
 		titulo 1 "$(gettext "MENU MANUTENCAO")" "${Acores[statussup]}"
-		box 11 10 8 80 "$(gettext "MENU MANUTENCAO")" "${Acores[box]}"
-		print 12 11 " 1 - $(gettext "Atualizar Estoque (conciliação)")"
-		print 13 11 " 2 - $(gettext "Popular DataBases para testes")"
-		print 14 11 " 3 - $(gettext "Zerar/Limpar DataBases")"
-		print 15 11 " 0 - $(gettext "Voltar")"
-		get 17 12 "$(gettext "Opção"): " opcao
+		show_menu 11 10 "$(gettext "MENU MANUTENÇÃO")" "${options[@]}"
+		opcao="$?"
 
 		case "$opcao" in
 		1) conciliar_estoque ;;
@@ -3218,28 +3222,28 @@ function configuracao::cores() {
 	local acor=($black $red $green $yellow $blue $magenta $cyan $white $gray $orange $purple $violet $roxo $azul $vermelho $ciano $cinza $preto $verde $amarelo $laranja $violeta)
 	local opcao
 	local options=(
-		"$(gettext 'Black/Black')"
-		"$(gettext 'Red/Black')"
-		"$(gettext 'Green/Black')"
-		"$(gettext 'Yellow/Black')"
-		"$(gettext 'Blue/Black')"
-		"$(gettext 'Magenta/Black')"
-		"$(gettext 'Cyan/Black')"
-		"$(gettext 'White/Black')"
-		"$(gettext 'Gray/Black')"
-		"$(gettext 'Orange/Black')"
-		"$(gettext 'Purple/Black')"
-		"$(gettext 'Violet/Black')"
-		"$(gettext 'White/Purple')"
-		"$(gettext 'White/Blue')"
-		"$(gettext 'White/Red')"
-		"$(gettext 'White/Cyan')"
-		"$(gettext 'White/Gray')"
-		"$(gettext 'White/Black')"
-		"$(gettext 'White/Green')"
-		"$(gettext 'White/Yellow')"
-		"$(gettext 'White/Orange')"
-		"$(gettext 'White/Violet')"
+		"${black}$(gettext 'Black/Black')${reset}"
+		"${red}$(gettext 'Red/Black')${reset}"
+		"${green}$(gettext 'Green/Black')${reset}"
+		"${yellow}$(gettext 'Yellow/Black')${reset}"
+		"${blue}$(gettext 'Blue/Black')${reset}"
+		"${magenta}$(gettext 'Magenta/Black')${reset}"
+		"${cyan}$(gettext 'Cyan/Black')${reset}"
+		"${white}$(gettext 'White/Black')${reset}"
+		"${gray}$(gettext 'Gray/Black')${reset}"
+		"${orange}$(gettext 'Orange/Black')${reset}"
+		"${purple}$(gettext 'Purple/Black')${reset}"
+		"${violet}$(gettext 'Violet/Black')${reset}"
+		"${roxo}$(gettext 'White/Purple')${reset}"
+		"${azul}$(gettext 'White/Blue')${reset}"
+		"${vermelho}$(gettext 'White/Red')${reset}"
+		"${ciano}$(gettext 'White/Cyan')${reset}"
+		"${cinza}$(gettext 'White/Gray')${reset}"
+		"${preto}$(gettext 'White/Black')${reset}"
+		"${verde}$(gettext 'White/Green')${reset}"
+		"${amarelo}$(gettext 'White/Yellow')${reset}"
+		"${laranja}$(gettext 'White/Orange')${reset}"
+		"${violeta}$(gettext 'White/Violet')${reset}"
 		"$(gettext 'Voltar')"
 	)
 
