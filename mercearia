@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/11/08
+#	Altered: 2023/11/09
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -34,7 +34,7 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.4.0-20231108"
+declare _VERSION_="1.4.0-20231109"
 declare _SYSTEM_='SISTEMA PDV'
 declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed awk)
 declare -A Aempresa=([razao]='EMPRESA MODELO LTDA' [ende]='Rua Modelo, 693 - Bairro Centro' [cida]='Cidade Modelo' [uf]='UF' [cnpj]='00.000.000/0001-00')
@@ -1257,19 +1257,19 @@ function produto_inclusao_alteracao() {
 	local p_id p_nome p_un p_estoque p_preco p_codebar p_data p_validade p_qmin p_fabricante
 	local f_id f_data f_nome f_ende f_cida f_uf f_cnpj
 	local cdesc
-	local ctitle
+	local xtitle
 	local IsInclusao
 
 	[[ -z "$action" ]] && action='I'
 	if [[ "$action" = 'I' ]]; then
 		# I=Inclusao
 		cdesc="Descrição"
-		ctitle="CADASTRO DE PRODUTOS"
+		xtitle="CADASTRO DE PRODUTOS"
 		IsInclusao=1
 	else
 		# A=Alteracao
 		cdesc="ID/Descrição"
-		ctitle="ALTERAÇÃO DE PRODUTOS"
+		xtitle="ALTERAÇÃO DE PRODUTOS"
 		IsInclusao=0
 	fi
 
@@ -1277,8 +1277,8 @@ function produto_inclusao_alteracao() {
 		produto_info=
 		ultimo_registro="$(lastrec 'produtos')"
 		tela
-		titulo 1 "$(gettext "$ctitle")" "${Acores[statussup]}"
-		box 11 10 9 $half_lastcol "$(gettext "$ctitle")" "${Acores[box]}"
+		titulo 1 "$(gettext "$xtitle")" "${Acores[statussup]}"
+		box 11 10 9 $half_lastcol "$(gettext "$xtitle")" "${Acores[box]}"
 		print 10 11 "$ultimo_registro"
 		if ((IsInclusao)); then
 			print 12 11 "$(gettext "$cdesc")            : "
@@ -1392,6 +1392,7 @@ function produto_inclusao_alteracao() {
 }
 
 function produto_exclusao() {
+	local xtitle="$(gettext "REMOÇÃO DE PRODUTO")"
 	local identificador
 	local half_lastcol=$(($(lastcol) / 2))
 	local posmsg=21
@@ -1402,8 +1403,8 @@ function produto_exclusao() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "REMOÇÃO DE PRODUTO")" "${Acores[statussup]}"
-		box 11 10 10 "$half_lastcol" "$(gettext "REMOÇÃO DE PRODUTO")" "${Acores[box]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 10 10 "$half_lastcol" "$xtitle" "${Acores[box]}"
 		print 12 11 "$(gettext "ID/Nome")              : "
 		print 13 11 "$(gettext "Descrição")            : "
 		print 14 11 "$(gettext "Fabricante")           : "
@@ -1653,6 +1654,7 @@ function relatorio_produtos_minimo() {
 }
 
 function relatorio_produtos_fora_validade() {
+	local xtitle="$(gettext "RELATÓRIO DE PRODUTOS FORA DE VALIDADE")"
 	local produto_info
 	local id nome un estoque preco codebar data validade qmin fabricante
 	local ncol
@@ -1663,8 +1665,8 @@ function relatorio_produtos_fora_validade() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "RELATÓRIO DE PRODUTOS FORA DE VALIDADE")" "${Acores[statussup]}"
-		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "RELATÓRIO DE PRODUTOS FORA DE VALIDADE")" "${Acores[box]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
 		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id <x>|<x-y>, f<id> ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
@@ -1732,6 +1734,7 @@ function relatorio_produtos_fora_validade() {
 }
 
 function fornecedor_inclusao() {
+	local xtitle="$(gettext "CADASTRO DE FORNECEDOR")"
 	local data_dia="$(sh_date)"
 	local fornecedor_info
 	local ultimo_registro
@@ -1743,8 +1746,8 @@ function fornecedor_inclusao() {
 		fornecedor_info=
 		ultimo_registro="$(lastrec 'fornecedor')"
 		tela
-		titulo 1 "$(gettext "CADASTRO DE FORNECEDOR")" "${Acores[statussup]}"
-		box 11 10 7 "$half_lastcol" "$(gettext "CADASTRO DE FORNECEDOR")" "${Acores[box]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 10 7 "$half_lastcol" "$xtitle" "${Acores[box]}"
 		print 10 11 "$ultimo_registro"
 		print 12 11 "$(gettext "Nome")                 : "
 		print 13 11 "$(gettext "Endereço")             : "
@@ -1800,6 +1803,7 @@ function fornecedor_inclusao() {
 }
 
 function fornecedor_alteracao() {
+	local xtitle="$(gettext "ALTERAÇÃO DE FORNECEDOR")"
 	local data_dia="$(sh_date)"
 	local fornecedor_info
 	local ultimo_registro
@@ -1810,8 +1814,8 @@ function fornecedor_alteracao() {
 		fornecedor_info=
 		ultimo_registro="$(lastrec 'fornecedor')"
 		tela
-		titulo 1 "$(gettext "ALTERAÇÃO DE FORNECEDOR")" "${Acores[statussup]}"
-		box 11 10 8 80 "$(gettext "ALTERACÃO DE FORNECEDOR")" "${Acores[box]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 10 8 80 "$xtitle" "${Acores[box]}"
 		print 10 11 "$ultimo_registro"
 		print 12 11 "$(gettext "ID/Nome")              : "
 		print 13 11 "$(gettext "Nome")                 : "
@@ -1879,6 +1883,7 @@ function fornecedor_alteracao() {
 }
 
 function fornecedor_exclusao() {
+	local xtitle="$(gettext "EXCLUSÃO DE FORNECEDOR")"
 	local consulta_sql
 	local resultado
 	local identificador
@@ -1933,6 +1938,7 @@ function fornecedor_exclusao() {
 }
 
 function fornecedor_pesquisa() {
+	local xtitle="$(gettext "PESQUISAR FORNECEDOR")"
 	local identificador
 	local fornecedor_info
 	local id_ini
@@ -1950,8 +1956,8 @@ function fornecedor_pesquisa() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "PESQUISAR FORNECEDOR")" "${Acores[statussup]}"
-		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR FORNECEDOR")" "${Acores[box]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
 		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
@@ -2008,6 +2014,7 @@ function fornecedor_pesquisa() {
 }
 
 function relatorio_vendas_diarias() {
+	local xtitle="$(gettext "RELATÓRIO DE VENDAS DIÁRIAS")"
 	local query_result
 	local dini dfim
 	local data_inicio="01-$(date +"%m-%Y")"
@@ -2019,8 +2026,8 @@ function relatorio_vendas_diarias() {
 	local ano_inicial ano_final
 
 	tela
-	titulo 1 "$(gettext "RELATÓRIO DE VENDAS DIÁRIAS")" "${Acores[statussup]}"
-	box "$nTop" 0 4 $(($(lastcol) - 1)) "$(gettext "PERÍODO DE CONSULTA")" "${Acores[box]}"
+	titulo 1 "$xtitle" "${Acores[statussup]}"
+	box "$nTop" 0 4 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
  	print $((nTop + 1)) 1 "$(gettext "Data Inicial")    : "
 	print $((nTop + 2)) 1 "$(gettext "Data Final")      : "
 
@@ -2128,6 +2135,7 @@ function relatorio_vendas_diarias() {
 }
 
 function relatorio_produtos_vendidos() {
+	local xtitle="$(gettext "RELATÓRIO PRODUTOS VENDIDOS")"
 	local current_index index
 	local nrow
 	local ncol
@@ -2136,8 +2144,8 @@ function relatorio_produtos_vendidos() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "RELATÓRIO PRODUTOS VENDIDOS")" "${Acores[statussup]}"
-		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "RELATÓRIO PRODUTOS VENDIDOS")" "${Acores[box]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
 		print $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data <dd-mm-aaaa>, id (<x>|[<x-y>]), f<id>, ou *=tudo)") : "
 		print $((nTop + 1)) $(($(lastcol) / 2)) "$(gettext "Agrupar (n=docnr, d=data, i=id, f=forn ou *=nenhum)") : "
 
@@ -2269,6 +2277,7 @@ function relatorio_produtos_vendidos() {
 }
 
 function relatorio_entradas_produtos() {
+	local xtitle="$(gettext "RELATÓRIO ENTRADAS DE PRODUTOS")"
 	local identificador query result
 	local dini dfim
 	local id_ini id_fim
@@ -2279,8 +2288,8 @@ function relatorio_entradas_produtos() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "RELATÓRIO ENTRADAS DE PRODUTOS")" "${Acores[statussup]}"
-		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "RELATÓRIO ENTRADAS DE PRODUTOS")" "${Acores[box]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
 		print $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data <dd-mm-aaaa>, id (<x>|[<x-y>]), f<id>, ou *=tudo)") : "
 		print $((nTop + 1)) $(($(lastcol) / 2)) "$(gettext "Agrupar (n=docnr, d=data, i=id, f=forn ou *=nenhum)") : "
 
@@ -2590,13 +2599,14 @@ function atualizar_estoque_compras() {
 }
 
 function produtos_entradas() {
+	local xtitle="$(gettext "ENTRADAS DE PRODUTOS")"
 	declare -gA lista_produtos=() # Declarar um array associativo para armazenar produtos
 	declare -gA notafiscal=()
 	total_compra=0
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "ENTRADAS DE PRODUTOS")" "${Acores[statussup]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
 		box 11 00 4 70 "$(gettext "DADOS DA NFF")" "${Acores[box]}"
 		# Solicita a descrição (nome) do produto e verifica se não está em branco
 		print 12 01 "$(gettext "Fornecedor") : "
@@ -3036,10 +3046,13 @@ function show_menu() {
 }
 
 function menu_fornecedores() {
+	local xtitle="$(gettext "MENU FORNECEDORES")"
+	local opcao
+
 	while true; do
 		tela
-		titulo 1 "$(gettext "MENU FORNECEDORES")" "${Acores[statussup]}"
-		box 11 10 9 80 "$(gettext "MENU FORNECEDORES")" "${Acores[box]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 10 9 80 "$xtitle" "${Acores[box]}"
 		print 12 11 " 1 - $(gettext "Cadastrar")"
 		print 13 11 " 2 - $(gettext "Alterar")"
 		print 14 11 " 3 - $(gettext "Remover/Excluir")"
@@ -3058,10 +3071,13 @@ function menu_fornecedores() {
 }
 
 function menu_produtos() {
+	local xtitle="$(gettext "MENU PRODUTOS")"
+	local opcao
+
 	while true; do
 		tela
-		titulo 1 "$(gettext "MENU PRODUTOS")" "${Acores[statussup]}"
-		box 11 10 9 80 "$(gettext "MENU PRODUTOS")" "${Acores[box]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 10 9 80 "$xtitle" "${Acores[box]}"
 		print 12 11 " 1 - $(gettext "Cadastrar")"
 		print 13 11 " 2 - $(gettext "Alterar")"
 		print 14 11 " 3 - $(gettext "Remover/Excluir")"
@@ -3080,6 +3096,7 @@ function menu_produtos() {
 }
 
 function menu_manutencao() {
+	local xtitle="$(gettext "MENU MANUTENÇÃO")"
 	local opcao
 	local options=(
 		"$(gettext 'Atualizar Estoque (conciliação)')"
@@ -3090,8 +3107,8 @@ function menu_manutencao() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "MENU MANUTENCAO")" "${Acores[statussup]}"
-		show_menu 11 10 "$(gettext "MENU MANUTENÇÃO")" "${options[@]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		show_menu 11 10 "$xtitle" "${options[@]}"
 		opcao="$?"
 
 		case "$opcao" in
@@ -3104,10 +3121,12 @@ function menu_manutencao() {
 }
 
 function menu_relatorios() {
+	local xtitle="$(gettext "MENU PEQUISA/RELATÓRIOS/CONSULTA")"
+
 	while true; do
 		tela
-		titulo 1 "$(gettext "MENU PEQUISA/RELATÓRIOS/CONSULTA")" "${Acores[statussup]}"
-		box 11 10 12 80 "$(gettext "MENU PEQUISA/RELATÓRIOS/CONSULTA")" "${Acores[box]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 10 12 80 "$xtitle" "${Acores[box]}"
 		print 12 11 " 1 - $(gettext "Produtos")"
 		print 13 11 " 2 - $(gettext "Produtos Vendidos")"
 		print 14 11 " 3 - $(gettext "Entradas de Produtos")"
@@ -3132,10 +3151,12 @@ function menu_relatorios() {
 }
 
 function sh_old_main_menu() {
+	local xtitle="$(gettext "MENU PRINCIPAL")"
+
 	while true; do
 		tela
-		titulo 1 "$(gettext "MENU PRINCIPAL")" "${Acores[statussup]}"
-		box 11 10 12 80 "$(gettext "MENU PRINCIPAL")" "${Acores[box]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 10 12 80 "$xtitle" "${Acores[box]}"
 		print 12 11 " 1 - $(gettext "Produtos")"
 		print 13 11 " 2 - $(gettext "Fornecedores")"
 		print 14 11 " 3 - $(gettext "Realizar Venda/Saída")"
@@ -3166,13 +3187,14 @@ function sh_old_main_menu() {
 }
 
 function configuracao::dados_empresa() {
+	local xtitle="$(gettext "DADOS DA EMPRESA")"
 	local data_dia="$(sh_date)"
 	local half_lastcol=$(($(lastcol) / 2))
 	local razao ende cida uf cnpj
 
 	tela
-	titulo 1 "$(gettext "DADOS DA EMPRESA")" "${Acores[statussup]}"
-	box 11 10 7 "$half_lastcol" "$(gettext "DADOS DA EMPRESA")" "${Acores[box]}"
+	titulo 1 "$xtitle" "${Acores[statussup]}"
+	box 11 10 7 "$half_lastcol" "$xtitle" "${Acores[box]}"
 	print 12 11 "$(gettext "Nome")                 : "
 	print 13 11 "$(gettext "Endereço")             : "
 	print 14 11 "$(gettext "Cidade")               : "
@@ -3217,6 +3239,7 @@ function configuracao::dados_empresa() {
 function configuracao::cores() {
 	local type="$1"
 	local ctitulo="$2"
+	local xtitle="$(gettext "CONFIGURAÇÃO DE CORES")"
 	local atype=('logo' 'cabecalho' 'statussup' 'statusinf' 'box' 'dispbox' 'msgok' 'msgerror' 'conf')
 	local ctype="${atype[$type]}"
 	local acor=($black $red $green $yellow $blue $magenta $cyan $white $gray $orange $purple $violet $roxo $azul $vermelho $ciano $cinza $preto $verde $amarelo $laranja $violeta)
@@ -3249,8 +3272,8 @@ function configuracao::cores() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "CONFIGURAÇÃO CORES - $ctitulo")" "${Acores[statussup]}"
-		show_menu 11 10 "$(gettext "CONFIGURAÇÃO CORES - $ctitulo")" "${options[@]}"
+		titulo 1 "$xtitle - $ctitulo")" "${Acores[statussup]}"
+		show_menu 11 10 "$xtitle - $ctitulo")" "${options[@]}"
 		opcao="$?"
 
 		case "$opcao" in
@@ -3265,6 +3288,7 @@ function configuracao::cores() {
 }
 
 function menu_configuracao() {
+	local xtitle="$(gettext "MENU CONFIGURAÇÃO")"
 	local opcao
 	local options=(
 		"$(gettext 'Dados Empresa')"
@@ -3282,8 +3306,8 @@ function menu_configuracao() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "MENU CONFIGURAÇÃO")" "${Acores[statussup]}"
-		show_menu 11 10 "$(gettext "MENU CONFIGURAÇÃO")" "${options[@]}"
+		titulo 1 "$xtitle "${Acores[statussup]}"
+		show_menu 11 10 "$xtitle" "${options[@]}"
 		opcao="$?"
 
 		case "$opcao" in
@@ -3296,6 +3320,7 @@ function menu_configuracao() {
 }
 
 function sh_main_menu() {
+	local xtitle="$(gettext "MENU PRINCIPAL")"
 	local opcao
 	local options=(
 		"$(gettext 'Produtos')"
@@ -3310,8 +3335,8 @@ function sh_main_menu() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "MENU PRINCIPAL")" "${Acores[statussup]}"
-		show_menu 11 10 "$(gettext "MENU PRINCIPAL")" "${options[@]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		show_menu 11 10 "$xtitle" "${options[@]}"
 		opcao="$?"
 
 		case "$opcao" in
