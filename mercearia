@@ -444,7 +444,7 @@ function TIni.AlignAllSections() {
 	if [[ -n "$chave_identada" || "$chave_identada" -eq 1 ]]; then
 		chave_identada=1
 		# Obtém o tamanho da string da maior chave (nome da chave) no arquivo INI
-		max_size=$(TIni.GetMaxKeySize $config_file)
+		max_size=$(TIni.GetMaxKeySize "$config_file")
 	else
 		chave_identada=0
 	fi
@@ -470,7 +470,7 @@ function TIni.AlignAllSections() {
 	done <"$config_file" >>"$temp_file"
 
 	cp "$temp_file" "$config_file"
-	[[ -n "$print" ]] && echo "$(<$config_file)"
+	[[ -n "$print" ]] && echo "$(<"$config_file")"
 }
 export -f TIni.AlignAllSections
 
@@ -532,7 +532,7 @@ function TIni.Exist() {
             print encontrado
         }
     ' "$config_file")
-	return $result
+	return "$result"
 }
 export -f TIni.Exist
 
@@ -698,7 +698,7 @@ function dispbox() {
 
 	function dispbox::print_boxold() {
 		# Move o cursor para a posição inicial da primeira linha do quadro
-		tput cup $linha $col
+		tput cup "$linha" "$col"
 
 		# Imprime o quadro com base nas coordenadas, largura e altura
 		for ((i = 0; i < altura; i++)); do
@@ -722,7 +722,7 @@ function dispbox() {
 				echo "│"
 			fi
 			((++linha))
-			tput cup $linha $col
+			tput cup "$linha" "$col"
 		done
 		setpos "$linha" "$((col + 1))"
 		printf "$color%-${nmaxlen}s${reset}" "$cprintf"
@@ -894,9 +894,9 @@ function box() {
 	# Imprime o quadro com base nas coordenadas, largura e altura
 	for ((i = 0; i < altura; i++)); do
 		tput cup $((linha + i)) "$col"
-		if [ $i -eq 0 ]; then
+		if [ "$i" -eq 0 ]; then
 			echo "┌$(printf '─%.0s' $(seq 1 $((largura - 2))))┐"
-		elif [ $i -eq $((altura - 1)) ]; then
+		elif [ "$i" -eq $((altura - 1)) ]; then
 			echo "└$(printf '─%.0s' $(seq 1 $((largura - 2))))┘"
 		else
 			echo "│$(printf ' %.0s' $(seq 1 $((largura - 2))))│"
@@ -1117,7 +1117,7 @@ function sh_date() {
 # BEGIN PROCEDURES
 function logo() {
 	setpos 2 0
-	printf "${Acores[logo]}"
+	printf "%s" "${Acores[logo]}"
 	cat <<-'EOF'
 		 __  __                              _       
 		|  \/  | ___ _ __ ___ ___  __ _ _ __(_) __ _ 
@@ -1125,7 +1125,7 @@ function logo() {
 		| |  | |  __/ | | (_|  __/ (_| | |  | | (_| |
 		|_|  |_|\___|_|  \___\___|\__,_|_|  |_|\__,_|
 	EOF
-	printf "$reset"
+	printf "%s" "$reset"
 }
 
 function tela() {
@@ -1993,7 +1993,7 @@ function fornecedor_pesquisa() {
 			npage=1
 			while IFS='|' read -r id data nome ende cida uf cnpj; do
 				if ((nrow >= nlastrow)); then
-					if [[ $((npage % $npage)) -eq 0 ]]; then
+					if [[ $((npage % npage)) -eq 0 ]]; then
 						nrow=$((nTop + 4))
 						ncol=0
 						msgok 2 "Página: $npage" "" -1
@@ -3242,7 +3242,7 @@ function configuracao::cores() {
 	local xtitle="$(gettext "CONFIGURAÇÃO DE CORES")"
 	local atype=('logo' 'cabecalho' 'statussup' 'statusinf' 'box' 'dispbox' 'msgok' 'msgerror' 'conf')
 	local ctype="${atype[$type]}"
-	local acor=($black $red $green $yellow $blue $magenta $cyan $white $gray $orange $purple $violet $roxo $azul $vermelho $ciano $cinza $preto $verde $amarelo $laranja $violeta)
+	local acor=("$black" "$red" "$green" "$yellow" "$blue" "$magenta" "$cyan" "$white" "$gray" "$orange" "$purple" "$violet" "$roxo" "$azul" "$vermelho" "$ciano" "$cinza" "$preto" "$verde" "$amarelo" "$laranja" "$violeta")
 	local opcao
 	local options=(
 		"${black}$(gettext 'Black/Black')${reset}"
@@ -3272,8 +3272,8 @@ function configuracao::cores() {
 
 	while true; do
 		tela
-		titulo 1 "$xtitle - $ctitulo")" "${Acores[statussup]}"
-		show_menu 11 10 "$xtitle - $ctitulo")" "${options[@]}"
+		titulo 1 "$xtitle - $ctitulo" "${Acores[statussup]}"
+		show_menu 11 10 "$xtitle - $ctitulo" "${options[@]}"
 		opcao="$?"
 
 		case "$opcao" in
@@ -3306,7 +3306,7 @@ function menu_configuracao() {
 
 	while true; do
 		tela
-		titulo 1 "$xtitle "${Acores[statussup]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
 		show_menu 11 10 "$xtitle" "${options[@]}"
 		opcao="$?"
 
