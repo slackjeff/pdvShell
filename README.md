@@ -6,12 +6,12 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
     - Alterar Produtos
     - Remover Produtos
     - Pesquisar Produtos
-    - Listagem Produtos Vendidos
-    - Listagem Entradas de Produtos
-    - Listagem Produtos abaixo estoque mínimo
-    - Listagem Produtos fora da validade
+    - Relatório Produtos Vendidos
+    - Relatório Entradas de Produtos
+    - Relatório Produtos abaixo estoque mínimo
+    - Relatório Produtos fora da validade
 * Realizar Venda
-* Exibir Vendas Diárias
+* Relatório Vendas Diárias
 * Entradas de Produtos
 * Fornecedores
 	- Cadastrar Fornecedor
@@ -37,14 +37,14 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
 <img alt="mercearia-produtos-exclusao" src="assets/mercearia-produtos-exclusao.png" width="600" />
 * PESQUISAR PRODUTOS
 <img alt="mercearia-produtos-pesquisar" src="assets/mercearia-produtos-pesquisar.png" width="600" />
-* LISTAGEM PRODUTOS VENDIDOS
+* RELATÓRIO PRODUTOS VENDIDOS
 <img alt="mercearia-produtos-produtos-vendidos" src="assets/mercearia-produtos-vendidos.png" width="600" />
-* LISTAGEM ENTRADAS DE PRODUTOS
+* RELATÓRIO ENTRADAS DE PRODUTOS
 <img alt="mercearia-produtos-compra" src="assets/mercearia-produtos-compra.png" width="600" />
 <img alt="mercearia-produtos-produtos-vendas" src="assets/mercearia-produtos-vendas.png" width="600" />
-* LISTAGEM PRODUTOS ABAIXO ESTOQUE MÍNIMO
+* RELATÓRIO PRODUTOS ABAIXO ESTOQUE MÍNIMO
 <img alt="mercearia-produtos-abaixo-do-minimo" src="assets/mercearia-produtos-abaixo-do-minimo.png" width="600" />
-* LISTAGEM PRODUTOS FORA DE VALIDADE
+* RELATÓRIO PRODUTOS FORA DE VALIDADE
 <img alt="mercearia-produtos-fora-de-validade" src="assets/mercearia-produtos-fora-de-validade.png" width="600" />
 * MENU FORNECEDOR
 <img alt="mercearia-menu-fornecedores" src="assets/mercearia-menu-fornecedores.png" width="600" />
@@ -52,5 +52,7 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
 <img alt="mercearia-fornecedor-cadastro.png" src="assets/mercearia-fornecedor-cadastro.png" width="600" />
 * PESQUISAR FORNECEDOR
 <img alt="mercearia-fornecedor-listagem.png" src="assets/mercearia-fornecedor-listagem.png" width="600" />
-* EXIBIR VENDAS DIÁRIAS
+* RELATÓRIO VENDAS DIÁRIAS
 <img alt="mercearia-exibir-vendas-diarias" src="assets/mercearia-exibir-vendas-diarias.png" width="600" />
+* MENU CONFIGURAÇÃO
+<img alt="mercearia-menu-configuracao" src="assets/mercearia-menu-configuracao.png" width="600" />
