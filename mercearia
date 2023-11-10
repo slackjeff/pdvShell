@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/10/30
+#	Altered: 2023/11/09
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -34,9 +34,12 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.0.0-20231030"
-declare DEPENDENCIES=(tput gettext sqlite3 bc tr)
+declare _VERSION_="1.4.0-20231109"
+declare _SYSTEM_='SISTEMA PDV'
+declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed awk)
+declare -A Aempresa=([razao]='EMPRESA MODELO LTDA' [ende]='Rua Modelo, 693 - Bairro Centro' [cida]='Cidade Modelo' [uf]='UF' [cnpj]='00.000.000/0001-00')
 declare database='pdv.db'
+declare INI_FILE="pdv.ini"
 
 # BEGIN FUNCTIONS
 function sh_config() {
@@ -52,7 +55,705 @@ function sh_config() {
 	declare -gi nLeft
 	declare -gi nBottom
 	declare -gi nRight
-	sh_setvarcolors
+}
+
+function sh_environment() {
+	declare -gA Acores=([cabecalho]="$roxo" [logo]="$red" [statussup]="$ciano" [statusinf]="$azul" [box]="$vermelho" [dispbox]="$cinza" [msgok]="$green" [msgerror]="$red" [conf]="$red")
+	local razao ende cida uf cnpj
+
+	if [[ -e "$INI_FILE" ]]; then
+		if razao=$(TIni.ReadValue "$INI_FILE" "empresa" "razao") && [[ -n "$razao" ]]; then Aempresa[razao]="$razao"; fi
+		Aempresa[ende]="$(TIni.Get "$INI_FILE" "empresa" "ende")"
+		Aempresa[cida]="$(TIni.Get "$INI_FILE" "empresa" "cida")"
+		Aempresa[uf]="$(TIni.Get "$INI_FILE" "empresa" "uf")"
+		Aempresa[cnpj]="$(TIni.Get "$INI_FILE" "empresa" "cnpj")"
+		if TIni.ReadValue "$INI_FILE" "cores" "cabecalho"; then Acores[cabecalho]="$(TIni.Get "$INI_FILE" "cores" "cabecalho")"; fi
+		if TIni.ReadValue "$INI_FILE" "cores" "logo"; then Acores[logo]="$(TIni.Get "$INI_FILE" "cores" "logo")"; fi
+		if TIni.ReadValue "$INI_FILE" "cores" "statussup"; then Acores[statussup]="$(TIni.Get "$INI_FILE" "cores" "statussup")"; fi
+		if TIni.ReadValue "$INI_FILE" "cores" "statusinf"; then Acores[statusinf]="$(TIni.Get "$INI_FILE" "cores" "statusinf")";fi
+		if TIni.ReadValue "$INI_FILE" "cores" "box"; then Acores[box]="$(TIni.Get "$INI_FILE" "cores" "box")";fi
+		if TIni.ReadValue "$INI_FILE" "cores" "dispbox"; then Acores[dispbox]="$(TIni.Get "$INI_FILE" "cores" "dispbox")";fi
+		if TIni.ReadValue "$INI_FILE" "cores" "msgok"; then Acores[msgok]="$(TIni.Get "$INI_FILE" "cores" "msgok")";fi
+		if TIni.ReadValue "$INI_FILE" "cores" "msgerror"; then Acores[msgerror]="$(TIni.Get "$INI_FILE" "cores" "msgerror")";fi
+		if TIni.ReadValue "$INI_FILE" "cores" "conf"; then Acores[conf]="$(TIni.Get "$INI_FILE" "cores" "conf")";fi
+	fi
+}
+
+function sh_setvarcolors() {
+	# does the terminal support true-color?
+	if [[ -n "$(command -v "tput")" ]]; then
+		#tput setaf 127 | cat -v  #capturar saida
+		reset=$(tput sgr0)
+		rst=$(tput sgr0)
+		bold=$(tput bold)
+		underline=$(tput smul)
+		nounderline=$(tput rmul)
+		reverse=$(tput rev)
+
+		black=$(tput bold)$(tput setaf 0)
+		red=$(tput bold)$(tput setaf 196)
+		green=$(tput bold)$(tput setaf 2)
+		yellow=$(tput bold)$(tput setaf 3)
+		blue=$(tput setaf 4)
+		magenta=$(tput setaf 5)
+		cyan=$(tput setaf 6)
+		white=$(tput setaf 7)
+		gray=$(tput setaf 8)
+		orange=$(tput setaf 202)
+		purple=$(tput setaf 125)
+		violet=$(tput setaf 61)
+		light_red=$(tput setaf 9)
+		light_green=$(tput setaf 10)
+		light_yellow=$(tput setaf 11)
+		light_blue=$(tput setaf 12)
+		light_magenta=$(tput setaf 13)
+		light_cyan=$(tput setaf 14)
+		light_white=$(tput setaf 15)
+
+		# Definir cores de fundo
+		preto=$(tput setab 0)
+		vermelho=$(tput setab 196)
+		verde=$(tput setab 2)
+		amarelo=$(tput setab 3)
+		azul=$(tput setab 20)
+		roxo=$(tput setab 5)
+		ciano=$(tput setab 6)
+		branca="${black}$(tput setab 7)"
+		cinza=$(tput setab 8)
+		laranja=$(tput setab 202)
+		roxa=$(tput setab 125)
+		violeta=$(tput setab 61)
+	else
+		sh_unsetvarcolors
+	fi
+}
+
+function sh_unsetvarcolors() {
+	unset reset bold underline nounderline reverse
+	unset black red green yellow blue magenta cyan white gray orange purple violet
+	unset light_red light_yellow light_blue light_magenta light_cyan light_white
+	unset azul vermelho roxo ciano cinza branca
+}
+
+function sh_checkDependencies() {
+	local d
+	local errorFound=0
+	declare -a missing
+
+	for d in "${DEPENDENCIES[@]}"; do
+		[[ -z $(command -v "$d") ]] && missing+=("$d") && errorFound=1 && info_msg "${red}$(gettext "ERRO: não consegui encontrar o comando")${reset}: ${cyan}'$d'${reset}"
+	done
+
+	if ((errorFound)); then
+		echo "${yellow}---------------$(gettext "IMPOSSÍVEL CONTINUAR")-------------${reset}"
+		echo "$(gettext "Este script precisa dos comandos listados acima")"
+		echo "$(gettext "Instale-os e/ou verifique se eles estão em seu") ${red}\$PATH${reset}"
+		echo "${yellow}---------------$(gettext "IMPOSSÍVEL CONTINUAR")-------------${reset}"
+		die "$(gettext "Instalação abortada!")"
+	fi
+}
+
+# Função para atualizar o valor de uma chave em uma seção no arquivo INI
+function TIni.UpdateValue {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	local new_value="$4"
+
+	if [[ -f "$config_file" ]]; then
+		sed -i "/^\[$section\]/s/^$key=.*/$key=$new_value/" "$config_file"
+	fi
+}
+export -f TIni.UpdateValue
+
+# Função para verificar se um valor em uma seção corresponde a um valor de referência em um arquivo INI
+# TIni.ExistValue "config.ini" "flatpak" "active" '0'; echo $?
+function TIni.ExistValue {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	local comp_value="$4"
+
+	if [[ -f "$config_file" ]]; then
+		local section_found=false
+		local key_found=false
+		local value=""
+
+		while IFS= read -r line; do
+			if [[ "$line" == "[$section]" ]]; then
+				section_found=true
+			elif [[ "$line" == "["* ]]; then
+				section_found=false
+			fi
+
+			if [[ "$section_found" == true && "$line" == "$key="* ]]; then
+				value=$(echo "$line" | cut -d'=' -f2)
+				key_found=true
+			fi
+
+			if [[ "$section_found" == true && "$key_found" == true ]]; then
+				if [[ "$value" == "$comp_value" ]]; then
+					return 0 # Valor encontrado e corresponde ao valor de referência
+				else
+					return 1 # Valor encontrado, mas não corresponde ao valor de referência
+				fi
+			fi
+		done <"$config_file"
+	fi
+	return 2 # Seção ou chave não encontrada no arquivo INI
+}
+export -f TIni.ExistValue
+
+# Função para ler um valor do arquivo INI
+# TIni.ReadValue "config.ini" "flatpak" "active"
+function TIni.ReadValue() {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	local found_section=false
+
+	# Variável para armazenar o valor encontrado
+	local value=""
+
+	# Use grep para encontrar a chave na seção especificada no arquivo INI
+	while IFS= read -r line; do
+		if [[ "$line" =~ ^\[$section\] ]]; then
+			found_section=true
+		elif [[ "$found_section" == true && "$line" =~ ^$key= ]]; then
+			# Encontramos a chave dentro da seção
+			value=$(echo "$line" | cut -d'=' -f2)
+			break # Saia do loop, pois encontramos o valor
+		elif [[ "$line" =~ ^\[.*\] ]]; then
+			# Se encontrarmos outra seção, saia do loop para evitar procurar em outras seções
+			found_section=false
+		fi
+	done <"$config_file"
+
+	# Verifique se encontramos o valor
+	if [[ -n "$value" ]]; then
+		echo "$value"
+		return 0
+	fi
+	return 1
+}
+export -f TIni.ReadValue
+
+function TIni.Get() {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	sed -nr "/^\[$section\]/ { :l /^[[:space:]]*${key}[[:space:]]*=/ { s/[^=]*=[[:space:]]*//; p; q;}; /^;/b; n; b l;}" "$config_file"
+}
+export -f TIni.Get
+
+function TIni.GetAwk() {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+
+	[[ ! -e "$config_file" ]] && return 2
+	awk -F "=" -v section="$section" -v key="$key" '{
+        gsub(/^[ \t]+|[ \t]+$/, "", $1);  # Remova espaços em branco em torno do nome da chave
+        if ($0 ~ "^\\[" section "\\]") {   # Verifique se estamos na seção correta
+            in_section = 1
+        } else if (in_section && $1 == key) {  # Se estivermos na seção correta, procure a chave
+            gsub(/^[ \t]+|[ \t]+$/, "", $2);  # Remova espaços em branco em torno do valor
+            print $2
+            found = 1
+        } else if ($0 ~ "^\\[.*\\]") {  # Se encontrarmos outra seção, saia da seção atual
+            in_section = 0
+        }
+    }
+    END {
+        if (found != 1) {
+            # print "Chave não encontrada"
+        }
+    }' "$config_file"
+}
+export -f TIni.GetAwk
+
+function TIni.GetAwk2() {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+
+	[[ ! -e "$config_file" ]] && return 2
+	awk -v chave="$key" -F '=' '!/^;/ && $0 ~ chave { gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2 }' "$config_file"
+}
+export -f TIni.GetAwk2
+
+function TIni.GetMaxKeySize() {
+	local config_file="$1"
+
+	[[ ! -e "$config_file" ]] && return 0
+	awk -F '=' '/^[^#]/ {
+        key = gensub(/^[[:space:]]+|[[:space:]]+$/, "", "g", $1); # Remove espaços em branco no início e no fim da chave
+        current_key_size = length(key);
+        if (current_key_size > max_key_size) {
+            max_key_size = current_key_size;
+        }
+    } END {
+        print max_key_size
+    }' "$config_file"
+}
+export -f TIni.GetMaxKeySize
+
+function TIni.GetSection() {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	sed -nr "/^\[$section\]/ { :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" "$config_file" | grep -E "^\s*[^#].*\s*=" | column -t
+}
+export -f TIni.GetSection
+
+function TIni.GetAllSections() {
+	local config_file="$1"
+	local key="$2"
+
+	# Obtém todas as seções do arquivo
+	local sections
+	sections=$(sed -n '/^\[.*\]$/s/\[\(.*\)\]/\1/p' "$config_file")
+
+	# Itera sobre cada seção
+	for section in $sections; do
+		echo "[$section]"
+		sed -nr "/^\[$section\]/,/^(\[|\s*$)/p" "$config_file" |
+			grep -E "^\s*[^#].*\s*=" |
+			sed 's/^\s*//;s/\s*$//' |
+			sed 's/=/ = /' |
+			column --table --table-columns chave,=,valor,valor1 --table-hide - |
+			sed 1d
+		echo # Adiciona uma linha em branco entre as seções
+	done
+}
+export -f TIni.GetAllSections
+
+function TIni.ParseToAssoc() {
+	local config_file="$1"
+
+	[[ ! -e "$config_file" ]] && return 2
+	awk -F ' *= *' '{
+	    if ($1 ~ /^\[/) {
+    	    section=substr($1, 2, length($1)-2);  # Remove os colchetes da seção
+	    } else if ($1 !~ /^$/ && $1 !~ /^;/) {
+    	    print section "[" $1 "]=\"" $2 "\""
+	    }
+	}' "$config_file"
+}
+export -f TIni.ParseToAssoc
+
+function TIni.ParseToVar() {
+	local config_file="$1"
+
+	[[ ! -e "$config_file" ]] && return 2
+	awk -F ' *= *' '{
+        if ($1 ~ /^\[/) {
+            section=substr($1, 2, length($1)-2);  # Remove os colchetes da seção
+        } else if ($1 !~ /^$/ && $1 !~ /^;/) {
+            print $1 "=" "\"" $2 "\""
+        }
+    }' "$config_file"
+}
+export -f TIni.ParseToVar
+
+function TIni.ParseToDeclareAssoc() {
+    local config_file="$1"
+
+	[[ ! -e "$config_file" ]] && return 2
+    while IFS='=' read key value; do
+        # Verifique se a chave não começa com ;
+        if [[ ! $key =~ ^\;.* ]]; then
+            if [[ $key == \[*] ]]; then
+	            # Remova os colchetes [ ]
+				key="${key/\[/}"
+				key="${key/\]/}"
+                section=$key
+            elif [[ $value ]]; then
+                declare "${section}[${key}]=\"${value}\""
+            fi
+        fi
+    done <"$config_file"
+}
+export -f TIni.ParseToDeclareAssoc
+
+function TIni.ParseToDeclareVar() {
+    local config_file="$1"
+
+	[[ ! -e "$config_file" ]] && return 2
+    while IFS='=' read key value; do
+        # Verifique se a chave não começa com ;
+        if [[ ! $key =~ ^\;.* ]]; then
+            if [[ $key == \[*] ]]; then
+	            # Remova os colchetes [ ]
+				key="${key/\[/}"
+				key="${key/\]/}"
+                section=$key
+            elif [[ $value ]]; then
+                declare "${key}=\"${value}\""
+            fi
+        fi
+    done <"$config_file"
+}
+export -f TIni.ParseToDeclareVar
+
+function TIni.ParseToDeclareArray() {
+    local config_file="$1"
+
+	[[ ! -e "$config_file" ]] && return 2
+    while IFS='=' read key value; do
+        # Verifique se a chave não começa com ;
+        if [[ ! $key =~ ^\;.* ]]; then
+            if [[ $key == \[*] ]]; then
+	            # Remova os colchetes [ ]
+				key="${key/\[/}"
+				key="${key/\]/}"
+                section=$key
+            elif [[ $value ]]; then
+                declare "${key}=(\"${value}\")"
+            fi
+        fi
+    done <"$config_file"
+}
+export -f TIni.ParseToDeclareArray
+
+function TIni.ParseToArray() {
+	local config_file="$1"
+
+	[[ ! -e "$config_file" ]] && return 2
+	awk -F ' *= *' '{
+        if ($1 ~ /^\[/) {
+            section=substr($1, 2, length($1)-2);  # Remove os colchetes da seção
+        } else if ($1 !~ /^$/ && $1 !~ /^;/) {
+            print section "-" $1 "=(" "\"" $2 "\"" ")"
+        }
+    }' "$config_file"
+}
+export -f TIni.ParseToArray
+
+function TIni.AlignAllSections() {
+	local config_file="$1"
+	local chave_identada="$2"
+	local print="$3"
+	local temp_file
+	local max_size
+	local sections
+	local current_section=""
+
+	[[ ! -e "$config_file" ]] && return 2
+	temp_file=$(mktemp)
+	if [[ -n "$chave_identada" || "$chave_identada" -eq 1 ]]; then
+		chave_identada=1
+		# Obtém o tamanho da string da maior chave (nome da chave) no arquivo INI
+		max_size=$(TIni.GetMaxKeySize $config_file)
+	else
+		chave_identada=0
+	fi
+	# Obtém todas as seções do arquivo
+	sections=$(sed -n '/^\[.*\]$/s/\[\(.*\)\]/\1/p' "$config_file")
+
+	# Itera sobre cada linha do arquivo
+	while IFS= read -r line; do
+		if [[ "$line" =~ ^\[(.*)\]$ ]]; then
+			current_section="${BASH_REMATCH[1]}"
+			echo "$line"
+		elif [[ "$line" =~ ^[^#]*= ]]; then
+			if ((chave_identada)); then
+				# formatar com identação
+				awk -F'=' -v section="$current_section" -v max="$max_size" '{ printf "%-*s= %s\n", max+1, $1, $2}' <<<"$line"
+			else
+				# formatar sem identação
+				echo "$current_section.$line"
+			fi
+		else
+			echo "$line"
+		fi
+	done <"$config_file" >>"$temp_file"
+
+	cp "$temp_file" "$config_file"
+	[[ -n "$print" ]] && echo "$(<$config_file)"
+}
+export -f TIni.AlignAllSections
+
+function TIni.AlignIniFile {
+	local config_file="$1"
+	local chave_identada="$2"
+	local print="$3"
+
+	[[ ! -e "$config_file" ]] && return 2
+	TIni.AlignAllSections "$config_file" "$chave_identada" "$print"
+}
+export -f TIni.AlignIniFile
+
+# Se a chave e o valor forem exatamente iguais, a função retorna 0.
+# Se a chave for encontrada, mas o valor não for igual, a função retorna 2.
+# Se a chave não for encontrada, a função retorna 1.
+# Se a chave for encontrada com um ponto e vírgula no início, a função também retorna 2.
+function TIni.Exist() {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	local value="$4"
+	local result=1 # Inicializa como 1, indicando que a chave não foi encontrada
+
+	[[ ! -e "$config_file" ]] && return 2
+	result=$(awk -F "=" -v section="$section" -v key="$key" -v value="$value" '
+        BEGIN {
+            encontrado = 1  # Inicializa como 1, indicando que a chave não foi encontrada
+        }
+        {
+            gsub(/^[ \t]+|[ \t]+$/, "", $1);  # Remova espaços em branco em torno do nome da chave
+            if ($0 ~ "^\\[" section "\\]") {   # Verifique se estamos na seção correta
+                in_section = 1
+            } else if (in_section) {
+                if ($1 == key) {  # Se estivermos na seção correta, procure a chave
+                    if ($0 ~ /^[[:space:]]*;/) {
+                        encontrado = 2  # Chave encontrada com ponto e vírgula no início
+                        exit
+                    }
+                    gsub(/^[ \t]+|[ \t]+$/, "", $2);  # Remova espaços em branco em torno do valor
+                    if ($0 !~ /^[[:space:]]*;/) {  # Verifique se não é um comentário
+                        if (value == "") {
+                            encontrado = 0  # Chave encontrada sem valor especificado
+                            exit
+                        } else if ($2 == value) {
+                            encontrado = 0  # Chave encontrada com o valor correto
+                            exit
+                        } else {
+                            encontrado = 2  # Valor fornecido não é igual ao valor da chave
+                            exit
+                        }
+                    }
+                }
+            } else if ($0 ~ "^\\[.*\\]") {  # Se encontrarmos outra seção, saia da seção atual
+                in_section = 0
+            }
+        }
+        END {
+            print encontrado
+        }
+    ' "$config_file")
+	return $result
+}
+export -f TIni.Exist
+
+# Exemplo de uso: TIni.Set arquivo.ini snap vilmar 5.7
+function TIni.Set() {
+	local config_file="$1"
+	local section="$2"
+	local key="$3"
+	local value="$4"
+	local found_section=0
+
+	if [ ! -f "$config_file" ]; then
+		# Se não existir, crie o arquivo com a seção, chave e valor fornecidos
+		{
+			echo "[$section]"
+			echo "$key=$value"
+		} >>"$config_file"
+		return
+	fi
+
+	while IFS= read -r line; do
+		if [[ "$line" =~ ^\[$section\] ]]; then
+			found_section=1
+		elif [[ "$found_section" -eq 1 && "${line}" =~ ^${key}[[:space:]]*=[[:space:]]* ]]; then
+			# Se a seção e a chave existem, atualize o valor
+			sed -i "s|^${key}[[:space:]]*=[[:space:]]*.*|${key}=${value}|" "$config_file"
+			return
+		fi
+	done <"$config_file"
+
+	# Se a seção não existir, crie-a e adicione a chave e o valor
+	if [[ "$found_section" -eq 0 ]]; then
+		{
+			echo ""
+			echo "[$section]"
+		} >>"$config_file"
+	fi
+	echo "$key=$value" >>"$config_file"
+}
+export -f TIni.Set
+
+function sh_splitarray() {
+	local str=("$1")
+	local pos="$2"
+	local sep="${3:-'|'}"
+	local array
+
+	[[ $# -eq 3 && "$pos" = "|" && "$sep" =~ ^[0-9]+$ ]] && {
+		sep="$2"
+		pos="$3"
+	}
+	[[ $# -eq 2 && "$pos" = "$sep" ]] && {
+		sep="$pos"
+		pos=1
+	}
+	[[ $# -eq 1 || ! "$pos" =~ ^[0-9]+$ ]] && { pos=1; }
+
+	IFS="$sep" read -r -a array <<<"$str"
+	echo "${array[pos - 1]}"
+}
+
+function len_split_str() {
+	local anew
+	IFS='|' read -r -a anew <<<"$1"
+	echo "${#anew[@]}"
+}
+
+# dispbox "0|0|6" "ID|DESCRICAO DO PRODUTO|ESTOQUE|PREÇO" "5|40|5|11" "$cinza" 'left'
+function dispbox() {
+	local -A Aarray
+	Aarray[coord]="$1"
+	Aarray[cabec]="$2"
+	Aarray[len]="$3"
+	local color="$4"
+	local align="$5"
+
+	local aCoord="${Aarray[coord]}"
+	local aCabec="${Aarray[cabec]}"
+	local aLen="${Aarray[len]}"
+
+	local linha="$(sh_splitarray "$aCoord" 1)"
+	local col="$(sh_splitarray "$aCoord" 2)"
+	local altura="$(sh_splitarray "$aCoord" 3)"
+
+	local cprintf=
+	local nmaxlen=0
+	local str
+	local lenstr
+	local max_width
+	local nlen="$(len_split_str "${aCabec[@]}")"
+
+	local frame_top
+	local frame_bottom
+	local line
+
+	[[ -n "$align" && ($align != 'right' && $align != 'left') ]] && align='right'
+	[[ -z "$align" ]] && align='right'
+
+	# Função para alinhar à esquerda
+	function dispbox::align_left() {
+		local field_width="$1"
+		local str="$2"
+		local i="$3"
+		local nlen="$4"
+		local str_width=${#str}
+		local sep='|'
+
+		if [[ "$i" -eq "$nlen" ]]; then
+			sep=''
+		fi
+		if ((str_width < field_width)); then
+			local extra_space=$((field_width - str_width))
+			printf "%s%*s${sep}\n" "$str" "$extra_space" " "
+		else
+			printf "%s${sep}\n" "$str"
+		fi
+	}
+
+	# Função para alinhar à direita
+	function dispbox::align_right() {
+		local field_width="$1"
+		local str="$2"
+		local i="$3"
+		local nlen="$4"
+		local str_width=${#str}
+		local sep='|'
+
+		if [[ "$i" -eq "$nlen" ]]; then
+			sep=''
+		fi
+
+		if ((str_width < field_width)); then
+			local extra_space=$((field_width - str_width))
+			printf "%*s%*s${sep}\n" "$extra_space" " " "$str_width" "$str"
+		else
+			printf "%*s${sep}\n" "$str_width" "$str"
+		fi
+	}
+
+	function dispbox::calculate_field_width() {
+		local field="$1"
+		local max_width="$2"
+		local field_width="${#field}"
+
+		if ((field_width > max_width)); then
+			echo "$field_width"
+		else
+			echo "$max_width"
+		fi
+	}
+
+	for ((i = 1; i <= nlen; i++)); do
+		str="$(sh_splitarray "$aCabec" $i)"
+		max_width="$(sh_splitarray "$aLen" $i)"
+		field_width=$(dispbox::calculate_field_width "$str" "$max_width")
+		if [[ "$align" = 'left' ]]; then
+			cprintf+="$(dispbox::align_left "${field_width}" "$str" "$i" "$nlen")"
+		else
+			cprintf+="$(dispbox::align_right "${field_width}" "$str" "$i" "$nlen")"
+		fi
+		nmaxlen=$((nmaxlen + field_width + 1))
+	done
+
+	function dispbox::print_boxold() {
+		# Move o cursor para a posição inicial da primeira linha do quadro
+		tput cup $linha $col
+
+		# Imprime o quadro com base nas coordenadas, largura e altura
+		for ((i = 0; i < altura; i++)); do
+			if [ $i -eq 0 ]; then
+				echo -n "┌"
+				for ((j = 1; j < nmaxlen - 1; j++)); do
+					echo -n "─"
+				done
+				echo "┐"
+			elif [ $i -eq $((altura - 1)) ]; then
+				echo -n "└"
+				for ((j = 1; j < nmaxlen - 1; j++)); do
+					echo -n "─"
+				done
+				echo "┘"
+			else
+				echo -n "│"
+				for ((j = 1; j < nmaxlen - 1; j++)); do
+					echo -n " "
+				done
+				echo "│"
+			fi
+			((++linha))
+			tput cup $linha $col
+		done
+		setpos "$linha" "$((col + 1))"
+		printf "$color%-${nmaxlen}s${reset}" "$cprintf"
+	}
+
+	function dispbox::print_box() {
+		# Constrói as linhas superior e inferior do quadro
+		frame_top="┌$(printf '─%.0s' $(seq 1 $((nmaxlen - 1))))┐"
+		frame_bottom="└$(printf '─%.0s' $(seq 1 $((nmaxlen - 1))))┘"
+
+		# Constrói uma única linha com espaços
+		line="│$(printf ' %.0s' $(seq 1 $((nmaxlen - 1))))│"
+
+		# Imprime o quadro com base nas coordenadas, largura e altura
+		for ((i = 0; i < altura; i++)); do
+			setpos $((linha + i)) "$col"
+			if [ $i -eq 0 ]; then
+				echo "$frame_top"
+				# Imprime o conteúdo centralizado
+				setpos "$linha" "$((col + 1))"
+				((--nmaxlen))
+				printf "$color%-${nmaxlen}s${reset}" "$cprintf"
+			elif [ $i -eq $((altura - 1)) ]; then
+				echo "$frame_bottom"
+			else
+				echo "$line"
+			fi
+		done
+	}
+	dispbox::print_box
+	tput sgr0
 }
 
 function convert_data_to_ptBR() {
@@ -70,7 +771,7 @@ function convert_data_to_US() {
 }
 
 # Função para validar uma data no formato "dd-mm-yyyy"
-# Retorna 0 se a data for válida e 1 se for inválida
+# Retorna 0 se a data for válida e 1 se inválida
 function validar_data() {
 	local data=$1
 	local dia
@@ -85,6 +786,11 @@ function validar_data() {
 	dia=${data_parts[0]}
 	mes=${data_parts[1]}
 	ano=${data_parts[2]}
+
+	# Verifica o ano
+	if [[ "${#ano}" -lt 4 ]]; then
+		return 1
+	fi
 
 	# Verifica se o ano é bissexto
 	if ((ano % 4 == 0 && ano % 100 != 0)) || ((ano % 400 == 0)); then
@@ -143,13 +849,6 @@ function debug() {
 	return $result
 }
 
-function inkey() {
-	tempo="$1"
-	[[ -z "$tempo" ]] && tempo=-1
-	IFS= read -t "$tempo" -n 1 -s lastkey
-	[[ -z "$lastkey" ]] && lastkey=""
-}
-
 function die() {
 	local msg=$1
 	shift
@@ -165,54 +864,6 @@ function info_msg() {
 	else
 		printf "  %b %s\\n" "${CROSS}" "${*}"
 	fi
-}
-
-function sh_setvarcolors() {
-	# does the terminal support true-color?
-	if [[ -n "$(command -v "tput")" ]]; then
-		#tput setaf 127 | cat -v  #capturar saida
-		reset=$(tput sgr0)
-		bold=$(tput bold)
-		underline=$(tput smul)
-		nounderline=$(tput rmul)
-		reverse=$(tput rev)
-
-		black=$(tput bold)$(tput setaf 0)
-		red=$(tput bold)$(tput setaf 196)
-		green=$(tput bold)$(tput setaf 2)
-		yellow=$(tput bold)$(tput setaf 3)
-		blue=$(tput setaf 4)
-		pink=$(tput setaf 5)
-		magenta=$(tput setaf 5)
-		cyan=$(tput setaf 6)
-		white=$(tput setaf 7)
-		gray=$(tput setaf 8)
-		orange=$(tput setaf 202)
-		purple=$(tput setaf 125)
-		violet=$(tput setaf 61)
-		light_red=$(tput setaf 9)
-		light_green=$(tput setaf 10)
-		light_yellow=$(tput setaf 11)
-		light_blue=$(tput setaf 12)
-		light_magenta=$(tput setaf 13)
-		light_cyan=$(tput setaf 14)
-		light_white=$(tput setaf 15)
-
-		# Definir cores de fundo
-		azul=$(tput setab 4)
-		vermelho=$(tput setab 196)
-		roxo=$(tput setab 5)
-		ciano=$(tput setab 6)
-	else
-		sh_unsetvarcolors
-	fi
-}
-
-function sh_unsetvarcolors() {
-	unset reset bold underline nounderline reverse
-	unset black red green yellow blue pink magenta cyan white gray orange purple violet
-	unset light_red light_yellow light_blue light_magenta light_cyan light_white
-	unset azul vermelho roxo ciano
 }
 
 function setpos() {
@@ -287,14 +938,36 @@ function get() {
 }
 
 function readconf() {
+	local color="$2"
+
 	tput el
+	[[ -z "$color" ]] && color="${Acores[conf]}"
+	echo -n -e "$color"
+	printf '\a' # beep
 	if [[ $LC_DEFAULT -eq 0 ]]; then
 		read -n1 -s -r -p "$1 [S/n]"
 	else
 		read -n1 -s -r -p "$1 [Y/n]"
 	fi
+	echo -n -e "$reset"
 	[[ ${REPLY^} == $'\e' ]] && return 1
 	[[ ${REPLY^} == "" ]] && return 0
+	[[ ${REPLY^} == N ]] && return 1 || return 0
+}
+
+function readnotconf() {
+	local color="$2"
+	tput el
+	[[ -z "$color" ]] && color="${Acores[conf]}"
+	echo -n -e "$color"
+	if [[ $LC_DEFAULT -eq 0 ]]; then
+		read -n1 -s -r -p "$1 [N/s]"
+	else
+		read -n1 -s -r -p "$1 [N/y]"
+	fi
+	echo -n -e "$reset"
+	[[ ${REPLY^} == $'\e' ]] && return 1
+	[[ ${REPLY^} == "" ]] && return 1
 	[[ ${REPLY^} == N ]] && return 1 || return 0
 }
 
@@ -332,11 +1005,30 @@ function titulo() {
 	tput rc
 }
 
+function msgok() {
+	local row="$1"
+	local msg="$2"
+	local color="$3"
+	local timeout="$4"
+	[[ -z "$color" ]] && color="${Acores[msgok]}"
+	mensagem "$row" "$msg" "${Acores[msgok]}" "$timeout"
+}
+
+function msgerror() {
+	local row="$1"
+	local msg="$2"
+	local color="$3"
+	local timeout="$4"
+	[[ -z "$color" ]] && color="${Acores[msgerror]}"
+	mensagem "$row" "$msg" "${Acores[msgerror]}" "$timeout"
+}
+
 function mensagem() {
 	local row="$1"
 	local msg="$2"
 	local color="$3"
-	local tempo="$4"
+	local timeout="$4"
+	local IsBeep=0
 
 	msg+="$(gettext " Pressione qualquer tecla para continuar")"
 	local largura_terminal=$(tput cols)
@@ -344,14 +1036,18 @@ function mensagem() {
 	local coluna_inicio=$(((largura_terminal - largura_mensagem) / 2))
 
 	[[ -z "$color" ]] && color=$green
-	[[ -z "$tempo" ]] && tempo=1
+	[[ -z "$timeout" ]] && timeout=1
+	[[ "$color" == "$red" ]] && IsBeep=1
+
 	tput sc
 	setpos "$row" 0
 	printf "$reverse$color%-${largura_terminal}s" " "
 	setpos "$row" "$coluna_inicio"
+	((IsBeep)) && printf '\a'
 	printf "$reverse$color%s" "$msg"
+	(( timeout < 0 )) && sed -n q </dev/tty
+	(( timeout > 0 )) && pause "$timeout"
 	tput sgr0
-	((tempo > 0)) && inkey "$tempo"
 	setpos "$row" 0
 	tput el
 	tput rc
@@ -374,24 +1070,6 @@ function sh_clear_eol() {
 	echo -en "\033[6;${coluna_inicial}H"
 }
 
-function sh_checkDependencies() {
-	local d
-	local errorFound=0
-	declare -a missing
-
-	for d in "${DEPENDENCIES[@]}"; do
-		[[ -z $(command -v "$d") ]] && missing+=("$d") && errorFound=1 && info_msg "${red}$(gettext "ERRO: não consegui encontrar o comando")${reset}: ${cyan}'$d'${reset}"
-	done
-
-	if ((errorFound)); then
-		echo "${yellow}---------------$(gettext "IMPOSSÍVEL CONTINUAR")-------------${reset}"
-		echo "$(gettext "Este script precisa dos comandos listados acima")"
-		echo "$(gettext "Instale-os e/ou verifique se eles estão em seu") ${red}\$PATH${reset}"
-		echo "${yellow}---------------$(gettext "IMPOSSÍVEL CONTINUAR")-------------${reset}"
-		die "$(gettext "Instalação abortada!")"
-	fi
-}
-
 # Função para obter o próximo número de documento com zeros à esquerda
 function obterProximoNumeroDocumento() {
 	local tabela="$1"
@@ -404,6 +1082,32 @@ function sh_random_docnr() {
 	date "+%Y%m%d-%H%M%S"
 }
 
+function sh_random_date() {
+	local year=$(shuf -i 2000-2022 -n 1)
+	local month=$(shuf -i 1-12 -n 1)
+
+	# Definir o número máximo de dias com base no mês gerado
+	case $month in
+	4 | 6 | 9 | 11)
+		local max_day=30
+		;;
+	2)
+		if ((year % 4 == 0 && year % 100 != 0)) || ((year % 400 == 0)); then
+			local max_day=29
+		else
+			local max_day=28
+		fi
+		;;
+	*)
+		local max_day=31
+		;;
+	esac
+
+	local day=$(shuf -i 1-"$max_day" -n 1)
+	local random_date=$(date -d "$year-$month-$day" +%F)
+	echo "$random_date"
+}
+
 function sh_date() {
 	date +"%Y-%m-%d"
 }
@@ -412,24 +1116,25 @@ function sh_date() {
 
 # BEGIN PROCEDURES
 function logo() {
-	setpos 1 0
-	echo -e "$red"
+	setpos 2 0
+	printf "${Acores[logo]}"
 	cat <<-'EOF'
-		 __  __                              _
-		|  \/  | ___ _ __ ___ ___  __ _ _ __(_) __ _
+		 __  __                              _       
+		|  \/  | ___ _ __ ___ ___  __ _ _ __(_) __ _ 
 		| |\/| |/ _ \ '__/ __/ _ \/ _` | '__| |/ _` |
 		| |  | |  __/ | | (_|  __/ (_| | |  | | (_| |
 		|_|  |_|\___|_|  \___\___|\__,_|_|  |_|\__,_|
 	EOF
-	echo "$reset"
+	printf "$reset"
 }
 
 function tela() {
+	tput sgr0
 	clear
-	titulo 0 "$(gettext "SISTEMA PDV")" "$roxo" "$(date)" "$_VERSION_"
-	titulo 1 "$(gettext "MENU PRINCIPAL")" "$ciano"
+	titulo 0 "$(gettext "$_SYSTEM_")" "${Acores[cabecalho]}" "$(date)" "$_VERSION_"
+	titulo 1 "$(gettext "MENU PRINCIPAL")" "${Acores[statussup]}"
 	logo
-	titulo "$(($(lastrow) - 1))" "MERCEARIA TemDTudo" "$azul" "$PWD" "$USER"
+	titulo "$(($(lastrow) - 1))" "${Aempresa[razao]}" "${Acores[statusinf]}" "$PWD" "$USER"
 }
 
 function criar_tabela_produtos() {
@@ -442,7 +1147,10 @@ function criar_tabela_produtos() {
         estoque INTEGER,
         preco REAL,
         codebar VARCHAR(13),
-        data DATE
+        data DATE,
+        validade DATE,
+        qmin INTEGER,
+        fabricante VARCHAR(5)
     );"
 	sqlite3 "$database" "$query"
 }
@@ -470,7 +1178,8 @@ function criar_tabela_compras() {
         docnr VARCHAR(7),
         quantidade INTEGER,
         custo REAL,
-        total REAL
+        total REAL,
+        validade DATE
     );"
 	sqlite3 "$database" "$query"
 }
@@ -536,224 +1245,270 @@ function dbseek() {
 	return $retval
 }
 
-function produto_inclusao() {
+function produto_inclusao_alteracao() {
+	local action="$1"
 	local produto_info
+	local fornecedor_info
 	local ultimo_registro
 	local IsHeader=0
 	local IsLike=1
+	local posmsg=20
+	local half_lastcol=$(($(lastcol) / 2))
+	local p_id p_nome p_un p_estoque p_preco p_codebar p_data p_validade p_qmin p_fabricante
+	local f_id f_data f_nome f_ende f_cida f_uf f_cnpj
+	local cdesc
+	local xtitle
+	local IsInclusao
+
+	[[ -z "$action" ]] && action='I'
+	if [[ "$action" = 'I' ]]; then
+		# I=Inclusao
+		cdesc="Descrição"
+		xtitle="CADASTRO DE PRODUTOS"
+		IsInclusao=1
+	else
+		# A=Alteracao
+		cdesc="ID/Descrição"
+		xtitle="ALTERAÇÃO DE PRODUTOS"
+		IsInclusao=0
+	fi
 
 	while true; do
 		produto_info=
 		ultimo_registro="$(lastrec 'produtos')"
 		tela
-		titulo 1 "$(gettext "CADASTRO DE PRODUTO")" "$ciano"
-		box 11 10 6 100 "$(gettext "CADASTRO DE PRODUTO")" "$ciano"
+		titulo 1 "$(gettext "$xtitle")" "${Acores[statussup]}"
+		box 11 10 9 $half_lastcol "$(gettext "$xtitle")" "${Acores[box]}"
 		print 10 11 "$ultimo_registro"
-		print 12 11 "$(gettext "Descrição")            : "
-		print 13 11 "$(gettext "Código Barras")        : "
-		print 14 11 "$(gettext "Unidade")              : "
-		print 15 11 "$(gettext "Preço (ex: 4.40 ou 5)"): "
+		if ((IsInclusao)); then
+			print 12 11 "$(gettext "$cdesc")            : "
+		else
+			print 12 11 "$(gettext "$cdesc")         : "
+		fi
+		print 13 11 "$(gettext "Fabricante")           : "
+		print 14 11 "$(gettext "Código Barras")        : "
+		print 15 11 "$(gettext "Unidade")              : "
+		print 16 11 "$(gettext "Estoque mínimo")       : "
+		print 17 11 "$(gettext "Data validade")        : "
+		print 18 11 "$(gettext "Preço (ex: 4.99 ou 5)"): "
 
 		while true; do
-			get 12 11 "$(gettext "Descrição")            : " nome
+			if ((IsInclusao)); then
+				get 12 11 "$(gettext "$cdesc")            : " nome
+			else
+				get 12 11 "$(gettext "$cdesc")         : " nome
+			fi
 			if [[ -n "$nome" ]]; then
 				if produto_info=$(dbseek 'produtos' 'nome' "$nome" "$IsHeader" "$IsLike") && [ -n "$produto_info" ]; then
-					IFS='|' read -r produto_id produto_nome produto_unidade produto_estoque produto_preco produto_codebar <<<"$produto_info"
-					get 12 11 "$(gettext "Descrição")            : " nome "$produto_nome"
+					IFS='|' read -r p_id p_nome p_un p_estoque p_preco p_codebar p_data p_validade p_qmin p_fabricante <<<"$produto_info"
+					if ((IsInclusao)); then
+						get 12 11 "$(gettext "$cdesc")            : " nome "$p_nome"
+					else
+						get 12 11 "$(gettext "$cdesc")         : " nome "$p_nome"
+					fi
 					if [[ -z "$nome" ]]; then
-						mensagem 2 "$(gettext "Descrição não pode ser em branco.")" "$red"
+						msgerror 2 "$(gettext "Descrição não pode ser em branco.")"
 						continue
 					fi
 				fi
 				break
 			else
-				setpos 17 10
+				setpos "$posmsg" 10
 				if readconf "$(gettext "A descrição não pode ser em branco. Cancelar?")"; then
 					return
 				fi
 			fi
 		done
 
-		get 13 11 "$(gettext "Código Barras")        : " codebar "$produto_codebar"
-		get 14 11 "$(gettext "Unidade")              : " un "$produto_unidade"
-
-		# Solicita o preço como número inteiro ou decimal com ponto (ex: 4.40) e verifica se não está em branco
 		while true; do
-			get 15 11 "$(gettext "Preço (ex: 4.40 ou 5)"): " preco "$produto_preco"
-			if [[ -n "$preco" ]] && [[ $preco =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-				break
+			get 13 11 "$(gettext "Fabricante")           : " fabricante "$p_fabricante"
+			if [[ -n "$fabricante" ]]; then
+				if fornecedor_info=$(dbseek 'fornecedor' 'id' "$fabricante") && [ -n "$fornecedor_info" ]; then
+					IFS='|' read -r f_id f_data f_nome f_ende f_cida f_uf f_cnpj <<<"$fornecedor_info"
+					print 13 40 "${yellow}${f_nome}"
+					break
+				else
+					msgerror 2 "$(gettext "Fabricante/Fornecedor não encontrado")"
+					continue
+				fi
 			else
-				mensagem 2 "$(gettext "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro.")" "$red"
+				setpos "$posmsg" 10
+				if readconf "$(gettext "Fabricante/Fornecedor não pode ser em branco. Cancelar?")"; then
+					return
+				fi
 			fi
 		done
 
-		setpos 17 10
+		get 14 11 "$(gettext "Código Barras")        : " codebar "$p_codebar"
+		get 15 11 "$(gettext "Unidade")              : " un "$p_un"
+		get 16 11 "$(gettext "Estoque mínimo")       : " qmin "$p_qmin"
+
+		p_validade="$(convert_data_to_ptBR "$p_validade")"
+		while true; do
+			get 17 11 "$(gettext "Data validade")        : " validade "$p_validade"
+			if [[ -n "$validade" ]]; then
+				if validar_data "$validade"; then
+					break
+				else
+					msgerror 2 "$(gettext "Data inválida")"
+					continue
+				fi
+			else
+				setpos "$posmsg" 10
+				if readconf "$(gettext "A data não pode ser em branco. Cancelar?")"; then
+					return
+				fi
+			fi
+		done
+
+		# Solicita o preço como número inteiro ou decimal com ponto (ex: 4.99) e verifica se não está em branco
+		while true; do
+			get 18 11 "$(gettext "Preço (ex: 4.99 ou 5)"): " preco "$p_preco"
+			if [[ -n "$preco" ]] && [[ $preco =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+				break
+			else
+				msgerror 2 "$(gettext "Formato de preço inválido. Usar ponto decimal (ex: 4.99) ou número inteiro.")"
+			fi
+		done
+
+		setpos "$posmsg" 10
 		if readconf "$(gettext "Confirma inclusão/atualização do produto?")"; then
 			nome=${nome^^}
 			un=${un^^}
-			query="INSERT OR REPLACE INTO produtos (id, nome, un, preco, codebar, estoque) VALUES (
-		        (SELECT id FROM produtos WHERE id='$produto_id'),
-		        '$nome', '$un', '$preco', '$codebar','0'
+			query="INSERT OR REPLACE INTO produtos (id, nome, un, preco, codebar, estoque, validade, qmin, fabricante) VALUES (
+		        (SELECT id FROM produtos WHERE id='$p_id'), '$nome', '$un', '$preco', '$codebar',
+		        (SELECT estoque FROM produtos WHERE id='$p_id'), '$(convert_data_to_US "$validade")', '$qmin', '$fabricante'
 		    );"
 
 			if sqlite3 "$database" "$query"; then
-				mensagem 2 "$(gettext "Produto cadastrado/atualizado com sucesso!")" "$green"
+				msgok 2 "$(gettext "Produto cadastrado/atualizado com sucesso!")"
 			else
-				mensagem 2 "$(gettext "Erro no cadastro/atualização do produto.")" "$red"
+				msgerror 2 "$(gettext "Erro no cadastro/atualização do produto.")"
 			fi
 		else
-			mensagem 2 "$(gettext "Inclusão/alteração não efetuada.")" "$red"
+			msgerror 2 "$(gettext "Inclusão/alteração não efetuada.")"
 		fi
 	done
 }
 
-function produto_alteracao() {
+function produto_exclusao() {
+	local xtitle="$(gettext "REMOÇÃO DE PRODUTO")"
+	local identificador
+	local half_lastcol=$(($(lastcol) / 2))
+	local posmsg=21
 	local produto_info
-	local ultimo_registro
-	local produto_info
-	local IsHeader=0
-	local IsLike=1
+	local fornecedor_info
+	local p_id p_nome p_un p_estoque p_preco p_codebar p_data p_validade p_qmin p_fabricante
+	local f_id f_data f_nome f_ende f_cida f_uf f_cnpj
 
 	while true; do
-		produto_info=
-		identificador=
-		ultimo_registro="$(lastrec 'produtos')"
 		tela
-		titulo 1 "$(gettext "ALTERAÇÃO DE PRODUTO")" "$ciano"
-		box 11 10 7 100 "$(gettext "ALTERAÇÃO DE PRODUTO")" "$ciano"
-		print 10 11 "$ultimo_registro"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 10 10 "$half_lastcol" "$xtitle" "${Acores[box]}"
 		print 12 11 "$(gettext "ID/Nome")              : "
 		print 13 11 "$(gettext "Descrição")            : "
-		print 14 11 "$(gettext "Código Barras")        : "
-		print 15 11 "$(gettext "Unidade")              : "
-		print 16 11 "$(gettext "Preço (ex: 4.40 ou 5)"): "
+		print 14 11 "$(gettext "Fabricante")           : "
+		print 15 11 "$(gettext "Código Barras")        : "
+		print 16 11 "$(gettext "Unidade")              : "
+		print 17 11 "$(gettext "Estoque mínimo")       : "
+		print 18 11 "$(gettext "Data validade")        : "
+		print 19 11 "$(gettext "Preço (ex: 4.99 ou 5)"): "
 
 		get 12 11 "$(gettext "ID/Nome")              : " identificador
-		setpos 18 10
-
-		if [[ -z "$identificador" ]]; then
-			if readconf "$(gettext "ID/Nome não pode ser em branco. Cancelar?")"; then
-				return
-			fi
-		fi
-		if [[ $identificador =~ ^[0-9]+$ ]]; then
-			produto_info=$(dbseek 'produtos' 'id' "$identificador")
-		else
-			produto_info=$(dbseek 'produtos' 'nome' "$identificador" "$IsHeader" "$IsLike")
-		fi
-		if [[ -z "$produto_info" ]]; then
-			mensagem 2 "$(gettext "Produto não encontrado nos parâmetros informados")" "$red"
-			continue
-		fi
-		IFS='|' read -r produto_id produto_nome produto_unidade produto_estoque produto_preco produto_codebar produto_data <<<"$produto_info"
-		while true; do
-			get 13 11 "$(gettext "Descrição")            : " nome "$produto_nome"
-			if [[ -n "$nome" ]]; then
-				break
-			else
-				setpos 18 10
-				if readconf "$(gettext "A descrição não pode ser em branco. Cancelar?")"; then
-					return
-				fi
-			fi
-		done
-
-		get 14 11 "$(gettext "Código Barras")        : " codebar "$produto_codebar"
-		get 15 11 "$(gettext "Unidade")              : " un "$produto_unidade"
-
-		# Solicita o preço como número inteiro ou decimal com ponto (ex: 4.40) e verifica se não está em branco
-		while true; do
-			get 16 11 "$(gettext "Preço (ex: 4.40 ou 5)"): " preco "$produto_preco"
-			if [[ -n "$preco" ]] && [[ $preco =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-				break
-			else
-				mensagem 2 "$(gettext "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro.")" "$red"
-			fi
-		done
-
-		setpos 18 10
-		if readconf "$(gettext "Confirma inclusão/atualização do produto?")"; then
-			nome=${nome^^}
-			un=${un^^}
-			query="INSERT OR REPLACE INTO produtos (id, nome, un, estoque, preco, codebar, data) VALUES (
-		        (SELECT id FROM produtos WHERE id='$produto_id'),
-		        '$nome', '$un', '$produto_estoque', '$preco', '$codebar', '$(sh_date)'
-		    );"
-
-			if sqlite3 "$database" "$query"; then
-				mensagem 2 "$(gettext "Produto cadastrado/atualizado com sucesso!")" "$green"
-			else
-				mensagem 2 "$(gettext "Erro no cadastro/atualização do produto.")" "$red"
-			fi
-		else
-			mensagem 2 "$(gettext "Inclusão/alteração não efetuada.")" "$red"
-		fi
-	done
-}
-
-function produto_remocao() {
-	local consulta_sql
-	local resultado
-	local identificador
-
-	while true; do
-		tela
-		titulo 1 "$(gettext "REMOÇÃO DE PRODUTO")" "$ciano"
-		box 10 0 4 $(($(lastcol) - 1))
-
-		get 11 01 "$(gettext "Digite o ID ou nome do produto que deseja remover: ")" identificador
 		identificador=${identificador^^}
 
 		if [[ -z "$identificador" ]]; then
-			setpos 14 01
+			setpos "$posmsg" 11
 			if readconf "$(gettext "O ID não pode ser em branco. Cancelar?")"; then
 				return
 			fi
 		fi
 
 		if [[ $identificador =~ ^[0-9]+$ ]]; then
-			resultado="$(dbseek 'produtos' 'id' "$identificador")"
+			produto_info="$(dbseek 'produtos' 'id' "$identificador")"
 		else
-			resultado="$(dbseek 'produtos' 'nome' "$identificador")"
+			produto_info="$(dbseek 'produtos' 'nome' "$identificador")"
 		fi
 
-		if [[ -n "$resultado" ]]; then
-			IFS='|' read -r produto_id produto_descricao produto_un produto_estoque produto_preco produto_codebar <<<"$resultado"
-			print 12 01 "$resultado" "$azul"
-			setpos 14 01
-			if readconf "$(gettext "Confirma exclusão do produto?")"; then
-				mensagem 2 "$(gettext "Removendo cadastro do produto")" "$green" 0
-				sqlite3 "$database" "DELETE FROM produtos WHERE id = $produto_id;"
-				setpos 15 01
-				if readconf "$(gettext "Deseja remover registros de vendas e compras desse produto?")"; then
-					mensagem 2 "$(gettext "Removendo registros de vendas")" "$green" 0
-					sqlite3 "$database" "DELETE FROM vendas WHERE id = $produto_id;"
-					mensagem 2 "$(gettext "Removendo registros de compras")" "$green" 0
-					sqlite3 "$database" "DELETE FROM compras WHERE id = $produto_id;"
+		if [[ -n "$produto_info" ]]; then
+			IFS='|' read -r p_id p_nome p_un p_estoque p_preco p_codebar p_data p_validade p_qmin p_fabricante <<<"$produto_info"
+			if [[ -n "$p_fabricante" ]]; then
+				if fornecedor_info=$(dbseek 'fornecedor' 'id' "$p_fabricante") && [ -n "$fornecedor_info" ]; then
+					IFS='|' read -r f_id f_data f_nome f_ende f_cida f_uf f_cnpj <<<"$fornecedor_info"
+					print 14 40 "${yellow}$f_nome${reset}"
 				fi
-				mensagem 2 "$(gettext "Produto removido do inventário!")" "$green"
+			fi
+
+			print 13 34 "${yellow}$p_nome${reset}"
+			print 14 34 "${yellow}$p_fabricante${reset}"
+			print 15 34 "${yellow}$p_codebar${reset}"
+			print 16 34 "${yellow}$p_un${reset}"
+			print 17 34 "${yellow}$p_qmin${reset}"
+			print 18 34 "${yellow}$(convert_data_to_ptBR "$p_validade")${reset}"
+			print 19 34 "${yellow}$p_preco${reset}"
+
+			setpos "$posmsg" 11
+			if readconf "$(gettext "Confirma exclusão do produto?")"; then
+				msgok 2 "$(gettext "Removendo cadastro do produto")" "" 0
+				sqlite3 "$database" "DELETE FROM produtos WHERE id = $p_id;"
+				setpos "$((posmsg + 1))" 11
+				if readconf "$(gettext "Deseja remover registros de vendas e compras desse produto?")"; then
+					msgok 2 "$(gettext "Removendo registros de vendas")" "" 0
+					sqlite3 "$database" "DELETE FROM vendas WHERE id = $p_id;"
+					msgok 2 "$(gettext "Removendo registros de compras")" "" 0
+					sqlite3 "$database" "DELETE FROM compras WHERE id = $p_id;"
+				fi
+				msgok 2 "$(gettext "Produto removido do inventário!")"
 			fi
 		else
-			mensagem 2 "$(gettext "Nenhum produto encontrado nos parâmetros informados")" "$red" 10
+			msgerror 2 "$(gettext "Nenhum produto encontrado nos parâmetros informados")" "" 10
 		fi
 	done
 }
 
+function inkey() {
+	timeout="$1"
+	[[ -z "$timeout" ]] && timeout=-1
+	IFS= read -t "$timeout" -n 1 -s lastkey
+	[[ -z "$lastkey" ]] && lastkey=""
+}
+
+function pause() {
+	timeout="$1"
+	msg="$2"
+#	>/dev/tty printf '%s' "${msg:-Pressione qualquer tecla para continuar...}"
+	>/dev/tty printf '%s' "${msg:-""}"
+	[[ $ZSH_VERSION ]] && read -krs  # Use -u0 to read from STDIN
+	[[ $BASH_VERSION ]] && </dev/tty read -t "$timeout" -rsn1
+	printf '\n'
+}
+
+function pausesed() {
+	sed -n q </dev/tty
+}
+
 function produto_pesquisa() {
 	local produto_info
+	local fornecedor_info
 	local IsHeader=0
 	local IsLike=0
-	local id nome un estoque preco
+	local id nome un estoque preco codebar data validade qmin fabricante
+	local f_id f_data f_nome f_ende f_cida f_uf f_cnpj
 	local ncol
 	local nrow
 	local nlastrow
 	local half_lastcol
+	local Coordenadas
+	local Cabecalho
+	local Max_field_width
+	local Color
+	local Align_field
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
-		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR PRODUTOS")" "$ciano"
-		get $((nTop+1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		titulo 1 "$(gettext "PESQUISAR PRODUTOS")" "${Acores[statussup]}"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR PRODUTOS")" "${Acores[box]}"
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id <x>|<x-y>, f<id> ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
@@ -761,6 +1516,14 @@ function produto_pesquisa() {
 		if [[ $identificador =~ ^[0-9]+$ ]]; then
 			IsLike=0
 			produto_info=$(dbseek 'produtos' 'id' "$identificador" "$IsHeader" "$IsLike")
+		elif [[ $identificador =~ ^[fF]([0-9]+)$ ]]; then
+			identificador=${BASH_REMATCH[1]}
+			IsLike=0
+			produto_info=$(dbseek 'produtos' 'fabricante' "$identificador" "$IsHeader" "$IsLike")
+			if fornecedor_info=$(dbseek 'fornecedor' 'id' "$identificador") && [ -n "$fornecedor_info" ]; then
+				IFS='|' read -r f_id f_data f_nome f_ende f_cida f_uf f_cnpj <<<"$fornecedor_info"
+				print $((nTop + 1)) 61 "${yellow}${f_nome}"
+			fi
 		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
 			id_ini=${BASH_REMATCH[1]}
 			id_fim=${BASH_REMATCH[2]}
@@ -771,49 +1534,220 @@ function produto_pesquisa() {
 		fi
 
 		function imprimirCabecalhoPesquisaProdutos() {
-			setpos $((nTop+3)) "$ncol"
-			printf "${yellow}%-5s %-10s %-40s   %s %5s %11s %13s${reset}\n" "ID" "DATA" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "CODEBAR"
-			setpos $((nTop+4)) "$ncol"
-			replicate '-' "$half_lastcol"
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="ID|DESCRIÇÃO DO PRODUTO|UN|FABRI|VALIDADE|QMIN|ESTOQ|PREÇO|CODEBAR"
+			Max_field_width="5|40|2|5|10|5|5|10|13"
+			Color="${Acores[dispbox]}"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
 		}
 
 		if [[ -n "$produto_info" ]]; then
-			nrow=$((nTop+5))
-			ncol=01
-			half_lastcol=$(($(lastcol) / 3))
-			nlastrow="$(($(lastrow) - 1))"
+			nrow=$((nTop + 4))
+			ncol=0
+			half_lastcol=$(($(lastcol) / 2))
+			nlastrow="$(($(lastrow) - 2))"
 			imprimirCabecalhoPesquisaProdutos
-			while IFS='|' read -r id nome un estoque preco codebar data; do
+			npage=1
+			while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
 				if ((nrow >= nlastrow)); then
-					nrow=$((nTop+5))
-					ncol=$(( ncol + half_lastcol ))
+					nrow=$((nTop + 4))
+					if [[ $((npage % 2)) -eq 0 ]]; then
+						ncol=0
+						msgok 2 "Página: $npage" "" -1
+					else
+						ncol=$((ncol + half_lastcol))
+					fi
 					imprimirCabecalhoPesquisaProdutos
+					((++npage))
 				fi
-				setpos "$nrow" "$ncol"
+				setpos "$nrow" "$((ncol + 1))"
 				preco=$(bc -l <<<"$preco" | tr "." ",")
-				printf "%-5s %-10s %-40s %s ${cyan}%5s ${red}%10.2f${reset} %s" "$id" "$(convert_data_to_ptBR "$data")" "$nome" "$un" "$estoque" "$preco" "$codebar"
+				printf "%5s|%-40s|%2s|%5s|%10s|${cyan}%5s|%5s|${red}%10.2f${reset}|%-13s" "$id" "$nome" "$un" "$fabricante" "$(convert_data_to_ptBR "$validade")" "$qmin" "$estoque" "$preco" "$codebar"
 				((++nrow))
 			done <<<"$produto_info"
-			mensagem 2 "" "$green" 300
+			msgok 2 "Página: $npage" "" -1
 		else
-			mensagem 2 "$(gettext "Nenhum produto encontrado nos parâmetros informados")" "$red" 10
+			msgerror 2 "$(gettext "Nenhum produto encontrado nos parâmetros informados")" "" 10
+		fi
+	done
+}
+
+function relatorio_produtos_minimo() {
+	local produto_info
+	local id nome un estoque preco codebar data validade qmin fabricante
+	local ncol
+	local nrow
+	local nlastrow
+	local half_lastcol
+
+	while true; do
+		tela
+		titulo 1 "$(gettext "RELATÓRIO DE PRODUTOS ABAIXO DO MINIMO")" "${Acores[statussup]}"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "RELATÓRIO DE PRODUTOS ABAIXO DO MINIMO")" "${Acores[box]}"
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id <x>|<x-y>, f<id> ou *=tudo)") : " identificador
+
+		[[ -z "$identificador" ]] && return
+		[[ "$identificador" == "*" ]] && identificador=
+
+		if [[ $identificador =~ ^[0-9]+$ ]]; then
+			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id='$identificador';")
+		elif [[ $identificador =~ ^[fF]([0-9]+)$ ]]; then
+			identificador=${BASH_REMATCH[1]}
+			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE fabricante = '$identificador' AND produtos.estoque < produtos.qmin;")
+			if fornecedor_info=$(dbseek 'fornecedor' 'id' "$identificador") && [ -n "$fornecedor_info" ]; then
+				IFS='|' read -r f_id f_data f_nome f_ende f_cida f_uf f_cnpj <<<"$fornecedor_info"
+				print $((nTop + 1)) 61 "${yellow}${f_nome}"
+			fi
+		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
+			id_ini=${BASH_REMATCH[1]}
+			id_fim=${BASH_REMATCH[2]}
+			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id >= '$id_ini' AND id <= '$id_fim' AND produtos.estoque < produtos.qmin;")
+		else
+			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id LIKE '%$identificador%' AND produtos.estoque < produtos.qmin;")
+		fi
+
+		function imprimirCabecalhoProdutosMinimo() {
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="ID|VALIDADE|DESCRIÇÃO DO PRODUTO|UN|QMIN|ESTOQUE"
+			Max_field_width="5|10|40|2|7|7"
+			Color="${Acores[dispbox]}"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
+		}
+
+		if [[ -n "$produto_info" ]]; then
+			nrow=$((nTop + 4))
+			ncol=0
+			half_lastcol=$(($(lastcol) / 2))
+			nlastrow="$(($(lastrow) - 2))"
+			imprimirCabecalhoProdutosMinimo
+			npage=1
+			while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
+				if ((nrow >= nlastrow)); then
+					nrow=$((nTop + 4))
+					if [[ $((npage % 2 )) -eq 0 ]]; then
+						ncol=0
+						msgok 2 "Página: $npage" "" -1
+					else
+						ncol=$((ncol + half_lastcol))
+					fi
+					imprimirCabecalhoProdutosMinimo
+					((++npage))
+				fi
+				setpos "$nrow" "$((ncol + 1))"
+
+				if [[ $estoque -lt $qmin ]]; then
+					printf "${yellow}%-5s${reset}|%-10s|%-40s|%2s|${cyan}%7s|${red}%7s${reset}" "$id" "$(convert_data_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
+				else
+					printf "${yellow}%-5s${reset}|%-10s|%-40s|%2s|${cyan}%7s|${green}%7s${reset}" "$id" "$(convert_data_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
+				fi
+				((++nrow))
+			done <<<"$produto_info"
+			msgok 2 "Página: $npage" "" -1
+		else
+			msgerror 2 "$(gettext "Nenhum produto nos parâmetros informados")" "" 10
+		fi
+	done
+}
+
+function relatorio_produtos_fora_validade() {
+	local xtitle="$(gettext "RELATÓRIO DE PRODUTOS FORA DE VALIDADE")"
+	local produto_info
+	local id nome un estoque preco codebar data validade qmin fabricante
+	local ncol
+	local nrow
+	local nlastrow
+	local half_lastcol
+	local today="$(sh_date)"
+
+	while true; do
+		tela
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id <x>|<x-y>, f<id> ou *=tudo)") : " identificador
+
+		[[ -z "$identificador" ]] && return
+		[[ "$identificador" == "*" ]] && identificador=
+
+		if [[ $identificador =~ ^[0-9]+$ ]]; then
+			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id='$identificador';")
+		elif [[ $identificador =~ ^[fF]([0-9]+)$ ]]; then
+			identificador=${BASH_REMATCH[1]}
+			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE fabricante = '$identificador' AND produtos.validade < '$(sh_date)';")
+			if fornecedor_info=$(dbseek 'fornecedor' 'id' "$identificador") && [ -n "$fornecedor_info" ]; then
+				IFS='|' read -r f_id f_data f_nome f_ende f_cida f_uf f_cnpj <<<"$fornecedor_info"
+				print $((nTop + 1)) 61 "${yellow}${f_nome}"
+			fi
+		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
+			id_ini=${BASH_REMATCH[1]}
+			id_fim=${BASH_REMATCH[2]}
+			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id >= '$id_ini' AND id <= '$id_fim' AND produtos.validade < '$(sh_date)';")
+		else
+			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id LIKE '%$identificador%' AND produtos.validade < '$(sh_date)';")
+		fi
+
+		function imprimirCabecalhoProdutosForaValidade() {
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="ID|VALIDADE|DESCRIÇÃO DO PRODUTO|UN|QMIN|ESTOQUE"
+			Max_field_width="5|10|40|2|7|7"
+			Color="${Acores[dispbox]}"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
+		}
+
+		if [[ -n "$produto_info" ]]; then
+			nrow=$((nTop + 4))
+			ncol=0
+			half_lastcol=$(($(lastcol) / 2))
+			nlastrow="$(($(lastrow) - 2))"
+			imprimirCabecalhoProdutosForaValidade
+			npage=1
+			while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
+				if ((nrow >= nlastrow)); then
+					nrow=$((nTop + 4))
+					if [[ $((npage % 2 )) -eq 0 ]]; then
+						ncol=0
+						msgok 2 "Página: $npage" "" -1
+					else
+						ncol=$((ncol + half_lastcol))
+					fi
+					imprimirCabecalhoProdutosForaValidade
+					((++npage))
+				fi
+				setpos "$nrow" "$((ncol + 1))"
+				if [[ "$validade" < "$today" ]]; then
+					printf "${yellow}%-5s|${red}%-10s${reset}|%-40s|%2s|${cyan}%7s|${red}%7s${reset}" "$id" "$(convert_data_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
+				else
+					printf "${yellow}%-5s|${green}%-10s${reset}|%-40s|%2s|${cyan}%7s|${green}%7s${reset}" "$id" "$(convert_data_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
+				fi
+				((++nrow))
+			done <<<"$produto_info"
+			msgok 2 "Página: $npage" "" -1
+		else
+			msgerror 2 "$(gettext "Nenhum produto nos parâmetros informados")" "" 10
 		fi
 	done
 }
 
 function fornecedor_inclusao() {
+	local xtitle="$(gettext "CADASTRO DE FORNECEDOR")"
 	local data_dia="$(sh_date)"
 	local fornecedor_info
 	local ultimo_registro
 	local IsHeader=0
 	local IsLike=1
+	local half_lastcol=$(($(lastcol) / 2))
 
 	while true; do
 		fornecedor_info=
 		ultimo_registro="$(lastrec 'fornecedor')"
 		tela
-		titulo 1 "$(gettext "CADASTRO DE FORNECEDOR")" "$ciano"
-		box 11 10 7 80 "$(gettext "CADASTRO DE FORNECEDOR")" "$ciano"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 10 7 "$half_lastcol" "$xtitle" "${Acores[box]}"
 		print 10 11 "$ultimo_registro"
 		print 12 11 "$(gettext "Nome")                 : "
 		print 13 11 "$(gettext "Endereço")             : "
@@ -828,7 +1762,7 @@ function fornecedor_inclusao() {
 					IFS='|' read -r fornecedor_id fornecedor_data fornecedor_nome fornecedor_ende fornecedor_cida fornecedor_esta fornecedor_cnpj <<<"$fornecedor_info"
 					get 12 11 "$(gettext "Nome")                 : " nome "$fornecedor_nome"
 					if [[ -z "$nome" ]]; then
-						mensagem 2 "$(gettext "Nome não pode ser em branco")" "$red"
+						msgerror 2 "$(gettext "Nome não pode ser em branco")"
 						continue
 					fi
 				fi
@@ -858,17 +1792,18 @@ function fornecedor_inclusao() {
 			);"
 
 			if sqlite3 "$database" "$query"; then
-				mensagem 2 "$(gettext "Fornecedor cadastrado/atualizado com sucesso!")" "$green"
+				msgok 2 "$(gettext "Fornecedor cadastrado/atualizado com sucesso!")"
 			else
-				mensagem 2 "$(gettext "Erro no cadastro/atualização do fornecedor")" "$red"
+				msgerror 2 "$(gettext "Erro no cadastro/atualização do fornecedor")"
 			fi
 		else
-			mensagem 2 "$(gettext "Inclusão/alteração não efetuada.")" "$red"
+			msgerror 2 "$(gettext "Inclusão/alteração não efetuada.")"
 		fi
 	done
 }
 
 function fornecedor_alteracao() {
+	local xtitle="$(gettext "ALTERAÇÃO DE FORNECEDOR")"
 	local data_dia="$(sh_date)"
 	local fornecedor_info
 	local ultimo_registro
@@ -879,8 +1814,8 @@ function fornecedor_alteracao() {
 		fornecedor_info=
 		ultimo_registro="$(lastrec 'fornecedor')"
 		tela
-		titulo 1 "$(gettext "ALTERAÇÃO DE FORNECEDOR")" "$ciano"
-		box 11 10 8 80 "$(gettext "ALTERACÃO DE FORNECEDOR")" "$ciano"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 10 8 80 "$xtitle" "${Acores[box]}"
 		print 10 11 "$ultimo_registro"
 		print 12 11 "$(gettext "ID/Nome")              : "
 		print 13 11 "$(gettext "Nome")                 : "
@@ -903,7 +1838,7 @@ function fornecedor_alteracao() {
 			fornecedor_info=$(dbseek fornecedor nome "$identificador" "$IsHeader" "$IsLike")
 		fi
 		if [[ -z "$fornecedor_info" ]]; then
-			mensagem 2 "$(gettext "Fornecedor não encontrado nos parâmetros informados")" "$red"
+			msgerror 2 "$(gettext "Fornecedor não encontrado nos parâmetros informados")"
 			continue
 		fi
 		IFS='|' read -r fornecedor_id fornecedor_data fornecedor_nome fornecedor_ende fornecedor_cida fornecedor_esta fornecedor_cnpj <<<"$fornecedor_info"
@@ -937,17 +1872,18 @@ function fornecedor_alteracao() {
 			);"
 
 			if sqlite3 "$database" "$query"; then
-				mensagem 2 "$(gettext "Fornecedor cadastrado/atualizado com sucesso!")" "$green"
+				msgok 2 "$(gettext "Fornecedor cadastrado/atualizado com sucesso!")"
 			else
-				mensagem 2 "$(gettext "Erro no cadastro/atualização do fornecedor")" "$red"
+				msgerror 2 "$(gettext "Erro no cadastro/atualização do fornecedor")"
 			fi
 		else
-			mensagem 2 "$(gettext "Inclusão/alteração não efetuada.")" "$red"
+			msgerror 2 "$(gettext "Inclusão/alteração não efetuada.")"
 		fi
 	done
 }
 
 function fornecedor_exclusao() {
+	local xtitle="$(gettext "EXCLUSÃO DE FORNECEDOR")"
 	local consulta_sql
 	local resultado
 	local identificador
@@ -956,8 +1892,8 @@ function fornecedor_exclusao() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "EXCLUSÃO DE FORNECEDOR")" "$ciano"
-		box 10 10 4 $(($(lastcol) - 11)) "$(gettext "EXCLUSÃO DE FORNECEDOR")" "$ciano"
+		titulo 1 "$(gettext "EXCLUSÃO DE FORNECEDOR")" "${Acores[statussup]}"
+		box 10 10 4 $(($(lastcol) - 11)) "$(gettext "EXCLUSÃO DE FORNECEDOR")" "${Acores[box]}"
 		get 11 11 "$(gettext "Digite o ID ou nome do fornecedor: ")" identificador
 		identificador=${identificador^^}
 
@@ -976,7 +1912,7 @@ function fornecedor_exclusao() {
 		fi
 
 		if [[ -z "$fornecedor_info" ]]; then
-			mensagem 2 "$(gettext "Nenhum fornecedor encontrado nos parâmetros informados")" "$red" 10
+			msgerror 2 "$(gettext "Nenhum fornecedor encontrado nos parâmetros informados")" "" 10
 			continue
 		else
 			IFS='|' read -r fornecedor_id fornecedor_data fornecedor_nome fornecedor_ende fornecedor_cida fornecedor_esta fornecedor_cnpj <<<"$fornecedor_info"
@@ -990,23 +1926,24 @@ function fornecedor_exclusao() {
 					query="DELETE FROM fornecedor WHERE nome='$identificador';"
 				fi
 				if sqlite3 "$database" "$query"; then
-					mensagem 2 "$(gettext "Fornecedor removido com sucesso!")" "$green"
+					msgok 2 "$(gettext "Fornecedor removido com sucesso!")"
 				else
-					mensagem 2 "$(gettext "Erro na remoção do fornecedor!")" "$green" 10
+					msgok 2 "$(gettext "Erro na remoção do fornecedor!")" "" 10
 				fi
 			else
-				mensagem 2 "$(gettext "Exclusão de fornecedor não confirmada!")" "$black" 5
+				msgerror 2 "$(gettext "Exclusão de fornecedor não confirmada!")" "" 5
 			fi
 		fi
 	done
 }
 
 function fornecedor_pesquisa() {
+	local xtitle="$(gettext "PESQUISAR FORNECEDOR")"
 	local identificador
 	local fornecedor_info
 	local id_ini
 	local id_fim
-	local IsHeader=1
+	local IsHeader=0
 	local IsLike=1
 	local nrow
 	local ncol
@@ -1019,93 +1956,92 @@ function fornecedor_pesquisa() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
-		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "PESQUISAR FORNECEDOR")" "$ciano"
-		get $((nTop+1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (nome, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
 
 		if [[ $identificador =~ ^[0-9]+$ ]]; then
-			fornecedor_info=$(dbseek 'fornecedor' 'id' "$identificador" "$IsHeader")
+			fornecedor_info=$(dbseek 'fornecedor' 'id' "$identificador")
 		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
 			id_ini=${BASH_REMATCH[1]}
 			id_fim=${BASH_REMATCH[2]}
-			fornecedor_info=$(sqlite3 $database -column -header "SELECT * FROM fornecedor WHERE id >= $id_ini AND id <= $id_fim;")
+			fornecedor_info=$(sqlite3 $database "SELECT * FROM fornecedor WHERE id >= $id_ini AND id <= $id_fim;")
 		else
 			fornecedor_info=$(dbseek 'fornecedor' 'nome' "$identificador" "$IsHeader" "$IsLike")
 		fi
 
 		function imprimirCabecalhoPesquisaFornecedor() {
-			setpos $((nTop+3)) "$ncol"
-			printf "${yellow}%s${reset}" "$cabecalho"
-			setpos $((nTop+4)) "$ncol"
-			printf "${yellow}%s${reset}" "$traco"
+#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+			Cabecalho="ID|DATA|NOME FORNECEDOR|ENDEREÇO|CIDADE|UF|CNPJ"
+			Max_field_width="5|10|40|40|25|2|18"
+			Color="${Acores[dispbox]}"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
 		}
 
 		if [[ -n "$fornecedor_info" ]]; then
-			nrow=$((nTop+5))
-			ncol=01
+			nrow=$((nTop + 4))
+			ncol=0
 			nconta=0
-			half_lastcol=$(($(lastcol) / 3))
-			nlastrow="$(($(lastrow) - 1))"
-			while IFS='|' read -r line; do
-				if [[ $nconta -eq 0 ]]; then
-					cabecalho="$(printf "%s" "$line")"
-					((++nconta))
-					continue
-				elif [[ $nconta -eq 1 ]]; then
-					traco="$(printf "%s" "$line")"
-					imprimirCabecalhoPesquisaFornecedor
-					((++nconta))
-					nrow=$((nTop+5))
-					continue
-				fi
+			nlastrow="$(($(lastrow) - 2))"
+			half_lastcol=$(($(lastcol) / 1))
+			imprimirCabecalhoPesquisaFornecedor
+			npage=1
+			while IFS='|' read -r id data nome ende cida uf cnpj; do
 				if ((nrow >= nlastrow)); then
-					ncol=$(( ncol + half_lastcol ))
+					if [[ $((npage % $npage)) -eq 0 ]]; then
+						nrow=$((nTop + 4))
+						ncol=0
+						msgok 2 "Página: $npage" "" -1
+					fi
 					imprimirCabecalhoPesquisaFornecedor
-					nrow=$((nTop+5))
+					((++npage))
 				fi
-				setpos "$nrow" "$ncol"
-				printf "%s" "$line"
+				setpos "$nrow" "$((ncol + 1))"
+				printf "%5s|%-10s|%-40s|%-40s|%-25s|%2s|%18s" "$id" "$(convert_data_to_ptBR "$data")" "$nome" "$ende" "$cida" "$uf" "$cnpj"
 				((++nrow))
-			done <<< "$fornecedor_info"
-			mensagem 2 "" "$green" 300
+			done <<<"$fornecedor_info"
+			msgok 2 "Página: $npage" "" -1
 		else
-			mensagem 2 "$(gettext "Nenhum fornecedor encontrado nos parâmetros informados")" "$red" 10
+			msgerror 2 "$(gettext "Nenhum fornecedor encontrado nos parâmetros informados")" "" 10
 		fi
 
 	done
 }
 
-function listagem_vendas_diarias() {
+function relatorio_vendas_diarias() {
+	local xtitle="$(gettext "RELATÓRIO DE VENDAS DIÁRIAS")"
 	local query_result
-	local nrow
-	local lines
-	local lastrow=$(lastrow)
-	local lastcol=$(lastcol)
-	local dini
-	local dfim
+	local dini dfim
 	local data_inicio="01-$(date +"%m-%Y")"
 	local data_fim=$(date +"%d-%m-%Y")
+	local Coordenadas Cabecalho Max_field_width Color Align_field
+	local ncol nrow half_lastcol nlastrow total_mes current_mes
+	local new_mes total
+	local mes_inicial mes_final
+	local ano_inicial ano_final
 
 	tela
-	titulo 1 "$(gettext "LISTAGEM DE VENDAS DIÁRIAS")" "$ciano"
-	box 10 0 4 "$((lastcol - 1))" "$(gettext "PERÍODO DE CONSULTA")" "$ciano"
-	print 11 01 "$(gettext "Data Inicial")    : "
-	print 12 01 "$(gettext "Data Final")      : "
+	titulo 1 "$xtitle" "${Acores[statussup]}"
+	box "$nTop" 0 4 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
+ 	print $((nTop + 1)) 1 "$(gettext "Data Inicial")    : "
+	print $((nTop + 2)) 1 "$(gettext "Data Final")      : "
 
 	while true; do
-		get 11 01 "$(gettext "Data Inicial")    : " dini "$data_inicio"
+		get $((nTop + 1)) 1 "$(gettext "Data Inicial")    : " dini "$data_inicio"
 		if [[ -n "$dini" ]]; then
 			if validar_data "$dini"; then
 				break
 			else
-				mensagem 2 "$(gettext "Data inválida")" "$red"
+				msgerror 2 "$(gettext "Data inválida")"
 				continue
 			fi
 		else
-			setpos 14 01
+			setpos 12 01
 			if readconf "$(gettext "A data não pode ser em branco. Cancelar?")"; then
 				return
 			fi
@@ -1113,16 +2049,16 @@ function listagem_vendas_diarias() {
 	done
 
 	while true; do
-		get 12 01 "$(gettext "Data Final")      : " dfim "$data_fim"
+		get $((nTop + 2)) 1 "$(gettext "Data Final")      : " dfim "$data_fim"
 		if [[ -n "$dfim" ]]; then
 			if validar_data "$dfim"; then
 				break
 			else
-				mensagem 2 "$(gettext "Data inválida")" "$red"
+				msgerror 2 "$(gettext "Data inválida")"
 				continue
 			fi
 		else
-			setpos 14 01
+			setpos 12 01
 			if readconf "$(gettext "A data não pode ser em branco. Cancelar?")"; then
 				return
 			fi
@@ -1134,150 +2070,73 @@ function listagem_vendas_diarias() {
 
 	# Consulta para obter resultados diários agrupados por ano e mês
 	query_results=()
-
 	mes_inicial="$(date -d "$dini" +"%m")"
 	mes_final="$(date -d "$dfim" +"%m")"
 	ano_inicial="$(date -d "$dini" +"%Y")"
 	ano_final="$(date -d "$dfim" +"%Y")"
-	ncol=01
-
-	box 14 0 34 "$((lastcol - 1))" "$(gettext "")" "$ciano"
-	#	for i in $(seq "$mes_inicial" "$mes_final"); do
-	#		mes_atual=$(date -d "$ano_inicial-$i-01" +"%Y-%m")
-	#		query_result=$(sqlite3 "$database" "SELECT date(data), SUM(total) FROM vendas WHERE data LIKE '$mes_atual%' GROUP BY date(data) ORDER BY data ASC")
 	query_result=$(sqlite3 "$database" "SELECT date(data), SUM(total) FROM vendas WHERE date(data) BETWEEN '$dini' AND '$dfim' GROUP BY date(data) ORDER BY date(data) ASC")
 
+	function relatorio_vendas_diarias::imprimir_cabecalho_relatorio() {
+		Coordenadas="$((nTop + 4))|$ncol|$(($(lastrow) - $((nTop + 5))))"
+#		Coordenadas="$((nTop + 4))|$ncol|1"
+		Cabecalho="DATA|TOTAL DIA"
+		Max_field_width="10|10"
+		Color="${Acores[dispbox]}"
+		Align_field='left'
+		dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
+	}
+
 	if [[ -n "${query_result}" ]]; then
-		setpos 14 "$ncol"
-		printf "${yellow}%-10s %10s\n" "data" "total dia"
-		nrow=15
+		ncol=0
+		nrow=$((nTop + 5))
+		npages=$(($(lastcol) / 22))
+		half_lastcol=$(($(lastcol) / npages))
+		nlastrow="$(($(lastrow) - 2))"
 		total_mes=0
 		current_mes=
+		relatorio_vendas_diarias::imprimir_cabecalho_relatorio
+		npage=1
 		while IFS='|' read -r data total; do
 			new_mes=$(date -d "$data" +"%m")
 			if [[ -n "$current_mes" && "$current_mes" != "$new_mes" ]]; then
 				((++nrow))
-				setpos "$nrow" "$ncol"
+				setpos $((ntop+44)) "$((ncol + 1))"
 				printf "${blue}%-10s ${red}%'10.2f${reset}\n" "SOMA" "$(tr "." "," <<<"$total_mes")"
-				ncol=$((ncol + 22))
-				setpos 14 "$ncol"
-				printf "${yellow}%-10s %10s\n" "data" "total dia"
-				setpos 16 "$ncol"
-				#				replicate "-" 21
-				nrow=15
 				total_mes=0
+
+				if [[ $((npage % npages)) -eq 0 ]]; then
+					ncol=0
+					msgok 2 "Página: $npage" "" -1
+				else
+					ncol=$((ncol + half_lastcol))
+				fi
+
+				relatorio_vendas_diarias::imprimir_cabecalho_relatorio
+				nrow=$((nTop + 5))
+				((++npage))
 			fi
+
 			total_mes=$(echo "$total_mes + $total" | bc -l)
 			total=$(bc -l <<<"$total" | tr "." ",")
-			setpos "$nrow" "$ncol"
-			printf "${blue}%s ${red}%10.2f${yellow}|${reset}\n" "$(convert_data_to_ptBR "$data")" "$total"
+			setpos "$nrow" "$((ncol + 1))"
+			if [[ $((nrow % 2)) -eq 0 ]]; then
+				printf "${cyan}%s|%10.2f${reset}\n" "$(convert_data_to_ptBR "$data")" "$total"
+			else
+				printf "${black}%s|%10.2f${reset}\n" "$(convert_data_to_ptBR "$data")" "$total"
+			fi
 			((++nrow))
 			current_mes="$new_mes"
 		done <<<"${query_result}"
 		((++nrow))
-		setpos "$nrow" "$ncol"
+		setpos "$nrow" "$((ncol + 1))"
 		printf "${blue}%-10s ${red}%'10.2f${reset}\n" "SOMA" "$(tr "." "," <<<"$total_mes")"
 	fi
-
-	#	done
-	mensagem 2 "" "$green" 300
+	msgok 2 "" "" -1
 }
 
-function listagem_vendas_mensal() {
-	local query_result
-	local nrow
-	local lines
-	local lastrow=$(lastrow)
-	local lastcol=$(lastcol)
-	local dini
-	local dfim
-	local data_inicio="01-$(date +"%m-%Y")"
-	local data_fim=$(date +"%d-%m-%Y")
-
-	tela
-	titulo 1 "$(gettext "LISTAGEM DE VENDAS DIÁRIAS")" "$ciano"
-	box 10 0 4 "$((lastcol - 1))" "$(gettext "PERÍODO DE CONSULTA")" "$ciano"
-	print 11 01 "$(gettext "Data Inicial")    : "
-	print 12 01 "$(gettext "Data Final")      : "
-
-	while true; do
-		get 11 01 "$(gettext "Data Inicial")    : " dini "$data_inicio"
-		if [[ -n "$dini" ]]; then
-			if validar_data "$dini"; then
-				break
-			else
-				mensagem 2 "$(gettext "Data inválida")" "$red"
-				continue
-			fi
-		else
-			setpos 14 01
-			if readconf "$(gettext "A data não pode ser em branco. Cancelar?")"; then
-				return
-			fi
-		fi
-	done
-
-	while true; do
-		get 12 01 "$(gettext "Data Final")      : " dfim "$data_fim"
-		if [[ -n "$dfim" ]]; then
-			if validar_data "$dfim"; then
-				break
-			else
-				mensagem 2 "$(gettext "Data inválida")" "$red"
-				continue
-			fi
-		else
-			setpos 14 01
-			if readconf "$(gettext "A data não pode ser em branco. Cancelar?")"; then
-				return
-			fi
-		fi
-	done
-
-	dini=$(convert_data_to_US "$dini")
-	dfim=$(convert_data_to_US "$dfim")
-
-	# Consulta para obter resultados diários agrupados por ano e mês
-	query_results=()
-
-	mes_inicial="$(date -d "$dini" +"%m")"
-	mes_final="$(date -d "$dfim" +"%m")"
-	ano_inicial="$(date -d "$dini" +"%Y")"
-	ano_final="$(date -d "$dfim" +"%Y")"
-	ncol=01
-
-	box 14 0 "$((lastrow - 29))" "$((lastcol - 2))" "$(gettext "LISTAGEM DE VENDAS DIÁRIAS")" "$ciano"
-	for i in $(seq "$mes_inicial" "$mes_final"); do
-		mes_atual=$(date -d "$ano_inicial-$i-01" +"%Y-%m")
-		query_result=$(sqlite3 "$database" "SELECT date(data), SUM(total) FROM vendas WHERE data LIKE '$mes_atual%' GROUP BY date(data) ORDER BY data ASC")
-		# Verifica se há dados no resultado da consulta
-		if [[ -n "${query_result}" ]]; then
-			setpos 15 "$ncol"
-			printf "${yellow}%-10s %10s\n" "data" "total dia"
-			setpos 16 "$ncol"
-			replicate "-" 21
-			nrow=17
-			total_mes=0
-			while IFS='|' read -r data total; do
-				total_mes=$(echo "$total_mes + $total" | bc -l)
-				total=$(bc -l <<<"$total" | tr "." ",")
-				setpos "$nrow" "$ncol"
-				#			printf "${blue}%-30s ${red}R\$ %10.2f${reset}\n" "$data" "$total"
-				#				printf "${blue}%-10s ${red}%10.2f${reset}\n" "$(date -d "$data" +"%d-%m-%Y")" "$total"
-				printf "${blue}%s ${red}%10.2f${yellow}|${reset}\n" "$(convert_data_to_ptBR "$data")" "$total"
-				((++nrow))
-			done <<<"${query_result}"
-			((++nrow))
-			setpos "$nrow" "$ncol"
-			printf "${blue}%-10s ${red}%'10.2f${reset}\n" "SOMA" "$(tr "." "," <<<"$total_mes")"
-			ncol=$((ncol + 22))
-		fi
-	done
-	mensagem 2 "" "$green" 300
-}
-
-function listagem_produtos_vendidos() {
-	local current_docnr
+function relatorio_produtos_vendidos() {
+	local xtitle="$(gettext "RELATÓRIO PRODUTOS VENDIDOS")"
+	local current_index index
 	local nrow
 	local ncol
 	local half_lastcol
@@ -1285,16 +2144,20 @@ function listagem_produtos_vendidos() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
-		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM PRODUTOS VENDIDOS")" "$ciano"
-		get $((nTop+1)) 1 "$(gettext "Pesquisar por (docnr, data, id (<x>|[<x-y>]) ou *=tudo)") : " identificador
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
+		print $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data <dd-mm-aaaa>, id (<x>|[<x-y>]), f<id>, ou *=tudo)") : "
+		print $((nTop + 1)) $(($(lastcol) / 2)) "$(gettext "Agrupar (n=docnr, d=data, i=id, f=forn ou *=nenhum)") : "
+
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data <dd-mm-aaaa>, id (<x>|[<x-y>]), f<id>, ou *=tudo)") : " identificador
+		get $((nTop + 1)) $(($(lastcol) / 2)) "$(gettext "Agrupar (n=docnr, d=data, i=id, f=forn ou *=nenhum)") : " index
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
 
 		# por docnr
 		if [[ $identificador =~ ^[0-9]{7}$ ]]; then
-			query="SELECT vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
+			query="SELECT produtos.fabricante, vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				WHERE vendas.docnr = '$identificador'
@@ -1303,31 +2166,42 @@ function listagem_produtos_vendidos() {
 
 		# por id
 		elif [[ $identificador =~ ^[0-9]+$ ]]; then
-			query="SELECT vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
+			query="SELECT produtos.fabricante, vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				WHERE vendas.id = '$identificador'
 				ORDER BY vendas.data, vendas.docnr;"
 			result=$(sqlite3 "$database" "$query")
 
+		#id parcial
 		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
 			id_ini="${BASH_REMATCH[1]}"
 			id_fim="${BASH_REMATCH[2]}"
-			query="SELECT vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
+			query="SELECT produtos.fabricante, vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				WHERE vendas.id >= '$id_ini' AND vendas.id <= '$id_fim'
 				ORDER BY vendas.data, vendas.docnr;"
 			result=$(sqlite3 "$database" "$query")
 
+		# por fornecedor
+		elif [[ $identificador =~ ^[fF]([0-9]+)$ ]]; then
+			identificador=${BASH_REMATCH[1]}
+			query="SELECT produtos.fabricante, vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
+				FROM vendas
+				JOIN produtos ON vendas.id = produtos.id
+				WHERE produtos.fabricante = '$identificador'
+				ORDER BY vendas.data, vendas.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
 		# por data
 		elif [[ $identificador =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ || $identificador =~ ^[0-9]{2}/[0-9]{2}/[0-9]{4}$ ]]; then
 			if ! validar_data "$identificador"; then
-				mensagem 2 "$(gettext "Formato de data inválido.")" "$red"
+				msgerror 2 "$(gettext "Formato de data inválida")"
 				continue
 			fi
 			identificador=$(convert_data_to_US "$identificador")
-			query="SELECT vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
+			query="SELECT produtos.fabricante, vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				WHERE vendas.data = '$identificador'
@@ -1336,7 +2210,7 @@ function listagem_produtos_vendidos() {
 
 		# todos
 		else
-			query="SELECT vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
+			query="SELECT produtos.fabricante, vendas.data, vendas.docnr, produtos.id, produtos.un, produtos.nome, vendas.quantidade, vendas.preco, vendas.total
 				FROM vendas
 				JOIN produtos ON vendas.id = produtos.id
 				ORDER BY vendas.data, vendas.docnr;"
@@ -1344,54 +2218,119 @@ function listagem_produtos_vendidos() {
 		fi
 
 		function imprimirCabecalhoProdutosVendidos() {
-			setpos $((nTop+3)) "$ncol"
-			printf "%-10s %-8s %5s %-40s   %s %s %13s %12s\n" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "TOTAL"
-			setpos $((nTop+4)) "$ncol"
-			replicate '-' "$half_lastcol"
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="DATA|DOCNR|FORN|ID|DESCRIÇÃO DO PRODUTO|UN|QTD|PREÇO|TOTAL"
+			Max_field_width="10|7|5|5|40|2|5|10|10"
+			Color="${Acores[dispbox]}"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
 		}
 
 		# Verifica se há dados no resultado da consulta
 		if [ -n "$result" ]; then
-			current_docnr=""
-			nrow=$((nTop+5))
-			ncol=01
-			half_lastcol=$(($(lastcol) / 3))
-			nlastrow="$(($(lastrow) - 1))"
+			current_index=""
+			nrow=$((nTop + 4))
+			ncol=0
+			half_lastcol=$(($(lastcol) / 2))
+			nlastrow="$(($(lastrow) - 2))"
 			imprimirCabecalhoProdutosVendidos
-			while IFS='|' read -r data docnr id un produto quantidade preco total codebar; do
+			npage=1
+			while IFS='|' read -r fornecedor data docnr id un produto quantidade preco total codebar; do
+				case "$index" in
+				n) compare="$docnr" ;;
+				d) compare="$data" ;;
+				i) compare="$id" ;;
+				f) compare="$fornecedor" ;;
+				esac
+				if [[ "$current_index" != "" && "$compare" != "$current_index" ]]; then
+					((++nrow))
+				fi
 				if ((nrow >= nlastrow)); then
-					nrow=$((nTop+5))
-					ncol=$(( ncol + half_lastcol ))
+					nrow=$((nTop + 4))
+					if [[ $((npage % 2)) -eq 0 ]]; then
+						ncol=0
+						msgok 2 "Página: $npage" "" -1
+					else
+						ncol=$((ncol + half_lastcol))
+					fi
 					imprimirCabecalhoProdutosVendidos
+					((++npage))
 				fi
 				total_formatado=$(echo "$quantidade * $preco" | bc -l | tr "." ",")
 				preco=$(bc -l <<<"$preco" | tr "." ",")
-				setpos "$nrow" "$ncol"
-				printf "%-10s %-8s %5s %-40s %-2s ${cyan}%3d x %10.2f = ${red}%10.2f${reset}\n" "$(convert_data_to_ptBR "$data")" "$docnr" "$id" "$produto" "$un" "$quantidade" "$preco" "$total_formatado"
+				setpos "$nrow" "$((ncol + 1))"
+				printf "${yellow}%-10s${reset}|%-7s|%5s|%5s|%-40s|%-2s|${cyan}%5d|%10.2f|${red}%10.2f${reset}\n" "$(convert_data_to_ptBR "$data")" "$docnr" "$fornecedor" "$id" "$produto" "$un" "$quantidade" "$preco" "$total_formatado"
 				((++nrow))
+				case "$index" in
+				n) current_index="$docnr" ;;
+				d) current_index="$data" ;;
+				i) current_index="$id" ;;
+				f) current_index="$fornecedor" ;;
+				esac
 			done <<<"$result"
-			mensagem 2 "" "$green" 300
+			msgok 2 "Página: $npage" "" -1
 		else
-			mensagem 2 "$(gettext "Nenhum produto vendido nos parâmetros informados")" "$red" 10
+			msgerror 2 "$(gettext "Nenhum produto vendido nos parâmetros informados")" "" 10
 		fi
 	done
 }
 
-function listagem_entradas_produtos() {
-	local query
+function relatorio_entradas_produtos() {
+	local xtitle="$(gettext "RELATÓRIO ENTRADAS DE PRODUTOS")"
+	local identificador query result
+	local dini dfim
+	local id_ini id_fim
+	local current_docnr
+	local nrow ncol half_lastcol nlastrow
+	local total_formatado total
+	local fornecedor id data custo docnr un produto quantidade
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
-		box "$nTop" 0 3 $(($(lastcol) - 1)) "$(gettext "LISTAGEM ENTRADAS DE PRODUTOS")" "$ciano"
-		get $((nTop+1)) 1 "$(gettext "Pesquisar por (id, docnr, data ou *=tudo)") : " identificador
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
+		print $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data <dd-mm-aaaa>, id (<x>|[<x-y>]), f<id>, ou *=tudo)") : "
+		print $((nTop + 1)) $(($(lastcol) / 2)) "$(gettext "Agrupar (n=docnr, d=data, i=id, f=forn ou *=nenhum)") : "
+
+		get $((nTop + 1)) 1 "$(gettext "Pesquisar por (docnr, data <dd-mm-aaaa>, id (<x>|[<x-y>]), f<id>, ou *=tudo)") : " identificador
+		get $((nTop + 1)) $(($(lastcol) / 2)) "$(gettext "Agrupar (n=docnr, d=data, i=id, f=forn ou *=nenhum)") : " index
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
 
+		# por data parcial
+		if [[ "$identificador" =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}\s[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
+			dini="${BASH_REMATCH[1]}"
+			dfim="${BASH_REMATCH[2]}"
+			if ! validar_data "$dini"; then
+				msgerror 2 "$(gettext "Formato de data inicial inválida")"
+				continue
+			fi
+			if ! validar_data "$dfim"; then
+				msgerror 2 "$(gettext "Formato de data final inválida")"
+				continue
+			fi
+			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+				FROM compras
+				JOIN produtos ON compras.id = produtos.id
+				WHERE compras.data BETWEEN '$(convert_data_to_US "$dini")' AND '$(convert_data_to_US "$dfim")'
+				ORDER BY compras.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
+		# por fornecedor
+		elif [[ $identificador =~ ^[fF]([0-9]+)$ ]]; then
+			identificador=${BASH_REMATCH[1]}
+			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+				FROM compras
+				JOIN produtos ON compras.id = produtos.id
+				WHERE compras.fornecedor = '$identificador'
+				ORDER BY compras.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
 		# por id / por docnr
-		if [[ $identificador =~ ^[0-9]+$ ]]; then
-			query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+		elif [[ $identificador =~ ^[0-9]+$ ]]; then
+			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 				FROM compras
 				JOIN produtos ON compras.id = produtos.id
 				WHERE compras.docnr = '$identificador'
@@ -1399,7 +2338,7 @@ function listagem_entradas_produtos() {
 			result=$(sqlite3 "$database" "$query")
 
 			if [ -z "$result" ]; then
-				query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+				query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 					FROM compras
 					JOIN produtos ON compras.id = produtos.id
 					WHERE compras.id = '$identificador'
@@ -1407,13 +2346,24 @@ function listagem_entradas_produtos() {
 				result=$(sqlite3 "$database" "$query")
 			fi
 
+		#id parcial
+		elif [[ $identificador =~ ^([0-9]+)-([0-9]+)$ ]]; then
+			id_ini="${BASH_REMATCH[1]}"
+			id_fim="${BASH_REMATCH[2]}"
+			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+				FROM compras
+				JOIN produtos ON compras.id = produtos.id
+				WHERE compras.id >= '$id_ini' AND compras.id <= '$id_fim'
+				ORDER BY compras.data, compras.docnr;"
+			result=$(sqlite3 "$database" "$query")
+
 		# por data
-		elif [[ $identificador =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ || $identificador =~ ^[0-9]{2}/[0-9]{2}/[0-9]{4}$ ]]; then
+		elif [[ $identificador =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
 			if ! validar_data "$identificador"; then
-				mensagem 2 "$(gettext "Formato de data inválido.")" "$red"
+				msgerror 2 "$(gettext "Formato de data inválida")"
 				continue
 			fi
-			query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 				FROM compras
 				JOIN produtos ON compras.id = produtos.id
 				WHERE compras.data = '$(convert_data_to_US "$identificador")'
@@ -1422,16 +2372,16 @@ function listagem_entradas_produtos() {
 
 		# por docnr
 		elif [[ $identificador =~ ^[0-9]{7}$ ]]; then
-			query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 				FROM compras
 				JOIN produtos ON compras.id = produtos.id
 				WHERE compras.docnr = '$identificador'
 				ORDER BY compras.docnr;"
 			result=$(sqlite3 "$database" "$query")
 
-		# todos
+		# *=todos
 		else
-			query="SELECT fornecedor, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
+			query="SELECT fornecedor, compras.id, compras.data, docnr, produtos.un, produtos.nome, quantidade, custo, total
 				FROM compras
 				JOIN produtos ON compras.id = produtos.id
 				ORDER BY compras.docnr;"
@@ -1439,44 +2389,61 @@ function listagem_entradas_produtos() {
 		fi
 
 		function imprimirCabecalhoProdutosComprados() {
-			setpos $((nTop+3)) "$ncol"
-			printf "%-5s %-10s %-8s %-5s %-40s   %s %s %13s %12s\n" "FORNE" "DATA" "DOCNR" "ID" "DESCRIÇÃO DO PRODUTO" "UN" "QTD" "PREÇO" "TOTAL"
-			setpos $((nTop+4)) "$ncol"
-			replicate '-' "$half_lastcol"
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="FORN|DATA|DOCNR|ID|DESCRIÇÃO DO PRODUTO|UN|QTD|CUSTO"
+			Max_field_width="5|10|7|5|40|2|5|10"
+			Color="${Acores[dispbox]}"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
 		}
 
 		# Verifica se há dados no resultado da consulta
 		if [ -n "$result" ]; then
-			current_docnr=""
-			nrow=$((nTop+5))
-			ncol=01
-			half_lastcol=$(($(lastcol) / 3))
-			nlastrow="$(($(lastrow) - 1))"
+			current_index=""
+			nrow=$((nTop + 4))
+			ncol=0
+			half_lastcol=$(($(lastcol) / 2))
+			nlastrow="$(($(lastrow) - 2))"
 			imprimirCabecalhoProdutosComprados
-			while IFS='|' read -r fornecedor data docnr un produto quantidade custo total; do
-				if [[ "$docnr" != "$current_docnr" ]]; then
-#					echo
-#					echo "${blue}docnr: ${yellow}$docnr - ${blue}data: ${yellow}$(convert_data_to_ptBR "$data")${reset}"
-#					replicate "-" 84
-					current_docnr="$docnr"
+			npage=1
+			while IFS='|' read -r fornecedor id data docnr un produto quantidade custo total; do
+				case "$index" in
+				n) compare="$docnr" ;;
+				d) compare="$data" ;;
+				i) compare="$id" ;;
+				f) compare="$fornecedor" ;;
+				esac
+				if [[ "$current_index" != "" && "$compare" != "$current_index" ]]; then
 					((++nrow))
 				fi
-
 				if ((nrow >= nlastrow)); then
-					nrow=$((nTop+5))
-					ncol=$(( ncol + half_lastcol ))
+					nrow=$((nTop + 4))
+					if [[ $((npage % 2)) -eq 0 ]]; then
+						ncol=0
+						msgok 2 "Página: $npage" "" -1
+					else
+						ncol=$((ncol + half_lastcol))
+					fi
 					imprimirCabecalhoProdutosComprados
+					((++npage))
 				fi
-				total_formatado=$(echo "$quantidade * $custo" | bc -l | tr "." ",")
+				#				total_formatado=$(echo "$quantidade * $custo" | bc -l | tr "." ",")
+				#				total=$(bc -l <<<"$total" | tr "." ",")
 				custo=$(bc -l <<<"$custo" | tr "." ",")
-				total=$(bc -l <<<"$total" | tr "." ",")
-				setpos "$nrow" "$ncol"
-				printf "%-5s %-10s %-7s %-40s %s ${cyan}%3d x %10.2f${reset}\n" "$fornecedor" "$data" "$docnr" "$produto" "$un" "$quantidade" "$custo"
+				setpos "$nrow" "$((ncol + 1))"
+				printf "${yellow}%5s${reset}|%-10s|%-7s|%5s|%-40s|%2s|${cyan}%5s|${red}%10.2f${reset}\n" "$fornecedor" "$(convert_data_to_ptBR "$data")" "$docnr" "$id" "$produto" "$un" "$quantidade" "$custo"
 				((++nrow))
+				case "$index" in
+				n) current_index="$docnr" ;;
+				d) current_index="$data" ;;
+				i) current_index="$id" ;;
+				f) current_index="$fornecedor" ;;
+				esac
 			done <<<"$result"
-			mensagem 2 "" "$green" 300
+			msgok 2 "Página: $npage" "" -1
 		else
-			mensagem 2 "$(gettext "Não consta entradas nos parâmetros informados")" "$red" 10
+			msgerror 2 "$(gettext "Não consta entradas nos parâmetros informados")" "" 5
 		fi
 	done
 }
@@ -1485,22 +2452,27 @@ function registrar_venda() {
 	local total_venda="$1"
 	local data_venda="$(sh_date)"
 	local docnr="$(obterProximoNumeroDocumento 'vendas')"
+	local key produto
+	local id produto_nome quantidade valor
 
 	for key in "${!lista_produtos[@]}"; do
 		produto="${lista_produtos[$key]}"
 		IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
 		sqlite3 "$database" "INSERT INTO vendas (id, data, quantidade, preco, total, docnr) VALUES ('$id', '$data_venda', '$quantidade', '$valor', '$total_venda', '$docnr');"
 	done
-	mensagem 2 "$(gettext "Registro de venda efetuado")" "$green"
+	msgok 2 "$(gettext "Registro de venda efetuado")"
 }
 
 function atualizar_estoque_vendas() {
+	local key
+	local id produto_nome quantidade valor
+
 	for key in "${!lista_produtos[@]}"; do
 		produto="${lista_produtos[$key]}"
 		IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
 		sqlite3 "$database" "UPDATE produtos SET estoque = COALESCE(estoque, 0) - $quantidade WHERE id='$id';"
 	done
-	mensagem 2 "$(gettext "Baixa de estoque efetuado")" "$green"
+	msgok 2 "$(gettext "Baixa de estoque efetuado")"
 }
 
 function realizar_venda() {
@@ -1511,7 +2483,7 @@ function realizar_venda() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "VENDA")" "$ciano"
+		titulo 1 "$(gettext "VENDA")" "${Acores[statussup]}"
 		echo "==============================$(gettext "CUPOM PDV")=============================="
 		total_venda=0
 		for key in "${!lista_produtos[@]}"; do
@@ -1541,7 +2513,7 @@ function realizar_venda() {
 			produto_info=$(dbseek 'produtos' 'nome' "$identificador" "$IsHeader" "$IsLike")
 		fi
 		if [[ -z "$produto_info" ]]; then
-			mensagem 2 "$(gettext "Produto não encontrado")" "$red"
+			msgerror 2 "$(gettext "Produto não encontrado")"
 			continue
 		fi
 		IFS='|' read -r id produto_nome unidade estoque valor codebar <<<"$produto_info"
@@ -1559,17 +2531,17 @@ function realizar_venda() {
 					unset 'lista_produtos[$id]'
 					continue
 				else
-					mensagem 2 "$(gettext "Quantidade inválida ou item não tem na lista")" "$red"
+					msgerror 2 "$(gettext "Quantidade inválida ou item não tem na lista")"
 					continue
 				fi
 			fi
 		else
-			mensagem 2 "$(gettext "Quantidade inválida!")" "$red"
+			msgerror 2 "$(gettext "Quantidade inválida!")"
 			continue
 		fi
 
 		if [[ "$estoque" -lt "$quantidade" ]]; then
-			mensagem 2 "$(gettext "Quantidade insuficiente de") '$produto_nome' $(gettext "no estoque")" "$red"
+			msgerror 2 "$(gettext "Quantidade insuficiente de") '$produto_nome' $(gettext "no estoque")"
 			continue
 		fi
 		subtotal=$(echo "$quantidade * $valor" | bc -l)
@@ -1601,35 +2573,41 @@ function registrar_compra() {
 	local data_compra="$(sh_date)"
 	local fornecedor="${notafiscal[fornecedor]}"
 	local docnr="${notafiscal[docnr]}"
+	local key produto
+	local id produto_nome quantidade custo
 
-	# Itera sobre os produtos vendidos no array associativo
+	# Iterar sobre os produtos vendidos no array associativo lista_produtos
 	for key in "${!lista_produtos[@]}"; do
 		produto="${lista_produtos[$key]}"
 		IFS='|' read -r id produto_nome quantidade custo <<<"$produto"
 		sqlite3 "$database" "INSERT INTO compras (id, fornecedor, data, docnr, quantidade, custo, total) VALUES ('$id', '$fornecedor', '$data_compra', '$docnr', '$quantidade', '$custo','$total_compra');"
 	done
-	mensagem 2 "$(gettext "Registro de entradas efetuado")" "$green"
+	msgok 2 "$(gettext "Registro de entradas efetuado")"
 }
 
 function atualizar_estoque_compras() {
-	# Iterar sobre os elementos do array lista_produtos
+	local key produto
+	local id nome quantidade custo
+
+	# Iterar sobre os produtos vendidos no array associativo lista_produtos
 	for key in "${!lista_produtos[@]}"; do
 		produto="${lista_produtos[$key]}"
 		IFS='|' read -r id nome quantidade custo <<<"$produto"
 		sqlite3 "$database" "UPDATE produtos SET estoque = COALESCE(estoque, 0) + $quantidade WHERE id=$id;"
 	done
-	mensagem 2 "$(gettext "Ajuste de estoque efetuado")" "$green"
+	msgok 2 "$(gettext "Ajuste de estoque efetuado")"
 }
 
 function produtos_entradas() {
+	local xtitle="$(gettext "ENTRADAS DE PRODUTOS")"
 	declare -gA lista_produtos=() # Declarar um array associativo para armazenar produtos
 	declare -gA notafiscal=()
 	total_compra=0
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "ENTRADAS DE PRODUTOS")" "$ciano"
-		box 11 00 4 70 "$(gettext "DADOS DA NFF")" "$ciano"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 00 4 70 "$(gettext "DADOS DA NFF")" "${Acores[box]}"
 		# Solicita a descrição (nome) do produto e verifica se não está em branco
 		print 12 01 "$(gettext "Fornecedor") : "
 		print 13 01 "$(gettext "Docnr/NFF")  : "
@@ -1649,7 +2627,7 @@ function produtos_entradas() {
 			fornecedor_info=$(dbseek fornecedor nome "$identificador")
 		fi
 		if [[ -z "$fornecedor_info" ]]; then
-			mensagem 2 "$(gettext "Fornecedor não encontrado nos parâmetros informados")" "$red"
+			msgerror 2 "$(gettext "Fornecedor não encontrado nos parâmetros informados")"
 			continue
 		fi
 		IFS='|' read -r id data nome ende cida esta cnpj <<<"$fornecedor_info"
@@ -1694,7 +2672,7 @@ function produtos_entradas() {
 		fi
 
 		if [[ -z "$produto_info" ]]; then
-			mensagem 2 "$(gettext "Produto não encontrado")" "$red"
+			msgerror 2 "$(gettext "Produto não encontrado")"
 			continue
 		fi
 		IFS='|' read -r id produto_nome unidade estoque preco codebar <<<"$produto_info"
@@ -1713,22 +2691,22 @@ function produtos_entradas() {
 					unset 'lista_produtos[$id]'
 					continue
 				else
-					mensagem 2 "$(gettext "Quantidade inválida ou item não tem na lista")" "$red"
+					msgerror 2 "$(gettext "Quantidade inválida ou item não tem na lista")"
 					continue
 				fi
 			fi
 		else
-			mensagem 2 "$(gettext "Quantidade inválida!")" "$red"
+			msgerror 2 "$(gettext "Quantidade inválida!")"
 			continue
 		fi
 
-		# Solicita o preço como número inteiro ou decimal com ponto (ex: 4.40) e verifica se não está em branco
+		# Solicita o preço como número inteiro ou decimal com ponto (ex: 4.99) e verifica se não está em branco
 		while true; do
-			read -p "$(gettext "Preço custo (ex: 4.40 ou 5)")         : " custo
+			read -p "$(gettext "Preço custo (ex: 4.99 ou 5)")         : " custo
 			if [[ -n "$custo" ]] && [[ $custo =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
 				break
 			else
-				mensagem 2 "$(gettext "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro.")" "$red"
+				msgerror 2 "$(gettext "Formato de preço inválido. Usar ponto decimal (ex: 4.99) ou número inteiro.")"
 			fi
 		done
 		subtotal=$(echo "$quantidade * $custo" | bc -l)
@@ -1757,9 +2735,10 @@ function produtos_entradas() {
 
 function conciliar_estoque() {
 	local query
-	setpos 23 11
+
+	setpos 19 11
 	if readconf "$(gettext "Confirma a atualização?")"; then
-		mensagem 2 "$(gettext "Aguarde... Atualizando estoque")" "$yellow"
+		msgok 2 "$(gettext "Aguarde... Atualizando estoque")" "$yellow"
 		if sqlite3 "$database" "UPDATE produtos SET estoque = 0;"; then
 			query="UPDATE produtos
 				SET estoque = estoque + (
@@ -1775,9 +2754,9 @@ function conciliar_estoque() {
 				WHERE produtos.id = vendas.id
 			);"
 			sqlite3 "$database" "$query"
-			mensagem 2 "$(gettext "Atualização concluída")" "$green"
+			msgok 2 "$(gettext "Atualização concluída")"
 		else
-			mensagem 2 "$(gettext "Erro durante a atualização")" "$red"
+			msgerror 2 "$(gettext "Erro durante a atualização")"
 		fi
 	fi
 }
@@ -1800,22 +2779,30 @@ function soma_teste() {
 }
 
 function sh_criar_tabelas() {
-	mensagem 2 "$(gettext "Checando tabela de produtos.")" "$green" 0
+	msgok 2 "$(gettext "Checando tabela produtos")" "" 0
 	criar_tabela_produtos
-	mensagem 2 "$(gettext "Checando tabela de vendas.")" "$green" 0
-	criar_tabela_vendas
-	mensagem 2 "$(gettext "Checando tabela de compras.")" "$green" 0
-	criar_tabela_compras
-	mensagem 2 "$(gettext "Checando tabela de fornecedores.")" "$green" 0
+	msgok 2 "$(gettext "Checando tabela fornecedor")" "" 0
 	criar_tabela_fornecedor
+	msgok 2 "$(gettext "Checando tabela vendas")" "" 0
+	criar_tabela_vendas
+	msgok 2 "$(gettext "Checando tabela compras")" "" 0
+	criar_tabela_compras
 }
 
 function sh_drop_tabelas() {
-	sqlite3 "$database" "DROP TABLE produtos;"
-	sqlite3 "$database" "DROP TABLE vendas;"
-	sqlite3 "$database" "DROP TABLE fornecedor;"
-	sqlite3 "$database" "DROP TABLE compras;"
-	:
+	setpos 18 11
+	if readnotconf "$(gettext "CUIDADO! ESTE PROCEDIMENTO IRÁ APAGAR TODOS OS REGISTROS. Confirma ?")"; then
+		msgerror 2 "$(gettext "Aguarde, Droping tabela produtos")"
+		sqlite3 "$database" "DROP TABLE produtos;"
+		msgerror 2 "$(gettext "Aguarde, Droping tabela fornecedor")"
+		sqlite3 "$database" "DROP TABLE fornecedor;"
+		msgerror 2 "$(gettext "Aguarde, Droping tabela vendas")"
+		sqlite3 "$database" "DROP TABLE vendas;"
+		msgerror 2 "$(gettext "Aguarde, Droping tabela compra")"
+		sqlite3 "$database" "DROP TABLE compras;"
+		sh_criar_tabelas
+		:
+	fi
 }
 
 function populate_databases() {
@@ -1834,20 +2821,30 @@ function sh_show_tabelas() {
 }
 
 populate_database_produtos() {
-	mensagem 2 "$(gettext "Populando tabela de produtos.")" "$green" 0
+	local i
+	local nome un estoque qmin preco codebar data validade
+	local fabricante=1
+
+	msgok 2 "$(gettext "Populando tabela produtos")"
 	for ((i = 1; i <= 100; i++)); do
 		nome="Produto $i"
 		un="UN"
 		estoque=$((RANDOM % 1000))                            # Estoque aleatório entre 0 e 999
+		qmin=$((RANDOM % 100))                                # Quantidade minima aleatório entre 0 e 99
 		preco=$(echo "scale=2; $((RANDOM % 1000)) / 10" | bc) # Preço aleatório entre 0.0 e 99.9
 		codebar=$(printf "%013d" $i)                          # Gere um código de barras simples
 		data=$(sh_date)
-		sqlite3 "$database" "INSERT INTO produtos (nome, un, estoque, preco, codebar, data) VALUES ('$nome', '$un', $estoque, $preco, '$codebar', '$data');"
+		validade=$(sh_random_date)
+
+		if [[ $((i % 5)) -eq 0 ]]; then # a cada 5 registros manter o fabricante
+			fabricante="$((fabricante + 1))"
+		fi
+		sqlite3 "$database" "INSERT INTO produtos (nome, un, estoque, preco, codebar, data, validade, qmin,fabricante) VALUES ('$nome', '$un', $estoque, $preco, '$codebar', '$data', '$validade', '$qmin', '$fabricante');"
 	done
 }
 
 populate_database_fornecedor() {
-	mensagem 2 "$(gettext "Populando tabela de fornecedor.")" "$green" 0
+	msgok 2 "$(gettext "Populando tabela fornecedor")"
 	for ((i = 1; i <= 99; i++)); do
 		data=$(sh_date)
 		nome="FORNECEDOR $i LTDA"
@@ -1860,36 +2857,33 @@ populate_database_fornecedor() {
 }
 
 populate_database_vendas() {
-	# Inicialize o mês e o dia
-	mes=10
+	msgok 2 "$(gettext "Populando tabela vendas")"
+	# Inicialize o dia, mês e ano
 	dia=1
-	ano=2023
+#	mes="$(date +"%m")"
+	mes=01
+	ano="$(date +"%Y")"
 
-	# Loop para inserir 100 registros na tabela 'vendas'
-	for ((i = 1; i <= 100; i++)); do
-		# Construir a data no formato 'AAAA-MM-DD'
-		data="$ano-$(printf "%02d" $mes)-$(printf "%02d" $dia)"
-
-		quantidade=$((RANDOM % 10 + 1))                    # Gere uma quantidade aleatória entre 1 e 10
-		preco=$(echo "scale=2; $RANDOM / 100.0" | bc)      # Gere um preço aleatório com duas casas decimais
-		total=$(echo "scale=2; $quantidade * $preco" | bc) # Calcule o total
+	# Loop para inserir 365 registros
+	for ((i = 1; i <= 365; i++)); do
+		data="$ano-$(printf "%02d" "$mes")-$(printf "%02d" "$dia")" # Construir a data no formato 'AAAA-MM-DD'
+		quantidade=$((RANDOM % 10 + 1))                             # Gere uma quantidade aleatória entre 1 e 10
+		preco=$(echo "scale=2; $RANDOM / 100.0" | bc)               # Gere um preço aleatório com duas casas decimais
+		total=$(echo "scale=2; $quantidade * $preco" | bc)          # Calcule o total
 		docnr="$(obterProximoNumeroDocumento 'vendas')"
 		id=$i
 
 		# Inserir o registro na tabela 'vendas' no banco de dados
 		sqlite3 "$database" "INSERT INTO vendas (id, data, quantidade, preco, total, docnr) VALUES ('$id', '$data', $quantidade, $preco, $total, '$docnr');"
 
-		# Avançar para o próximo dia
 		dia=$((dia + 1))
-
-		# Avançar para o próximo id
 		id=$((id + 1))
 
-		# Verificar se o mês mudou
 		if [ $id -gt 10 ]; then
 			id=1
 		fi
 
+		# Verificar mês fevereiro
 		if [[ $mes -eq 2 && $dia -gt 28 ]]; then
 			dia=1
 			mes=$((mes + 1))
@@ -1908,38 +2902,38 @@ populate_database_vendas() {
 }
 
 populate_database_compras() {
-	# Inicialize o mês e o dia
-	mes=10
+	# Inicialize dia, mes e ano
 	dia=1
-	ano=2023
+	mes="$(date +"%m")"
+	ano="$(date +"%Y")"
+	fornecedor=1
 
-	# Loop para inserir 100 registros na tabela 'vendas'
+	msgok 2 "$(gettext "Populando tabela compras")"
+
+	# Loop para inserir 100 registros
 	for ((i = 1; i <= 100; i++)); do
-		# Construir a data no formato 'AAAA-MM-DD'
-		data="$ano-$(printf "%02d" $mes)-$(printf "%02d" $dia)"
-		quantidade=$((RANDOM % 10 + 1))                    # Gere uma quantidade aleatória entre 1 e 10
-		custo=$(echo "scale=2; $RANDOM / 100.0" | bc)      # Gere um custo aleatório com duas casas decimais
+		data="$ano-$(printf "%02d" "$mes")-$(printf "%02d" "$dia")" # Construir a data no formato 'AAAA-MM-DD'
+		quantidade=$((RANDOM % 10 + 1))                             # Gere uma quantidade aleatória entre 1 e 10
+		custo=$(echo "scale=2; $RANDOM / 100.0" | bc)               # Gere um custo aleatório com duas casas decimais
 		total=$(echo "scale=2; $quantidade * $custo" | bc)
-		if [[ $(($i%5)) -eq 0 ]]; then
-			docnr="$(obterProximoNumeroDocumento 'compras')"
-		fi
 		id="$i"
-		fornecedor="$i"
 
-		# Inserir o registro na tabela 'vendas' no banco de dados
+		if [[ $((i % 5)) -eq 0 ]]; then # a cada 5 registros manter o docnr e fornecedor
+			docnr="$(obterProximoNumeroDocumento 'compras')"
+			fornecedor="$((fornecedor + 1))"
+		fi
+
+		# Inserir o registro na tabela 'compras' no banco de dados
 		sqlite3 "$database" "INSERT INTO compras (id, fornecedor, data, docnr, quantidade, custo, total) VALUES ('$id', '$fornecedor', '$data', '$docnr', '$quantidade', '$custo', '$total');"
 
-		# Avançar para o próximo dia
 		dia=$((dia + 1))
-
-		# Avançar para o próximo id
 		id=$((id + 1))
 
-		# Verificar se o mês mudou
 		if [ $id -gt 10 ]; then
 			id=1
 		fi
 
+		# Verificar mês fevereiro
 		if [[ $mes -eq 2 && $dia -gt 28 ]]; then
 			dia=1
 			mes=$((mes + 1))
@@ -1959,7 +2953,9 @@ populate_database_compras() {
 
 find_max_length() {
 	local array=("$@")
+	local length
 	local max_length=0
+	local item
 
 	for item in "${array[@]}"; do
 		length=${#item}
@@ -1975,24 +2971,39 @@ function show_menu() {
 	local col=$2
 	local titulo="$3"
 	local array=("${@:4}")
+	local length_title=${#titulo}
 	local itens="${#array[@]}"
 	local max_length=$(($(find_max_length "${array[@]}") + 15))
+	local i key selected formatted_item
 	local exit_menu=false
 
-	box "$row" "$col" "$((itens + 2))" "$((max_length + 5))" "$titulo" "$vermelho"
+	if (( max_length < length_title )); then
+		max_length="$length_title"
+	fi
+	if (( itens > 9 )); then
+		((++max_length))
+	fi
+
+	box "$row" "$col" "$((itens + 2))" "$((max_length + 5))" "$titulo" "${Acores[box]}"
 	while ! $exit_menu; do
 		for i in "${!array[@]}"; do
 			tput cup $((row + i + 1)) $((col + 1))
 			local item="${array[i]}"
-			local padding=$((max_length - ${#item}))
+
+			if (( i < 9 )); then
+				local padding=$((max_length - ${#item}))
+			else
+				local padding=$((max_length - ${#item} -1))
+			fi
+
 			local bar=$(printf "%-${padding}s" "")
 			if [[ $i -eq $selected ]]; then
-				formatted_item="${reverse}${ciano}${bold}$((i + 1)). $item${bar}${reset}"
+#				formatted_item="${reverse}${ciano}${bold}$((i + 1)). $item${bar}${reset}"
+				formatted_item="${reverse}$((i + 1)). $item${bar}${reset}"
 			else
-				#				formatted_item="${azul}$((i + 1)). $item${bar}"
 				formatted_item="$((i + 1)). $item${bar}"
 			fi
-			printf "%s" "${formatted_item}"
+			printf "%-*s" "$max_length" "${formatted_item}"
 		done
 		read -r -n 1 -s key
 		case $key in
@@ -2035,14 +3046,17 @@ function show_menu() {
 }
 
 function menu_fornecedores() {
+	local xtitle="$(gettext "MENU FORNECEDORES")"
+	local opcao
+
 	while true; do
 		tela
-		titulo 1 "$(gettext "MENU FORNECEDORES")" "$ciano"
-		box 11 10 9 80 "$(gettext "MENU FORNECEDORES")" "$azul"
-		print 12 11 " 1 - $(gettext "Cadastrar Fornecedor")"
-		print 13 11 " 2 - $(gettext "Alterar Fornecedor")"
-		print 14 11 " 3 - $(gettext "Remover Fornecedor")"
-		print 15 11 " 4 - $(gettext "Pesquisar Fornecedor")"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 10 9 80 "$xtitle" "${Acores[box]}"
+		print 12 11 " 1 - $(gettext "Cadastrar")"
+		print 13 11 " 2 - $(gettext "Alterar")"
+		print 14 11 " 3 - $(gettext "Remover/Excluir")"
+		print 15 11 " 4 - $(gettext "Pesquisar")"
 		print 16 11 " 0 - $(gettext "Voltar")"
 		get 18 12 "$(gettext "Opção"): " opcao
 
@@ -2057,97 +3071,297 @@ function menu_fornecedores() {
 }
 
 function menu_produtos() {
+	local xtitle="$(gettext "MENU PRODUTOS")"
+	local opcao
+
 	while true; do
 		tela
-		titulo 1 "$(gettext "MENU PRODUTOS")" "$ciano"
-		box 11 10 12 80 "$(gettext "MENU PRODUTOS")" "$azul"
-		print 12 11 " 1 - $(gettext "Cadastrar Produtos")"
-		print 13 11 " 2 - $(gettext "Alterar Produtos")"
-		print 14 11 " 3 - $(gettext "Remover Produtos")"
-		print 15 11 " 4 - $(gettext "Pesquisar Produtos")"
-		print 16 11 " 5 - $(gettext "Atualizar Estoque (conciliação)")"
-		print 17 11 " 6 - $(gettext "Listagem Produtos Vendidos")"
-		print 18 11 " 7 - $(gettext "Listagem Entradas de Produtos")"
-		print 19 11 " 0 - $(gettext "Voltar")"
-		get 21 12 "$(gettext "Opção"): " opcao
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 10 9 80 "$xtitle" "${Acores[box]}"
+		print 12 11 " 1 - $(gettext "Cadastrar")"
+		print 13 11 " 2 - $(gettext "Alterar")"
+		print 14 11 " 3 - $(gettext "Remover/Excluir")"
+		print 15 11 " 4 - $(gettext "Pesquisar")"
+		print 16 11 " 0 - $(gettext "Voltar")"
+		get 18 12 "$(gettext "Opção"): " opcao
 
 		case "$opcao" in
-		1) produto_inclusao ;;
-		2) produto_alteracao ;;
-		3) produto_remocao ;;
+		1) produto_inclusao_alteracao 'I' ;;
+		2) produto_inclusao_alteracao 'A' ;;
+		3) produto_exclusao ;;
 		4) produto_pesquisa ;;
-		5) conciliar_estoque ;;
-		6) listagem_produtos_vendidos ;;
-		7) listagem_entradas_produtos ;;
 		*) return ;;
 		esac
 	done
 }
 
-function main() {
-	while true; do
-		tela
-		titulo 1 "$(gettext "MENU PRINCIPAL")" "$ciano"
-		box 11 10 10 80 "$(gettext "MENU PRINCIPAL")" "$azul"
-		print 12 11 " 1 - $(gettext "Produtos")"
-		print 13 11 " 2 - $(gettext "Realizar Venda")"
-		print 14 11 " 3 - $(gettext "Exibir Vendas Diárias")"
-		print 15 11 " 4 - $(gettext "Entradas de Produtos")"
-		print 16 11 " 5 - $(gettext "Fornecedores")"
-		print 17 11 " 0 - $(gettext "Sair")"
-		get 19 12 "$(gettext "Opção"): " opcao
-		opcao="$?"
-
-		case "$opcao" in
-		1) menu_produtos ;;
-		2) realizar_venda ;;
-		3) listagem_vendas_diarias ;;
-		4) produtos_entradas ;;
-		5) menu_fornecedores ;;
-		6 | 0)
-			#			sh_clear_eol 21 "$(lastrow)"
-			setpos 18 0
-			exit 0
-			;;
-		*) mensagem 2 "$(gettext "Opção inválida. Tente novamente.")" "$red" ;;
-		esac
-	done
-}
-function sh_main_menu() {
+function menu_manutencao() {
+	local xtitle="$(gettext "MENU MANUTENÇÃO")"
+	local opcao
 	local options=(
-		"$(gettext "Produtos")"
-		"$(gettext "Realizar Venda")"
-		"$(gettext "Exibir Vendas Diárias")"
-		"$(gettext "Entradas de Produtos")"
-		"$(gettext "Fornecedores")"
-		"$(gettext "Sair")"
+		"$(gettext 'Atualizar Estoque (conciliação)')"
+		"$(gettext 'Popular DataBases para testes')"
+		"$(gettext 'Zerar/Limpar DataBases')"
+		"$(gettext 'Voltar')"
 	)
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "MENU PRINCIPAL")" "$ciano"
-		show_menu 11 10 "$(gettext "MENU PRINCIPAL")" "${options[@]}"
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		show_menu 11 10 "$xtitle" "${options[@]}"
+		opcao="$?"
+
+		case "$opcao" in
+		1) conciliar_estoque ;;
+		2) populate_databases ;;
+		3) sh_drop_tabelas ;;
+		*) return ;;
+		esac
+	done
+}
+
+function menu_relatorios() {
+	local xtitle="$(gettext "MENU PEQUISA/RELATÓRIOS/CONSULTA")"
+
+	while true; do
+		tela
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 10 12 80 "$xtitle" "${Acores[box]}"
+		print 12 11 " 1 - $(gettext "Produtos")"
+		print 13 11 " 2 - $(gettext "Produtos Vendidos")"
+		print 14 11 " 3 - $(gettext "Entradas de Produtos")"
+		print 15 11 " 4 - $(gettext "Produtos abaixo estoque mínimo")"
+		print 16 11 " 5 - $(gettext "Produtos fora da validade")"
+		print 17 11 " 6 - $(gettext "Vendas Diárias")"
+		print 18 11 " 7 - $(gettext "Fornecedores")"
+		print 19 11 " 0 - $(gettext "Voltar")"
+		get 21 12 "$(gettext "Opção"): " opcao
+
+		case "$opcao" in
+		1) produto_pesquisa ;;
+		2) relatorio_produtos_vendidos ;;
+		3) relatorio_entradas_produtos ;;
+		4) relatorio_produtos_minimo ;;
+		5) relatorio_produtos_fora_validade ;;
+		6) relatorio_vendas_diarias ;;
+		7) fornecedor_pesquisa ;;
+		*) return ;;
+		esac
+	done
+}
+
+function sh_old_main_menu() {
+	local xtitle="$(gettext "MENU PRINCIPAL")"
+
+	while true; do
+		tela
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		box 11 10 12 80 "$xtitle" "${Acores[box]}"
+		print 12 11 " 1 - $(gettext "Produtos")"
+		print 13 11 " 2 - $(gettext "Fornecedores")"
+		print 14 11 " 3 - $(gettext "Realizar Venda/Saída")"
+		print 15 11 " 4 - $(gettext "Entradas de Produtos")"
+		print 16 11 " 5 - $(gettext "Pesquisa/Relatórios/Consulta")"
+		print 17 11 " 6 - $(gettext "Manutenção")"
+		print 18 11 " 0 - $(gettext "Configuração")"
+		print 19 11 " 0 - $(gettext "Sair")"
+		get 21 12 "$(gettext "Opção"): " opcao
 		opcao="$?"
 
 		case "$opcao" in
 		1) menu_produtos ;;
-		2) realizar_venda ;;
-		3) listagem_vendas_diarias ;;
+		2) menu_fornecedores ;;
+		3) realizar_venda ;;
 		4) produtos_entradas ;;
-		5) menu_fornecedores ;;
-		6 | 0)
+		5) menu_relatorios ;;
+		6) menu_manutencao ;;
+		7) ;;
+		8 | 0)
+			#			sh_clear_eol 21 "$(lastrow)"
 			setpos 18 0
 			exit 0
 			;;
-		*) mensagem 2 "$(gettext "Opção inválida. Tente novamente.")" "$red" ;;
+		*) msgerror 2 "$(gettext "Opção inválida. Tente novamente.")" ;;
+		esac
+	done
+}
+
+function configuracao::dados_empresa() {
+	local xtitle="$(gettext "DADOS DA EMPRESA")"
+	local data_dia="$(sh_date)"
+	local half_lastcol=$(($(lastcol) / 2))
+	local razao ende cida uf cnpj
+
+	tela
+	titulo 1 "$xtitle" "${Acores[statussup]}"
+	box 11 10 7 "$half_lastcol" "$xtitle" "${Acores[box]}"
+	print 12 11 "$(gettext "Nome")                 : "
+	print 13 11 "$(gettext "Endereço")             : "
+	print 14 11 "$(gettext "Cidade")               : "
+	print 15 11 "$(gettext "UF")                   : "
+	print 16 11 "$(gettext "Cnpj")                 : "
+
+	while true; do
+		get 12 11 "$(gettext "Nome")                 : " razao "${Aempresa[razao]}"
+		if [[ -n "$razao" ]]; then
+			break
+		else
+			setpos 18 10
+			if readconf "$(gettext "O Nome não pode ser em branco. Cancelar?")"; then
+				return
+			fi
+		fi
+	done
+
+	get 13 11 "$(gettext "Endereço")             : " ende "${Aempresa[ende]}"
+	get 14 11 "$(gettext "Cidade")               : " cida "${Aempresa[cida]}"
+	get 15 11 "$(gettext "UF")                   : " uf "${Aempresa[uf]}"
+	get 16 11 "$(gettext "Cnpj")                 : " cnpj "${Aempresa[cnpj]}"
+
+	setpos 18 10
+	if readconf "$(gettext "Confirma dados?")"; then
+		Aempresa[razao]="$razao"
+		Aempresa[ende]="$ende"
+		Aempresa[cida]="$cida"
+		Aempresa[uf]="$uf"
+		Aempresa[cnpj]="$cnpj"
+		TIni.Set "$INI_FILE" "empresa" "razao" "$razao"
+		TIni.Set "$INI_FILE" "empresa" "ende" "$ende"
+		TIni.Set "$INI_FILE" "empresa" "cida" "$cida"
+		TIni.Set "$INI_FILE" "empresa" "uf" "$uf"
+		TIni.Set "$INI_FILE" "empresa" "cnpj" "$cnpj"
+		msgok 2 "$(gettext "Dados atualizados com sucesso!")"
+	else
+		msgerror 2 "$(gettext "Inclusão/alteração não efetuada.")"
+	fi
+}
+
+function configuracao::cores() {
+	local type="$1"
+	local ctitulo="$2"
+	local xtitle="$(gettext "CONFIGURAÇÃO DE CORES")"
+	local atype=('logo' 'cabecalho' 'statussup' 'statusinf' 'box' 'dispbox' 'msgok' 'msgerror' 'conf')
+	local ctype="${atype[$type]}"
+	local acor=($black $red $green $yellow $blue $magenta $cyan $white $gray $orange $purple $violet $roxo $azul $vermelho $ciano $cinza $preto $verde $amarelo $laranja $violeta)
+	local opcao
+	local options=(
+		"${black}$(gettext 'Black/Black')${reset}"
+		"${red}$(gettext 'Red/Black')${reset}"
+		"${green}$(gettext 'Green/Black')${reset}"
+		"${yellow}$(gettext 'Yellow/Black')${reset}"
+		"${blue}$(gettext 'Blue/Black')${reset}"
+		"${magenta}$(gettext 'Magenta/Black')${reset}"
+		"${cyan}$(gettext 'Cyan/Black')${reset}"
+		"${white}$(gettext 'White/Black')${reset}"
+		"${gray}$(gettext 'Gray/Black')${reset}"
+		"${orange}$(gettext 'Orange/Black')${reset}"
+		"${purple}$(gettext 'Purple/Black')${reset}"
+		"${violet}$(gettext 'Violet/Black')${reset}"
+		"${roxo}$(gettext 'White/Purple')${reset}"
+		"${azul}$(gettext 'White/Blue')${reset}"
+		"${vermelho}$(gettext 'White/Red')${reset}"
+		"${ciano}$(gettext 'White/Cyan')${reset}"
+		"${cinza}$(gettext 'White/Gray')${reset}"
+		"${preto}$(gettext 'White/Black')${reset}"
+		"${verde}$(gettext 'White/Green')${reset}"
+		"${amarelo}$(gettext 'White/Yellow')${reset}"
+		"${laranja}$(gettext 'White/Orange')${reset}"
+		"${violeta}$(gettext 'White/Violet')${reset}"
+		"$(gettext 'Voltar')"
+	)
+
+	while true; do
+		tela
+		titulo 1 "$xtitle - $ctitulo")" "${Acores[statussup]}"
+		show_menu 11 10 "$xtitle - $ctitulo")" "${options[@]}"
+		opcao="$?"
+
+		case "$opcao" in
+		[1-9]|1[0-9]|2[0-2])
+			Acores[$ctype]="${acor["$((opcao-1))"]}"
+			TIni.Set "$INI_FILE" "cores" "$ctype" "${acor["$((opcao-1))"]}"
+			;;
+		23|0) return ;;
+		*) msgerror 2 "$(gettext "Opção inválida. Tente novamente.")" ;;
+		esac
+	done
+}
+
+function menu_configuracao() {
+	local xtitle="$(gettext "MENU CONFIGURAÇÃO")"
+	local opcao
+	local options=(
+		"$(gettext 'Dados Empresa')"
+		"$(gettext 'Cor Logo')"
+		"$(gettext 'Cor Cabecalho')"
+		"$(gettext 'Cor Status Superior')"
+		"$(gettext 'Cor Status Inferior')"
+		"$(gettext 'Cor Box')"
+		"$(gettext 'Cor DispBox')"
+		"$(gettext 'Cor Mensagem Info OK')"
+		"$(gettext 'Cor Mensagem Info ERRO')"
+		"$(gettext 'Cor Mensagem Confirmação')"
+		"$(gettext 'Voltar')"
+	)
+
+	while true; do
+		tela
+		titulo 1 "$xtitle "${Acores[statussup]}"
+		show_menu 11 10 "$xtitle" "${options[@]}"
+		opcao="$?"
+
+		case "$opcao" in
+		1) configuracao::dados_empresa ;;
+		[2-9]|1[0]) configuracao::cores "$((opcao-2))" "${options[$((opcao-1))]}" ;;
+		11 | 0) return ;;
+		*) msgerror 2 "$(gettext "Opção inválida. Tente novamente.")" ;;
+		esac
+	done
+}
+
+function sh_main_menu() {
+	local xtitle="$(gettext "MENU PRINCIPAL")"
+	local opcao
+	local options=(
+		"$(gettext 'Produtos')"
+		"$(gettext 'Fornecedores')"
+		"$(gettext 'Realizar Venda/Saída')"
+		"$(gettext 'Entradas de Produtos')"
+		"$(gettext 'Pesquisa/Relatórios/Consulta')"
+		"$(gettext 'Manutenção')"
+		"$(gettext 'Configuração')"
+		"$(gettext 'Sair')"
+	)
+
+	while true; do
+		tela
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		show_menu 11 10 "$xtitle" "${options[@]}"
+		opcao="$?"
+
+		case "$opcao" in
+		1) menu_produtos ;;
+		2) menu_fornecedores ;;
+		3) realizar_venda ;;
+		4) produtos_entradas ;;
+		5) menu_relatorios ;;
+		6) menu_manutencao ;;
+		7) menu_configuracao ;;
+		8 | 0)
+			setpos 18 0
+			exit 0
+			;;
+		*) msgerror 2 "$(gettext "Opção inválida. Tente novamente.")" ;;
 		esac
 	done
 }
 # END PROCEDURES
 
+#entrypoint
 sh_config
+sh_setvarcolors
+sh_environment
 sh_checkDependencies
-#	sh_drop_tabelas
 sh_criar_tabelas
-#	populate_databases
 sh_main_menu
+#end
