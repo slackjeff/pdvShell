@@ -1,7 +1,6 @@
 # pdvShell
 PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell script e sqlite!
 
-* MENU PRINCIPAL
           ┌                MENU PRINCIPAL                ┐
           │1. Produtos                                   │
           │2. Fornecedores                               │
@@ -13,7 +12,6 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
           │8. Sair                                       │
           └──────────────────────────────────────────────┘
 
-* MENU PRODUTOS
           ┌          MENU PRODUTOS          ┐
           │1. Cadastrar                     │
           │2. Alterar                       │
@@ -22,7 +20,6 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
           │5. Voltar                        │
           └─────────────────────────────────┘
 
-* MENU FORNECEDORES
           ┌         MENU FORNECEDORES         ┐
           │1. Cadastrar                       │
           │2. Alterar                         │
@@ -31,14 +28,12 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
           │5. Voltar                          │
           └───────────────────────────────────┘
 
-* Realizar Venda/Saída
 ==============================CUPOM PDV==============================
 =====================================================================
     SUBTOTAL R$                                                  0,00
 =====================================================================
 ID/nome/CodeBar (em branco=concluir):
 
-* Entradas de Produtos
 ┌                            DADOS DA NFF                            ┐
 │Fornecedor : EMPRESA MODELO S/A                                     │
 │Docnr/NFF  : 0001055                                                │
@@ -49,7 +44,6 @@ ID/nome/CodeBar (em branco=concluir):
 =====================================================================
 ID/nome/CodeBar (em branco=concluir):
 
-* Pesquisa/Relatórios/Consulta
           ┌         MENU PEQUISA/RELATÓRIOS/CONSULTA         ┐
           │1. Produtos                                       │
           │2. Produtos Vendidos                              │
@@ -61,7 +55,6 @@ ID/nome/CodeBar (em branco=concluir):
           │8. Voltar                                         │
           └──────────────────────────────────────────────────┘
 
-* Menu Manutenção
           ┌                 MENU MANUTENÇÃO                 ┐
           │1. Atualizar Estoque (conciliação)               │
           │2. Popular DataBases para testes                 │
@@ -69,7 +62,6 @@ ID/nome/CodeBar (em branco=concluir):
           │4. Voltar                                        │
           └─────────────────────────────────────────────────┘
 
-* Menu Configuração
           ┌             MENU CONFIGURAÇÃO             ┐
           │1. Dados Empresa                           │
           │2. Cor Logo                                │
