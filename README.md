@@ -1,6 +1,7 @@
 # pdvShell
 PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell script e sqlite!
 
+* MENU PRINCIPAL
           ┌                MENU PRINCIPAL                ┐
           │1. Produtos                                   │
           │2. Fornecedores                               │
@@ -11,18 +12,44 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
           │7. Configuração                               │
           │8. Sair                                       │
           └──────────────────────────────────────────────┘
-* Produtos
-	- Cadastrar
-    - Alterar
-    - Remover/Excluir
-    - Pesquisar
-* Fornecedores
-	- Cadastrar
-    - Alterar
-    - Remover/Excluir
-    - Pesquisar
+
+* MENU PRODUTOS
+          ┌          MENU PRODUTOS          ┐
+          │1. Cadastrar                     │
+          │2. Alterar                       │
+          │3. Remover/Excluir               │
+          │4. Pesquisar                     │
+          │5. Voltar                        │
+          └─────────────────────────────────┘
+
+* MENU FORNECEDORES
+          ┌         MENU FORNECEDORES         ┐
+          │1. Cadastrar                       │
+          │2. Alterar                         │
+          │3. Remover/Excluir                 │
+          │4. Pesquisar                       │
+          │5. Voltar                          │
+          └───────────────────────────────────┘
+
 * Realizar Venda/Saída
+==============================CUPOM PDV==============================
+=====================================================================
+    SUBTOTAL R$                                                  0,00
+=====================================================================
+ID/nome/CodeBar (em branco=concluir):
+
 * Entradas de Produtos
+┌                            DADOS DA NFF                            ┐
+│Fornecedor : EMPRESA MODELO S/A                                     │
+│Docnr/NFF  : 0001055                                                │
+└────────────────────────────────────────────────────────────────────┘
+========================RELAÇAO DAS ENTRADAS=========================
+=====================================================================
+    SUBTOTAL R$                                                  0,00
+=====================================================================
+ID/nome/CodeBar (em branco=concluir):
+
+* Pesquisa/Relatórios/Consulta
           ┌         MENU PEQUISA/RELATÓRIOS/CONSULTA         ┐
           │1. Produtos                                       │
           │2. Produtos Vendidos                              │
@@ -33,21 +60,30 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
           │7. Fornecedores                                   │
           │8. Voltar                                         │
           └──────────────────────────────────────────────────┘
-* Relatório Vendas Diárias
-	- Cadastrar Fornecedor
-	- Alterar Fornecedor
-	- Remover Fornecedor
-	- Pesquisar Fornecedor
-* Manutenção
-	- Popular databases para testes
-	- Zerar/Limpar databases
-    - Atualizar Estoque (conciliação)
 
-     Produtos
-    - Relatório Produtos Vendidos
-    - Relatório Entradas de Produtos
-    - Relatório Produtos abaixo estoque mínimo
-    - Relatório Produtos fora da validade
+* Menu Manutenção
+          ┌                 MENU MANUTENÇÃO                 ┐
+          │1. Atualizar Estoque (conciliação)               │
+          │2. Popular DataBases para testes                 │
+          │3. Zerar/Limpar DataBases                        │
+          │4. Voltar                                        │
+          └─────────────────────────────────────────────────┘
+
+* Menu Configuração
+          ┌             MENU CONFIGURAÇÃO             ┐
+          │1. Dados Empresa                           │
+          │2. Cor Logo                                │
+          │3. Cor Cabecalho                           │
+          │4. Cor Status Superior                     │
+          │5. Cor Status Inferior                     │
+          │6. Cor Box                                 │
+          │7. Cor Titulo Box                          │
+          │8. Cor DispBox                             │
+          │9. Cor Mensagem Info OK                    │
+          │10. Cor Mensagem Info ERRO                 │
+          │11. Cor Mensagem Confirmação               │
+          │12. Voltar                                 │
+          └───────────────────────────────────────────┘
 
 
 ## Futuras Features
