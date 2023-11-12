@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/11/09
+#	Altered: 2023/11/11
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -34,7 +34,7 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.4.0-20231109"
+declare _VERSION_="1.4.0-20231111"
 declare _SYSTEM_='SISTEMA PDV'
 declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed awk)
 declare -A Aempresa=([razao]='EMPRESA MODELO LTDA' [ende]='Rua Modelo, 693 - Bairro Centro' [cida]='Cidade Modelo' [uf]='UF' [cnpj]='00.000.000/0001-00')
@@ -58,8 +58,18 @@ function sh_config() {
 }
 
 function sh_environment() {
-	declare -gA Acores=([cabecalho]="$roxo" [logo]="$red" [statussup]="$ciano" [statusinf]="$azul" [box]="$vermelho" [dispbox]="$cinza" [msgok]="$green" [msgerror]="$red" [conf]="$red")
 	local razao ende cida uf cnpj
+	declare -gA Acores=(
+		[cabecalho]="$roxo"
+		[logo]="$red"
+		[statussup]="$ciano"
+		[statusinf]="$azul"
+		[box]="$vermelho"
+		[dispbox]="$cinza"
+		[msgok]="$green"
+		[msgerror]="$red"
+		[conf]="$red"
+	)
 
 	if [[ -e "$INI_FILE" ]]; then
 		if razao=$(TIni.ReadValue "$INI_FILE" "empresa" "razao") && [[ -n "$razao" ]]; then Aempresa[razao]="$razao"; fi
@@ -70,12 +80,12 @@ function sh_environment() {
 		if TIni.ReadValue "$INI_FILE" "cores" "cabecalho"; then Acores[cabecalho]="$(TIni.Get "$INI_FILE" "cores" "cabecalho")"; fi
 		if TIni.ReadValue "$INI_FILE" "cores" "logo"; then Acores[logo]="$(TIni.Get "$INI_FILE" "cores" "logo")"; fi
 		if TIni.ReadValue "$INI_FILE" "cores" "statussup"; then Acores[statussup]="$(TIni.Get "$INI_FILE" "cores" "statussup")"; fi
-		if TIni.ReadValue "$INI_FILE" "cores" "statusinf"; then Acores[statusinf]="$(TIni.Get "$INI_FILE" "cores" "statusinf")";fi
-		if TIni.ReadValue "$INI_FILE" "cores" "box"; then Acores[box]="$(TIni.Get "$INI_FILE" "cores" "box")";fi
-		if TIni.ReadValue "$INI_FILE" "cores" "dispbox"; then Acores[dispbox]="$(TIni.Get "$INI_FILE" "cores" "dispbox")";fi
-		if TIni.ReadValue "$INI_FILE" "cores" "msgok"; then Acores[msgok]="$(TIni.Get "$INI_FILE" "cores" "msgok")";fi
-		if TIni.ReadValue "$INI_FILE" "cores" "msgerror"; then Acores[msgerror]="$(TIni.Get "$INI_FILE" "cores" "msgerror")";fi
-		if TIni.ReadValue "$INI_FILE" "cores" "conf"; then Acores[conf]="$(TIni.Get "$INI_FILE" "cores" "conf")";fi
+		if TIni.ReadValue "$INI_FILE" "cores" "statusinf"; then Acores[statusinf]="$(TIni.Get "$INI_FILE" "cores" "statusinf")"; fi
+		if TIni.ReadValue "$INI_FILE" "cores" "box"; then Acores[box]="$(TIni.Get "$INI_FILE" "cores" "box")"; fi
+		if TIni.ReadValue "$INI_FILE" "cores" "dispbox"; then Acores[dispbox]="$(TIni.Get "$INI_FILE" "cores" "dispbox")"; fi
+		if TIni.ReadValue "$INI_FILE" "cores" "msgok"; then Acores[msgok]="$(TIni.Get "$INI_FILE" "cores" "msgok")"; fi
+		if TIni.ReadValue "$INI_FILE" "cores" "msgerror"; then Acores[msgerror]="$(TIni.Get "$INI_FILE" "cores" "msgerror")"; fi
+		if TIni.ReadValue "$INI_FILE" "cores" "conf"; then Acores[conf]="$(TIni.Get "$INI_FILE" "cores" "conf")"; fi
 	fi
 }
 
@@ -153,19 +163,6 @@ function sh_checkDependencies() {
 	fi
 }
 
-# Função para atualizar o valor de uma chave em uma seção no arquivo INI
-function TIni.UpdateValue {
-	local config_file="$1"
-	local section="$2"
-	local key="$3"
-	local new_value="$4"
-
-	if [[ -f "$config_file" ]]; then
-		sed -i "/^\[$section\]/s/^$key=.*/$key=$new_value/" "$config_file"
-	fi
-}
-export -f TIni.UpdateValue
-
 # Função para verificar se um valor em uma seção corresponde a um valor de referência em um arquivo INI
 # TIni.ExistValue "config.ini" "flatpak" "active" '0'; echo $?
 function TIni.ExistValue {
@@ -239,250 +236,56 @@ function TIni.ReadValue() {
 export -f TIni.ReadValue
 
 function TIni.Get() {
+	local result
 	local config_file="$1"
 	local section="$2"
 	local key="$3"
-	sed -nr "/^\[$section\]/ { :l /^[[:space:]]*${key}[[:space:]]*=/ { s/[^=]*=[[:space:]]*//; p; q;}; /^;/b; n; b l;}" "$config_file"
+
+	if result="$(sed --silent -E "/^\[$section\]/ { :l /^[[:space:]]*${key}[[:space:]]*=/ { s/[^=]*=[[:space:]]*//; p; q;}; /^;/b; n; b l;}" "$config_file")" && [ -n "$result" ]; then
+		echo $result
+		return 0
+	fi
+	return 1
 }
 export -f TIni.Get
 
-function TIni.GetAwk() {
+# Exemplo de uso: TIni.Set arquivo.ini snap vilmar 5.7
+function TIni.Set() {
 	local config_file="$1"
 	local section="$2"
 	local key="$3"
+	local value="$4"
+	local found_section=0
 
-	[[ ! -e "$config_file" ]] && return 2
-	awk -F "=" -v section="$section" -v key="$key" '{
-        gsub(/^[ \t]+|[ \t]+$/, "", $1);  # Remova espaços em branco em torno do nome da chave
-        if ($0 ~ "^\\[" section "\\]") {   # Verifique se estamos na seção correta
-            in_section = 1
-        } else if (in_section && $1 == key) {  # Se estivermos na seção correta, procure a chave
-            gsub(/^[ \t]+|[ \t]+$/, "", $2);  # Remova espaços em branco em torno do valor
-            print $2
-            found = 1
-        } else if ($0 ~ "^\\[.*\\]") {  # Se encontrarmos outra seção, saia da seção atual
-            in_section = 0
-        }
-    }
-    END {
-        if (found != 1) {
-            # print "Chave não encontrada"
-        }
-    }' "$config_file"
-}
-export -f TIni.GetAwk
-
-function TIni.GetAwk2() {
-	local config_file="$1"
-	local section="$2"
-	local key="$3"
-
-	[[ ! -e "$config_file" ]] && return 2
-	awk -v chave="$key" -F '=' '!/^;/ && $0 ~ chave { gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2 }' "$config_file"
-}
-export -f TIni.GetAwk2
-
-function TIni.GetMaxKeySize() {
-	local config_file="$1"
-
-	[[ ! -e "$config_file" ]] && return 0
-	awk -F '=' '/^[^#]/ {
-        key = gensub(/^[[:space:]]+|[[:space:]]+$/, "", "g", $1); # Remove espaços em branco no início e no fim da chave
-        current_key_size = length(key);
-        if (current_key_size > max_key_size) {
-            max_key_size = current_key_size;
-        }
-    } END {
-        print max_key_size
-    }' "$config_file"
-}
-export -f TIni.GetMaxKeySize
-
-function TIni.GetSection() {
-	local config_file="$1"
-	local section="$2"
-	local key="$3"
-	sed -nr "/^\[$section\]/ { :l /^\s*[^#].*/ p; n; /^\[/ q; b l; }" "$config_file" | grep -E "^\s*[^#].*\s*=" | column -t
-}
-export -f TIni.GetSection
-
-function TIni.GetAllSections() {
-	local config_file="$1"
-	local key="$2"
-
-	# Obtém todas as seções do arquivo
-	local sections
-	sections=$(sed -n '/^\[.*\]$/s/\[\(.*\)\]/\1/p' "$config_file")
-
-	# Itera sobre cada seção
-	for section in $sections; do
-		echo "[$section]"
-		sed -nr "/^\[$section\]/,/^(\[|\s*$)/p" "$config_file" |
-			grep -E "^\s*[^#].*\s*=" |
-			sed 's/^\s*//;s/\s*$//' |
-			sed 's/=/ = /' |
-			column --table --table-columns chave,=,valor,valor1 --table-hide - |
-			sed 1d
-		echo # Adiciona uma linha em branco entre as seções
-	done
-}
-export -f TIni.GetAllSections
-
-function TIni.ParseToAssoc() {
-	local config_file="$1"
-
-	[[ ! -e "$config_file" ]] && return 2
-	awk -F ' *= *' '{
-	    if ($1 ~ /^\[/) {
-    	    section=substr($1, 2, length($1)-2);  # Remove os colchetes da seção
-	    } else if ($1 !~ /^$/ && $1 !~ /^;/) {
-    	    print section "[" $1 "]=\"" $2 "\""
-	    }
-	}' "$config_file"
-}
-export -f TIni.ParseToAssoc
-
-function TIni.ParseToVar() {
-	local config_file="$1"
-
-	[[ ! -e "$config_file" ]] && return 2
-	awk -F ' *= *' '{
-        if ($1 ~ /^\[/) {
-            section=substr($1, 2, length($1)-2);  # Remove os colchetes da seção
-        } else if ($1 !~ /^$/ && $1 !~ /^;/) {
-            print $1 "=" "\"" $2 "\""
-        }
-    }' "$config_file"
-}
-export -f TIni.ParseToVar
-
-function TIni.ParseToDeclareAssoc() {
-    local config_file="$1"
-
-	[[ ! -e "$config_file" ]] && return 2
-    while IFS='=' read key value; do
-        # Verifique se a chave não começa com ;
-        if [[ ! $key =~ ^\;.* ]]; then
-            if [[ $key == \[*] ]]; then
-	            # Remova os colchetes [ ]
-				key="${key/\[/}"
-				key="${key/\]/}"
-                section=$key
-            elif [[ $value ]]; then
-                declare "${section}[${key}]=\"${value}\""
-            fi
-        fi
-    done <"$config_file"
-}
-export -f TIni.ParseToDeclareAssoc
-
-function TIni.ParseToDeclareVar() {
-    local config_file="$1"
-
-	[[ ! -e "$config_file" ]] && return 2
-    while IFS='=' read key value; do
-        # Verifique se a chave não começa com ;
-        if [[ ! $key =~ ^\;.* ]]; then
-            if [[ $key == \[*] ]]; then
-	            # Remova os colchetes [ ]
-				key="${key/\[/}"
-				key="${key/\]/}"
-                section=$key
-            elif [[ $value ]]; then
-                declare "${key}=\"${value}\""
-            fi
-        fi
-    done <"$config_file"
-}
-export -f TIni.ParseToDeclareVar
-
-function TIni.ParseToDeclareArray() {
-    local config_file="$1"
-
-	[[ ! -e "$config_file" ]] && return 2
-    while IFS='=' read key value; do
-        # Verifique se a chave não começa com ;
-        if [[ ! $key =~ ^\;.* ]]; then
-            if [[ $key == \[*] ]]; then
-	            # Remova os colchetes [ ]
-				key="${key/\[/}"
-				key="${key/\]/}"
-                section=$key
-            elif [[ $value ]]; then
-                declare "${key}=(\"${value}\")"
-            fi
-        fi
-    done <"$config_file"
-}
-export -f TIni.ParseToDeclareArray
-
-function TIni.ParseToArray() {
-	local config_file="$1"
-
-	[[ ! -e "$config_file" ]] && return 2
-	awk -F ' *= *' '{
-        if ($1 ~ /^\[/) {
-            section=substr($1, 2, length($1)-2);  # Remove os colchetes da seção
-        } else if ($1 !~ /^$/ && $1 !~ /^;/) {
-            print section "-" $1 "=(" "\"" $2 "\"" ")"
-        }
-    }' "$config_file"
-}
-export -f TIni.ParseToArray
-
-function TIni.AlignAllSections() {
-	local config_file="$1"
-	local chave_identada="$2"
-	local print="$3"
-	local temp_file
-	local max_size
-	local sections
-	local current_section=""
-
-	[[ ! -e "$config_file" ]] && return 2
-	temp_file=$(mktemp)
-	if [[ -n "$chave_identada" || "$chave_identada" -eq 1 ]]; then
-		chave_identada=1
-		# Obtém o tamanho da string da maior chave (nome da chave) no arquivo INI
-		max_size=$(TIni.GetMaxKeySize "$config_file")
-	else
-		chave_identada=0
+	if [ ! -f "$config_file" ]; then
+		# Se não existir, crie o arquivo com a seção, chave e valor fornecidos
+		{
+			echo "[$section]"
+			echo "$key=$value"
+		} >>"$config_file"
+		return
 	fi
-	# Obtém todas as seções do arquivo
-	sections=$(sed -n '/^\[.*\]$/s/\[\(.*\)\]/\1/p' "$config_file")
 
-	# Itera sobre cada linha do arquivo
 	while IFS= read -r line; do
-		if [[ "$line" =~ ^\[(.*)\]$ ]]; then
-			current_section="${BASH_REMATCH[1]}"
-			echo "$line"
-		elif [[ "$line" =~ ^[^#]*= ]]; then
-			if ((chave_identada)); then
-				# formatar com identação
-				awk -F'=' -v section="$current_section" -v max="$max_size" '{ printf "%-*s= %s\n", max+1, $1, $2}' <<<"$line"
-			else
-				# formatar sem identação
-				echo "$current_section.$line"
-			fi
-		else
-			echo "$line"
+		if [[ "$line" =~ ^\[$section\] ]]; then
+			found_section=1
+		elif [[ "$found_section" -eq 1 && "${line}" =~ ^${key}[[:space:]]*=[[:space:]]* ]]; then
+			# Se a seção e a chave existem, atualize o valor
+			sed -i "s|^${key}[[:space:]]*=[[:space:]]*.*|${key}=${value}|" "$config_file"
+			return
 		fi
-	done <"$config_file" >>"$temp_file"
+	done <"$config_file"
 
-	cp "$temp_file" "$config_file"
-	[[ -n "$print" ]] && echo "$(<"$config_file")"
+	# Se a seção não existir, crie-a e adicione a chave e o valor
+	if [[ "$found_section" -eq 0 ]]; then
+		{
+			echo ""
+			echo "[$section]"
+		} >>"$config_file"
+	fi
+	echo "$key=$value" >>"$config_file"
 }
-export -f TIni.AlignAllSections
-
-function TIni.AlignIniFile {
-	local config_file="$1"
-	local chave_identada="$2"
-	local print="$3"
-
-	[[ ! -e "$config_file" ]] && return 2
-	TIni.AlignAllSections "$config_file" "$chave_identada" "$print"
-}
-export -f TIni.AlignIniFile
+export -f TIni.Set
 
 # Se a chave e o valor forem exatamente iguais, a função retorna 0.
 # Se a chave for encontrada, mas o valor não for igual, a função retorna 2.
@@ -535,44 +338,6 @@ function TIni.Exist() {
 	return "$result"
 }
 export -f TIni.Exist
-
-# Exemplo de uso: TIni.Set arquivo.ini snap vilmar 5.7
-function TIni.Set() {
-	local config_file="$1"
-	local section="$2"
-	local key="$3"
-	local value="$4"
-	local found_section=0
-
-	if [ ! -f "$config_file" ]; then
-		# Se não existir, crie o arquivo com a seção, chave e valor fornecidos
-		{
-			echo "[$section]"
-			echo "$key=$value"
-		} >>"$config_file"
-		return
-	fi
-
-	while IFS= read -r line; do
-		if [[ "$line" =~ ^\[$section\] ]]; then
-			found_section=1
-		elif [[ "$found_section" -eq 1 && "${line}" =~ ^${key}[[:space:]]*=[[:space:]]* ]]; then
-			# Se a seção e a chave existem, atualize o valor
-			sed -i "s|^${key}[[:space:]]*=[[:space:]]*.*|${key}=${value}|" "$config_file"
-			return
-		fi
-	done <"$config_file"
-
-	# Se a seção não existir, crie-a e adicione a chave e o valor
-	if [[ "$found_section" -eq 0 ]]; then
-		{
-			echo ""
-			echo "[$section]"
-		} >>"$config_file"
-	fi
-	echo "$key=$value" >>"$config_file"
-}
-export -f TIni.Set
 
 function sh_splitarray() {
 	local str=("$1")
@@ -880,8 +645,37 @@ function lastcol() {
 	echo "$(tput cols)"
 }
 
+function mabox() {
+    # Parâmetros da função
+    ntop=$1
+    nleft=$2
+    nbottom=$3
+    nright=$4
+
+	((ntop++))
+	((nleft++))
+	nbottom=$((ntop+nbottom-1))
+    # Criação da moldura superior e inferior
+       frame_top="┌$(replicate "─" "$((nright-2))")┐"
+    frame_bottom="└$(replicate "─" "$((nright-2))")┘"
+
+    # Desenha a moldura superior
+    printf "\e[%s;%sH%s" $ntop $nleft "$frame_top"
+
+    # Desenha os lados do menu
+    for ((i = 1; i <= nbottom-ntop; i++)); do
+        printf "\e[$((ntop+i));%sH%s" $nleft "│$(replicate " " $((nright-2)))│"
+    done
+
+    # Desenha a moldura inferior
+    printf "\e[$((nbottom));%sH%s" $nleft "$frame_bottom"
+
+	# Move o cursor para a última linha para evitar problemas de exibição
+	#    printf "\e[$((nbottom - 1));1H"
+}
+
 function box() {
-	local linha="$1"
+	local row="$1"
 	local col="$2"
 	local altura="$3"
 	local largura="$4"
@@ -891,22 +685,23 @@ function box() {
 	local largura_mensagem=${#mensagem}
 	local coluna_inicio=$(((largura - largura_mensagem) / 2 + col))
 
-	# Imprime o quadro com base nas coordenadas, largura e altura
-	for ((i = 0; i < altura; i++)); do
-		tput cup $((linha + i)) "$col"
-		if [ "$i" -eq 0 ]; then
-			echo "┌$(printf '─%.0s' $(seq 1 $((largura - 2))))┐"
-		elif [ "$i" -eq $((altura - 1)) ]; then
-			echo "└$(printf '─%.0s' $(seq 1 $((largura - 2))))┘"
-		else
-			echo "│$(printf ' %.0s' $(seq 1 $((largura - 2))))│"
-		fi
-	done
+#	# Imprime o quadro com base nas coordenadas, largura e altura
+#	for ((i = 0; i < altura; i++)); do
+#		tput cup $((row + i)) "$col"
+#		if [ "$i" -eq 0 ]; then
+#			echo "┌$(printf '─%.0s' $(seq 1 $((largura - 2))))┐"
+#		elif [ "$i" -eq $((altura - 1)) ]; then
+#			echo "└$(printf '─%.0s' $(seq 1 $((largura - 2))))┘"
+#		else
+#			echo "│$(printf ' %.0s' $(seq 1 $((largura - 2))))│"
+#		fi
+#	done
+	mabox $row $col $altura $largura
 
 	if [[ -n "$mensagem" ]]; then
-		setpos "$linha" "$((col + 1))"
+		setpos "$row" "$((col + 1))"
 		printf "$color%-${tamanho}s" " "
-		setpos "$linha" "$coluna_inicio"
+		setpos "$row" "$coluna_inicio"
 		echo -e "$bold$white$mensagem"
 	fi
 	tput sgr0
@@ -1045,8 +840,8 @@ function mensagem() {
 	setpos "$row" "$coluna_inicio"
 	((IsBeep)) && printf '\a'
 	printf "$reverse$color%s" "$msg"
-	(( timeout < 0 )) && sed -n q </dev/tty
-	(( timeout > 0 )) && pause "$timeout"
+	((timeout < 0)) && sed -n q </dev/tty
+	((timeout > 0)) && pause "$timeout"
 	tput sgr0
 	setpos "$row" 0
 	tput el
@@ -1130,7 +925,7 @@ function logo() {
 
 function tela() {
 	tput sgr0
-	clear
+	tput clear
 	titulo 0 "$(gettext "$_SYSTEM_")" "${Acores[cabecalho]}" "$(date)" "$_VERSION_"
 	titulo 1 "$(gettext "MENU PRINCIPAL")" "${Acores[statussup]}"
 	logo
@@ -1476,10 +1271,10 @@ function inkey() {
 function pause() {
 	timeout="$1"
 	msg="$2"
-#	>/dev/tty printf '%s' "${msg:-Pressione qualquer tecla para continuar...}"
-	>/dev/tty printf '%s' "${msg:-""}"
-	[[ $ZSH_VERSION ]] && read -krs  # Use -u0 to read from STDIN
-	[[ $BASH_VERSION ]] && </dev/tty read -t "$timeout" -rsn1
+	#	>/dev/tty printf '%s' "${msg:-Pressione qualquer tecla para continuar...}"
+	printf >/dev/tty '%s' "${msg:-""}"
+	[[ $ZSH_VERSION ]] && read -krs # Use -u0 to read from STDIN
+	[[ $BASH_VERSION ]] && read </dev/tty -t "$timeout" -rsn1
 	printf '\n'
 }
 
@@ -1535,7 +1330,7 @@ function produto_pesquisa() {
 
 		function imprimirCabecalhoPesquisaProdutos() {
 			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
-#			Coordenadas="$((nTop + 3))|$ncol|1"
+			#			Coordenadas="$((nTop + 3))|$ncol|1"
 			Cabecalho="ID|DESCRIÇÃO DO PRODUTO|UN|FABRI|VALIDADE|QMIN|ESTOQ|PREÇO|CODEBAR"
 			Max_field_width="5|40|2|5|10|5|5|10|13"
 			Color="${Acores[dispbox]}"
@@ -1610,7 +1405,7 @@ function relatorio_produtos_minimo() {
 
 		function imprimirCabecalhoProdutosMinimo() {
 			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
-#			Coordenadas="$((nTop + 3))|$ncol|1"
+			#			Coordenadas="$((nTop + 3))|$ncol|1"
 			Cabecalho="ID|VALIDADE|DESCRIÇÃO DO PRODUTO|UN|QMIN|ESTOQUE"
 			Max_field_width="5|10|40|2|7|7"
 			Color="${Acores[dispbox]}"
@@ -1628,7 +1423,7 @@ function relatorio_produtos_minimo() {
 			while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
 				if ((nrow >= nlastrow)); then
 					nrow=$((nTop + 4))
-					if [[ $((npage % 2 )) -eq 0 ]]; then
+					if [[ $((npage % 2)) -eq 0 ]]; then
 						ncol=0
 						msgok 2 "Página: $npage" "" -1
 					else
@@ -1691,7 +1486,7 @@ function relatorio_produtos_fora_validade() {
 
 		function imprimirCabecalhoProdutosForaValidade() {
 			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
-#			Coordenadas="$((nTop + 3))|$ncol|1"
+			#			Coordenadas="$((nTop + 3))|$ncol|1"
 			Cabecalho="ID|VALIDADE|DESCRIÇÃO DO PRODUTO|UN|QMIN|ESTOQUE"
 			Max_field_width="5|10|40|2|7|7"
 			Color="${Acores[dispbox]}"
@@ -1709,7 +1504,7 @@ function relatorio_produtos_fora_validade() {
 			while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
 				if ((nrow >= nlastrow)); then
 					nrow=$((nTop + 4))
-					if [[ $((npage % 2 )) -eq 0 ]]; then
+					if [[ $((npage % 2)) -eq 0 ]]; then
 						ncol=0
 						msgok 2 "Página: $npage" "" -1
 					else
@@ -1974,7 +1769,7 @@ function fornecedor_pesquisa() {
 		fi
 
 		function imprimirCabecalhoPesquisaFornecedor() {
-#			Coordenadas="$((nTop + 3))|$ncol|1"
+			#			Coordenadas="$((nTop + 3))|$ncol|1"
 			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
 			Cabecalho="ID|DATA|NOME FORNECEDOR|ENDEREÇO|CIDADE|UF|CNPJ"
 			Max_field_width="5|10|40|40|25|2|18"
@@ -2028,7 +1823,7 @@ function relatorio_vendas_diarias() {
 	tela
 	titulo 1 "$xtitle" "${Acores[statussup]}"
 	box "$nTop" 0 4 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
- 	print $((nTop + 1)) 1 "$(gettext "Data Inicial")    : "
+	print $((nTop + 1)) 1 "$(gettext "Data Inicial")    : "
 	print $((nTop + 2)) 1 "$(gettext "Data Final")      : "
 
 	while true; do
@@ -2078,7 +1873,7 @@ function relatorio_vendas_diarias() {
 
 	function relatorio_vendas_diarias::imprimir_cabecalho_relatorio() {
 		Coordenadas="$((nTop + 4))|$ncol|$(($(lastrow) - $((nTop + 5))))"
-#		Coordenadas="$((nTop + 4))|$ncol|1"
+		#		Coordenadas="$((nTop + 4))|$ncol|1"
 		Cabecalho="DATA|TOTAL DIA"
 		Max_field_width="10|10"
 		Color="${Acores[dispbox]}"
@@ -2100,7 +1895,7 @@ function relatorio_vendas_diarias() {
 			new_mes=$(date -d "$data" +"%m")
 			if [[ -n "$current_mes" && "$current_mes" != "$new_mes" ]]; then
 				((++nrow))
-				setpos $((ntop+44)) "$((ncol + 1))"
+				setpos $((ntop + 44)) "$((ncol + 1))"
 				printf "${blue}%-10s ${red}%'10.2f${reset}\n" "SOMA" "$(tr "." "," <<<"$total_mes")"
 				total_mes=0
 
@@ -2219,7 +2014,7 @@ function relatorio_produtos_vendidos() {
 
 		function imprimirCabecalhoProdutosVendidos() {
 			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
-#			Coordenadas="$((nTop + 3))|$ncol|1"
+			#			Coordenadas="$((nTop + 3))|$ncol|1"
 			Cabecalho="DATA|DOCNR|FORN|ID|DESCRIÇÃO DO PRODUTO|UN|QTD|PREÇO|TOTAL"
 			Max_field_width="10|7|5|5|40|2|5|10|10"
 			Color="${Acores[dispbox]}"
@@ -2390,7 +2185,7 @@ function relatorio_entradas_produtos() {
 
 		function imprimirCabecalhoProdutosComprados() {
 			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
-#			Coordenadas="$((nTop + 3))|$ncol|1"
+			#			Coordenadas="$((nTop + 3))|$ncol|1"
 			Cabecalho="FORN|DATA|DOCNR|ID|DESCRIÇÃO DO PRODUTO|UN|QTD|CUSTO"
 			Max_field_width="5|10|7|5|40|2|5|10"
 			Color="${Acores[dispbox]}"
@@ -2860,7 +2655,7 @@ populate_database_vendas() {
 	msgok 2 "$(gettext "Populando tabela vendas")"
 	# Inicialize o dia, mês e ano
 	dia=1
-#	mes="$(date +"%m")"
+	#	mes="$(date +"%m")"
 	mes=01
 	ano="$(date +"%Y")"
 
@@ -2967,80 +2762,50 @@ find_max_length() {
 }
 
 function show_menu() {
-	local row=$1
-	local col=$2
+	local linha=$1
+	local coluna=$2
 	local titulo="$3"
-	local array=("${@:4}")
-	local length_title=${#titulo}
-	local itens="${#array[@]}"
-	local max_length=$(($(find_max_length "${array[@]}") + 15))
-	local i key selected formatted_item
-	local exit_menu=false
+	local itens=("${@:4}")
+	local tamanho_titulo=${#titulo}
+	local quantidade_itens="${#itens[@]}"
+	local tamanho_maximo=$tamanho_titulo
+	local i tecla selecionado item_formatado
+	local sair_do_menu=false
 
-	if (( max_length < length_title )); then
-		max_length="$length_title"
-	fi
-	if (( itens > 9 )); then
-		((++max_length))
-	fi
+	# Calcular o tamanho máximo diretamente no loop
+	for item in "${itens[@]}"; do
+		((tamanho_maximo = tamanho_maximo < ${#item} ? ${#item} : tamanho_maximo))
+	done
 
-	box "$row" "$col" "$((itens + 2))" "$((max_length + 5))" "$titulo" "${Acores[box]}"
-	while ! $exit_menu; do
-		for i in "${!array[@]}"; do
-			tput cup $((row + i + 1)) $((col + 1))
-			local item="${array[i]}"
+	((tamanho_maximo += 15))
+	((tamanho_maximo = tamanho_maximo < tamanho_titulo ? tamanho_titulo : tamanho_maximo))
+	((quantidade_itens > 9)) && ((++tamanho_maximo))
 
-			if (( i < 9 )); then
-				local padding=$((max_length - ${#item}))
+	# Chamar a função 'box' uma vez fora do loop
+	box "$linha" "$coluna" "$((quantidade_itens + 2))" "$((tamanho_maximo + 5))" "$titulo" "${Acores[box]}"
+
+	while ! $sair_do_menu; do
+		for i in "${!itens[@]}"; do
+#			tput cup $((linha + i + 1)) $((coluna + 1))
+			printf "\e[%s;%sH" $((linha + i + 2)) $((coluna + 2))
+			local item="${itens[i]}"
+			local padding=$((tamanho_maximo - ${#item}))
+			((i > 8)) && ((--padding))
+
+			if [[ $i -eq $selecionado ]]; then
+				item_formatado="${aCorItemMenu[i]}${reverse}$((i + 1)). $item%${padding}s${reset}"
 			else
-				local padding=$((max_length - ${#item} -1))
+				item_formatado="${aCorItemMenu[i]}$((i + 1)). $item%${padding}s${reset}"
 			fi
-
-			local bar=$(printf "%-${padding}s" "")
-			if [[ $i -eq $selected ]]; then
-#				formatted_item="${reverse}${ciano}${bold}$((i + 1)). $item${bar}${reset}"
-				formatted_item="${reverse}$((i + 1)). $item${bar}${reset}"
-			else
-				formatted_item="$((i + 1)). $item${bar}"
-			fi
-			printf "%-*s" "$max_length" "${formatted_item}"
+			printf "$item_formatado" ""
 		done
-		read -r -n 1 -s key
-		case $key in
-		"A") # Tecla de seta para cima
-			if ((selected > 0)); then
-				((selected--))
-			else
-				selected=$((itens - 1))
-			fi
-			;;
-		"B") # Tecla de seta para baixo
-			if ((selected < (itens - 1))); then
-				((selected++))
-			else
-				selected=0
-			fi
-			;;
-			#		"5") # Tecla PgUp
-			#			if ((selected <= 0)); then
-			#				selected=$((itens - 1))
-			#			else
-			#				selected=0
-			#			fi
-			#			;;
-			#		"6") # Tecla PgDn
-			#			if ((selected >= (itens - 1))); then
-			#				selected=0
-			#			else
-			#				selected=$((itens - 1))
-			#			fi
-			#			;;
-		[0-9]) return "$key" ;;
-		"") # Tecla Enter
-			case $selected in
-			*) return $((selected + 1)) ;;
-			esac
-			;;
+
+		read -r -n 1 -s tecla
+		case $tecla in
+			"A") ((selecionado = selecionado > 0 ? selecionado - 1 : quantidade_itens - 1));;
+			"B") ((selecionado = selecionado < quantidade_itens - 1 ? selecionado + 1 : 0));;
+			[0-9]) return "$tecla";;
+			"") return $((selecionado + 1));;
 		esac
 	done
 }
@@ -3048,17 +2813,19 @@ function show_menu() {
 function menu_fornecedores() {
 	local xtitle="$(gettext "MENU FORNECEDORES")"
 	local opcao
+	local options=(
+		"$(gettext 'Cadastrar')"
+		"$(gettext 'Alterar')"
+		"$(gettext 'Remover/Excluir')"
+		"$(gettext 'Pesquisar')"
+		"$(gettext 'Voltar')"
+	)
 
 	while true; do
 		tela
 		titulo 1 "$xtitle" "${Acores[statussup]}"
-		box 11 10 9 80 "$xtitle" "${Acores[box]}"
-		print 12 11 " 1 - $(gettext "Cadastrar")"
-		print 13 11 " 2 - $(gettext "Alterar")"
-		print 14 11 " 3 - $(gettext "Remover/Excluir")"
-		print 15 11 " 4 - $(gettext "Pesquisar")"
-		print 16 11 " 0 - $(gettext "Voltar")"
-		get 18 12 "$(gettext "Opção"): " opcao
+		show_menu 11 10 "$xtitle" "${options[@]}"
+		opcao="$?"
 
 		case "$opcao" in
 		1) fornecedor_inclusao ;;
@@ -3073,17 +2840,19 @@ function menu_fornecedores() {
 function menu_produtos() {
 	local xtitle="$(gettext "MENU PRODUTOS")"
 	local opcao
+	local options=(
+		"$(gettext 'Cadastrar')"
+		"$(gettext 'Alterar')"
+		"$(gettext 'Remover/Excluir')"
+		"$(gettext 'Pesquisar')"
+		"$(gettext 'Voltar')"
+	)
 
 	while true; do
 		tela
 		titulo 1 "$xtitle" "${Acores[statussup]}"
-		box 11 10 9 80 "$xtitle" "${Acores[box]}"
-		print 12 11 " 1 - $(gettext "Cadastrar")"
-		print 13 11 " 2 - $(gettext "Alterar")"
-		print 14 11 " 3 - $(gettext "Remover/Excluir")"
-		print 15 11 " 4 - $(gettext "Pesquisar")"
-		print 16 11 " 0 - $(gettext "Voltar")"
-		get 18 12 "$(gettext "Opção"): " opcao
+		show_menu 11 10 "$xtitle" "${options[@]}"
+		opcao="$?"
 
 		case "$opcao" in
 		1) produto_inclusao_alteracao 'I' ;;
@@ -3122,20 +2891,23 @@ function menu_manutencao() {
 
 function menu_relatorios() {
 	local xtitle="$(gettext "MENU PEQUISA/RELATÓRIOS/CONSULTA")"
+	local opcao
+	local options=(
+		"$(gettext 'Produtos')"
+		"$(gettext 'Produto Vendidos')"
+		"$(gettext 'Entradas de Produtos')"
+		"$(gettext 'Produtos abaixo estoque minímo')"
+		"$(gettext 'Produtos fora da validade')"
+		"$(gettext 'Vendas Diárias')"
+		"$(gettext 'Fornecedores')"
+		"$(gettext 'Voltar')"
+	)
 
 	while true; do
 		tela
 		titulo 1 "$xtitle" "${Acores[statussup]}"
-		box 11 10 12 80 "$xtitle" "${Acores[box]}"
-		print 12 11 " 1 - $(gettext "Produtos")"
-		print 13 11 " 2 - $(gettext "Produtos Vendidos")"
-		print 14 11 " 3 - $(gettext "Entradas de Produtos")"
-		print 15 11 " 4 - $(gettext "Produtos abaixo estoque mínimo")"
-		print 16 11 " 5 - $(gettext "Produtos fora da validade")"
-		print 17 11 " 6 - $(gettext "Vendas Diárias")"
-		print 18 11 " 7 - $(gettext "Fornecedores")"
-		print 19 11 " 0 - $(gettext "Voltar")"
-		get 21 12 "$(gettext "Opção"): " opcao
+		show_menu 11 10 "$xtitle" "${options[@]}"
+		opcao="$?"
 
 		case "$opcao" in
 		1) produto_pesquisa ;;
@@ -3146,42 +2918,6 @@ function menu_relatorios() {
 		6) relatorio_vendas_diarias ;;
 		7) fornecedor_pesquisa ;;
 		*) return ;;
-		esac
-	done
-}
-
-function sh_old_main_menu() {
-	local xtitle="$(gettext "MENU PRINCIPAL")"
-
-	while true; do
-		tela
-		titulo 1 "$xtitle" "${Acores[statussup]}"
-		box 11 10 12 80 "$xtitle" "${Acores[box]}"
-		print 12 11 " 1 - $(gettext "Produtos")"
-		print 13 11 " 2 - $(gettext "Fornecedores")"
-		print 14 11 " 3 - $(gettext "Realizar Venda/Saída")"
-		print 15 11 " 4 - $(gettext "Entradas de Produtos")"
-		print 16 11 " 5 - $(gettext "Pesquisa/Relatórios/Consulta")"
-		print 17 11 " 6 - $(gettext "Manutenção")"
-		print 18 11 " 0 - $(gettext "Configuração")"
-		print 19 11 " 0 - $(gettext "Sair")"
-		get 21 12 "$(gettext "Opção"): " opcao
-		opcao="$?"
-
-		case "$opcao" in
-		1) menu_produtos ;;
-		2) menu_fornecedores ;;
-		3) realizar_venda ;;
-		4) produtos_entradas ;;
-		5) menu_relatorios ;;
-		6) menu_manutencao ;;
-		7) ;;
-		8 | 0)
-			#			sh_clear_eol 21 "$(lastrow)"
-			setpos 18 0
-			exit 0
-			;;
-		*) msgerror 2 "$(gettext "Opção inválida. Tente novamente.")" ;;
 		esac
 	done
 }
@@ -3237,36 +2973,36 @@ function configuracao::dados_empresa() {
 }
 
 function configuracao::cores() {
+	declare -a aCorItemMenu=("$black" "$red" "$green" "$yellow" "$blue" "$magenta" "$cyan" "$white" "$gray" "$orange" "$purple" "$violet" "$roxo" "$azul" "$vermelho" "$ciano" "$cinza" "$preto" "$verde" "$amarelo" "$laranja" "$violeta")
 	local type="$1"
 	local ctitulo="$2"
 	local xtitle="$(gettext "CONFIGURAÇÃO DE CORES")"
 	local atype=('logo' 'cabecalho' 'statussup' 'statusinf' 'box' 'dispbox' 'msgok' 'msgerror' 'conf')
 	local ctype="${atype[$type]}"
-	local acor=("$black" "$red" "$green" "$yellow" "$blue" "$magenta" "$cyan" "$white" "$gray" "$orange" "$purple" "$violet" "$roxo" "$azul" "$vermelho" "$ciano" "$cinza" "$preto" "$verde" "$amarelo" "$laranja" "$violeta")
 	local opcao
 	local options=(
-		"${black}$(gettext 'Black/Black')${reset}"
-		"${red}$(gettext 'Red/Black')${reset}"
-		"${green}$(gettext 'Green/Black')${reset}"
-		"${yellow}$(gettext 'Yellow/Black')${reset}"
-		"${blue}$(gettext 'Blue/Black')${reset}"
-		"${magenta}$(gettext 'Magenta/Black')${reset}"
-		"${cyan}$(gettext 'Cyan/Black')${reset}"
-		"${white}$(gettext 'White/Black')${reset}"
-		"${gray}$(gettext 'Gray/Black')${reset}"
-		"${orange}$(gettext 'Orange/Black')${reset}"
-		"${purple}$(gettext 'Purple/Black')${reset}"
-		"${violet}$(gettext 'Violet/Black')${reset}"
-		"${roxo}$(gettext 'White/Purple')${reset}"
-		"${azul}$(gettext 'White/Blue')${reset}"
-		"${vermelho}$(gettext 'White/Red')${reset}"
-		"${ciano}$(gettext 'White/Cyan')${reset}"
-		"${cinza}$(gettext 'White/Gray')${reset}"
-		"${preto}$(gettext 'White/Black')${reset}"
-		"${verde}$(gettext 'White/Green')${reset}"
-		"${amarelo}$(gettext 'White/Yellow')${reset}"
-		"${laranja}$(gettext 'White/Orange')${reset}"
-		"${violeta}$(gettext 'White/Violet')${reset}"
+		"Black/Black"
+		"Red/Black"
+		"Green/Black"
+		"Yellow/Black"
+		"Blue/Black"
+		"Magenta/Black"
+		"Cyan/Black"
+		"White/Black"
+		"Gray/Black"
+		"Orange/Black"
+		"Purple/Black"
+		"Violet/Black"
+		"White/Purple"
+		"White/Blue"
+		"White/Red"
+		"White/Cyan"
+		"White/Gray"
+		"White/Black"
+		"White/Green"
+		"White/Yellow"
+		"White/Orange"
+		"White/Violet"
 		"$(gettext 'Voltar')"
 	)
 
@@ -3277,14 +3013,15 @@ function configuracao::cores() {
 		opcao="$?"
 
 		case "$opcao" in
-		[1-9]|1[0-9]|2[0-2])
-			Acores[$ctype]="${acor["$((opcao-1))"]}"
-			TIni.Set "$INI_FILE" "cores" "$ctype" "${acor["$((opcao-1))"]}"
+		[1-9] | 1[0-9] | 2[0-2])
+			Acores[$ctype]="${aCorItemMenu["$((opcao - 1))"]}"
+			TIni.Set "$INI_FILE" "cores" "$ctype" "${aCorItemMenu["$((opcao - 1))"]}"
 			;;
-		23|0) return ;;
+		23 | 0) break ;;
 		*) msgerror 2 "$(gettext "Opção inválida. Tente novamente.")" ;;
 		esac
 	done
+	unset aCorItemMenu
 }
 
 function menu_configuracao() {
@@ -3312,7 +3049,7 @@ function menu_configuracao() {
 
 		case "$opcao" in
 		1) configuracao::dados_empresa ;;
-		[2-9]|1[0]) configuracao::cores "$((opcao-2))" "${options[$((opcao-1))]}" ;;
+		[2-9] | 1[0]) configuracao::cores "$((opcao - 2))" "${options[$((opcao - 1))]}" ;;
 		11 | 0) return ;;
 		*) msgerror 2 "$(gettext "Opção inválida. Tente novamente.")" ;;
 		esac
