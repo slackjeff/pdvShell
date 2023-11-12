@@ -1,24 +1,24 @@
 # pdvShell
 PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell script e sqlite!
 
-┌                MENU PRINCIPAL                ┐	┌              MAIN MENU               ┐
-│1. Produtos                                   │	│1. Products                           │
-│2. Fornecedores                               │    │2. Suppliers                          │
-│3. Realizar Venda/Saída                       │	│3. Carry out Sale/Exit                │
-│4. Entradas de Produtos                       │	│4. Product Entries                    │
-│5. Pesquisa/Relatórios/Consulta               │	│5. Search/Reports/Query               │
-│6. Manutenção                                 │	│6. Maintenance                        │
-│7. Configuração                               │	│7. Settings                           │
-│8. Sair                                       │	│8. To go out                          │
-└──────────────────────────────────────────────┘	└──────────────────────────────────────┘
+          ┌                MENU PRINCIPAL                ┐
+          │1. Produtos                                   │
+          │2. Fornecedores                               │
+          │3. Realizar Venda/Saída                       │
+          │4. Entradas de Produtos                       │
+          │5. Pesquisa/Relatórios/Consulta               │
+          │6. Manutenção                                 │
+          │7. Configuração                               │
+          │8. Sair                                       │
+          └──────────────────────────────────────────────┘
 
-┌          MENU PRODUTOS          ┐					┌         PRODUCT MENU          ┐
-│1. Cadastrar                     │					│1. Register                    │
-│2. Alterar                       │					│2. To alter                    │
-│3. Remover/Excluir               │					│3. Remove/Delete               │
-│4. Pesquisar                     │					│4. To look for                 │
-│5. Voltar                        │					│5. To go back                  │
-└─────────────────────────────────┘					└───────────────────────────────┘
+          ┌          MENU PRODUTOS          ┐
+          │1. Cadastrar                     │
+          │2. Alterar                       │
+          │3. Remover/Excluir               │
+          │4. Pesquisar                     │
+          │5. Voltar                        │
+          └─────────────────────────────────┘
 
           ┌         MENU FORNECEDORES         ┐
           │1. Cadastrar                       │
