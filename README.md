@@ -11,7 +11,7 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
           │7. Configuração                               │
           │8. Sair                                       │
           └──────────────────────────────────────────────┘
-=====================================================================
+
           ┌          MENU PRODUTOS          ┐
           │1. Cadastrar                     │
           │2. Alterar                       │
@@ -19,7 +19,7 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
           │4. Pesquisar                     │
           │5. Voltar                        │
           └─────────────────────────────────┘
-=====================================================================
+
 
           ┌         MENU FORNECEDORES         ┐
           │1. Cadastrar                       │
@@ -28,7 +28,7 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
           │4. Pesquisar                       │
           │5. Voltar                          │
           └───────────────────────────────────┘
-=====================================================================
+
           ┌         MENU PEQUISA/RELATÓRIOS/CONSULTA         ┐
           │1. Produtos                                       │
           │2. Produtos Vendidos                              │
@@ -39,14 +39,14 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
           │7. Fornecedores                                   │
           │8. Voltar                                         │
           └──────────────────────────────────────────────────┘
-=====================================================================
+
           ┌                 MENU MANUTENÇÃO                 ┐
           │1. Atualizar Estoque (conciliação)               │
           │2. Popular DataBases para testes                 │
           │3. Zerar/Limpar DataBases                        │
           │4. Voltar                                        │
           └─────────────────────────────────────────────────┘
-=====================================================================
+
           ┌             MENU CONFIGURAÇÃO             ┐
           │1. Dados Empresa                           │
           │2. Cor Logo                                │
