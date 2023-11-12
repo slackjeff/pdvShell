@@ -1,19 +1,39 @@
 # pdvShell
 PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell script e sqlite!
 
+          ┌                MENU PRINCIPAL                ┐
+          │1. Produtos                                   │
+          │2. Fornecedores                               │
+          │3. Realizar Venda/Saída                       │
+          │4. Entradas de Produtos                       │
+          │5. Pesquisa/Relatórios/Consulta               │
+          │6. Manutenção                                 │
+          │7. Configuração                               │
+          │8. Sair                                       │
+          └──────────────────────────────────────────────┘
 * Produtos
-	- Cadastrar Produtos
-    - Alterar Produtos
-    - Remover Produtos
-    - Pesquisar Produtos
-    - Relatório Produtos Vendidos
-    - Relatório Entradas de Produtos
-    - Relatório Produtos abaixo estoque mínimo
-    - Relatório Produtos fora da validade
-* Realizar Venda
-* Relatório Vendas Diárias
-* Entradas de Produtos
+	- Cadastrar
+    - Alterar
+    - Remover/Excluir
+    - Pesquisar
 * Fornecedores
+	- Cadastrar
+    - Alterar
+    - Remover/Excluir
+    - Pesquisar
+* Realizar Venda/Saída
+* Entradas de Produtos
+          ┌         MENU PEQUISA/RELATÓRIOS/CONSULTA         ┐
+          │1. Produtos                                       │
+          │2. Produtos Vendidos                              │
+          │3. Entradas de Produtos                           │
+          │4. Produtos abaixo estoque minímo                 │
+          │5. Produtos fora da validade                      │
+          │6. Vendas Diárias                                 │
+          │7. Fornecedores                                   │
+          │8. Voltar                                         │
+          └──────────────────────────────────────────────────┘
+* Relatório Vendas Diárias
 	- Cadastrar Fornecedor
 	- Alterar Fornecedor
 	- Remover Fornecedor
@@ -22,6 +42,13 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
 	- Popular databases para testes
 	- Zerar/Limpar databases
     - Atualizar Estoque (conciliação)
+
+     Produtos
+    - Relatório Produtos Vendidos
+    - Relatório Entradas de Produtos
+    - Relatório Produtos abaixo estoque mínimo
+    - Relatório Produtos fora da validade
+
 
 ## Futuras Features
 *

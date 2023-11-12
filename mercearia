@@ -959,7 +959,6 @@ function logoOLD() {
 	setpos 2 0
 	printf "%s" "${Acores[logo]}"
 	cat <<-'EOF'
-		$Mercearia
 		 __  __                              _       
 		|  \/  | ___ _ __ ___ ___  __ _ _ __(_) __ _ 
 		| |\/| |/ _ \ '__/ __/ _ \/ _` | '__| |/ _` |
