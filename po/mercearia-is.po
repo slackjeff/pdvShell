@@ -8,8 +8,8 @@ msgstr ""
 
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-23 23:18-0400\n"
-"PO-Revision-Date: 2023-10-23 23:18-0400\n"
+"POT-Creation-Date: 2023-11-12 16:36-0400\n"
+"PO-Revision-Date: 2023-11-12 16:36-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "Language: is\n"
@@ -17,529 +17,766 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: mercearia:257
-msgid " Pressione qualquer tecla para continuar"
-msgstr "Ýttu á hvaða takka sem er til að halda áfram"
-
-
-#: mercearia:299
-msgid "ERRO: não consegui encontrar o comando"
-msgstr "VILLA: fann ekki skipunina"
-
-
-#: mercearia:303 mercearia:306
-msgid "IMPOSSÍVEL CONTINUAR"
-msgstr "ómögulegt að halda áfram"
-
-
-#: mercearia:304
-msgid "Este script precisa dos comandos listados acima"
-msgstr "Þetta handrit þarf skipanirnar sem taldar eru upp hér að ofan"
-
-
-#: mercearia:305
-msgid "Instale-os e/ou verifique se eles estão em seu"
-msgstr "Settu þau upp og/eða vertu viss um að þau séu á þínum"
-
-
-#: mercearia:307
-msgid "Instalação abortada!"
-msgstr "Uppsetning hætt!"
-
-
-#: mercearia:329
+#: mercearia:38
 msgid "SISTEMA PDV"
 msgstr "POS KERFI"
 
 
-#: mercearia:330 mercearia:1461 mercearia:1462
-msgid "MENU PRINCIPAL"
-msgstr "AÐAL MATSEÐILL"
+#: mercearia:58
+msgid "Mercearia"
+msgstr "Matvörubúð"
 
 
-#: mercearia:394
-msgid "Pressione qualquer tecla para continuar..."
-msgstr "Ýttu á hvaða takka sem er til að halda áfram..."
+#: mercearia:59
+msgid "Menu Principal"
+msgstr "Aðal matseðill"
 
 
-#: mercearia:439 mercearia:440
-msgid "CADASTRO DE PRODUTO"
-msgstr "VÖRUSKRÁNING"
-
-
-#: mercearia:442 mercearia:448 mercearia:452 mercearia:581 mercearia:606
-msgid "Descrição"
-msgstr "Lýsing"
-
-
-#: mercearia:443 mercearia:467 mercearia:582 mercearia:617
-msgid "Código Barras"
-msgstr "Strikamerki"
-
-
-#: mercearia:444 mercearia:468 mercearia:583 mercearia:618
-msgid "Unidade"
-msgstr "Eining"
-
-
-#: mercearia:445 mercearia:472 mercearia:584 mercearia:622
-msgid "Preço (ex: 4.40 ou 5)"
-msgstr "Verð (td: 4,40 eða 5)"
-
-
-#: mercearia:454
-msgid "Descrição não pode ser em branco"
-msgstr "Lýsing má ekki vera auð"
-
-
-#: mercearia:461 mercearia:611
-msgid "A descrição não pode ser em branco. Cancelar?"
-msgstr "Lýsingin má ekki vera auð. Hætta við?"
-
-
-#: mercearia:476 mercearia:626 mercearia:1266
-msgid "Formato de preço inválido. Usar ponto decimal (ex: 4.40) ou número inteiro."
-msgstr "Ógilt verðsnið. Notaðu aukastaf (td: 4.40) eða heila tölu."
-
-
-#: mercearia:481 mercearia:631
-msgid "Confirma inclusão/atualização do produto?"
-msgstr "Staðfesta innlimun/uppfærslu vörunnar?"
-
-
-#: mercearia:491 mercearia:640
-msgid "Produto cadastrado/atualizado com sucesso!"
-msgstr "Vara skráð/uppfærð með góðum árangri!"
-
-
-#: mercearia:493 mercearia:642
-msgid "Erro no cadastro/atualização do produto."
-msgstr "Villa við að skrá/uppfæra vöruna."
-
-
-#: mercearia:496 mercearia:561 mercearia:645 mercearia:722
-msgid "Inclusão/alteração não efetuada."
-msgstr "Inntaka/breyting ekki gerð."
-
-
-#: mercearia:510 mercearia:511
-msgid "CADASTRO DE FORNECEDOR"
-msgstr "SKRÁNING BORGA"
-
-
-#: mercearia:513 mercearia:520 mercearia:524 mercearia:663 mercearia:689
-msgid "Nome"
-msgstr "Nafn"
-
-
-#: mercearia:514 mercearia:539 mercearia:664 mercearia:700
-msgid "Endereço"
-msgstr "Heimilisfang"
-
-
-#: mercearia:515 mercearia:540 mercearia:665 mercearia:701
-msgid "Cidade"
-msgstr "Borg"
-
-
-#: mercearia:516 mercearia:541 mercearia:666 mercearia:702
-msgid "Estado"
-msgstr "ríki"
-
-
-#: mercearia:517 mercearia:542 mercearia:667 mercearia:703
-msgid "Cnpj"
-msgstr "CNPJ"
-
-
-#: mercearia:526
-msgid "Nome não pode ser em branco"
-msgstr "Nafn má ekki vera autt"
-
-
-#: mercearia:533 mercearia:694
-msgid "O nome não pode ser em branco. Cancelar?"
-msgstr "Nafnið má ekki vera autt. Hætta við?"
-
-
-#: mercearia:545 mercearia:706
-msgid "Confirma inclusão/atualização do fornecedor?"
-msgstr "Staðfesta skráningu/uppfærslu birgis?"
-
-
-#: mercearia:556 mercearia:717
-msgid "Fornecedor cadastrado/atualizado com sucesso!"
-msgstr "Birgir skráður/uppfærður!"
-
-
-#: mercearia:558 mercearia:719
-msgid "Erro no cadastro/atualização do fornecedor"
-msgstr "Villa í skráningu/uppfærslu birgja"
-
-
-#: mercearia:577 mercearia:578
-msgid "ALTERAÇÃO DE PRODUTO"
-msgstr "VÖRUBREYTING"
-
-
-#: mercearia:580 mercearia:586 mercearia:662 mercearia:669
-msgid "ID/Nome"
-msgstr "Auðkenni/nafn"
-
-
-#: mercearia:590 mercearia:673
-msgid "ID/Nome não pode ser em branco. Cancelar?"
-msgstr "Auðkenni/nafn má ekki vera autt. Hætta við?"
-
-
-#: mercearia:600
-msgid "Produto não encontrado nos parâmetros informados"
-msgstr "Vara fannst ekki í tilgreindum breytum"
-
-
-#: mercearia:659
-msgid "ALTERAÇÃO DE FORNECEDOR"
-msgstr "BREYTINGABREYTTU"
-
-
-#: mercearia:660
-msgid "ALTERACÃO DE FORNECEDOR"
-msgstr "BREYTJASKIPTI"
-
-
-#: mercearia:683
-msgid "Fornecedor não encontrado nos parâmetros informados"
-msgstr "Birgir fannst ekki í tilgreindum breytum"
-
-
-#: mercearia:733
-msgid "REMOÇÃO DE PRODUTO"
-msgstr "Fjarlæging VÖRU"
-
-
-#: mercearia:736
-msgid "Digite o ID ou nome do produto que deseja remover: "
-msgstr "Sláðu inn auðkenni eða nafn vörunnar sem þú vilt fjarlægja:"
-
-
-#: mercearia:741
-msgid "O ID não pode ser em branco. Cancelar?"
-msgstr "Auðkenni má ekki vera autt. Hætta við?"
-
-
-#: mercearia:755
-msgid "Confirma exclusão do produto?"
-msgstr "Staðfesta eyðingu vörunnar?"
-
-
-#: mercearia:763
-msgid "Produto removido com sucesso!"
-msgstr "Varan var fjarlægð!"
-
-
-#: mercearia:766 mercearia:807
+#: mercearia:60
 msgid "Nenhum produto encontrado nos parâmetros informados"
 msgstr "Engar vörur fundust í tilgreindum breytum"
 
 
-#: mercearia:774
-msgid "TOTAL VENDAS DIÁRIAS"
-msgstr "HEILDAR DAGSALA"
-
-
-#: mercearia:782 mercearia:783
-msgid "PESQUISAR PRODUTOS"
-msgstr "LEIT VÖRU"
-
-
-#: mercearia:784
-msgid "Pesquisar por (nome, id ou *=tudo)"
-msgstr "Leita eftir (nafni, auðkenni eða *=allt)"
-
-
-#: mercearia:815 mercearia:816
-msgid "LISTAGEM PRODUTOS VENDIDOS"
-msgstr "LISTI OVER SEÐAR VÖRUR"
-
-
-#: mercearia:817 mercearia:895
-msgid "Pesquisar por (id, docnr, data ou *=tudo)"
-msgstr "Leita eftir (id, docnr, date eða *=all)"
-
-
-#: mercearia:840 mercearia:928
-msgid "Formato de data inválido."
-msgstr "Ógilt dagsetningarsnið."
-
-
-#: mercearia:885
-msgid "Nenhum produto vendido nos parâmetros informados"
-msgstr "Engar vörur seldar innan tilgreindra breytu"
-
-
-#: mercearia:893 mercearia:894
-msgid "LISTAGEM ENTRADAS DE PRODUTOS"
-msgstr "LISTI UM VÖRUFÆRSLA"
-
-
-#: mercearia:973
-msgid "Nenhum produto comprado nos parâmetros informados"
-msgstr "Engar vörur keyptar innan tilgreindra breytu"
-
-
-#: mercearia:984 mercearia:985
-msgid "PESQUISAR FORNECEDOR"
-msgstr "LEIT AÐ BIRGI"
-
-
-#: mercearia:1006
-msgid "Nenhum fornecedor encontrado nos parâmetros informados"
-msgstr "Engir birgjar fundust í tilgreindum breytum"
-
-
-#: mercearia:1034
-msgid "Registro de venda efetuado"
-msgstr "Söluskráning gerð"
-
-
-#: mercearia:1043
-msgid "Baixa de estoque efetuado"
-msgstr "Birgðaafskrift framkvæmd"
-
-
-#: mercearia:1053
-msgid "VENDA"
-msgstr "ÚTSALA"
-
-
-#: mercearia:1054
-msgid "CUPOM PDV"
-msgstr "POS afsláttarmiða"
-
-
-#: mercearia:1070 mercearia:1224
-msgid "ID/nome/CodeBar (deixe em branco para concluir)"
-msgstr "Auðkenni/nafn/kóðastika (skilið eftir autt til að fylla út)"
-
-
-#: mercearia:1087 mercearia:1241
-msgid "Produto não encontrado"
-msgstr "Vara fannst ekki"
-
-
-#: mercearia:1093 mercearia:1248
-msgid "Quantidade (0 para remover o item)"
-msgstr "Magn (0 til að fjarlægja hlut)"
-
-
-#: mercearia:1100 mercearia:1255
-msgid "Quantidade inválida ou item não tem na lista"
-msgstr "Ógilt magn eða vara ekki á listanum"
-
-
-#: mercearia:1106
-msgid "Quantidade insuficiente de"
-msgstr "Ófullnægjandi magn af"
-
-
-#: mercearia:1106
-msgid "no estoque"
-msgstr "á lager"
-
-
-#: mercearia:1126
-msgid "Confirma o fetchamento do CUPOM?"
-msgstr "Staðfestir þú afhendingu afsláttarmiða?"
-
-
-#: mercearia:1145
-msgid "Registro de entradas efetuado"
-msgstr "Skráning á innsendum færslum"
-
-
-#: mercearia:1155
-msgid "Ajuste de estoque efetuado"
-msgstr "Birgðaleiðrétting gerð"
-
-
-#: mercearia:1177
-msgid "ENTRADAS DE PRODUTOS"
-msgstr "VÖRUINNTUN"
-
-
-#: mercearia:1178
-msgid "DADOS DA NFF"
-msgstr "NFF GÖGN"
-
-
-#: mercearia:1180 mercearia:1184
-msgid "Fornecedor"
-msgstr "Birgir"
-
-
-#: mercearia:1181 mercearia:1201
-msgid "Docnr/NFF"
-msgstr "Docnr/NFF"
-
-
-#: mercearia:1190
-msgid "O ID/nome não pode ser em branco. Cancelar?"
-msgstr "Auðkenni/nafn má ekki vera autt. Hætta við?"
-
-
-#: mercearia:1196
-msgid "Fornecedor não encontrado"
-msgstr "Birgir fannst ekki"
-
-
-#: mercearia:1209
-msgid "RELAÇAO DAS ENTRADAS"
-msgstr "LISTI UM FÆRSLA"
-
-
-#: mercearia:1262
-msgid "Preço custo (ex: 4.40 ou 5)"
-msgstr "Kostnaðarverð (td: 4,40 eða 5)"
-
-
-#: mercearia:1286
-msgid "Confirma a entrada desses produtos?"
-msgstr "Staðfestir þú færslu þessara vara?"
-
-
-#: mercearia:1295
-msgid "Confirma a atualização?"
-msgstr "Staðfesta uppfærsluna?"
-
-
-#: mercearia:1296
-msgid "Aguarde... Atualizando estoque"
-msgstr "Vinsamlegast bíddu... Uppfærir lager"
-
-
-#: mercearia:1332
-msgid "Atualização concluída"
-msgstr "Uppfærslu lokið"
-
-
-#: mercearia:1354
-msgid "Checando tabela de produtos."
-msgstr "Skoða vörutöflu."
-
-
-#: mercearia:1356
-msgid "Checando tabela de vendas."
-msgstr "Skoða sölutöflu."
-
-
-#: mercearia:1358
-msgid "Checando tabela de compras."
-msgstr "Athugar innkaupatöflu."
-
-
-#: mercearia:1360
-msgid "Checando tabela de fornecedores."
-msgstr "Athugaðu birgjatöflu."
-
-
-#: mercearia:1388 mercearia:1389
-msgid "MENU FORNECEDORES"
-msgstr "VIÐGIÐ BIRÐJA"
-
-
-#: mercearia:1390
-msgid "Cadastrar Fornecedor"
-msgstr "Skráðu birgja"
-
-
-#: mercearia:1391
-msgid "Alterar Fornecedor"
-msgstr "Skiptu um birgja"
-
-
-#: mercearia:1392
-msgid "Pesquisar Fornecedor"
-msgstr "Leitaraðili"
-
-
-#: mercearia:1393 mercearia:1425
-msgid "Voltar"
-msgstr "Að fara til baka"
-
-
-#: mercearia:1394 mercearia:1426 mercearia:1469
-msgid "Opção"
-msgstr "Valkostur"
-
-
-#: mercearia:1416 mercearia:1417
-msgid "MENU PRODUTOS"
-msgstr "VÖRUVÉLLIÐ"
-
-
-#: mercearia:1418
-msgid "Cadastrar Produtos"
-msgstr "Skráðu vörur"
-
-
-#: mercearia:1419
-msgid "Alterar Produtos"
-msgstr "Breyta vörum"
-
-
-#: mercearia:1420
-msgid "Remover Produtos"
-msgstr "Fjarlægðu vörur"
-
-
-#: mercearia:1421
-msgid "Pesquisar Produtos"
-msgstr "Leita að vörum"
-
-
-#: mercearia:1422
-msgid "Atualizar Estoque (conciliação)"
-msgstr "Uppfæra hlutabréf (afstemming)"
-
-
-#: mercearia:1423
-msgid "Listagem Produtos Vendidos"
-msgstr "Listi yfir seldar vörur"
-
-
-#: mercearia:1424
-msgid "Listagem Entradas de Produtos"
-msgstr "Aðgangslisti vöru"
-
-
-#: mercearia:1463
+#: mercearia:61
 msgid "Produtos"
 msgstr "Vörur"
 
 
-#: mercearia:1464
-msgid "Realizar Venda"
-msgstr "Gerðu sölu"
-
-
-#: mercearia:1465
-msgid "Exibir Vendas Diárias"
-msgstr "Skoða daglega sölu"
-
-
-#: mercearia:1466
-msgid "Entradas de Produtos"
-msgstr "Vörufærslur"
-
-
-#: mercearia:1467
+#: mercearia:62
 msgid "Fornecedores"
 msgstr "Birgjar"
 
 
-#: mercearia:1468
+#: mercearia:63
+msgid "Realizar Venda/Saída"
+msgstr "Framkvæma sölu/útgang"
+
+
+#: mercearia:64
+msgid "Entradas de Produtos"
+msgstr "Vörufærslur"
+
+
+#: mercearia:65
+msgid "Pesquisa/Relatórios/Consulta"
+msgstr "Leit/Skýrslur/Fyrirspurn"
+
+
+#: mercearia:66
+msgid "Manutenção"
+msgstr "Viðhald"
+
+
+#: mercearia:67
+msgid "Configuração"
+msgstr "Stillingar"
+
+
+#: mercearia:68
 msgid "Sair"
 msgstr "Að fara út"
 
 
-#: mercearia:1491
+#: mercearia:69
+msgid "Opção inválida. Tente novamente."
+msgstr "Ógildur valkostur. Reyndu aftur."
+
+
+#: mercearia:70
+msgid "Cadastrar"
+msgstr "Skráðu þig"
+
+
+#: mercearia:71
+msgid "Alterar"
+msgstr "Að breyta"
+
+
+#: mercearia:72
+msgid "Remover/Excluir"
+msgstr "Fjarlægja/eyða"
+
+
+#: mercearia:73
+msgid "Pesquisar"
+msgstr "Að leita"
+
+
+#: mercearia:74
+msgid "Voltar"
+msgstr "Að fara til baka"
+
+
+#: mercearia:75
+msgid "Registro efetuado com sucesso!"
+msgstr "Skráning tókst!"
+
+
+#: mercearia:76
+msgid "Registro removido com sucesso!"
+msgstr "Skráning fjarlægð með góðum árangri!"
+
+
+#: mercearia:77
+msgid "Erro na remoção do registro!"
+msgstr "Villa við að fjarlægja skráningu!"
+
+
+#: mercearia:78
+msgid "Erro no cadastro/atualização do registro"
+msgstr "Villa við að skrá/uppfæra skráningu"
+
+
+#: mercearia:79
+msgid "Formato de data inicial inválida"
+msgstr "Ógilt snið upphafsdagsetningar"
+
+
+#: mercearia:80
+msgid "Relatório"
+msgstr "Skýrsla"
+
+
+#: mercearia:81
+msgid "Relatório de"
+msgstr "Skýrsla af"
+
+
+#: mercearia:82
+msgid "Produtos abaixo estoque minímo"
+msgstr "Vörur undir lágmarksbirgðum"
+
+
+#: mercearia:83
+msgid "Produtos fora da validade"
+msgstr "Úreltar vörur"
+
+
+#: mercearia:84
+msgid "Vendas Diárias"
+msgstr "Dagleg sala"
+
+
+#: mercearia:85
+msgid "Produtos Vendidos"
+msgstr "Vörur seldar"
+
+
+#: mercearia:185
+msgid "ERRO: não consegui encontrar o comando"
+msgstr "VILLA: fann ekki skipunina"
+
+
+#: mercearia:189 mercearia:192
+msgid "IMPOSSÍVEL CONTINUAR"
+msgstr "ómögulegt að halda áfram"
+
+
+#: mercearia:190
+msgid "Este script precisa dos comandos listados acima"
+msgstr "Þetta handrit þarf skipanirnar sem taldar eru upp hér að ofan"
+
+
+#: mercearia:191
+msgid "Instale-os e/ou verifique se eles estão em seu"
+msgstr "Settu þau upp og/eða vertu viss um að þau séu á þínum"
+
+
+#: mercearia:193
+msgid "Instalação abortada!"
+msgstr "Uppsetning hætt!"
+
+
+#: mercearia:866
+msgid " Pressione qualquer tecla para continuar"
+msgstr "Ýttu á hvaða takka sem er til að halda áfram"
+
+
+#: mercearia:1107 mercearia:1250
+msgid "Descrição"
+msgstr "Lýsing"
+
+
+#: mercearia:1108
+msgid "CADASTRO DE PRODUTOS"
+msgstr "VÖRUSKRÁNING"
+
+
+#: mercearia:1112
+msgid "ID/Descrição"
+msgstr "Auðkenni/lýsing"
+
+
+#: mercearia:1113
+msgid "ALTERAÇÃO DE PRODUTOS"
+msgstr "VÖRUBREYTINGAR"
+
+
+#: mercearia:1129 mercearia:1165 mercearia:1251
+msgid "Fabricante"
+msgstr "Framleiðandi"
+
+
+#: mercearia:1130 mercearia:1183 mercearia:1252
+msgid "Código Barras"
+msgstr "Strikamerki"
+
+
+#: mercearia:1131 mercearia:1184 mercearia:1253
+msgid "Unidade"
+msgstr "Eining"
+
+
+#: mercearia:1132 mercearia:1185 mercearia:1254
+msgid "Estoque mínimo"
+msgstr "Lágmarksbirgðir"
+
+
+#: mercearia:1133 mercearia:1189 mercearia:1255
+msgid "Data validade"
+msgstr "Gildistími"
+
+
+#: mercearia:1134 mercearia:1207 mercearia:1256
+msgid "Preço (ex: 4.99 ou 5)"
+msgstr "Verð (td: 4,99 eða 5)"
+
+
+#: mercearia:1151
+msgid "Descrição não pode ser em branco."
+msgstr "Lýsing má ekki vera auð."
+
+
+#: mercearia:1158
+msgid "Descrição não pode ser em branco. Cancelar?"
+msgstr "Lýsing má ekki vera auð. Hætta við?"
+
+
+#: mercearia:1172
+msgid "Fabricante/Fornecedor não encontrado"
+msgstr "Framleiðandi/birgir fannst ekki"
+
+
+#: mercearia:1177
+msgid "Fabricante/Fornecedor não pode ser em branco. Cancelar?"
+msgstr "Framleiðandi/birgir má ekki vera auður. Hætta við?"
+
+
+#: mercearia:1194 mercearia:1882 mercearia:1899
+msgid "Data inválida"
+msgstr "Ógild dagsetning"
+
+
+#: mercearia:1199
+msgid "Data não pode ser em branco. Cancelar?"
+msgstr "Dagsetning má ekki vera auð. Hætta við?"
+
+
+#: mercearia:1211 mercearia:2551
+msgid "Formato inválido. Usar ponto decimal ex: 4.99 ou número inteiro."
+msgstr "Ógilt snið. Notaðu aukastaf t.d. 4,99 eða heila tölu."
+
+
+#: mercearia:1216
+msgid "Confirma inclusão/atualização do produto?"
+msgstr "Staðfesta innlimun/uppfærslu vörunnar?"
+
+
+#: mercearia:1230 mercearia:1642 mercearia:1722 mercearia:3022
+msgid "Inclusão/alteração não efetuada."
+msgstr "Inntaka/breyting ekki gerð."
+
+
+#: mercearia:1236
+msgid "REMOÇÃO DE PRODUTO"
+msgstr "Fjarlæging VÖRU"
+
+
+#: mercearia:1249 mercearia:1258 mercearia:1662 mercearia:1669
+msgid "ID/Nome"
+msgstr "Auðkenni/nafn"
+
+
+#: mercearia:1263
+msgid "O ID não pode ser em branco. Cancelar?"
+msgstr "Auðkenni má ekki vera autt. Hætta við?"
+
+
+#: mercearia:1292
+msgid "Confirma exclusão do produto?"
+msgstr "Staðfesta eyðingu vörunnar?"
+
+
+#: mercearia:1293
+msgid "Removendo cadastro do produto"
+msgstr "Fjarlægir vöruskráningu"
+
+
+#: mercearia:1296
+msgid "Deseja remover registros de vendas e compras desse produto?"
+msgstr "Viltu fjarlægja sölu- og kaupskrár fyrir þessa vöru?"
+
+
+#: mercearia:1297
+msgid "Removendo registros de vendas"
+msgstr "Að fjarlægja söluskrár"
+
+
+#: mercearia:1299
+msgid "Removendo registros de compras"
+msgstr "Fjarlægir innkaupaskrár"
+
+
+#: mercearia:1350 mercearia:1351
+msgid "PESQUISAR PRODUTOS"
+msgstr "LEIT VÖRU"
+
+
+#: mercearia:1352 mercearia:1431 mercearia:1512
+msgid "Pesquisar por: nome, id <x>|<x-y>, f<id> ou *=tudo"
+msgstr "Leitaðu eftir: nafni, auðkenni <x>|<x-y>, f<id> eða *=allt"
+
+
+#: mercearia:1579
+msgid "CADASTRO DE FORNECEDOR"
+msgstr "SKRÁNING BORGA"
+
+
+#: mercearia:1594 mercearia:1601 mercearia:1605 mercearia:1663 mercearia:1689
+#: mercearia:2985 mercearia:2992
+msgid "Nome"
+msgstr "Nafn"
+
+
+#: mercearia:1595 mercearia:1620 mercearia:1664 mercearia:1700 mercearia:2986
+#: mercearia:3003
+msgid "Endereço"
+msgstr "Heimilisfang"
+
+
+#: mercearia:1596 mercearia:1621 mercearia:1665 mercearia:1701 mercearia:2987
+#: mercearia:3004
+msgid "Cidade"
+msgstr "Borg"
+
+
+#: mercearia:1597 mercearia:1622 mercearia:1666 mercearia:1702
+msgid "Estado"
+msgstr "ríki"
+
+
+#: mercearia:1598 mercearia:1623 mercearia:1667 mercearia:1703 mercearia:2989
+#: mercearia:3006
+msgid "Cnpj"
+msgstr "CNPJ"
+
+
+#: mercearia:1607
+msgid "Nome não pode ser em branco"
+msgstr "Nafn má ekki vera autt"
+
+
+#: mercearia:1614 mercearia:1694
+msgid "O nome não pode ser em branco. Cancelar?"
+msgstr "Nafnið má ekki vera autt. Hætta við?"
+
+
+#: mercearia:1626 mercearia:1706
+msgid "Confirma inclusão/atualização do fornecedor?"
+msgstr "Staðfesta skráningu/uppfærslu birgis?"
+
+
+#: mercearia:1648
+msgid "ALTERAÇÃO DE FORNECEDOR"
+msgstr "BREYTINGABREYTTU"
+
+
+#: mercearia:1673 mercearia:1744 mercearia:2461
+msgid "ID/Nome não pode ser em branco. Cancelar?"
+msgstr "Auðkenni/nafn má ekki vera autt. Hætta við?"
+
+
+#: mercearia:1683 mercearia:2472
+msgid "Fornecedor não encontrado nos parâmetros informados"
+msgstr "Birgir fannst ekki í tilgreindum breytum"
+
+
+#: mercearia:1728
+msgid "EXCLUSÃO DE FORNECEDOR"
+msgstr "ÚTINOKUN BORGA"
+
+
+#: mercearia:1739
+msgid "Digite o ID ou nome do fornecedor: "
+msgstr "Sláðu inn auðkenni birgis eða nafn:"
+
+
+#: mercearia:1757 mercearia:1852
+msgid "Nenhum fornecedor encontrado nos parâmetros informados"
+msgstr "Engir birgjar fundust í tilgreindum breytum"
+
+
+#: mercearia:1763
+msgid "Confirma exclusão do fornecedor?"
+msgstr "Staðfesta útilokun birgis?"
+
+
+#: mercearia:1776
+msgid "Exclusão de fornecedor não confirmada!"
+msgstr "Eyðing birgja ekki staðfest!"
+
+
+#: mercearia:1783
+msgid "PESQUISAR FORNECEDOR"
+msgstr "LEIT AÐ BIRGI"
+
+
+#: mercearia:1803
+msgid "Pesquisar por: nome, id <x>|<x-y> ou *=tudo"
+msgstr "Leitaðu eftir: nafni, auðkenni <x>|<x-y> eða *=allt"
+
+
+#: mercearia:1873 mercearia:1877
+msgid "Data Inicial"
+msgstr "Upphafleg dagsetning"
+
+
+#: mercearia:1874 mercearia:1894
+msgid "Data Final"
+msgstr "Gögn úrslit"
+
+
+#: mercearia:1887 mercearia:1904
+msgid "A data não pode ser em branco. Cancelar?"
+msgstr "Dagsetningin má ekki vera auð. Hætta við?"
+
+
+#: mercearia:1991 mercearia:1994 mercearia:2135 mercearia:2138
+msgid "Pesquisar por: docnr, data <dd-mm-aaaa>, id <x>|<x-y>, f<id>, ou *=tudo"
+msgstr "Leitaðu að: docnr, date <dd-mm-yyyy>, id <x>|<x-y>, f<id> eða *=all"
+
+
+#: mercearia:1992 mercearia:1995 mercearia:2136 mercearia:2139
+msgid "Agrupar : n=docnr, d=data, i=id, f=forn ou *=nenhum"
+msgstr "Hópur: n=docnr, d=data, i=id, f=forn eða *=none"
+
+
+#: mercearia:2122
+msgid "RELATÓRIO ENTRADAS DE PRODUTOS"
+msgstr "SKÝRSLA VÖRUSKÝRSLA"
+
+
+#: mercearia:2288
+msgid "Não consta entradas nos parâmetros informados"
+msgstr "Það eru engar færslur í tilkynntum færibreytum"
+
+
+#: mercearia:2305
+msgid "Registro de venda efetuado"
+msgstr "Söluskráning gerð"
+
+
+#: mercearia:2317
+msgid "Baixa de estoque efetuado"
+msgstr "Birgðaafskrift framkvæmd"
+
+
+#: mercearia:2328
+msgid "VENDA"
+msgstr "ÚTSALA"
+
+
+#: mercearia:2329
+msgid "CUPOM PDV"
+msgstr "POS afsláttarmiða"
+
+
+#: mercearia:2343 mercearia:2500
+msgid "ID/nome/CodeBar (em branco=concluir)"
+msgstr "Auðkenni/nafn/kóðastika (autt=klára)"
+
+
+#: mercearia:2358 mercearia:2517
+msgid "Produto não encontrado"
+msgstr "Vara fannst ekki"
+
+
+#: mercearia:2369 mercearia:2528
+msgid "Quantidade (0 para remover o item)"
+msgstr "Magn (0 til að fjarlægja hlut)"
+
+
+#: mercearia:2376 mercearia:2536
+msgid "Quantidade inválida ou item não tem na lista"
+msgstr "Ógilt magn eða vara ekki á listanum"
+
+
+#: mercearia:2381 mercearia:2541
+msgid "Quantidade inválida!"
+msgstr "Ógilt magn!"
+
+
+#: mercearia:2386
+msgid "Quantidade insuficiente de"
+msgstr "Ófullnægjandi magn af"
+
+
+#: mercearia:2386
+msgid "no estoque"
+msgstr "á lager"
+
+
+#: mercearia:2406
+msgid "Confirma o fechamento do CUPOM?"
+msgstr "Staðfestir þú lokun afsláttarmiða?"
+
+
+#: mercearia:2440
+msgid "Ajuste de estoque efetuado"
+msgstr "Birgðaleiðrétting gerð"
+
+
+#: mercearia:2444
+msgid "ENTRADAS DE PRODUTOS"
+msgstr "VÖRUINNTUN"
+
+
+#: mercearia:2452
+msgid "DADOS DA NFF"
+msgstr "NFF GÖGN"
+
+
+#: mercearia:2454 mercearia:2457
+msgid "Fornecedor"
+msgstr "Birgir"
+
+
+#: mercearia:2455 mercearia:2477
+msgid "Docnr/NFF"
+msgstr "Docnr/NFF"
+
+
+#: mercearia:2485
+msgid "RELAÇAO DAS ENTRADAS"
+msgstr "LISTI UM FÆRSLA"
+
+
+#: mercearia:2547
+msgid "Preço custo (ex: 4.99 ou 5)"
+msgstr "Kostnaðarverð (td: 4,99 eða 5)"
+
+
+#: mercearia:2571
+msgid "Confirma a entrada desses produtos?"
+msgstr "Staðfestir þú komu þessara vara?"
+
+
+#: mercearia:2582
+msgid "Confirma a atualização?"
+msgstr "Staðfesta uppfærsluna?"
+
+
+#: mercearia:2583
+msgid "Aguarde... Atualizando estoque"
+msgstr "Vinsamlegast bíddu... Uppfærir lager"
+
+
+#: mercearia:2599
+msgid "Atualização concluída"
+msgstr "Uppfærslu lokið"
+
+
+#: mercearia:2601
+msgid "Erro durante a atualização"
+msgstr "Villa við uppfærslu"
+
+
+#: mercearia:2624
+msgid "Checando tabela produtos"
+msgstr "Skoða vörutöflu"
+
+
+#: mercearia:2626
+msgid "Checando tabela fornecedor"
+msgstr "Athugaðu birgjatöflu"
+
+
+#: mercearia:2628
+msgid "Checando tabela vendas"
+msgstr "Skoða sölutöflu"
+
+
+#: mercearia:2630
+msgid "Checando tabela compras"
+msgstr "Athugar innkaupatöflu"
+
+
+#: mercearia:2636
+msgid "CUIDADO! ESTE PROCEDIMENTO IRÁ APAGAR TODOS OS REGISTROS. Confirma ?"
+msgstr "VARLEGA! ÞESSI AÐFERÐ mun eyða öllum skrám. Staðfesta?"
+
+
+#: mercearia:2637
+msgid "Aguarde, Droping tabela produtos"
+msgstr "Vinsamlegast bíddu, sleppa vörur borð"
+
+
+#: mercearia:2639
+msgid "Aguarde, Droping tabela fornecedor"
+msgstr "Vinsamlegast bíddu, Sleppa birgjaborðinu"
+
+
+#: mercearia:2641
+msgid "Aguarde, Droping tabela vendas"
+msgstr "Vinsamlegast bíddu, Slepptu sölutafla"
+
+
+#: mercearia:2643
+msgid "Aguarde, Droping tabela compra"
+msgstr "Vinsamlegast bíddu, Slepptu innkaupatöflu"
+
+
+#: mercearia:2652
+msgid "ESTE PROCEDIMENTO IRÁ INSERIR DADOS ALEATÓRIOS PARA TESTES. Confirma ?"
+msgstr "ÞESSI AÐFERÐ mun setja inn handahófskennd gögn fyrir prófun. Staðfesta?"
+
+
+#: mercearia:2673
+msgid "Populando tabela produtos"
+msgstr "Tafla fyrir fyllingu vöru"
+
+
+#: mercearia:2692
+msgid "Populando tabela fornecedor"
+msgstr "Fylla birgja borð"
+
+
+#: mercearia:2705
+msgid "Populando tabela vendas"
+msgstr "Fylling sölutafla"
+
+
+#: mercearia:2756
+msgid "Populando tabela compras"
+msgstr "Fylltu innkaupaborð"
+
+
+#: mercearia:2865
+msgid "MENU FORNECEDORES"
+msgstr "VIÐGIÐ BIRÐJA"
+
+
+#: mercearia:2892
+msgid "MENU PRODUTOS"
+msgstr "VÖRUVÉLLIÐ"
+
+
+#: mercearia:2919
+msgid "MENU MANUTENÇÃO"
+msgstr "VIÐHALDSVALSETI"
+
+
+#: mercearia:2922
+msgid "Atualizar Estoque (conciliação)"
+msgstr "Uppfæra hlutabréf (afstemming)"
+
+
+#: mercearia:2923
+msgid "Popular DataBases para testes"
+msgstr "Vinsælir gagnagrunnar til að prófa"
+
+
+#: mercearia:2924
+msgid "Zerar/Limpar DataBases"
+msgstr "Núll/hreinsa gagnagrunna"
+
+
+#: mercearia:2944
+msgid "MENU PEQUISA/RELATÓRIOS/CONSULTA"
+msgstr "MENU LEIT/SKÝRSLA/FORUR"
+
+
+#: mercearia:2977
+msgid "DADOS DA EMPRESA"
+msgstr "FYRIRTÆKISGÖGN"
+
+
+#: mercearia:2988 mercearia:3005
+msgid "UF"
+msgstr "UF"
+
+
+#: mercearia:2997
+msgid "O Nome não pode ser em branco. Cancelar?"
+msgstr "Nafnið má ekki vera autt. Hætta við?"
+
+
+#: mercearia:3009
+msgid "Confirma dados?"
+msgstr "Staðfesta gögn?"
+
+
+#: mercearia:3062
+msgid "CONFIGURAÇÃO DE CORES"
+msgstr "LITASETNING"
+
+
+#: mercearia:3120
+msgid "MENU CONFIGURAÇÃO"
+msgstr "UPPLÝSINGARVALMYND"
+
+
+#: mercearia:3123
+msgid "Dados Empresa"
+msgstr "Fyrirtækjagögn"
+
+
+#: mercearia:3124
+msgid "Cor Logo"
+msgstr "Litamerki"
+
+
+#: mercearia:3125
+msgid "Cor Cabecalho"
+msgstr "Litur haus"
+
+
+#: mercearia:3126
+msgid "Cor Status Superior"
+msgstr "Hjarta æðra ríkisins"
+
+
+#: mercearia:3127
+msgid "Cor Status Inferior"
+msgstr "Lægri hjartastaða"
+
+
+#: mercearia:3128
+msgid "Cor Box"
+msgstr "Cor Box"
+
+
+#: mercearia:3129
+msgid "Cor Titulo Box"
+msgstr "Cor titilreitur"
+
+
+#: mercearia:3130
+msgid "Cor DispBox"
+msgstr "DispBox litur"
+
+
+#: mercearia:3131
+msgid "Cor Mensagem Info OK"
+msgstr "Upplýsingar um litskilaboð í lagi"
+
+
+#: mercearia:3132
+msgid "Cor Mensagem Info ERRO"
+msgstr "Upplýsingar um litskilaboð VILLA"
+
+
+#: mercearia:3133
+msgid "Cor Mensagem Confirmação"
+msgstr "Staðfesting litaskilaboða"
+
