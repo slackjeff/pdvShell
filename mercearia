@@ -42,16 +42,17 @@ declare database='pdv.db'
 declare INI_FILE="pdv.ini"
 trap 'cleanup' INT TERM HUP
 
+# BEGIN FUNCTIONS
 function cleanup() {
 	setpos 21 0
 	info_msg "${red}$(gettext "Interrompido! Saindo...")${reset}"
 	setpos 22 0
 	info_msg "$(gettext "Desativando cores...")"
 	sh_unsetvarcolors
+	tput sgr0
 	exit 1
 }
 
-# BEGIN FUNCTIONS
 function sh_config() {
 	declare COL_NC='\e[0m' # No Color
 	declare COL_LIGHT_GREEN='\e[1;32m'
@@ -60,6 +61,8 @@ function sh_config() {
 	declare -g CROSS="${white}[${COL_LIGHT_RED}✗${COL_NC}${white}]"
 	declare -gi lastrow=$(lastrow)
 	declare -gi lastcol=$(lastcol)
+	declare -gi Prow=0
+	declare -gi Pcol=0
 	declare -gi LC_DEFAULT=0
 	declare -gi nTop=8
 	declare -gi nLeft
@@ -673,9 +676,20 @@ function info_msg() {
 	fi
 }
 
+function row() {
+	echo "$Prow"
+}
+
+function col() {
+	echo "$Pcol"
+}
+
 function setpos() {
 	local row="$1"
 	local col="$2"
+
+	Prow="$row"
+	Pcol="$col"
 	tput cup "$row" "$col"
 }
 
@@ -790,16 +804,22 @@ function get() {
 }
 
 function readconf() {
+	local msg="$1"
 	local color="$2"
+	local largura_mensagem=${#msg}
+	local row=$(row)
+	local col=$(col)
 
 	tput el
 	[[ -z "$color" ]] && color="${Acores[conf]}"
 	echo -n -e "$color"
 	printf '\a' # beep
+	mabox $row $col 3 $((col+largura_mensagem))
+	setpos $((row+1)) $((col+1))
 	if [[ $LC_DEFAULT -eq 0 ]]; then
-		read -n1 -s -r -p "$1 [S/n]"
+		read -n1 -s -r -p "$msg [S/n]"
 	else
-		read -n1 -s -r -p "$1 [Y/n]"
+		read -n1 -s -r -p "$msg [Y/n]"
 	fi
 	echo -n -e "$reset"
 	[[ ${REPLY^} == $'\e' ]] && return 1
@@ -2343,7 +2363,7 @@ function realizar_venda() {
 
 	while true; do
 		tela
-		titulo 1 "$(gettext "VENDA")" "${Acores[statussup]}"
+		titulo 1 "${Realizar_Venda_Saida^^}" "${Acores[statussup]}"
 		echo "==============================$(gettext "CUPOM PDV")=============================="
 		total_venda=0
 		for key in "${!lista_produtos[@]}"; do
