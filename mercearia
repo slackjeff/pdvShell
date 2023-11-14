@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/11/12
+#	Altered: 2023/11/13
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -34,12 +34,22 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.5.0-20231112"
+declare _VERSION_="1.5.0-20231113"
 declare _SYSTEM_="$(gettext 'SISTEMA PDV')"
 declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed awk figlet)
 declare -A Aempresa=([razao]='EMPRESA MODELO LTDA' [ende]='Rua Modelo, 693 - Bairro Centro' [cida]='Cidade Modelo' [uf]='UF' [cnpj]='00.000.000/0001-00')
 declare database='pdv.db'
 declare INI_FILE="pdv.ini"
+trap 'cleanup' INT TERM HUP
+
+function cleanup() {
+	setpos 21 0
+	info_msg "${red}$(gettext "Interrompido! Saindo...")${reset}"
+	setpos 22 0
+	info_msg "$(gettext "Desativando cores...")"
+	sh_unsetvarcolors
+	exit 1
+}
 
 # BEGIN FUNCTIONS
 function sh_config() {
@@ -60,7 +70,7 @@ function sh_config() {
 	declare -g Nenhum_produto_encontrado_nos_parametros_informados="$(gettext "Nenhum produto encontrado nos parâmetros informados")"
 	declare -g Produtos="$(gettext 'Produtos')"
 	declare -g Fornecedores="$(gettext 'Fornecedores')"
-	declare	-g Realizar_Venda_Saida="$(gettext 'Realizar Venda/Saída')"
+	declare -g Realizar_Venda_Saida="$(gettext 'Realizar Venda/Saída')"
 	declare -g Entradas_de_Produtos="$(gettext 'Entradas de Produtos')"
 	declare -g Pesquisa_Relatorio_Consulta="$(gettext 'Pesquisa/Relatórios/Consulta')"
 	declare -g Manutencao="$(gettext 'Manutenção')"
@@ -683,10 +693,19 @@ function mabox() {
 	local nleft=$2
 	local nbottom=$3
 	local nright=$4
+	local color=$5
 
 	((ntop++))
 	((nleft++))
 	nbottom=$((ntop + nbottom - 1))
+
+	if [[ -n "$color" ]]; then
+		if ((color > 15)); then
+			tput setab $color
+		else
+			tput setaf $color
+		fi
+	fi
 
 	# Criação da moldura superior e inferior
 	local frame_top="┌$(replicate "─" "$((nright - 2))")┐"
@@ -735,10 +754,10 @@ function box() {
 
 	if [[ -n "$mensagem" ]]; then
 		setpos "$row" "$((col + 1))"
-#		printf "$reverse$color_boxtitle%-${tamanho}s" " "
+		#		printf "$reverse$color_boxtitle%-${tamanho}s" " "
 		printf "$reset$color_boxtitle%-${tamanho}s" " "
 		setpos "$row" "$coluna_inicio"
-#		echo -e "$bold$white$mensagem"
+		#		echo -e "$bold$white$mensagem"
 		echo -e "$color_boxtitle$mensagem"
 	fi
 	tput sgr0
@@ -3022,7 +3041,7 @@ function configuracao::dados_empresa() {
 	fi
 }
 
-function configuracao::cores() {
+function configuracao::coresOLD() {
 	declare -a aCorItemMenu=(
 		"$black"
 		"$red"
@@ -3113,6 +3132,60 @@ function configuracao::cores() {
 		esac
 	done
 	unset aCorItemMenu
+}
+
+function configuracao::cores() {
+	local type="$1"
+	local ctitulo="$2"
+	local xtitle="$(gettext "CONFIGURAÇÃO DE CORES")"
+	local atype=('logo' 'cabecalho' 'statussup' 'statusinf' 'box' 'boxtitle' 'dispbox' 'msgok' 'msgerror' 'conf')
+	local ctype="${atype[$type]}"
+	local sair_do_menu=false
+	local selecionado=1
+	local tecla
+	local color
+	local cor_escolhida
+
+	tela
+	while ! $sair_do_menu; do
+		if ((selecionado > 15)); then
+			color=$(tput setab $selecionado)
+	    else
+    	    color=$(tput setaf $selecionado)
+	    fi
+	    tput sgr0
+		titulo 1 "$xtitle - $ctitulo" "${Acores[statussup]}"
+		box 11 10 9 60 "$xtitle - $ctitulo" "$color"
+		print 13 12 "$(gettext "COR SELECIONADA :") $selecionado/255" "$color"
+		print 14 12 "$(gettext "ESC             : CANCELAR")" "$color"
+		print 15 12 "$(gettext "ENTER           : ACEITAR ESCOLHA")" "$color"
+		print 16 12 "$(gettext "SETA ACIMA  ↑   : ALTERAR COR +")" "$color"
+		print 17 12 "$(gettext "SETA ABAIXO ↓   : ALTERAR COR -")" "$color"
+		read -s -n 1 tecla
+
+		case $tecla in
+		$'\x1b') # Tecla Escape
+			read -s -n 2 -t 0.1 restante
+			if [[ $restante == "[B" ]]; then
+				selecionado=$((selecionado > 1 ? selecionado - 1 : 255))
+			elif [[ $restante == "[A" ]]; then
+				selecionado=$((selecionado < 255 ? selecionado + 1 : 1))
+			else
+				sair_do_menu=true
+			fi
+			;;
+		"")
+			if ((selecionado > 15)); then
+				cor_escolhida=$(tput setab $selecionado)
+			else
+				cor_escolhida=$(tput setaf $selecionado)
+			fi
+			Acores[$ctype]="$cor_escolhida"
+			TIni.Set "$INI_FILE" "cores" "$ctype" "$cor_escolhida"
+			break
+			;;
+		esac
+	done
 }
 
 function menu_configuracao() {
