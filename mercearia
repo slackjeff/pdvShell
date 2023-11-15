@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/11/13
+#	Altered: 2023/11/15
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -34,7 +34,7 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.5.0-20231113"
+declare _VERSION_="1.5.15-20231115"
 declare _SYSTEM_="$(gettext 'SISTEMA PDV')"
 declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed awk figlet)
 declare -A Aempresa=([razao]='EMPRESA MODELO LTDA' [ende]='Rua Modelo, 693 - Bairro Centro' [cida]='Cidade Modelo' [uf]='UF' [cnpj]='00.000.000/0001-00')
@@ -814,8 +814,8 @@ function readconf() {
 	[[ -z "$color" ]] && color="${Acores[conf]}"
 	echo -n -e "$color"
 	printf '\a' # beep
-	mabox $row $col 3 $((col+largura_mensagem))
-	setpos $((row+1)) $((col+1))
+	mabox $row $col 3 $((col + largura_mensagem))
+	setpos $((row + 1)) $((col + 1))
 	if [[ $LC_DEFAULT -eq 0 ]]; then
 		read -n1 -s -r -p "$msg [S/n]"
 	else
@@ -2882,9 +2882,9 @@ function show_menu() {
 			[[ -n "${aCorItemMenu[i]}" ]] && color="${aCorItemMenu[i]}"
 
 			if [[ $i -eq $selecionado ]]; then
-				item_formatado="${reverse}${color}$((i + 1)). $item%${padding}s${reset}"
+				item_formatado="${reverse}${color}$((i + 1)). ${item^^}%${padding}s${reset}"
 			else
-				item_formatado="${color}$((i + 1)). $item%${padding}s${reset}"
+				item_formatado="${color}$((i + 1)). ${item^}%${padding}s${reset}"
 			fi
 			printf "$item_formatado$reset" ""
 		done
@@ -3026,7 +3026,7 @@ function configuracao::dados_empresa() {
 	print 15 11 "$(gettext "UF")                   : "
 	print 16 11 "$(gettext "Cnpj")                 : "
 
-	while true; do
+	while :; do
 		get 12 11 "$(gettext "Nome")                 : " razao "${Aempresa[razao]}"
 		if [[ -n "$razao" ]]; then
 			break
@@ -3063,37 +3063,9 @@ function configuracao::dados_empresa() {
 
 function configuracao::coresOLD() {
 	declare -a aCorItemMenu=(
-		"$black"
-		"$red"
-		"$green"
-		"$yellow"
-		"$blue"
-		"$magenta"
-		"$cyan"
-		"$white"
-		"$gray"
-		"$orange"
-		"$purple"
-		"$violet"
-		"$light_red"
-		"$light_green"
-		"$light_yellow"
-		"$light_blue"
-		"$light_magenta"
-		"$light_cyan"
-		"$light_white"
-		"$preto"
-		"$vermelho"
-		"$verde"
-		"$amarelo"
-		"$azul"
-		"$roxo"
-		"$ciano"
-		"$branca"
-		"$cinza"
-		"$laranja"
-		"$roxa"
-		"$violeta"
+		"$black" "$red" "$green" "$yellow" "$blue" "$magenta" "$cyan" "$white" "$gray" "$orange" "$purple" "$violet" "$light_red" "$light_green"
+		"$light_yellow" "$light_blue" "$light_magenta" "$light_cyan" "$light_white" "$preto" "$vermelho" "$verde" "$amarelo" "$azul" "$roxo" "$ciano"
+		"$branca" "$cinza" "$laranja" "$roxa" "$violeta"
 	)
 	local type="$1"
 	local ctitulo="$2"
@@ -3101,38 +3073,11 @@ function configuracao::coresOLD() {
 	local atype=('logo' 'cabecalho' 'statussup' 'statusinf' 'box' 'boxtitle' 'dispbox' 'msgok' 'msgerror' 'conf')
 	local ctype="${atype[$type]}"
 	local opcao
-	local options=(
-		"Black/Black"
-		"Red/Black"
-		"Green/Black"
-		"Yellow/Black"
-		"Blue/Black"
-		"Magenta/Black"
-		"Cyan/Black"
-		"White/Black"
-		"Gray/Black"
-		"Orange/Black"
-		"Purple/Black"
-		"Violet/Black"
-		"Light_Red/Black"
-		"Light_Green/Black"
-		"Light_Yellow/Black"
-		"Light_Blue/Black"
-		"Light_Magenta/Black"
-		"Light_Cyan/Black"
-		"Light_White/Black"
-		"Black/Black"
-		"White/Red"
-		"White/Green"
-		"White/Yellow"
-		"White/Blue"
-		"White/Purple"
-		"White/Cyan"
-		"White/White"
-		"White/Gray"
-		"White/Orange"
-		"White/Purple"
-		"White/Violet"
+	local options=("Black/Black" "Red/Black" "Green/Black" "Yellow/Black" "Blue/Black" "Magenta/Black"
+		"Cyan/Black" "White/Black" "Gray/Black" "Orange/Black" "Purple/Black" "Violet/Black"
+		"Light_Red/Black" "Light_Green/Black" "Light_Yellow/Black" "Light_Blue/Black" "Light_Magenta/Black" "Light_Cyan/Black"
+		"Light_White/Black" "Black/Black" "White/Red" "White/Green" "White/Yellow" "White/Blue" "White/Purple"
+		"White/Cyan" "White/White" "White/Gray" "White/Orange" "White/Purple" "White/Violet"
 		"$Voltar"
 	)
 
@@ -3163,6 +3108,7 @@ function configuracao::cores() {
 	local sair_do_menu=false
 	local selecionado=1
 	local tecla
+	local restante
 	local color
 	local cor_escolhida
 
@@ -3170,10 +3116,10 @@ function configuracao::cores() {
 	while ! $sair_do_menu; do
 		if ((selecionado > 15)); then
 			color=$(tput setab $selecionado)
-	    else
-    	    color=$(tput setaf $selecionado)
-	    fi
-	    tput sgr0
+		else
+			color=$(tput setaf $selecionado)
+		fi
+		tput sgr0
 		titulo 1 "$xtitle - $ctitulo" "${Acores[statussup]}"
 		box 11 10 9 60 "$xtitle - $ctitulo" "$color"
 		print 13 12 "$(gettext "COR SELECIONADA :") $selecionado/255" "$color"
