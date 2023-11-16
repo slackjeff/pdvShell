@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/11/15
+#	Altered: 2023/11/16
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -34,7 +34,7 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.5.15-20231115"
+declare _VERSION_="1.5.15-20231116"
 declare _SYSTEM_="$(gettext 'SISTEMA PDV')"
 declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed awk figlet)
 declare -A Aempresa=([razao]='EMPRESA MODELO LTDA' [ende]='Rua Modelo, 693 - Bairro Centro' [cida]='Cidade Modelo' [uf]='UF' [cnpj]='00.000.000/0001-00')
@@ -111,6 +111,8 @@ function sh_environment() {
 		[msgok]="$green"
 		[msgerror]="$red"
 		[conf]="$red"
+		[panofundo]="░░░▒▒▒▒▒▒▒░░░░░░░░▒▒▒▒▒▒▒"
+		[corpanofundo]="$cinza"
 	)
 
 	if [[ -e "$INI_FILE" ]]; then
@@ -129,6 +131,8 @@ function sh_environment() {
 		if TIni.ReadValue "$INI_FILE" "cores" "msgok"; then Acores[msgok]="$(TIni.Get "$INI_FILE" "cores" "msgok")"; fi
 		if TIni.ReadValue "$INI_FILE" "cores" "msgerror"; then Acores[msgerror]="$(TIni.Get "$INI_FILE" "cores" "msgerror")"; fi
 		if TIni.ReadValue "$INI_FILE" "cores" "conf"; then Acores[conf]="$(TIni.Get "$INI_FILE" "cores" "conf")"; fi
+		if TIni.ReadValue "$INI_FILE" "cores" "panofundo"; then Acores[panofundo]="$(TIni.Get "$INI_FILE" "cores" "panofundo")"; fi
+		if TIni.ReadValue "$INI_FILE" "cores" "corpanofundo"; then Acores[corpanofundo]="$(TIni.Get "$INI_FILE" "cores" "corpanofundo")"; fi
 	fi
 }
 
@@ -740,6 +744,16 @@ function mabox() {
 	#    printf "\e[$((nbottom - 1));1H"
 }
 
+function sh_fundo() {
+	local color="${Acores[corpanofundo]}"
+	local frame="${Acores[panofundo]}"
+	local lastcol="$(lastcol)"
+	local lastrow="$(lastrow)"
+	local buffer="$(replicate "$frame" "$(( lastcol * lastrow / ${#frame} ))")"
+
+	printf "${color}\e[%s;%sH%s" 0 1 "$buffer"
+}
+
 function box() {
 	local row="$1"
 	local col="$2"
@@ -1010,6 +1024,7 @@ function logoOLD() {
 function tela() {
 	tput sgr0
 	tput clear
+	sh_fundo
 	titulo 0 "$_SYSTEM_" "${Acores[cabecalho]}" "$(date)" "$_VERSION_"
 	titulo 1 "${Menu_Principal^^}" "${Acores[statussup]}"
 	logo
@@ -3070,7 +3085,7 @@ function configuracao::coresOLD() {
 	local type="$1"
 	local ctitulo="$2"
 	local xtitle="$(gettext "CONFIGURAÇÃO DE CORES")"
-	local atype=('logo' 'cabecalho' 'statussup' 'statusinf' 'box' 'boxtitle' 'dispbox' 'msgok' 'msgerror' 'conf')
+	local atype=('logo' 'cabecalho' 'statussup' 'statusinf' 'box' 'boxtitle' 'dispbox' 'msgok' 'msgerror' 'conf' 'corpanofundo')
 	local ctype="${atype[$type]}"
 	local opcao
 	local options=("Black/Black" "Red/Black" "Green/Black" "Yellow/Black" "Blue/Black" "Magenta/Black"
@@ -3103,7 +3118,7 @@ function configuracao::cores() {
 	local type="$1"
 	local ctitulo="$2"
 	local xtitle="$(gettext "CONFIGURAÇÃO DE CORES")"
-	local atype=('logo' 'cabecalho' 'statussup' 'statusinf' 'box' 'boxtitle' 'dispbox' 'msgok' 'msgerror' 'conf')
+	local atype=('logo' 'cabecalho' 'statussup' 'statusinf' 'box' 'boxtitle' 'dispbox' 'msgok' 'msgerror' 'conf' 'corpanofundo')
 	local ctype="${atype[$type]}"
 	local sair_do_menu=false
 	local selecionado=1
@@ -3154,6 +3169,48 @@ function configuracao::cores() {
 	done
 }
 
+function configuracao::pano_de_fundo() {
+	local xtitle="$(gettext "PANO DE FUNDO")"
+	local opcao
+	local panofundo
+	local options=(
+    	"░░░▒▒▒▒▒▒▒░░░░░░░░▒▒▒▒▒▒▒"
+		"$(printf "\u2591\u2592\u2593")"
+		"▓▒▓░▒░▒"
+		"░▒▓"
+		"░"
+		"▒"
+		"▓"
+		"█▓░▒pdvShell█▒▓░"
+		"┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼"
+		"└┐█▄▀└┐└┐█▄▀"
+		"░░░░░▒▒▒▒▒░░░░░▓"
+		"=-"
+		":-"
+		"%%"
+		"##"
+		"@@"
+		"$Voltar"
+	)
+
+	while true; do
+		tela
+		titulo 1 "$xtitle" "${Acores[statussup]}"
+		show_menu 11 10 "$xtitle" "${options[@]}"
+		opcao="$?"
+
+		case "$opcao" in
+		[0-9]|1[0-6])
+			panofundo="${options["$((opcao - 1))"]}"
+			TIni.Set "$INI_FILE" "cores" "panofundo" "$panofundo"
+			Acores[panofundo]="$panofundo"
+			;;
+		17 | 0) return ;;
+		*) msgerror 2 "$Opcao_invalida" ;;
+		esac
+	done
+}
+
 function menu_configuracao() {
 	local xtitle="$(gettext "MENU CONFIGURAÇÃO")"
 	local opcao
@@ -3169,6 +3226,8 @@ function menu_configuracao() {
 		"$(gettext 'Cor Mensagem Info OK')"
 		"$(gettext 'Cor Mensagem Info ERRO')"
 		"$(gettext 'Cor Mensagem Confirmação')"
+		"$(gettext 'Cor Pano de fundo')"
+		"$(gettext 'Pano de fundo')"
 		"$Voltar"
 	)
 
@@ -3180,8 +3239,9 @@ function menu_configuracao() {
 
 		case "$opcao" in
 		1) configuracao::dados_empresa ;;
-		[2-9] | 1[0-1]) configuracao::cores "$((opcao - 2))" "${options[$((opcao - 1))]}" ;;
-		12 | 0) return ;;
+		[2-9] | 1[0-2]) configuracao::cores "$((opcao - 2))" "${options[$((opcao - 1))]}" ;;
+		13) configuracao::pano_de_fundo ;;
+		14 | 0) return ;;
 		*) msgerror 2 "$Opcao_invalida" ;;
 		esac
 	done

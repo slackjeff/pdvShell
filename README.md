@@ -62,7 +62,7 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
           └───────────────────────────────────────────┘
 
 ## Futuras Features
-*
+* Menu PullDown
 
 ## Telas
 * MENU PRINCIPAL

@@ -1,0 +1,259 @@
+#!/usr/bin/env bash
+# shellcheck shell=bash disable=SC1091,SC2039,SC2166
+
+function replicate() {
+	local Var
+	printf -v Var %"$2"s " "
+	echo "${Var// /$1}"
+}
+
+function titulo() {
+	local row="$1"
+	local mensagem="$2"
+	local color="$3"
+	local extra_left="$4"
+	local extra_right="$5"
+	local largura_terminal=$(tput cols)
+	local largura_mensagem=${#mensagem}
+	local coluna_inicio=$(((largura_terminal - largura_mensagem) / 2))
+	local nlen
+
+	[[ -z "$color" ]] && color=$black
+	tput sc # Salva a posição atual do cursor
+
+	setpos "$row" 0
+	printf "$color%-${largura_terminal}s" ''
+
+	if [[ -n "$extra_left" ]]; then
+		setpos "$row" 0
+		printf "$bold$white%s" "$extra_left"
+	fi
+
+	if [[ -n "$extra_right" ]]; then
+		nlen=${#extra_right}
+		setpos "$row" $((largura_terminal - nlen))
+		printf "$bold$white%s" "$extra_right"
+	fi
+
+	setpos "$row" "$coluna_inicio"
+	printf "$bold$white%s" "$mensagem"
+	tput sgr0
+	tput rc
+}
+
+function setpos() {
+	local row="$1"
+	local col="$2"
+
+	Prow="$row"
+	Pcol="$col"
+	tput cup "$row" "$col"
+}
+
+function mabox() {
+	# Parâmetros da função
+	local ntop=$1
+	local nleft=$2
+	local nbottom=$3
+	local nright=$4
+	local color=$5
+
+	((ntop++))
+	((nleft++))
+	nbottom=$((ntop + nbottom - 1))
+
+	if [[ -n "$color" ]]; then
+		if ((color > 15)); then
+			tput setab $color
+		else
+			tput setaf $color
+		fi
+	fi
+
+	# Criação da moldura superior e inferior
+	local frame_top="┌$(replicate "─" "$((nright - 2))")┐"
+	local frame_bottom="└$(replicate "─" "$((nright - 2))")┘"
+
+	# Desenha a moldura superior
+	printf "\e[%s;%sH%s" $ntop $nleft "$frame_top"
+
+	# Desenha os lados do menu
+	for ((i = 1; i <= nbottom - ntop; i++)); do
+		printf "\e[$((ntop + i));%sH%s" $nleft "│$(replicate " " $((nright - 2)))│"
+	done
+
+	# Desenha a moldura inferior
+	printf "\e[$((nbottom));%sH%s" $nleft "$frame_bottom"
+
+	# Move o cursor para a última linha para evitar problemas de exibição
+	#    printf "\e[$((nbottom - 1));1H"
+}
+
+function limpa() {
+	# Parâmetros da função
+	local ntop="$1"
+	local nleft="$2"
+	local nbottom="$3"
+	local nright="$4"
+	local frame='▓▒▓░▒░▒'
+
+	((ntop++))
+	((nleft++))
+	nbottom=$((ntop + nbottom - 1))
+	local frame_top="$(replicate " " "$nright")"
+	printf "\e[%s;%sH%s" $ntop $nleft "$frame_top"
+	for ((i = 1; i <= nbottom - ntop; i++)); do
+		printf "\e[$((ntop + i));%sH%s" $nleft " $frame_top"
+	done
+	printf "\e[$((nbottom));%sH%s" $nleft "$frame_top"
+}
+
+function fundo() {
+	# Parâmetros da função
+	local ntop="$1"
+	local nleft="$2"
+	local nbottom="$3"
+	local nright="$4"
+	local frame='░▒▓'
+	local frame="$(printf "\u2591\u2592\u2593")"
+	local frame='░░░▒▒▒▒▒▒▒░░░░░░░░▒▒▒▒▒▒▒'
+	local lastcol="$(tput cols)"
+	local lastrow="$(tput lines)"
+
+	((ntop++))
+	((nleft++))
+	nbottom=$((ntop + nbottom - 1))
+
+	local frame_top="$(replicate "$frame" "$(( lastcol * lastrow / ${#frame} ))")"
+	printf "\e[%s;%sH%s" 0 1 "$frame_top"
+#	for ((i = 1; i <= nbottom - ntop; i++)); do
+#		printf "\e[$((ntop + i));%sH%s" $nleft " $frame_top"
+#	done
+#	printf "\e[$((nbottom));%sH%s" $nleft "$frame_top"
+}
+
+function box() {
+	local row="$1"
+	local col="$2"
+	local altura="$3"
+	local largura="$4"
+	local mensagem="$5"
+	local color="$6"
+	local color_boxtitle="${Acores[boxtitle]}"
+	local tamanho=$((largura - 2))
+	local largura_mensagem=${#mensagem}
+	local coluna_inicio=$(((largura - largura_mensagem) / 2 + col))
+
+	#   # Imprime o quadro com base nas coordenadas, largura e altura
+	#   for ((i = 0; i < altura; i++)); do
+	#       tput cup $((row + i)) "$col"
+	#       if [ "$i" -eq 0 ]; then
+	#           echo "┌$(printf '─%.0s' $(seq 1 $((largura - 2))))┐"
+	#       elif [ "$i" -eq $((altura - 1)) ]; then
+	#           echo "└$(printf '─%.0s' $(seq 1 $((largura - 2))))┘"
+	#       else
+	#           echo "│$(printf ' %.0s' $(seq 1 $((largura - 2))))│"
+	#       fi
+	#   done
+	printf "%s" "$color"
+	mabox "$row" "$col" "$altura" "$largura"
+
+	if [[ -n "$mensagem" ]]; then
+		setpos "$row" "$((col + 1))"
+		#       printf "$reverse$color_boxtitle%-${tamanho}s" " "
+		printf "$reset$color_boxtitle%-${tamanho}s" " "
+		setpos "$row" "$coluna_inicio"
+		#       echo -e "$bold$white$mensagem"
+		echo -e "$color_boxtitle$mensagem"
+	fi
+	tput sgr0
+}
+
+fornecedores() {
+	local xtitle="$(gettext "MENU FORNECEDORES")"
+	local opcao
+	local options=(
+		"Sair"
+		"Produtos"
+		"Fornecedores"
+		"Pesquisar"
+		"Relatorios"
+	)
+
+	while true; do
+		#        tela
+		titulo 0 "$xtitle" "${Acores[statussup]}"
+		show_menu 1 0 "$xtitle" "${options[@]}"
+		opcao="$?"
+
+		case "$opcao" in
+		*) return ;;
+		esac
+	done
+}
+
+function show_menu() {
+	local linha=$1
+	local coluna=$2
+	local titulo="$3"
+	local itens=("${@:4}")
+	local tamanho_titulo=${#titulo}
+	local quantidade_itens="${#itens[@]}"
+	local tamanho_maximo=$tamanho_titulo
+	local i tecla selecionado item_formatado
+	local sair_do_menu=false
+
+	local color="$(tput setab 22)"
+	local reverse=$(tput rev)
+	local rst=$(tput sgr0)
+
+	# Calcular o tamanho máximo diretamente no loop
+	for item in "${itens[@]}"; do
+		((tamanho_maximo = tamanho_maximo < ${#item} ? ${#item} : tamanho_maximo))
+	done
+
+	((tamanho_maximo += 2)) # Adiciona 2 espaços entre os itens
+	((tamanho_maximo = tamanho_maximo < tamanho_titulo ? tamanho_titulo : tamanho_maximo))
+	((quantidade_itens > 9)) && ((++tamanho_maximo))
+
+	# Iterar sobre os itens novamente para destacar o item selecionado em reverso
+	setpos $linha $coluna
+	printf "%s" "$color"
+	printf "\e[%s;%sH%$(tput cols)s" $((linha + 1)) $coluna " "
+	nTop=$(( linha + 1))
+	nLeft=1
+	nMaxItens=$(( quantidade_itens + 2 ))
+	nRight=$(( tamanho_maximo + 5))
+
+	while ! $sair_do_menu; do
+		npos=1
+		lastpos=0
+		for i in "${!itens[@]}"; do
+			local item="${itens[i]}"
+			#			local padding=$((tamanho_maximo - ${#item}))
+			local padding="${#item}"
+			[[ -n "${aCorItemMenu[i]}" ]] && color="${aCorItemMenu[i]}"
+
+			if [[ $i -eq $selecionado ]]; then
+				item_formatado="${reverse}${color}${item^^}%${padding}s${reset}"
+				nLeft="$((npos - 1))"
+				box "$nTop" "$nLeft" "$nMaxItens" "$nRight" "" "${color}"
+			else
+				item_formatado="${color}${item^}%${padding}s${reset}"
+			fi
+			printf "\e[$((linha + 1));%sH${item_formatado}${rst}" "$npos"
+			npos=$((npos + padding + 1))
+		done
+		read -r -n 1 -s tecla
+		limpa "$nTop" "$nLeft" "$nMaxItens" "$nRight" "" "${color}"
+		case $tecla in
+		"D") ((selecionado = selecionado > 0 ? selecionado - 1 : quantidade_itens - 1)) ;;
+		"C") ((selecionado = selecionado < quantidade_itens - 1 ? selecionado + 1 : 0)) ;;
+		[0-9]) return "$tecla" ;;
+		"") return $((selecionado + 1)) ;;
+		esac
+	done
+}
+clear
+fundo
+fornecedores
