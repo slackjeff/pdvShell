@@ -61,8 +61,8 @@ void restaurarTela(FILE *arquivo) {
 }
 
 int main() {
-   printf("%ssave.c, Copyright (c) 2023 Vilmar Catafesta <vcatafesta@gmail.com>%s\n", RED, RESET);
-   printf("%sHello World\n%s", GREEN, RESET);
+	printf("%ssave.c, Copyright (c) 2023 Vilmar Catafesta <vcatafesta@gmail.com>%s\n", RED, RESET);
+	printf("%sHello World\n%s", GREEN, RESET);
     FILE *arquivo = fopen("tela_salva", "w");
 
     if (arquivo == NULL) {
