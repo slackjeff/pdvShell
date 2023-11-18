@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/11/17
+#	Altered: 2023/11/18
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -34,7 +34,7 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.6.17-20231117"
+declare _VERSION_="1.6.18-20231118"
 declare _SYSTEM_="$(gettext 'SISTEMA PDV')"
 declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed awk figlet)
 declare -A Aempresa=([razao]='EMPRESA MODELO LTDA' [ende]='Rua Modelo, 693 - Bairro Centro' [cida]='Cidade Modelo' [uf]='UF' [cnpj]='00.000.000/0001-00')
@@ -828,11 +828,54 @@ function get() {
 	echo -e "$reset"
 }
 
+function yesno() {
+    local linha=$1
+    local coluna=$2
+    local titulo="$3"
+    local itens=("Sim" "Não")
+    local tamanho_maximo=${#titulo}
+    local quantidade_itens="${#itens[@]}"
+    local i tecla selecionado item_formatado
+    local sair_do_menu=false
+   	local color="${Acores[conf]}"
+
+    tamanho_maximo=$((tamanho_maximo))
+    for item in "${itens[@]}"; do
+        ((tamanho_maximo = tamanho_maximo < ${#item} ? ${#item} : tamanho_maximo))
+    done
+
+    box "$linha" "$coluna" "$((quantidade_itens + 4))" "$((tamanho_maximo + 2))" "" "$color"
+    print "$((linha + 1))" "$((coluna + 1))" "$titulo" "$color"
+    print "$((linha + 2))" "$((coluna))" "├$(replicate "─" "$((tamanho_maximo))")┤" "$color"
+	printf '\a' # beep
+
+    while ! $sair_do_menu; do
+        for i in "${!itens[@]}"; do
+            local item="${itens[i]}"
+            local padding=$((tamanho_maximo - ${#item} -2))
+            [[ -n "${aCorItemMenu[i]}" ]] && color="${aCorItemMenu[i]}"
+            if [[ $i -eq $selecionado ]]; then
+                item_formatado="${reverse}${color}►${item^^}◄%${padding}s${reset}"
+            else
+                item_formatado="${color} ${item^} %${padding}s${reset}"
+            fi
+            printf "\e[$((linha + i + 4));%sH${item_formatado}${rst}" "$((coluna + 2))"
+        done
+
+        read -r -n 1 -s tecla
+        case $tecla in
+        "A") ((selecionado = selecionado > 0 ? selecionado - 1 : quantidade_itens - 1)) ;;
+        "B") ((selecionado = selecionado < quantidade_itens - 1 ? selecionado + 1 : 0)) ;;
+        "") return $((selecionado)) ;;
+        esac
+    done
+}
+
 function readconf() {
 	local msg="$1"
 	local color="$2"
 	local nobox="$3"
-	local largura_mensagem=${#msg}
+	local largura_mensagem
 	local nrow=$(row)
 	local ncol=$(col)
 
@@ -844,7 +887,9 @@ function readconf() {
 	if ((nobox)); then
 		setpos $((nrow)) $((ncol))
 	else
-		mabox $nrow $ncol 3 $((ncol + largura_mensagem ))
+		largura_mensagem=${#msg}
+		largura_mensagem=$((largura_mensagem + 9))
+		mabox $nrow $ncol 3 $((largura_mensagem ))
 		setpos $((nrow + 1)) $((ncol + 1))
 	fi
 	if [[ $LC_DEFAULT -eq 0 ]]; then
@@ -859,14 +904,30 @@ function readconf() {
 }
 
 function readnotconf() {
+	local msg="$1"
 	local color="$2"
-	tput el
+	local nobox="$3"
+	local largura_mensagem
+	local nrow=$(row)
+	local ncol=$(col)
+
+#	tput el
+	[[ -z "$nobox" ]] && nobox=0
 	[[ -z "$color" ]] && color="${Acores[conf]}"
 	echo -n -e "$color"
-	if [[ $LC_DEFAULT -eq 0 ]]; then
-		read -n1 -s -r -p "$1 [N/s]"
+	printf '\a' # beep
+	if ((nobox)); then
+		setpos $((nrow)) $((ncol))
 	else
-		read -n1 -s -r -p "$1 [N/y]"
+		largura_mensagem=${#msg}
+		largura_mensagem=$((largura_mensagem + 9))
+		mabox $nrow $ncol 3 $((largura_mensagem ))
+		setpos $((nrow + 1)) $((ncol + 1))
+	fi
+	if [[ $LC_DEFAULT -eq 0 ]]; then
+		read -n1 -s -r -p "$msg [N/s]"
+	else
+		read -n1 -s -r -p "$msg [N/y]"
 	fi
 	echo -n -e "$reset"
 	[[ ${REPLY^} == $'\e' ]] && return 1
@@ -1281,9 +1342,8 @@ function produto_inclusao_alteracao() {
 				msgerror "$(gettext "Formato inválido. Usar ponto decimal ex: 4.99 ou número inteiro.")"
 			fi
 		done
-
-		setpos "$posmsg" 10
-		if readconf "$(gettext "Confirma inclusão/atualização do produto?")"; then
+#		setpos "$posmsg" 10
+		if yesno $posmsg 10 "$(gettext "Confirma inclusão/atualização do produto?")"; then
 			nome=${nome^^}
 			un=${un^^}
 			query="INSERT OR REPLACE INTO produtos (id, nome, un, preco, codebar, estoque, validade, qmin, fabricante) VALUES (
@@ -3447,10 +3507,8 @@ function sh_main_menu() {
 		opcao="$?"
 
 		case "$opcao" in
-		11) setpos $half_lastrow $half_lastcol
-			if readconf "$(gettext "Pergunta: Deseja realmente Sair?")"; then
+		11)	if yesno $((half_lastrow-6)) $half_lastcol "$(gettext "Pergunta: Deseja realmente Sair?")"; then
 				sh_unsetvarcolors
-#				setpos 20 10
 				clear
 				exit 0
 			fi
