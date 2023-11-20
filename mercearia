@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/11/18
+#	Altered: 2023/11/19
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -34,7 +34,7 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.6.18-20231118"
+declare _VERSION_="1.6.19-20231119"
 declare _SYSTEM_="$(gettext 'SISTEMA PDV')"
 declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed awk figlet)
 declare -A Aempresa=([razao]='EMPRESA MODELO LTDA' [ende]='Rua Modelo, 693 - Bairro Centro' [cida]='Cidade Modelo' [uf]='UF' [cnpj]='00.000.000/0001-00')
@@ -123,7 +123,7 @@ function sh_environment() {
 		[msgok]="$green"
 		[msgerror]="$red"
 		[conf]="$red"
-		[panofundo]="░░░▒▒▒▒▒▒▒░░░░░░░░▒▒▒▒▒▒▒"
+		[panofundo]="█▓░▒pdvShell█▒▓░"
 		[corpanofundo]="$cinza"
 	)
 
@@ -521,38 +521,6 @@ function dispbox() {
 		nmaxlen=$((nmaxlen + field_width + 1))
 	done
 
-	function dispbox::print_boxold() {
-		# Move o cursor para a posição inicial da primeira linha do quadro
-		tput cup "$linha" "$col"
-
-		# Imprime o quadro com base nas coordenadas, largura e altura
-		for ((i = 0; i < altura; i++)); do
-			if [ $i -eq 0 ]; then
-				echo -n "┌"
-				for ((j = 1; j < nmaxlen - 1; j++)); do
-					echo -n "─"
-				done
-				echo "┐"
-			elif [ $i -eq $((altura - 1)) ]; then
-				echo -n "└"
-				for ((j = 1; j < nmaxlen - 1; j++)); do
-					echo -n "─"
-				done
-				echo "┘"
-			else
-				echo -n "│"
-				for ((j = 1; j < nmaxlen - 1; j++)); do
-					echo -n " "
-				done
-				echo "│"
-			fi
-			((++linha))
-			tput cup "$linha" "$col"
-		done
-		setpos "$linha" "$((col + 1))"
-		printf "$color%-${nmaxlen}s${reset}" "$cprintf"
-	}
-
 	function dispbox::print_box() {
 		# Constrói as linhas superior e inferior do quadro
 		frame_top="┌$(printf '─%.0s' $(seq 1 $((nmaxlen - 1))))┐"
@@ -577,8 +545,11 @@ function dispbox() {
 			fi
 		done
 	}
-	dispbox::print_box
-	tput sgr0
+
+#	printf "%s" "${Acores[box]}"
+#	dispbox::print_box
+	box "$linha" "$col" "$altura" "$((nmaxlen+2))" "$cprintf" "${Acores[box]}"
+#	tput sgr0
 }
 
 # Converte formato data yyyy-mm-dd para dd-mm-yyyy
@@ -692,13 +663,10 @@ function info_msg() {
 	fi
 }
 
-function row() {
-	echo "$Prow"
-}
-
-function col() {
-	echo "$Pcol"
-}
+function row() { echo "$Prow"; }
+function col() { echo "$Pcol"; }
+function lastrow() { echo "$(tput lines)"; }
+function lastcol() { echo "$(tput cols)"; }
 
 function setpos() {
 	local row="$1"
@@ -706,15 +674,8 @@ function setpos() {
 
 	Prow="$row"
 	Pcol="$col"
-	tput cup "$row" "$col"
-}
-
-function lastrow() {
-	echo "$(tput lines)"
-}
-
-function lastcol() {
-	echo "$(tput cols)"
+#	tput cup "$row" "$col"
+	printf "\e[$((row+1));$((col+1))H"
 }
 
 function mabox() {
@@ -1080,28 +1041,12 @@ function sh_date() {
 
 # BEGIN PROCEDURES
 function logo() {
-	setpos 2 0
-	printf "%s" "${Acores[logo]}"
+	printf "\e[3;0H%s" "${Acores[logo]}"
 	figlet "$Mercearia"
 	printf "%s" "$reset"
 }
 
-function logoOLD() {
-	setpos 2 0
-	printf "%s" "${Acores[logo]}"
-	cat <<-'EOF'
-		 __  __                              _       
-		|  \/  | ___ _ __ ___ ___  __ _ _ __(_) __ _ 
-		| |\/| |/ _ \ '__/ __/ _ \/ _` | '__| |/ _` |
-		| |  | |  __/ | | (_|  __/ (_| | |  | | (_| |
-		|_|  |_|\___|_|  \___\___|\__,_|_|  |_|\__,_|
-	EOF
-	printf "%s" "$reset"
-}
-
 function tela() {
-	tput sgr0
-	tput clear
 	sh_fundo
 	titulo 0 "$_SYSTEM_" "${Acores[cabecalho]}" "$(date)" "$_VERSION_"
 	titulo 1 "${Menu_Principal^^}" "${Acores[statussup]}"
@@ -1228,6 +1173,7 @@ function produto_inclusao_alteracao() {
 	local half_lastcol=$(($(lastcol) / 2))
 	local p_id p_nome p_un p_estoque p_preco p_codebar p_data p_validade p_qmin p_fabricante
 	local f_id f_data f_nome f_ende f_cida f_uf f_cnpj
+	local identificador
 	local cdesc
 	local xtitle
 	local IsInclusao
@@ -1236,12 +1182,12 @@ function produto_inclusao_alteracao() {
 	if [[ "$action" = 'I' ]]; then
 		# I=Inclusao
 		cdesc="$(gettext 'Descrição')"
-		xtitle="$(gettext 'CADASTRO DE PRODUTOS')"
+		xtitle="$(gettext 'CADASTRO DE PRODUTO')"
 		IsInclusao=1
 	else
 		# A=Alteracao
 		cdesc="$(gettext 'ID/Descrição')"
-		xtitle="$(gettext 'ALTERAÇÃO DE PRODUTOS')"
+		xtitle="$(gettext 'ALTERAÇÃO DE PRODUTO')"
 		IsInclusao=0
 	fi
 
@@ -1267,27 +1213,40 @@ function produto_inclusao_alteracao() {
 		while true; do
 			if ((IsInclusao)); then
 				get 12 11 "$cdesc            : " nome
-			else
-				get 12 11 "$cdesc         : " nome
-			fi
-			if [[ -n "$nome" ]]; then
-				if produto_info=$(dbseek 'produtos' 'nome' "$nome" "$IsHeader" "$IsLike") && [ -n "$produto_info" ]; then
-					IFS='|' read -r p_id p_nome p_un p_estoque p_preco p_codebar p_data p_validade p_qmin p_fabricante <<<"$produto_info"
-					if ((IsInclusao)); then
-						get 12 11 "$cdesc            : " nome "$p_nome"
-					else
-						get 12 11 "$cdesc         : " nome "$p_nome"
-					fi
-					if [[ -z "$nome" ]]; then
-						msgerror "$(gettext "Descrição não pode ser em branco.")"
-						continue
+				if [[ -z "$nome" ]]; then
+					setpos "$posmsg" 10
+					if readconf "$(gettext "Descrição não pode ser em branco. Cancelar?")"; then
+						return
 					fi
 				fi
 				break
 			else
-				setpos "$posmsg" 10
-				if readconf "$(gettext "Descrição não pode ser em branco. Cancelar?")"; then
-					return
+				get 12 11 "$cdesc         : " nome
+				if [[ -n "$nome" ]]; then
+					if [[ $nome =~ ^[0-9]+$ ]]; then
+						IsLike=0
+						produto_info=$(dbseek 'produtos' 'id' "$nome" "$IsHeader" "$IsLike")
+					else
+						IsLike=1
+						produto_info=$(dbseek 'produtos' 'nome' "$nome" "$IsHeader" "$IsLike")
+					fi
+					if [ -n "$produto_info" ]; then
+						IFS='|' read -r p_id p_nome p_un p_estoque p_preco p_codebar p_data p_validade p_qmin p_fabricante <<<"$produto_info"
+						get 12 11 "$cdesc         : " nome "$p_nome"
+						if [[ -z "$nome" ]]; then
+							msgerror "$(gettext "Descrição não pode ser em branco.")"
+							continue
+						fi
+					else
+						msgerror "$Nenhum_produto_encontrado_nos_parametros_informados" "" 10
+						continue
+					fi
+					break
+				else
+					setpos "$posmsg" 10
+					if readconf "$(gettext "Descrição não pode ser em branco. Cancelar?")"; then
+						return
+					fi
 				fi
 			fi
 		done
@@ -1295,7 +1254,14 @@ function produto_inclusao_alteracao() {
 		while true; do
 			get 13 11 "$(gettext "Fabricante")           : " fabricante "$p_fabricante"
 			if [[ -n "$fabricante" ]]; then
-				if fornecedor_info=$(dbseek 'fornecedor' 'id' "$fabricante") && [ -n "$fornecedor_info" ]; then
+				if [[ $fabricante =~ ^[0-9]+$ ]]; then
+					IsLike=0
+					fornecedor_info=$(dbseek 'fornecedor' 'id' "$fabricante" "$IsHeader" "$IsLike")
+				else
+					IsLike=1
+					fornecedor_info=$(dbseek 'fornecedor' 'id' "$fabricante" "$IsHeader" "$IsLike")
+				fi
+				if [ -n "$fornecedor_info" ]; then
 					IFS='|' read -r f_id f_data f_nome f_ende f_cida f_uf f_cnpj <<<"$fornecedor_info"
 					print 13 40 "${yellow}${f_nome}"
 					break
@@ -2448,36 +2414,57 @@ function atualizar_estoque_vendas() {
 }
 
 function realizar_venda() {
+	local xtitle="$(gettext "CUPOM PDV")"
+	local nTop=10
+	local nRight=71
 	declare -A lista_produtos
 	local IsHeader=0
 	local IsLike=1
 	local nrow=0
-	total_venda=0
+	local produto
+	local subtotal
+	local identificador
+	local quantidade
+	local valor_formatado
+	local padding=71
+	local itens=0
+
+	function realizar_venda::imprimir_cabecalho() {
+		local Coordenadas="$((nTop))|0|$((itens + 7))"
+		local Cabecalho="ID|DESCRIÇÃO DO PRODUTO|QTD|PREÇO|TOTAL"
+		local Max_field_width="5|40|5|8|8"
+		local Color="${Acores[dispbox]}"
+		local Align_field='left'
+		dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
+	}
 
 	while true; do
+		sh_fundo
 		tela
-		nrow=13
-		titulo 1 "${Realizar_Venda_Saida^^}" "${Acores[statussup]}"
-		echo "==============================$(gettext "CUPOM PDV")=============================="
+		titulo 1 "${Realizar_Venda_Saida^^} - $xtitle" "${Acores[statussup]}"
+		itens="${#lista_produtos[@]}"
+		realizar_venda::imprimir_cabecalho
+		nrow=11
 		total_venda=0
 		for key in "${!lista_produtos[@]}"; do
 			produto="${lista_produtos[$key]}"
 			IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
 			subtotal=$(echo "$quantidade * $valor" | bc -l | tr "." ",")
 			valor_formatado=$(echo "$valor" | tr '.' ',')
-			printf "${yellow}%2s  %-41s  %2s  %8.2f  %8.2f${reset}\n" "$id" "$produto_nome" "$quantidade" "$valor_formatado" "$subtotal"
+			print $nrow 01 "$(printf "${yellow}%5s %-40s %5s %8.2f %8.2f${reset}\n" "$id" "$produto_nome" "$quantidade" "$valor_formatado" "$subtotal")"
 			total_venda=$(echo "$total_venda + ( $quantidade * $valor)" | bc -l)
 			((++nrow))
 		done
-		echo "====================================================================="
-		printf "${red}%2s  %-41s  %2s  %8s  %8.2f${reset}\n" "" "SUBTOTAL R$" "" "" "$(tr '.' ',' <<<"$total_venda")"
-		echo "====================================================================="
+		print $nrow 00 "├$(replicate "─" "$((padding))")┤"
+		((++nrow))
+		print $nrow 01 "$(printf "${red}%5s %-40s %5s %8s$%8.2f${reset}\n" "" "SUBTOTAL" "" "" "$(tr '.' ',' <<<"$total_venda")")"
+		((++nrow))
+		print $nrow 00 "├$(replicate "─" "$((padding))")┤"
+		((++nrow))
+		get $nrow 01 "$(gettext "ID/nome/CodeBar (em branco=concluir)"): " identificador
 
-		read -p "$(gettext "ID/nome/CodeBar (em branco=concluir)"): " identificador
+		[[ -z "$identificador" ]] && break
 		identificador=${identificador^^}
-		if [ -z "$identificador" ]; then
-			break
-		fi
 		#código de barras
 		if [[ $identificador =~ ^[0-9]{13}$ ]]; then
 			produto_info=$(dbseek 'produtos' 'codebar' "$identificador")
@@ -2492,14 +2479,11 @@ function realizar_venda() {
 			continue
 		fi
 		IFS='|' read -r id produto_nome unidade estoque valor codebar <<<"$produto_info"
-		tput sc # Salva a posição atual do cursor
-		tput cuu1
-		tput cuf 38
-		echo -n "${yellow}$produto_nome${reset}"
-		tput rc
+		print $nrow 39 "${yellow}$produto_nome${reset}"
+		((++nrow))
 
 		# Solicita a quantidade e verifica se não está em branco
-		read -p "$(gettext "Quantidade (0 para remover o item)")  : " quantidade
+		get $nrow 01 "$(gettext "Quantidade (0 para remover o item)")  : " quantidade
 		if [[ "$quantidade" =~ ^[0-9]+$ || "$quantidade" =~ ^-[0-9]+$ ]]; then
 			if [[ "$quantidade" = 0 ]]; then
 				if [[ -v lista_produtos[$id] ]]; then
@@ -2534,9 +2518,9 @@ function realizar_venda() {
 		fi
 		total_venda=$(echo "$total_venda + $subtotal" | bc -l)
 	done
-
 	if [[ "${#lista_produtos[@]}" -gt 0 ]]; then
-		setpos $nrow 0
+		((++nrow))
+		setpos $nrow 1
 		if readconf "$(gettext "Confirma o fechamento do CUPOM?")" "" 1; then
 			registrar_venda "$total_venda"
 			atualizar_estoque_vendas
@@ -2544,100 +2528,57 @@ function realizar_venda() {
 	fi
 }
 
-function registrar_compra() {
-	local total_compra="$1"
-	local data_compra="$(sh_date)"
-	local fornecedor="${notafiscal[fornecedor]}"
-	local docnr="${notafiscal[docnr]}"
-	local key produto
-	local id produto_nome quantidade custo
-
-	# Iterar sobre os produtos vendidos no array associativo lista_produtos
-	for key in "${!lista_produtos[@]}"; do
-		produto="${lista_produtos[$key]}"
-		IFS='|' read -r id produto_nome quantidade custo <<<"$produto"
-		sqlite3 "$database" "INSERT INTO compras (id, fornecedor, data, docnr, quantidade, custo, total) VALUES ('$id', '$fornecedor', '$data_compra', '$docnr', '$quantidade', '$custo','$total_compra');"
-	done
-	msgok "$Registro_efetuado_com_sucesso"
-}
-
-function atualizar_estoque_compras() {
-	local key produto
-	local id nome quantidade custo
-
-	# Iterar sobre os produtos vendidos no array associativo lista_produtos
-	for key in "${!lista_produtos[@]}"; do
-		produto="${lista_produtos[$key]}"
-		IFS='|' read -r id nome quantidade custo <<<"$produto"
-		sqlite3 "$database" "UPDATE produtos SET estoque = COALESCE(estoque, 0) + $quantidade WHERE id=$id;"
-	done
-	msgok "$(gettext "Ajuste de estoque efetuado")"
-}
-
 function produtos_entradas() {
 	local xtitle="$(gettext "ENTRADAS DE PRODUTOS")"
 	declare -gA lista_produtos=() # Declarar um array associativo para armazenar produtos
 	declare -gA notafiscal=()
-	total_compra=0
+	local nTop=10
+	local nRight=71
+	local nrow=0
+	local produto
+	local subtotal
+	local identificador
+	local quantidade
+	local valor_formatado
+	local padding=71
+	local itens=0
+
+	function produtos_entradas::imprimir_cabecalho() {
+		local Coordenadas="$((nTop))|0|$((itens + 8))"
+		local Cabecalho="ID|DESCRIÇÃO DO PRODUTO|QTD|PREÇO|TOTAL"
+		local Max_field_width="5|40|5|8|8"
+		local Color="${Acores[dispbox]}"
+		local Align_field='left'
+		dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
+	}
 
 	while true; do
+		sh_fundo
 		tela
 		titulo 1 "$xtitle" "${Acores[statussup]}"
-		box 11 00 4 70 "$(gettext "DADOS DA NFF")" "${Acores[box]}"
-		# Solicita a descrição (nome) do produto e verifica se não está em branco
-		print 12 01 "$(gettext "Fornecedor") : "
-		print 13 01 "$(gettext "Docnr/NFF")  : "
-
-		get 12 01 "$(gettext "Fornecedor") : " identificador
-		identificador=${identificador^^}
-		if [[ -z "$identificador" ]]; then
-			setpos 15 01
-			if readconf "$(gettext "ID/Nome não pode ser em branco. Cancelar?")"; then
-				return
-			fi
-			continue
-		fi
-		if [[ $identificador =~ ^[0-9]+$ ]]; then
-			fornecedor_info=$(dbseek fornecedor id "$identificador")
-		else
-			fornecedor_info=$(dbseek fornecedor nome "$identificador")
-		fi
-		if [[ -z "$fornecedor_info" ]]; then
-			msgerror "$(gettext "Fornecedor não encontrado nos parâmetros informados")"
-			continue
-		fi
-		IFS='|' read -r id data nome ende cida esta cnpj <<<"$fornecedor_info"
-		print 12 14 "${azul}${nome}${reset}"
-		get 13 01 "$(gettext "Docnr/NFF")  : " docnr "$(obterProximoNumeroDocumento 'compras')"
-		notafiscal=([fornecedor]="$id" [nome]="$nome" [docnr]="$docnr")
-		break
-	done
-
-	while true; do
-		sh_clear_eol 15 "$(($(lastrow) - 4))"
-		setpos 15 00
-		nrow=20
-		echo "========================$(gettext "RELAÇAO DAS ENTRADAS")========================="
+		itens="${#lista_produtos[@]}"
+		produtos_entradas::imprimir_cabecalho
+		nrow=11
 		total_compra=0
 		for key in "${!lista_produtos[@]}"; do
 			produto="${lista_produtos[$key]}"
 			IFS='|' read -r id produto_nome quantidade custo <<<"$produto"
 			subtotal=$(echo "$quantidade * $custo" | bc -l | tr "." ",")
 			custo_formatado=$(echo "$custo" | tr '.' ',')
-			# Adicione espaços extras para alinhar os campos
-			printf "${yellow}%2s  %-41s  %2s  %8.2f  %8.2f${reset}\n" "$id" "$produto_nome" "$quantidade" "$custo_formatado" "$subtotal"
+			print $nrow 01 "$(printf "${yellow}%5s %-40s %5s %8.2f %8.2f${reset}\n" "$id" "$produto_nome" "$quantidade" "$custo_formatado" "$subtotal")"
 			total_compra=$(echo "$total_compra + ( $quantidade * $custo)" | bc -l)
 			((++nrow))
 		done
-		echo "====================================================================="
-		printf "${red}%2s  %-41s  %2s  %8s  %8.2f${reset}\n" "" "SUBTOTAL R$" "" "" "$(tr '.' ',' <<<"$total_compra")"
-		echo "====================================================================="
+		print $nrow 00 "├$(replicate "─" "$((padding))")┤"
+		((++nrow))
+		print $nrow 01 "$(printf "${red}%5s %-40s %5s %8s$%8.2f${reset}\n" "" "SUBTOTAL" "" "" "$(tr '.' ',' <<<"$total_compra")")"
+		((++nrow))
+		print $nrow 00 "├$(replicate "─" "$((padding))")┤"
+		((++nrow))
+		get $nrow 01 "$(gettext "ID/nome/CodeBar (em branco=concluir)"): " identificador
 
-		read -p "$(gettext "ID/nome/CodeBar (em branco=concluir)"): " identificador
+		[[ -z "$identificador" ]] && break
 		identificador=${identificador^^}
-		if [ -z "$identificador" ]; then
-			break
-		fi
 
 		#código de barras
 		if [[ $identificador =~ ^[0-9]{13}$ ]]; then
@@ -2653,16 +2594,13 @@ function produtos_entradas() {
 			msgerror "$(gettext "Produto não encontrado")"
 			continue
 		fi
+
 		IFS='|' read -r id produto_nome unidade estoque preco codebar <<<"$produto_info"
-		tput sc # Salva a posição atual do cursor
-		tput cuu1
-		tput cuf 38
-		echo -n "${yellow}$produto_nome${reset}"
-		tput rc
+		print $nrow 39 "${yellow}$produto_nome${reset}"
+		((++nrow))
 
 		# Solicita a quantidade e verifica se não está em branco
-		read -p "$(gettext "Quantidade (0 para remover o item)")  : " quantidade
-
+		get $nrow 01 "$(gettext "Quantidade (0 para remover o item)")  : " quantidade
 		if [[ "$quantidade" =~ ^[0-9]+$ || "$quantidade" =~ ^-[0-9]+$ ]]; then
 			if [[ "$quantidade" = 0 ]]; then
 				if [[ -v lista_produtos[$id] ]]; then
@@ -2679,8 +2617,9 @@ function produtos_entradas() {
 		fi
 
 		# Solicita o preço como número inteiro ou decimal com ponto (ex: 4.99) e verifica se não está em branco
+		((++nrow))
 		while true; do
-			read -p "$(gettext "Preço custo (ex: 4.99 ou 5)")         : " custo
+			get $nrow 01 "$(gettext "Preço custo (ex: 4.99 ou 5)")         : " custo
 			if [[ -n "$custo" ]] && [[ $custo =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
 				break
 			else
@@ -2703,20 +2642,90 @@ function produtos_entradas() {
 		total_compra=$(echo "$total_compra + $subtotal" | bc -l)
 	done
 
+	function produtos_entradas::dados_nff() {
+		while true; do
+			tela
+			titulo 1 "$xtitle" "${Acores[statussup]}"
+			box "$((nrow +3))" 00 4 "$((nRight +2))" "$(gettext "DADOS DA NFF")" "${Acores[box]}"
+			# Solicita a descrição (nome) do produto e verifica se não está em branco
+			print $((nrow +4)) 01 "$(gettext "Fornecedor") : "
+			print $((nrow +5)) 01 "$(gettext "Docnr/NFF")  : "
+			get $((nrow +4)) 01 "$(gettext "Fornecedor") : " identificador
+
+			if [[ -z "$identificador" ]]; then
+				setpos $((nrow +7)) 00
+				if readconf "$(gettext "ID/Nome não pode ser em branco. Cancelar?")"; then
+					return 1
+				fi
+				continue
+			fi
+			identificador=${identificador^^}
+			if [[ $identificador =~ ^[0-9]+$ ]]; then
+				fornecedor_info=$(dbseek fornecedor id "$identificador")
+			else
+				fornecedor_info=$(dbseek fornecedor nome "$identificador")
+			fi
+			if [[ -z "$fornecedor_info" ]]; then
+				msgerror "$(gettext "Fornecedor não encontrado nos parâmetros informados")"
+				continue
+			fi
+			IFS='|' read -r id data nome ende cida esta cnpj <<<"$fornecedor_info"
+			print $((nrow+4)) 14 "${azul}${nome}${reset}"
+			get $((nrow +5))  01 "$(gettext "Docnr/NFF")  : " docnr "$(obterProximoNumeroDocumento 'compras')"
+			notafiscal=([fornecedor]="$id" [nome]="$nome" [docnr]="$docnr")
+			break
+		done
+		return 0
+	}
+
 	if [[ "${#lista_produtos[@]}" -gt 0 ]]; then
-		setpos $nrow 0
+		((++nrow))
+		setpos $nrow 1
 		if readconf "$(gettext "Confirma a entrada desses produtos?")" "" 1; then
-			registrar_compra "$total_compra"
-			atualizar_estoque_compras
+			if produtos_entradas::dados_nff; then
+				registrar_compra "$total_compra"
+				atualizar_estoque_compras
+			fi
 		fi
 	fi
+}
+
+function registrar_compra() {
+	local total_compra="$1"
+	local data_compra="$(sh_date)"
+	local fornecedor="${notafiscal[fornecedor]}"
+	local docnr="${notafiscal[docnr]}"
+	local key produto
+	local id produto_nome quantidade custo
+
+	# Iterar sobre os produtos vendidos no array associativo lista_produtos
+	for key in "${!lista_produtos[@]}"; do
+		produto="${lista_produtos[$key]}"
+		IFS='|' read -r id produto_nome quantidade custo <<<"$produto"
+		sqlite3 "$database" "INSERT INTO compras (id, fornecedor, data, docnr, quantidade, custo, total) VALUES ('$id', '$fornecedor', '$data_compra', '$docnr', '$quantidade', '$custo','$total_compra');"
+	done
+	msgok "$Registro_efetuado_com_sucesso"
+	return 0
+}
+
+function atualizar_estoque_compras() {
+	local key produto
+	local id nome quantidade custo
+
+	# Iterar sobre os produtos vendidos no array associativo lista_produtos
+	for key in "${!lista_produtos[@]}"; do
+		produto="${lista_produtos[$key]}"
+		IFS='|' read -r id nome quantidade custo <<<"$produto"
+		sqlite3 "$database" "UPDATE produtos SET estoque = COALESCE(estoque, 0) + $quantidade WHERE id=$id;"
+	done
+	msgok "$(gettext "Ajuste de estoque efetuado")"
+	return 0
 }
 
 function conciliar_estoque() {
 	local query
 
-	setpos 17 11
-	if readconf "$(gettext "Confirma a atualização?")"; then
+	if yesno 17 11 "$(gettext "Confirma a atualização?")"; then
 		msgok "$(gettext "Aguarde... Atualizando estoque")" "$yellow"
 		if sqlite3 "$database" "UPDATE produtos SET estoque = 0;"; then
 			query="UPDATE produtos
@@ -2769,8 +2778,7 @@ function sh_criar_tabelas() {
 }
 
 function sh_drop_tabelas() {
-	setpos 17 11
-	if readnotconf "$(gettext "CUIDADO! ESTE PROCEDIMENTO IRÁ APAGAR TODOS OS REGISTROS. Confirma ?")"; then
+	if yesno 17 11 "$(gettext "CUIDADO! ESTE PROCEDIMENTO IRÁ APAGAR TODOS OS REGISTROS. Confirma ?")"; then
 		msgerror "$(gettext "Aguarde, Droping tabela produtos")"
 		sqlite3 "$database" "DROP TABLE produtos;"
 		msgerror "$(gettext "Aguarde, Droping tabela fornecedor")"
@@ -2785,8 +2793,7 @@ function sh_drop_tabelas() {
 }
 
 function populate_databases() {
-	setpos 17 11
-	if readnotconf "$(gettext "ESTE PROCEDIMENTO IRÁ INSERIR DADOS ALEATÓRIOS PARA TESTES. Confirma ?")"; then
+	if yesno 17 11 "$(gettext "ESTE PROCEDIMENTO IRÁ INSERIR DADOS ALEATÓRIOS PARA TESTES. Confirma ?")"; then
 		populate_database_produtos
 		populate_database_fornecedor
 		populate_database_vendas
@@ -2953,9 +2960,8 @@ function show_menu() {
 	local coluna=$2
 	local titulo="$3"
 	local itens=("${@:4}")
-	local tamanho_titulo=${#titulo}
+	local tamanho_maxino=${#titulo}
 	local quantidade_itens="${#itens[@]}"
-	local tamanho_maximo=$tamanho_titulo
 	local i tecla selecionado item_formatado
 	local sair_do_menu=false
 	local color="${Acores[box]}"
@@ -2964,9 +2970,6 @@ function show_menu() {
 	for item in "${itens[@]}"; do
 		((tamanho_maximo = tamanho_maximo < ${#item} ? ${#item} : tamanho_maximo))
 	done
-
-	((tamanho_maximo += 15))
-	((tamanho_maximo = tamanho_maximo < tamanho_titulo ? tamanho_titulo : tamanho_maximo))
 	((quantidade_itens > 9)) && ((++tamanho_maximo))
 
 	# Chamar a função 'box' uma vez fora do loop
@@ -3256,8 +3259,7 @@ function configuracao::dados_empresa() {
 	get 15 11 "$(gettext "UF")                   : " uf "${Aempresa[uf]}"
 	get 16 11 "$(gettext "Cnpj")                 : " cnpj "${Aempresa[cnpj]}"
 
-	setpos 18 10
-	if readconf "$(gettext "Confirma dados?")"; then
+	if yesno 18 10 "$(gettext "Confirma dados?")"; then
 		Aempresa[razao]="$razao"
 		Aempresa[ende]="$ende"
 		Aempresa[cida]="$cida"
@@ -3272,44 +3274,6 @@ function configuracao::dados_empresa() {
 	else
 		msgerror "$(gettext "Inclusão/alteração não efetuada.")"
 	fi
-}
-
-function configuracao::coresOLD() {
-	declare -a aCorItemMenu=(
-		"$black" "$red" "$green" "$yellow" "$blue" "$magenta" "$cyan" "$white" "$gray" "$orange" "$purple" "$violet" "$light_red" "$light_green"
-		"$light_yellow" "$light_blue" "$light_magenta" "$light_cyan" "$light_white" "$preto" "$vermelho" "$verde" "$amarelo" "$azul" "$roxo" "$ciano"
-		"$branca" "$cinza" "$laranja" "$roxa" "$violeta"
-	)
-	local type="$1"
-	local ctitulo="$2"
-	local xtitle="$(gettext "CONFIGURAÇÃO DE CORES")"
-	local atype=('logo' 'cabecalho' 'statussup' 'statusinf' 'box' 'boxtitle' 'dispbox' 'msgok' 'msgerror' 'conf' 'corpanofundo')
-	local ctype="${atype[$type]}"
-	local opcao
-	local options=("Black/Black" "Red/Black" "Green/Black" "Yellow/Black" "Blue/Black" "Magenta/Black"
-		"Cyan/Black" "White/Black" "Gray/Black" "Orange/Black" "Purple/Black" "Violet/Black"
-		"Light_Red/Black" "Light_Green/Black" "Light_Yellow/Black" "Light_Blue/Black" "Light_Magenta/Black" "Light_Cyan/Black"
-		"Light_White/Black" "Black/Black" "White/Red" "White/Green" "White/Yellow" "White/Blue" "White/Purple"
-		"White/Cyan" "White/White" "White/Gray" "White/Orange" "White/Purple" "White/Violet"
-		"$Voltar"
-	)
-
-	while true; do
-		tela
-		titulo 1 "$xtitle - $ctitulo" "${Acores[statussup]}"
-		show_menu 11 10 "$xtitle - $ctitulo" "${options[@]}"
-		opcao="$?"
-
-		case "$opcao" in
-		[1-9] | 1[0-9] | 2[0-9] | 3[0-1])
-			Acores[$ctype]="${aCorItemMenu["$((opcao - 1))"]}"
-			TIni.Set "$INI_FILE" "cores" "$ctype" "${aCorItemMenu["$((opcao - 1))"]}"
-			;;
-		32 | 0) break ;;
-		*) msgerror "$Opcao_invalida" ;;
-		esac
-	done
-	unset aCorItemMenu
 }
 
 function configuracao::cores() {
@@ -3371,11 +3335,13 @@ function configuracao::pano_de_fundo() {
 	local xtitle="$(gettext "PANO DE FUNDO")"
 	local opcao
 	local panofundo
+	local nLenOptions=0
 	local options=(
 		"░░░▒▒▒▒▒▒▒░░░░░░░░▒▒▒▒▒▒▒"
 		"$(printf "\u2591\u2592\u2593")"
 		"▓▒▓░▒░▒"
 		"░▒▓"
+		"▓░"
 		"░"
 		"▒"
 		"▓"
@@ -3388,9 +3354,12 @@ function configuracao::pano_de_fundo() {
 		"%%"
 		"##"
 		"@@"
+		"' '"
+		"pdvShell"
 		"$Voltar"
 	)
 
+	nLenOptions=${#options[@]}
 	while true; do
 		tela
 		titulo 1 "$xtitle" "${Acores[statussup]}"
@@ -3398,13 +3367,12 @@ function configuracao::pano_de_fundo() {
 		opcao="$?"
 
 		case "$opcao" in
-		[0-9] | 1[0-6])
+		$nLenOptions|0) return ;;
+		*)
 			panofundo="${options["$((opcao - 1))"]}"
 			TIni.Set "$INI_FILE" "cores" "panofundo" "$panofundo"
 			Acores[panofundo]="$panofundo"
 			;;
-		17 | 0) return ;;
-		*) msgerror "$Opcao_invalida" ;;
 		esac
 	done
 }
@@ -3445,44 +3413,6 @@ function menu_configuracao() {
 	done
 }
 
-function sh_main_menuOLD() {
-	local xtitle="${Menu_Principal^^}"
-	local opcao
-	local options=(
-		"$Produtos"
-		"$Fornecedores"
-		"$Realizar_Venda_Saida"
-		"$Entradas_de_Produtos"
-		"$Pesquisa_Relatorio_Consulta"
-		"$Manutencao"
-		"$Configuracao"
-		"$Sair"
-	)
-
-	while true; do
-		tela
-		titulo 1 "$xtitle" "${Acores[statussup]}"
-		show_menu 11 10 "$xtitle" "${options[@]}"
-		opcao="$?"
-
-		case "$opcao" in
-		1) menu_produtos ;;
-		2) menu_fornecedores ;;
-		3) realizar_venda ;;
-		4) produtos_entradas ;;
-		5) menu_relatorios ;;
-		6) menu_manutencao ;;
-		7) menu_configuracao ;;
-		8 | 0)
-			sh_unsetvarcolors
-			setpos 20 0
-			exit 0
-			;;
-		*) msgerror "$Opcao_invalida" ;;
-		esac
-	done
-}
-
 function sh_main_menu() {
 	local xtitle="${Menu_Principal^^}"
 	local half_lastrow=$(($(lastrow) / 2))
@@ -3502,7 +3432,6 @@ function sh_main_menu() {
 
 	while true; do
 		tela
-#		titulo 0 "$xtitle" "${Acores[statussup]}"
 		show_menu_pulldown 2 0 "$xtitle" "${options[@]}"
 		opcao="$?"
 
