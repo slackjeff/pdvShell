@@ -41,6 +41,7 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
 <img alt="mercearia-produtos-produtos-vendidos" src="assets/mercearia-produtos-vendidos.png" width="600" />
 <img alt="mercearia-produtos-compra" src="assets/mercearia-produtos-compra.png" width="600" />
 <img alt="mercearia-produtos-produtos-vendas" src="assets/mercearia-produtos-vendas.png" width="600" />
+<img alt="mercearia-produtos-entradas" src="assets/mercearia-produtos-entradas.png" width="600" />
 <img alt="mercearia-produtos-abaixo-do-minimo" src="assets/mercearia-produtos-abaixo-do-minimo.png" width="600" />
 <img alt="mercearia-produtos-fora-de-validade" src="assets/mercearia-produtos-fora-de-validade.png" width="600" />
 

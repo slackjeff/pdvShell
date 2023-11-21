@@ -420,37 +420,37 @@ function len_split_str() {
 	echo "${#anew[@]}"
 }
 
-padr() {
-    text=$1
-    COLS=$2
-    char=$3
-    if test $# -eq 1; then
-        COLS=$(tput cols)
-        char='='
-    fi
-    printf "%*s\n" "$COLS" "$text" | sed "s/ /$char/g"
+function padr() {
+	texto=$1
+	COLS=$2
+	char=$3
+	if test $# -eq 1; then
+		COLS=$(tput cols)
+		char='='
+	fi
+	printf "%*s\n" "$COLS" "$texto" | sed "s/ /$char/g"
 }
 
 function padl() {
-   texto=$1
-   COLS=$2
-   char=$3
-   if test $# -eq 1; then
-      COLS=$(tput cols)
-      char='='
-   fi
-   printf "%-*s\n" $COLS "$texto" |sed "s/ /$char/g"
+	texto=$1
+	COLS=$2
+	char=$3
+	if test $# -eq 1; then
+		COLS=$(tput cols)
+		char='='
+	fi
+	printf "%-*s\n" $COLS "$texto" |sed "s/ /$char/g"
 }
 
 padc() {
-   texto=$1
-   COLS=$2
-   char=$3
-   if test $# -eq 1; then
-      COLS=$(tput cols)
-      char='='
-   fi
-   printf "%*s\n" $(((${#texto} + $COLS) / 2)) "$texto" | sed "s/ /$char/g"
+	texto=$1
+	COLS=$2
+	char=$3
+	if test $# -eq 1; then
+		COLS=$(tput cols)
+		char='='
+	fi
+	printf "%*s\n" $(((${#texto} + $COLS) / 2)) "$texto" | sed "s/ /$char/g"
 }
 
 # dispbox "0|0|6" "ID|DESCRICAO DO PRODUTO|ESTOQUE|PREÇO" "5|40|5|11" "$cinza" 'left'
@@ -2804,28 +2804,36 @@ function sh_criar_tabelas() {
 	criar_tabela_compras
 }
 
-function sh_drop_tabelas() {
-	if yesno 17 11 "$(gettext "CUIDADO! ESTE PROCEDIMENTO IRÁ APAGAR TODOS OS REGISTROS. Confirma ?")"; then
+function sh_drop_table::produtos() {
+	if yesno 17 11 "$(gettext "CUIDADO! Procedimento irá apagar todos os registros da tabela produtos. Confirma ?")"; then
 		msgerror "$(gettext "Aguarde, Droping tabela produtos")"
 		sqlite3 "$database" "DROP TABLE produtos;"
-		msgerror "$(gettext "Aguarde, Droping tabela fornecedor")"
-		sqlite3 "$database" "DROP TABLE fornecedor;"
-		msgerror "$(gettext "Aguarde, Droping tabela vendas")"
-		sqlite3 "$database" "DROP TABLE vendas;"
-		msgerror "$(gettext "Aguarde, Droping tabela compra")"
-		sqlite3 "$database" "DROP TABLE compras;"
-		sh_criar_tabelas
-		:
 	fi
+	sh_criar_tabelas
 }
 
-function populate_databases() {
-	if yesno 17 11 "$(gettext "ESTE PROCEDIMENTO IRÁ INSERIR DADOS ALEATÓRIOS PARA TESTES. Confirma ?")"; then
-		populate_database_produtos
-		populate_database_fornecedor
-		populate_database_vendas
-		populate_database_compras
+function sh_drop_table::fornecedor() {
+	if yesno 17 11 "$(gettext "CUIDADO! Procedimento irá apagar todos os registros da tabela fornecedor. Confirma ?")"; then
+		msgerror "$(gettext "Aguarde, Droping tabela fornecedor")"
+		sqlite3 "$database" "DROP TABLE fornecedor;"
 	fi
+	sh_criar_tabelas
+}
+
+function sh_drop_table::vendas() {
+	if yesno 17 11 "$(gettext "CUIDADO! Procedimento irá apagar todos os registros da tabela vendas. Confirma ?")"; then
+		msgerror "$(gettext "Aguarde, Droping tabela vendas")"
+		sqlite3 "$database" "DROP TABLE vendas;"
+	fi
+	sh_criar_tabelas
+}
+
+function sh_drop_table::compras() {
+	if yesno 17 11 "$(gettext "CUIDADO! Procedimento irá apagar todos os registros da tabela compras. Confirma ?")"; then
+		msgerror "$(gettext "Aguarde, Droping tabela compras")"
+		sqlite3 "$database" "DROP TABLE compras;"
+	fi
+	sh_criar_tabelas
 }
 
 function sh_show_tabelas() {
@@ -2836,135 +2844,152 @@ function sh_show_tabelas() {
 	inkey 10
 }
 
-populate_database_produtos() {
+function populate_databases() {
+	if yesno 17 11 "$(gettext "CUIDADO! Procedimento irá inserir dados aleatórios para testes nas tabelas. Confirma ?")"; then
+		populate_database_produtos
+		populate_database_fornecedor
+		populate_database_vendas
+		populate_database_compras
+	fi
+}
+
+function populate_database_produtos() {
 	local i
 	local nome un estoque qmin preco codebar data validade
 	local fabricante=1
 
-	msgok "$(gettext "Populando tabela produtos")"
-	for ((i = 1; i <= 100; i++)); do
-		nome="Produto $i"
-		un="UN"
-		estoque=$((RANDOM % 1000))                            # Estoque aleatório entre 0 e 999
-		qmin=$((RANDOM % 100))                                # Quantidade minima aleatório entre 0 e 99
-		preco=$(echo "scale=2; $((RANDOM % 1000)) / 10" | bc) # Preço aleatório entre 0.0 e 99.9
-		codebar=$(printf "%013d" $i)                          # Gere um código de barras simples
-		data=$(sh_date)
-		validade=$(sh_random_date)
+	if yesno 17 11 "$(gettext "CUIDADO! Procedimento irá inserir dados aleatórios para testes na tabela Produtos. Confirma ?")"; then
+		msgok "$(gettext "Populando tabela produtos")"
+		for ((i = 1; i <= 100; i++)); do
+			nome="Produto $i"
+			un="UN"
+			estoque=$((RANDOM % 1000))                            # Estoque aleatório entre 0 e 999
+			qmin=$((RANDOM % 100))                                # Quantidade minima aleatório entre 0 e 99
+			preco=$(echo "scale=2; $((RANDOM % 1000)) / 10" | bc) # Preço aleatório entre 0.0 e 99.9
+			codebar=$(printf "%013d" $i)                          # Gere um código de barras simples
+			data=$(sh_date)
+			validade=$(sh_random_date)
 
-		if [[ $((i % 5)) -eq 0 ]]; then # a cada 5 registros manter o fabricante
-			fabricante="$((fabricante + 1))"
-		fi
-		sqlite3 "$database" "INSERT INTO produtos (nome, un, estoque, preco, codebar, data, validade, qmin,fabricante) VALUES ('$nome', '$un', $estoque, $preco, '$codebar', '$data', '$validade', '$qmin', '$fabricante');"
-	done
-}
-
-populate_database_fornecedor() {
-	msgok "$(gettext "Populando tabela fornecedor")"
-	for ((i = 1; i <= 99; i++)); do
-		data=$(sh_date)
-		nome="FORNECEDOR $i LTDA"
-		ende="ENDERECO$i"
-		cida="CIDADE$i"
-		uf=$(printf "%02d" $i)
-		cnpj=$(printf "%02d.%03d.%03d/%04d-%02d" $i $i $i $i $i)
-		sqlite3 "$database" "INSERT INTO fornecedor (data, nome, ende, cida, uf, cnpj) VALUES ('$data', '$nome', '$ende', '$cida', '$uf', '$cnpj');"
-	done
-}
-
-populate_database_vendas() {
-	msgok "$(gettext "Populando tabela vendas")"
-	# Inicialize o dia, mês e ano
-	dia=1
-	#	mes="$(date +"%m")"
-	mes=01
-	ano="$(date +"%Y")"
-
-	# Loop para inserir 365 registros
-	for ((i = 1; i <= 365; i++)); do
-		data="$ano-$(printf "%02d" "$mes")-$(printf "%02d" "$dia")" # Construir a data no formato 'AAAA-MM-DD'
-		quantidade=$((RANDOM % 10 + 1))                             # Gere uma quantidade aleatória entre 1 e 10
-		preco=$(echo "scale=2; $RANDOM / 100.0" | bc)               # Gere um preço aleatório com duas casas decimais
-		total=$(echo "scale=2; $quantidade * $preco" | bc)          # Calcule o total
-		docnr="$(obterProximoNumeroDocumento 'vendas')"
-		id=$i
-
-		# Inserir o registro na tabela 'vendas' no banco de dados
-		sqlite3 "$database" "INSERT INTO vendas (id, data, quantidade, preco, total, docnr) VALUES ('$id', '$data', $quantidade, $preco, $total, '$docnr');"
-
-		dia=$((dia + 1))
-		id=$((id + 1))
-
-		if [ $id -gt 10 ]; then
-			id=1
-		fi
-
-		# Verificar mês fevereiro
-		if [[ $mes -eq 2 && $dia -gt 28 ]]; then
-			dia=1
-			mes=$((mes + 1))
-		fi
-
-		# Verificar se o mês mudou
-		if [ $dia -gt 30 ]; then
-			dia=1
-			mes=$((mes + 1))
-			if [[ $mes -gt 12 ]]; then
-				mes=1
-				ano=$((ano + 1))
+			if [[ $((i % 5)) -eq 0 ]]; then # a cada 5 registros manter o fabricante
+				fabricante="$((fabricante + 1))"
 			fi
-		fi
-	done
+			sqlite3 "$database" "INSERT INTO produtos (nome, un, estoque, preco, codebar, data, validade, qmin,fabricante) VALUES ('$nome', '$un', $estoque, $preco, '$codebar', '$data', '$validade', '$qmin', '$fabricante');"
+		done
+	fi
 }
 
-populate_database_compras() {
-	# Inicialize dia, mes e ano
-	dia=1
-	mes="$(date +"%m")"
-	ano="$(date +"%Y")"
-	fornecedor=1
+function populate_database_fornecedor() {
+	if yesno 17 11 "$(gettext "CUIDADO! Procedimento irá inserir dados aleatórios para testes na tabela Fornecedor. Confirma ?")"; then
+		msgok "$(gettext "Populando tabela fornecedor")"
+		for ((i = 1; i <= 99; i++)); do
+			data=$(sh_date)
+			nome="FORNECEDOR $i LTDA"
+			ende="ENDERECO$i"
+			cida="CIDADE$i"
+			uf=$(printf "%02d" $i)
+			cnpj=$(printf "%02d.%03d.%03d/%04d-%02d" $i $i $i $i $i)
+			sqlite3 "$database" "INSERT INTO fornecedor (data, nome, ende, cida, uf, cnpj) VALUES ('$data', '$nome', '$ende', '$cida', '$uf', '$cnpj');"
+		done
+	fi
+}
 
-	msgok "$(gettext "Populando tabela compras")"
+function populate_database_vendas() {
+	if yesno 17 11 "$(gettext "CUIDADO! Procedimento irá inserir dados aleatórios para testes na tabela Vendas. Confirma ?")"; then
+		msgok "$(gettext "Populando tabela vendas")"
+		# Inicialize o dia, mês e ano
+		dia=1
+		#	mes="$(date +"%m")"
+		mes=01
+		ano="$(date +"%Y")"
 
-	# Loop para inserir 100 registros
-	for ((i = 1; i <= 100; i++)); do
-		data="$ano-$(printf "%02d" "$mes")-$(printf "%02d" "$dia")" # Construir a data no formato 'AAAA-MM-DD'
-		quantidade=$((RANDOM % 10 + 1))                             # Gere uma quantidade aleatória entre 1 e 10
-		custo=$(echo "scale=2; $RANDOM / 100.0" | bc)               # Gere um custo aleatório com duas casas decimais
-		total=$(echo "scale=2; $quantidade * $custo" | bc)
-		id="$i"
+		# Loop para inserir 365 registros
+		for ((i = 1; i <= 365; i++)); do
+			data="$ano-$(printf "%02d" "$mes")-$(printf "%02d" "$dia")" # Construir a data no formato 'AAAA-MM-DD'
+			quantidade=$((RANDOM % 10 + 1))                             # Gere uma quantidade aleatória entre 1 e 10
+			preco=$(echo "scale=2; $RANDOM / 100.0" | bc)               # Gere um preço aleatório com duas casas decimais
+			total=$(echo "scale=2; $quantidade * $preco" | bc)          # Calcule o total
+			docnr="$(obterProximoNumeroDocumento 'vendas')"
+			id=$i
 
-		if [[ $((i % 5)) -eq 0 ]]; then # a cada 5 registros manter o docnr e fornecedor
-			docnr="$(obterProximoNumeroDocumento 'compras')"
-			fornecedor="$((fornecedor + 1))"
-		fi
+			# Inserir o registro na tabela 'vendas' no banco de dados
+			sqlite3 "$database" "INSERT INTO vendas (id, data, quantidade, preco, total, docnr) VALUES ('$id', '$data', $quantidade, $preco, $total, '$docnr');"
 
-		# Inserir o registro na tabela 'compras' no banco de dados
-		sqlite3 "$database" "INSERT INTO compras (id, fornecedor, data, docnr, quantidade, custo, total) VALUES ('$id', '$fornecedor', '$data', '$docnr', '$quantidade', '$custo', '$total');"
+			dia=$((dia + 1))
+			id=$((id + 1))
 
-		dia=$((dia + 1))
-		id=$((id + 1))
-
-		if [ $id -gt 10 ]; then
-			id=1
-		fi
-
-		# Verificar mês fevereiro
-		if [[ $mes -eq 2 && $dia -gt 28 ]]; then
-			dia=1
-			mes=$((mes + 1))
-		fi
-
-		# Verificar se o mês mudou
-		if [ $dia -gt 30 ]; then
-			dia=1
-			mes=$((mes + 1))
-			if [[ $mes -gt 12 ]]; then
-				mes=1
-				ano=$((ano + 1))
+			if [ $id -gt 10 ]; then
+				id=1
 			fi
-		fi
-	done
+
+			# Verificar mês fevereiro
+			if [[ $mes -eq 2 && $dia -gt 28 ]]; then
+				dia=1
+				mes=$((mes + 1))
+			fi
+
+			# Verificar se o mês mudou
+			if [ $dia -gt 30 ]; then
+				dia=1
+				mes=$((mes + 1))
+				if [[ $mes -gt 12 ]]; then
+					mes=1
+					ano=$((ano + 1))
+				fi
+			fi
+		done
+	fi
+}
+
+function populate_database_compras() {
+	if yesno 17 11 "$(gettext "CUIDADO! Procedimento irá inserir dados aleatórios para testes na tabela Compras. Confirma ?")"; then
+		# Inicialize dia, mes e ano
+		dia=1
+		mes="$(date +"%m")"
+		ano="$(date +"%Y")"
+		fornecedor=1
+
+		msgok "$(gettext "Populando tabela compras")"
+
+		# Loop para inserir 100 registros
+		for ((i = 1; i <= 100; i++)); do
+			data="$ano-$(printf "%02d" "$mes")-$(printf "%02d" "$dia")" # Construir a data no formato 'AAAA-MM-DD'
+			quantidade=$((RANDOM % 10 + 1))                             # Gere uma quantidade aleatória entre 1 e 10
+			custo=$(echo "scale=2; $RANDOM / 100.0" | bc)               # Gere um custo aleatório com duas casas decimais
+			total=$(echo "scale=2; $quantidade * $custo" | bc)
+			id="$i"
+
+			if [[ $((i % 5)) -eq 0 ]]; then # a cada 5 registros manter o docnr e fornecedor
+				docnr="$(obterProximoNumeroDocumento 'compras')"
+				fornecedor="$((fornecedor + 1))"
+			fi
+
+			# Inserir o registro na tabela 'compras' no banco de dados
+			sqlite3 "$database" "INSERT INTO compras (id, fornecedor, data, docnr, quantidade, custo, total) VALUES ('$id', '$fornecedor', '$data', '$docnr', '$quantidade', '$custo', '$total');"
+
+			dia=$((dia + 1))
+			id=$((id + 1))
+
+			if [ $id -gt 10 ]; then
+				id=1
+			fi
+
+			# Verificar mês fevereiro
+			if [[ $mes -eq 2 && $dia -gt 28 ]]; then
+				dia=1
+				mes=$((mes + 1))
+			fi
+
+			# Verificar se o mês mudou
+			if [ $dia -gt 30 ]; then
+				dia=1
+				mes=$((mes + 1))
+				if [[ $mes -gt 12 ]]; then
+					mes=1
+					ano=$((ano + 1))
+				fi
+			fi
+		done
+	fi
 }
 
 find_max_length() {
@@ -3185,7 +3210,10 @@ function menu_manutencao() {
 	local options=(
 		"$(gettext 'Atualizar Estoque (conciliação)')"
 		"$(gettext 'Popular DataBases para testes')"
-		"$(gettext 'Zerar/Limpar DataBases')"
+		"$(gettext 'Zerar/Limpar DataBase Produtos')"
+		"$(gettext 'Zerar/Limpar DataBase Fornecedor')"
+		"$(gettext 'Zerar/Limpar DataBase Vendas')"
+		"$(gettext 'Zerar/Limpar DataBase Compras')"
 		"$Voltar"
 	)
 
@@ -3198,7 +3226,10 @@ function menu_manutencao() {
 		case "$opcao" in
 		1) conciliar_estoque ;;
 		2) populate_databases ;;
-		3) sh_drop_tabelas ;;
+		3) sh_drop_table::produtos ;;
+		4) sh_drop_table::fornecedor ;;
+		5) sh_drop_table::vendas ;;
+		6) sh_drop_table::compras ;;
 		*) return ;;
 		esac
 	done
@@ -3343,20 +3374,23 @@ function configuracao::cores() {
 
 function sobre::about() {
 	local xtitle="$(gettext 'SOBRE')"
+	local itens=13
 	local half_lastcol=$(($(lastcol) / 2))
+	local nrow=$(( ($(lastrow) - $itens ) / 2 ))
+	local nleft=10
+
 	tela
 	titulo 1 "$xtitle" "${Acores[statussup]}"
-	box 11 10 13 $((lastcol-20)) "$xtitle" "$white"
-
-	print 12 11 "$(padc "pdvShell v$_VERSION_" "$((lastcol-22))" ' ')" "$red"
-	print 13 11 "$(padc "$(gettext "Simples frente de caixa para mercearias pequenas feito em shell script e sqlite!")" "$((lastcol-22))" ' ')" "$green"
-	print 15 11 "$(padc "Copyright © 2023-2023, Jefferson Carneiro <slackjeff>. Todos os direitos reservados." "$((lastcol-22))" ' ')" "$black"
-	print 16 11 "$(padc "https://github.com/slackjeff/pdvShell" "$((lastcol-22))" ' ')" "$black"
-	print 17 11 "$(padc "Copyright © 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>. Todos os direitos reservados." "$((lastcol-22))" ' ')" "$black"
-	print 18 11 "$(padc "https://github.com/vcatafesta/pdvShell" "$((lastcol-22))" ' ')" "$black"
-	print 20 11 "$(padc "$(gettext "O pdvShell é disponibilizado para você sob a Licença MIT e inclui software de código aberto sob uma variedade de outras licenças.")" "$((lastcol-22))" ' ')" "$white"
-	print 21 11 "$(padc "$(gettext "Você pode ler instruções sobre como baixar e criar para você mesmo o código fonte específico usado para criar esta cópia.")" "$((lastcol-22))" ' ')" "$white"
-	print 22 11 "$(padc "$(gettext "Este programa vem com absolutamente nenhuma garantia.")" "$((lastcol-22))" ' ')" "$white"
+	box "$nrow" "$nleft" "$itens" "$((lastcol-20))" "$xtitle" "$white"
+	print $((nrow+1)) $((nleft+1)) "$(padc "pdvShell v$_VERSION_" "$((lastcol-22))" ' ')" "$red"
+	print $((nrow+2)) $((nleft+1)) "$(padc "$(gettext "Simples frente de caixa para mercearias pequenas feito em shell script e sqlite!")" "$((lastcol-22))" ' ')" "$green"
+	print $((nrow+4)) $((nleft+1)) "$(padc "Copyright © 2023-2023, Jefferson Carneiro <slackjeff>. Todos os direitos reservados." "$((lastcol-22))" ' ')" "$black"
+	print $((nrow+5)) $((nleft+1)) "$(padc "https://github.com/slackjeff/pdvShell" "$((lastcol-22))" ' ')" "$black"
+	print $((nrow+6)) $((nleft+1)) "$(padc "Copyright © 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>. Todos os direitos reservados." "$((lastcol-22))" ' ')" "$black"
+	print $((nrow+7)) $((nleft+1)) "$(padc "https://github.com/vcatafesta/pdvShell" "$((lastcol-22))" ' ')" "$black"
+	print $((nrow+9)) $((nleft+1)) "$(padc "$(gettext "O pdvShell é disponibilizado para você sob a Licença MIT e inclui software de código aberto sob uma variedade de outras licenças.")" "$((lastcol-22))" ' ')" "$white"
+	print $((nrow+10)) $((nleft+1)) "$(padc "$(gettext "Você pode ler instruções sobre como baixar e criar para você mesmo o código fonte específico usado para criar esta cópia.")" "$((lastcol-22))" ' ')" "$white"
+	print $((nrow+11)) $((nleft+1)) "$(padc "$(gettext "Este programa vem com absolutamente nenhuma garantia.")" "$((lastcol-22))" ' ')" "$white"
 	msgok "" "" -1
 }
 
@@ -3454,7 +3488,7 @@ function sh_main_menu() {
 		"$Movimento|$Realizar_Venda_Saida|$Entradas_de_Produtos|$Vendas_Diarias"
 		"$Relatorio|$Produtos|$Produtos_Vendidos|$Entradas_de_Produtos|$Produtos_abaixo_estoque_minimo|$Produtos_fora_da_validade|$Vendas_Diarias|$Fornecedores"
 		"$Consultas|$Produtos|$Produtos_Vendidos|$Entradas_de_Produtos|$Produtos_abaixo_estoque_minimo|$Produtos_fora_da_validade|$Vendas_Diarias|$Fornecedores"
-		"$Manutencao|$(gettext 'Atualizar Estoque (conciliação)')|$(gettext 'Popular DataBases para testes')|$(gettext 'Zerar/Limpar DataBases')"
+		"$Manutencao|$(gettext 'Atualizar Estoque (conciliação)')|$(gettext 'Popular DataBases para testes')|$(gettext 'Zerar/Limpar DataBase Produtos')|$(gettext 'Zerar/Limpar DataBase Fornecedor')|$(gettext 'Zerar/Limpar DataBase Vendas')|$(gettext 'Zerar/Limpar DataBase Compras')"
 		"$Configuracao|$(gettext 'Dados Empresa')|$(gettext 'Cores')|$(gettext 'Pano de fundo')'"
 		"$Sobre|$Sobre_o pdvShell"
 	)
@@ -3491,7 +3525,10 @@ function sh_main_menu() {
 		57|67) fornecedor_pesquisa ;;
 		71) conciliar_estoque ;;
 		72) populate_databases ;;
-		73) sh_drop_tabelas ;;
+		73) sh_drop_table::produtos ;;
+		74) sh_drop_table::fornecedor ;;
+		75) sh_drop_table::vendas ;;
+		76) sh_drop_table::compras ;;
 		81) configuracao::dados_empresa ;;
 		82) menu_configuracao ;;
 		83) configuracao::pano_de_fundo ;;
