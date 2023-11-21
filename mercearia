@@ -3,7 +3,7 @@
 
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
-#	Altered: 2023/11/19
+#	Altered: 2023/11/20
 #
 #   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -34,7 +34,7 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=mercearia
 
 declare APP="${0##*/}"
-declare _VERSION_="1.6.19-20231119"
+declare _VERSION_="1.6.20-20231120"
 declare _SYSTEM_="$(gettext 'SISTEMA PDV')"
 declare DEPENDENCIES=(tput gettext sqlite3 bc tr sed awk figlet)
 declare -A Aempresa=([razao]='EMPRESA MODELO LTDA' [ende]='Rua Modelo, 693 - Bairro Centro' [cida]='Cidade Modelo' [uf]='UF' [cnpj]='00.000.000/0001-00')
@@ -44,12 +44,11 @@ trap 'cleanup' INT TERM HUP
 
 # BEGIN FUNCTIONS
 function cleanup() {
-	setpos 21 0
+	tput sgr0
+	tput clear
 	info_msg "${red}$(gettext "Interrompido! Saindo...")${reset}"
-	setpos 22 0
 	info_msg "$(gettext "Desativando cores...")"
 	sh_unsetvarcolors
-	tput sgr0
 	exit 1
 }
 
@@ -111,7 +110,10 @@ function sh_config() {
 }
 
 function sh_environment() {
-	local razao ende cida uf cnpj
+	local result
+	local -a aempresa=('razao' 'ende' 'cida' 'uf' 'cnpj')
+	local -a acores=('cabecalho' 'logo' 'statussup' 'statusinf' 'box' 'boxtitle' 'dispbox' 'msgok' 'msgerror' 'conf' 'panofundo' 'corpanofundo')
+	local i
 	declare -gA Acores=(
 		[cabecalho]="$roxo"
 		[logo]="$red"
@@ -128,24 +130,17 @@ function sh_environment() {
 	)
 
 	if [[ -e "$INI_FILE" ]]; then
-		if razao=$(TIni.ReadValue "$INI_FILE" "empresa" "razao") && [[ -n "$razao" ]]; then Aempresa[razao]="$razao"; fi
-		Aempresa[ende]="$(TIni.Get "$INI_FILE" "empresa" "ende")"
-		Aempresa[cida]="$(TIni.Get "$INI_FILE" "empresa" "cida")"
-		Aempresa[uf]="$(TIni.Get "$INI_FILE" "empresa" "uf")"
-		Aempresa[cnpj]="$(TIni.Get "$INI_FILE" "empresa" "cnpj")"
-		if TIni.ReadValue "$INI_FILE" "cores" "cabecalho"; then Acores[cabecalho]="$(TIni.Get "$INI_FILE" "cores" "cabecalho")"; fi
-		if TIni.ReadValue "$INI_FILE" "cores" "logo"; then Acores[logo]="$(TIni.Get "$INI_FILE" "cores" "logo")"; fi
-		if TIni.ReadValue "$INI_FILE" "cores" "statussup"; then Acores[statussup]="$(TIni.Get "$INI_FILE" "cores" "statussup")"; fi
-		if TIni.ReadValue "$INI_FILE" "cores" "statusinf"; then Acores[statusinf]="$(TIni.Get "$INI_FILE" "cores" "statusinf")"; fi
-		if TIni.ReadValue "$INI_FILE" "cores" "box"; then Acores[box]="$(TIni.Get "$INI_FILE" "cores" "box")"; fi
-		if TIni.ReadValue "$INI_FILE" "cores" "boxtitle"; then Acores[boxtitle]="$(TIni.Get "$INI_FILE" "cores" "boxtitle")"; fi
-		if TIni.ReadValue "$INI_FILE" "cores" "dispbox"; then Acores[dispbox]="$(TIni.Get "$INI_FILE" "cores" "dispbox")"; fi
-		if TIni.ReadValue "$INI_FILE" "cores" "msgok"; then Acores[msgok]="$(TIni.Get "$INI_FILE" "cores" "msgok")"; fi
-		if TIni.ReadValue "$INI_FILE" "cores" "msgerror"; then Acores[msgerror]="$(TIni.Get "$INI_FILE" "cores" "msgerror")"; fi
-		if TIni.ReadValue "$INI_FILE" "cores" "conf"; then Acores[conf]="$(TIni.Get "$INI_FILE" "cores" "conf")"; fi
-		if TIni.ReadValue "$INI_FILE" "cores" "panofundo"; then Acores[panofundo]="$(TIni.Get "$INI_FILE" "cores" "panofundo")"; fi
-		if TIni.ReadValue "$INI_FILE" "cores" "corpanofundo"; then Acores[corpanofundo]="$(TIni.Get "$INI_FILE" "cores" "corpanofundo")"; fi
+		for i in ${aempresa[@]}; do
+			result=
+			if result="$(TIni.Get "$INI_FILE" "empresa" "$i")" && [[ -n "$result" ]]; then Aempresa["$i"]="$result"; fi
+		done
+
+		for i in ${acores[@]}; do
+			result=
+			if result="$(TIni.Get "$INI_FILE" "cores" "$i")" && [[ -n "$result" ]]; then Acores["$i"]="$result"; fi
+		done
 	fi
+	unset result aempresa acores i
 }
 
 function sh_setvarcolors() {
@@ -423,6 +418,39 @@ function len_split_str() {
 	local anew
 	IFS='|' read -r -a anew <<<"$1"
 	echo "${#anew[@]}"
+}
+
+padr() {
+    text=$1
+    COLS=$2
+    char=$3
+    if test $# -eq 1; then
+        COLS=$(tput cols)
+        char='='
+    fi
+    printf "%*s\n" "$COLS" "$text" | sed "s/ /$char/g"
+}
+
+function padl() {
+   texto=$1
+   COLS=$2
+   char=$3
+   if test $# -eq 1; then
+      COLS=$(tput cols)
+      char='='
+   fi
+   printf "%-*s\n" $COLS "$texto" |sed "s/ /$char/g"
+}
+
+padc() {
+   texto=$1
+   COLS=$2
+   char=$3
+   if test $# -eq 1; then
+      COLS=$(tput cols)
+      char='='
+   fi
+   printf "%*s\n" $(((${#texto} + $COLS) / 2)) "$texto" | sed "s/ /$char/g"
 }
 
 # dispbox "0|0|6" "ID|DESCRICAO DO PRODUTO|ESTOQUE|PREÇO" "5|40|5|11" "$cinza" 'left'
@@ -2644,7 +2672,6 @@ function produtos_entradas() {
 
 	function produtos_entradas::dados_nff() {
 		while true; do
-			tela
 			titulo 1 "$xtitle" "${Acores[statussup]}"
 			box "$((nrow +3))" 00 4 "$((nRight +2))" "$(gettext "DADOS DA NFF")" "${Acores[box]}"
 			# Solicita a descrição (nome) do produto e verifica se não está em branco
@@ -3098,23 +3125,6 @@ function show_menu_pulldown() {
 	done
 }
 
-function about() {
-	local xtitle="$(gettext 'SOBRE')"
-	tela
-	titulo 1 "$xtitle" "${Acores[statussup]}"
-	box 11 10 13 $((lastcol-20)) "$xtitle" "${Acores[box]}"
-	print 12 11 "pdvShell v$_VERSION_"
-	print 13 11 "$(gettext "Simples frente de caixa para mercearias pequenas feito em shell script e sqlite!")"
-	print 15 11 "Copyright © 2023-2023, Jefferson Carneiro <slackjeff>. Todos os direitos reservados."
-	print 16 11 "	https://github.com/slackjeff/pdvShell"
-	print 17 11 "Copyright © 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>. Todos os direitos reservados."
-	print 18 11 "	https://github.com/vcatafesta/pdvShell"
-	print 20 11 "$(gettext "O pdvShell é disponibilizado para você sob a Licença MIT e inclui software de código aberto sob uma variedade de outras licenças.")"
-	print 21 11 "$(gettext "Você pode ler instruções sobre como baixar e criar para você mesmo o código fonte específico usado para criar esta cópia.")"
-	print 22 11 "$(gettext "Este programa vem com absolutamente nenhuma garantia.")"
-	msgok "" "" -1
-}
-
 function menu_fornecedores() {
 	local xtitle="$(gettext "MENU FORNECEDORES")"
 	local opcao
@@ -3331,6 +3341,25 @@ function configuracao::cores() {
 	done
 }
 
+function sobre::about() {
+	local xtitle="$(gettext 'SOBRE')"
+	local half_lastcol=$(($(lastcol) / 2))
+	tela
+	titulo 1 "$xtitle" "${Acores[statussup]}"
+	box 11 10 13 $((lastcol-20)) "$xtitle" "$white"
+
+	print 12 11 "$(padc "pdvShell v$_VERSION_" "$((lastcol-22))" ' ')" "$red"
+	print 13 11 "$(padc "$(gettext "Simples frente de caixa para mercearias pequenas feito em shell script e sqlite!")" "$((lastcol-22))" ' ')" "$green"
+	print 15 11 "$(padc "Copyright © 2023-2023, Jefferson Carneiro <slackjeff>. Todos os direitos reservados." "$((lastcol-22))" ' ')" "$black"
+	print 16 11 "$(padc "https://github.com/slackjeff/pdvShell" "$((lastcol-22))" ' ')" "$black"
+	print 17 11 "$(padc "Copyright © 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>. Todos os direitos reservados." "$((lastcol-22))" ' ')" "$black"
+	print 18 11 "$(padc "https://github.com/vcatafesta/pdvShell" "$((lastcol-22))" ' ')" "$black"
+	print 20 11 "$(padc "$(gettext "O pdvShell é disponibilizado para você sob a Licença MIT e inclui software de código aberto sob uma variedade de outras licenças.")" "$((lastcol-22))" ' ')" "$white"
+	print 21 11 "$(padc "$(gettext "Você pode ler instruções sobre como baixar e criar para você mesmo o código fonte específico usado para criar esta cópia.")" "$((lastcol-22))" ' ')" "$white"
+	print 22 11 "$(padc "$(gettext "Este programa vem com absolutamente nenhuma garantia.")" "$((lastcol-22))" ' ')" "$white"
+	msgok "" "" -1
+}
+
 function configuracao::pano_de_fundo() {
 	local xtitle="$(gettext "PANO DE FUNDO")"
 	local opcao
@@ -3466,11 +3495,12 @@ function sh_main_menu() {
 		81) configuracao::dados_empresa ;;
 		82) menu_configuracao ;;
 		83) configuracao::pano_de_fundo ;;
-		91) about ;;
+		91) sobre::about ;;
 		*) msgerror "$Opcao_invalida" ;;
 		esac
 	done
 }
+
 # END PROCEDURES
 
 #entrypoint
@@ -3479,6 +3509,6 @@ sh_setvarcolors
 sh_environment
 sh_checkDependencies
 sh_criar_tabelas
-sh_fundo
+sobre::about
 sh_main_menu
 #end
