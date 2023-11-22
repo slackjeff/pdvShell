@@ -44,7 +44,7 @@
 	declare -a files_bin=('mercearia')
 	declare -a files_home=('LICENSE' 'README.md' 'install.sh')
 	declare -a files_lang=('mercearia')
-	declare -a files_blob=('')
+	declare -a files_blob=()
 	declare -a idioma=(bg cs da de el en es et fi fr he hr hu is it ja ko nl no pl pt-PT pt-BR ro ru sk sv tr uk zh fa hi ar)
 	tmpDir=~/pdvShell
 	dir_locale="usr/share/locale"
@@ -99,6 +99,8 @@
 	for file in "${files_bin[@]}"; do
 		sudo chmod +x $tmpDir/$file
 		sudo cp -rfv $tmpDir/$file /usr/bin/
+		sudo ln -s /usr/bin/$file /usr/bin/pdv
+		sudo ln -s /usr/bin/$file /usr/bin/pdvShell
 	done
 
 	ls -la --color=auto $tmpDir
