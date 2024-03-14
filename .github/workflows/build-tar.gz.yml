@@ -1,0 +1,88 @@
+name: Criar release e arquivo .tar.gz
+
+# Gatilhos para o workflow
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:  # Permite a execução manual do workflow
+    inputs:
+      debug_enabled:  # Input para habilitar o modo de depuração
+        type: boolean
+        description: 'With TMATE'
+        required: false
+        default: false
+
+  schedule:  # Executa automaticamente toda sexta-feira às 05:00
+    - cron: '0 5 * * 5'
+
+  repository_dispatch:  # Permite a execução através de eventos de webhook
+    types:
+      - webhook
+      - '**'
+
+# Jobs do workflow
+jobs:
+  # Job para obter a hora atual
+  get-time:
+    runs-on: ubuntu-latest
+    outputs:
+      time: ${{ steps.time.outputs.time }}  # Saída do job
+    steps:
+      - name: Obter a hora atual
+        id: time
+        run: echo "::set-output name=time::$(date +'%Y.%m.%d-%H%M')"
+
+  # Job para definir o nome do repositório
+  set-repo-name:
+    runs-on: ubuntu-latest
+    outputs:
+      REPOSITORY_NAME: ${{ steps.get-repo-name.outputs.repo_name }}
+    steps:
+      - name: Obter nome do repositório
+        id: get-repo-name
+        run: echo "::set-output name=repo_name::$(basename $GITHUB_REPOSITORY)"
+
+  # Job para preparar a release
+  prepare-release:
+    runs-on: ubuntu-20.04  # Define a máquina virtual a ser usada
+    needs: [get-time, set-repo-name]  # Depende do job get-time para obter a hora atual e do job set-repo-name para obter o nome do repositório
+    env:
+      REPO_NAME: ${{ needs.set-repo-name.outputs.REPOSITORY_NAME }}
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v2
+
+      - name: Criar arquivo .tar.gz
+        run: tar -cf ${{ env.REPO_NAME }}.tar.gz .
+
+      - name: Salvar arquivo .tar.gz como artefato
+        uses: actions/upload-artifact@v2
+        with:
+          name: arquivos
+          path: ${{ env.REPO_NAME }}.tar.gz
+
+      - name: Criar release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ORGANIZATION_TOKEN }}
+        with:
+          tag_name: ${{ needs.get-time.outputs.time }}
+          release_name: Release ${{ needs.get-time.outputs.time }}
+          body: |
+            Descrição do release aqui.
+          draft: false
+          prerelease: false
+
+      - name: Fazer upload do arquivo .tar.gz no release
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ORGANIZATION_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ env.REPO_NAME }}.tar.gz
+          asset_name: ${{ env.REPO_NAME }}.tar.gz
+          asset_content_type: application/gzip
