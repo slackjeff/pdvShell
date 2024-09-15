@@ -90,9 +90,7 @@ EOF
 
 	install -Dm666 "${srcdir}/mercearia-eng.sh"  "${pkgdir}/opt/$pkgname/"
 	install -d -m755 "${pkgdir}/opt/$pkgname/doc"
-	install -Dm644 "${srcdir}/INSTALL"           "${pkgdir}/opt/$pkgname/doc/"
 	install -Dm644 "${srcdir}/LICENSE"           "${pkgdir}/opt/$pkgname/doc/"
-	install -Dm644 "${srcdir}/Makefile"          "${pkgdir}/opt/$pkgname/doc/"
 	install -Dm644 "${srcdir}/README.md"         "${pkgdir}/opt/$pkgname/doc/"
 	install -Dm644 "${srcdir}/README(ENG).md"    "${pkgdir}/opt/$pkgname/doc/"
 	install -d -m755 "${pkgdir}/opt/$pkgname/src"
