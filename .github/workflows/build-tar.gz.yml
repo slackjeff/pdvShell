@@ -58,7 +58,7 @@ jobs:
         run: tar -cf ${{ env.REPO_NAME }}.tar.gz .
 
       - name: Salvar arquivo .tar.gz como artefato
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: arquivos
           path: ${{ env.REPO_NAME }}.tar.gz
