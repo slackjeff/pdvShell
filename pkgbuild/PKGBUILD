@@ -1,0 +1,113 @@
+# Maintainer: Vilmar Catafesta <vcatafesta@gmail.com>
+# Contribuitor: Jefferson Carneiro <slackjeff>
+
+pkgname=pdvshell
+pkgdesc="simple cashier front for small grocery stores made with shell script and sqlite"
+#depends=('')
+#makedepends=('')
+#optdepends=('')
+#conflicts=('')
+#provides=('')
+#replaces=('')
+pkgver=$(date +%y.%m.%d)
+pkgrel=$(date +%H%M)
+arch=('any')
+license=('MIT')
+url="https://github.com/vcatafesta/${pkgname}"
+source=("git+${url}.git")
+md5sums=('SKIP')
+
+# Automatically detect and use the correct install file
+if [ -e "${pkgname}.install" ]; then
+	install=${pkgname}.install
+elif [ -e "pkgbuild.install" ]; then
+	install=pkgbuild.install
+fi
+
+prepare() {
+	cd "${srcdir}/${pkgname}"
+	# Add any preparation steps here, if needed
+	# For example: patch -p1 < "${srcdir}/patch-file.patch"
+}
+
+build() {
+	cd "${srcdir}/${pkgname}"
+	# Add build steps here, if needed
+	# For example: make
+}
+
+check() {
+	cd "${srcdir}/${pkgname}"
+	# Add check/test steps here, if needed
+	# For example: make check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}"
+
+	# Determine the correct source directory
+	if [ -d "${pkgname}" ]; then
+		srcdir="${srcdir}/${pkgname}/${pkgname}"
+	else
+		srcdir="${srcdir}/${pkgname}"
+	fi
+
+	# Install files
+	local dirs=("usr" "etc" "opt")
+	for dir in "${dirs[@]}"; do
+		if [ -d "${srcdir}/${dir}" ]; then
+			cp -a "${srcdir}/${dir}" "${pkgdir}/"
+		fi
+	done
+
+	# Identifica o usuário que invocou o sudo
+	local user_home
+
+	if [ -n "$SUDO_USER" ]; then
+		user_home=$(eval echo ~"$SUDO_USER")
+	else
+		user_home="$HOME"
+	fi
+
+#	# Cria o diretório no home do usuário que invocou o sudo
+#	mkdir -p "${user_home}/$pkgname"
+#	echo "Diretório $pkgname criado em ${user_home}"
+
+	install -d -m1777 "${pkgdir}/opt/$pkgname"
+	install -Dm755 "${srcdir}/$pkgname"          "${pkgdir}/opt/$pkgname/$pkgname"
+
+ # Criar o script wrapper em /usr/bin
+  install -d "${pkgdir}/usr/bin"
+  cat <<EOF > "${pkgdir}/usr/bin/$pkgname"
+#!/usr/bin/env bash
+# script wrapper para /opt/pdvshell/pdvshell
+# Copyright (c) Vilmar Catafesta, 2024 <vcatafesta@gmail.com>
+
+cd /opt/$pkgname
+exec ./$(basename "$pkgname") "\$@"
+EOF
+  chmod 755 "${pkgdir}/usr/bin/$pkgname"
+
+	install -Dm666 "${srcdir}/mercearia-eng.sh"  "${pkgdir}/opt/$pkgname/"
+	install -Dm666 "${srcdir}/pdv.db"            "${pkgdir}/opt/$pkgname/"
+	install -Dm666 "${srcdir}/pdv.ini"           "${pkgdir}/opt/$pkgname/"
+	install -d -m755 "${pkgdir}/opt/$pkgname/doc"
+	install -Dm644 "${srcdir}/INSTALL"           "${pkgdir}/opt/$pkgname/doc/"
+	install -Dm644 "${srcdir}/LICENSE"           "${pkgdir}/opt/$pkgname/doc/"
+	install -Dm644 "${srcdir}/Makefile"          "${pkgdir}/opt/$pkgname/doc/"
+	install -Dm644 "${srcdir}/README.md"         "${pkgdir}/opt/$pkgname/doc/"
+	install -Dm644 "${srcdir}/README(ENG).md"    "${pkgdir}/opt/$pkgname/doc/"
+	install -d -m755 "${pkgdir}/opt/$pkgname/src"
+	install -Dm755 "${srcdir}/save"               "${pkgdir}/opt/$pkgname/src/"
+	install -Dm644 "${srcdir}/save.c"             "${pkgdir}/opt/$pkgname/src/"
+
+	# Install license file if present
+	if [ -f "LICENSE" ]; then
+		install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+	fi
+
+	# Install documentation if present
+	if [ -f "README.md" ]; then
+		install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+	fi
+}

@@ -1,0 +1,62 @@
+# Installation file for Arch Linux packages
+# This file contains scripts that are executed at different stages of package installation/upgrade/removal
+
+# Function executed before package installation
+# pre_install() {
+#     echo "Preparing to install the package..."
+    # Example: Check for system dependencies
+    # if ! command -v required_command &> /dev/null; then
+    #     echo "Error: required_command not found. Please install it before continuing."
+    #     exit 1
+    # fi
+# }
+
+# Function executed after package installation
+# post_install() {
+#     echo "Configuring the package after installation..."
+    # Example: Create a configuration directory
+    # mkdir -p /etc/mypackage
+    # chmod 755 /etc/mypackage
+
+    # Example: Start a service
+    # systemctl enable myservice.service
+    # systemctl start myservice.service
+# }
+
+# Function executed before package upgrade
+# pre_upgrade() {
+#     echo "Preparing to upgrade the package..."
+    # Example: Backup configuration files
+    # cp /etc/mypackage/config.conf /etc/mypackage/config.conf.bak
+# }
+
+# Function executed after package upgrade
+# post_upgrade() {
+#     echo "Finalizing package upgrade..."
+    # Usually, post_install is called here to ensure
+    # all post-installation configurations are applied
+#     post_install
+
+    # Example: Check and update configuration files
+    # if [ -f /etc/mypackage/config.conf.pacnew ]; then
+    #     echo "New configuration file available. Please review /etc/mypackage/config.conf.pacnew"
+    # fi
+# }
+
+# Function executed before package removal
+# pre_remove() {
+#     echo "Preparing to remove the package..."
+    # Example: Stop services
+    # systemctl stop myservice.service
+    # systemctl disable myservice.service
+# }
+
+# Function executed after package removal
+# post_remove() {
+#     echo "Cleaning up after package removal..."
+    # Example: Remove data directories created by the package
+    # rm -rf /var/lib/mypackage
+
+#     echo "If you want to remove all user data, run:"
+#     echo "rm -rf /home/*/mypackage_data"
+# }
