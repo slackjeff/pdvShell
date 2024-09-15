@@ -6,21 +6,21 @@ on:
     branches:
       - main
 
-  workflow_dispatch:  # Permite a execução manual do workflow
+  workflow_dispatch: # Permite a execução manual do workflow
     inputs:
-      debug_enabled:  # Input para habilitar o modo de depuração
+      debug_enabled: # Input para habilitar o modo de depuração
         type: boolean
-        description: 'With TMATE'
+        description: "With TMATE"
         required: false
         default: false
 
-  schedule:  # Executa automaticamente toda sexta-feira às 05:00
-    - cron: '0 5 * * 5'
+  #  schedule:  # Executa automaticamente toda sexta-feira às 05:00
+  #    - cron: '0 5 * * 5'
 
-  repository_dispatch:  # Permite a execução através de eventos de webhook
+  repository_dispatch: # Permite a execução através de eventos de webhook
     types:
       - webhook
-      - '**'
+      - "**"
 
 # Jobs do workflow
 jobs:
@@ -28,7 +28,7 @@ jobs:
   get-time:
     runs-on: ubuntu-latest
     outputs:
-      time: ${{ steps.time.outputs.time }}  # Saída do job
+      time: ${{ steps.time.outputs.time }} # Saída do job
     steps:
       - name: Obter a hora atual
         id: time
@@ -46,13 +46,13 @@ jobs:
 
   # Job para preparar a release
   prepare-release:
-    runs-on: ubuntu-20.04  # Define a máquina virtual a ser usada
-    needs: [get-time, set-repo-name]  # Depende do job get-time para obter a hora atual e do job set-repo-name para obter o nome do repositório
+    runs-on: ubuntu-latest
+    needs: [get-time, set-repo-name] # Depende do job get-time para obter a hora atual e do job set-repo-name para obter o nome do repositório
     env:
       REPO_NAME: ${{ needs.set-repo-name.outputs.REPOSITORY_NAME }}
     steps:
       - name: Checkout do código
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Criar arquivo .tar.gz
         run: tar -cf ${{ env.REPO_NAME }}.tar.gz .
@@ -72,7 +72,17 @@ jobs:
           tag_name: ${{ needs.get-time.outputs.time }}
           release_name: Release ${{ needs.get-time.outputs.time }}
           body: |
-            Descrição do release aqui.
+            ## Descrição da Release
+
+            - **Data e Hora:** ${{ needs.get-time.outputs.time }}
+            - **Nome do Repositório:** ${{ env.REPO_NAME }}
+
+            Descrição detalhada da release aqui. Inclua quaisquer mudanças, melhorias, ou correções de bugs que foram feitas.
+
+            ### Notas
+
+            - Detalhes adicionais ou instruções sobre a release podem ser incluídos aqui.
+
           draft: false
           prerelease: false
 
