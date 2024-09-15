@@ -89,8 +89,6 @@ EOF
   chmod 755 "${pkgdir}/usr/bin/$pkgname"
 
 	install -Dm666 "${srcdir}/mercearia-eng.sh"  "${pkgdir}/opt/$pkgname/"
-	install -Dm666 "${srcdir}/pdv.db"            "${pkgdir}/opt/$pkgname/"
-	install -Dm666 "${srcdir}/pdv.ini"           "${pkgdir}/opt/$pkgname/"
 	install -d -m755 "${pkgdir}/opt/$pkgname/doc"
 	install -Dm644 "${srcdir}/INSTALL"           "${pkgdir}/opt/$pkgname/doc/"
 	install -Dm644 "${srcdir}/LICENSE"           "${pkgdir}/opt/$pkgname/doc/"
