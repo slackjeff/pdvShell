@@ -77,11 +77,8 @@ jobs:
             - **Data e Hora:** ${{ needs.get-time.outputs.time }}
             - **Nome do Repositório:** ${{ env.REPO_NAME }}
 
-            Descrição detalhada da release aqui. Inclua quaisquer mudanças, melhorias, ou correções de bugs que foram feitas.
-
-            ### Notas
-
-            - Detalhes adicionais ou instruções sobre a release podem ser incluídos aqui.
+            Descrição detalhada da release aqui.
+            Inclua quaisquer mudanças, melhorias, ou correções de bugs que foram feitas.
 
           draft: false
           prerelease: false
