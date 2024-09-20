@@ -18,6 +18,14 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
     - chmod +x install.sh
     - ./install.sh
 
+- 4 - arch like 
+    - $ curl -O https://raw.githubusercontent.com/slackjeff/pdvShell/refs/heads/main/pkgbuild/PKGBUILD
+    - $ wget https://raw.githubusercontent.com/slackjeff/pdvShell/refs/heads/main/pkgbuild/PKGBUILD
+    - $ makepkg -i
+
+    - 1 - running after install
+        - pdvshell
+
 ## Running (after download):
 - 1 - running in local repo
     - ./pdvShell
