@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# script wrapper para /opt/pdvshell/pdvshell
+# Copyright (c) Vilmar Catafesta, 2024 <vcatafesta@gmail.com>
+
+cd /opt/pdvshell
+exec ./pdvshell "$@"
