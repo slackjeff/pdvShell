@@ -4,31 +4,34 @@ PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell scrip
 ## Download:
 
 - 1 - using git
-    - git clone --depth=1 https://github.com/slackjeff/pdvShell
+    - $ git clone --depth=1 https://github.com/slackjeff/pdvShell
 
 - 2 - using curl/wget stdin
-    - bash <(curl -s -L https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh)
-    - bash <(wget -q -O - https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh)
-    - curl -s -O https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh | bash
-    - wget -q -O - https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh | bash
+    - $ bash <(curl -s -L https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh)
+    - $ bash <(wget -q -O - https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh)
+    - $ curl -s -O https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh | bash
+    - $ wget -q -O - https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh | bash
 
 - 3 - using curl/wget
-    - curl -O https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh
-    - wget https://raw.githubusercontent.com/voidlinux-br/slackjeff/pdvShell/main/install.sh
-    - chmod +x install.sh
-    - ./install.sh
+    - $ curl -O https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh
+    - $ wget https://raw.githubusercontent.com/voidlinux-br/slackjeff/pdvShell/main/install.sh
+    - $ chmod +x install.sh
+    - $ ./install.sh
 
 - 4 - arch like 
     - $ curl -O https://raw.githubusercontent.com/slackjeff/pdvShell/refs/heads/main/pkgbuild/PKGBUILD
     - $ wget https://raw.githubusercontent.com/slackjeff/pdvShell/refs/heads/main/pkgbuild/PKGBUILD
     - $ makepkg -i
 
+    - $ curl -s -o PKGBUILD https://raw.githubusercontent.com/slackjeff/pdvShell/refs/heads/main/pkgbuild/PKGBUILD && makepkg -i
+    - $ wget -q -O PKGBUILD https://raw.githubusercontent.com/slackjeff/pdvShell/refs/heads/main/pkgbuild/PKGBUILD && makepkg -i
+
     - 1 - running after install
-        - pdvshell
+        - $ pdvshell
 
 ## Running (after download):
 - 1 - running in local repo
-    - ./pdvShell
+    - $ ./pdvShell
 
 ## Futuras Features
 *
