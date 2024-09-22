@@ -80,7 +80,7 @@ jobs:
         with:
           name: ${{ env.REPO_NAME }}.tar.gz
           path: |
-            ${{ env.REPO_NAME }}.tar.gz.md5
+            ${{ env.REPO_NAME }}.tar.gz
 
       - name: Salvar arquivo .tar.gz.md5 como artefato
         uses: actions/upload-artifact@v4
