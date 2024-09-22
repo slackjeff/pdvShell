@@ -75,12 +75,18 @@ jobs:
             exit 1
           fi
 
-      - name: Salvar arquivo .tar.gz e .md5 como artefato
+      - name: Salvar arquivo .tar.gz como artefato
         uses: actions/upload-artifact@v4
         with:
-          name: arquivos
+          name: ${{ env.REPO_NAME }}.tar.gz
           path: |
-            ${{ env.REPO_NAME }}.tar.gz
+            ${{ env.REPO_NAME }}.tar.gz.md5
+
+      - name: Salvar arquivo .tar.gz.md5 como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.REPO_NAME }}.tar.gz.md5
+          path: |
             ${{ env.REPO_NAME }}.tar.gz.md5
 
       - name: Criar release
