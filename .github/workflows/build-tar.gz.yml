@@ -57,13 +57,31 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Criar arquivo .tar.gz
-        run: tar -cf ${{ env.REPO_NAME }}.tar.gz .
+        run: |
+          # Criar arquivo .tar.gz
+          tar -cf ${{ env.REPO_NAME }}.tar.gz .
 
-      - name: Salvar arquivo .tar.gz como artefato
+      - name: Calculate ISO MD5 Hash
+        shell: bash
+        run: |
+          echo "Calculating MD5 hash for .tar.gz file..."
+          echo "TARBALL is: '${{ env.REPO_NAME }}.tar.gz }}'"
+          if [[ -f "${{ env.REPO_NAME }}.tar.gz" ]]; then
+            sudo md5sum "${{ env.REPO_NAME }}.tar.gz" > "${{ env.REPO_NAME }}.tar.gz.md5"
+            echo "MD5 hash calculated and saved:"
+            cat "${{ env.REPO_NAME }}.tar.gz.md5"
+          else
+            echo "Error: ISO file '${{ env.REPO_NAME }}.tar.gz' not found"
+            exit 1
+          fi
+
+      - name: Salvar arquivo .tar.gz e .md5 como artefato
         uses: actions/upload-artifact@v4
         with:
           name: arquivos
-          path: ${{ env.REPO_NAME }}.tar.gz
+          path: |
+            ${{ env.REPO_NAME }}.tar.gz
+            ${{ env.REPO_NAME }}.tar.gz.md5
 
       - name: Criar release
         id: create_release
@@ -76,7 +94,8 @@ jobs:
           body: |
             - **Data e Hora        :** ${{ needs.get-time.outputs.time }}
             - **Nome do Repositório:** ${{ env.REPO_NAME }}
-            - **Arquivo            :** ${{ env.REPO_NAME }}.tar.gz
+            - **Arquivo tar        :** ${{ env.REPO_NAME }}.tar.gz
+            - **Arquivo md5        :** ${{ env.REPO_NAME }}.tar.gz.md5
           draft: false
           prerelease: false
 
