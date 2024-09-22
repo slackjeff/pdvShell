@@ -109,3 +109,13 @@ jobs:
           asset_path: ./${{ env.REPO_NAME }}.tar.gz
           asset_name: ${{ env.REPO_NAME }}.tar.gz
           asset_content_type: application/gzip
+
+      - name: Fazer upload do arquivo md5 no release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.ORGANIZATION_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./${{ env.REPO_NAME }}.tar.gz.md5
+          asset_name: ${{ env.REPO_NAME }}.tar.gz.md5
+          asset_content_type: text/plain
