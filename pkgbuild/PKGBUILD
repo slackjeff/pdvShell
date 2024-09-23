@@ -3,7 +3,7 @@
 
 pkgname=pdvshell
 pkgdesc="simple cashier front for small grocery stores made with shell script and sqlite"
-#depends=('')
+depends=('ncurses' 'gettext' 'sqlite3' 'bc' 'coreutils' 'sed' 'awk' 'figlet')
 #makedepends=('')
 #optdepends=('')
 #conflicts=('')
