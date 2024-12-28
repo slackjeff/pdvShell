@@ -2911,7 +2911,6 @@ function populate_database_produtos() {
 	local nome un estoque qmin preco codebar data validade
 	local fabricante=1
 
-	if yesno 17 11 "$(gettext "CUIDADO! Procedimento irá inserir dados aleatórios para testes na tabela Produtos. Confirma ?")"; then
 		msgok "$(gettext "Populando tabela produtos")"
 		for ((i = 1; i <= 100; i++)); do
 			nome="Produto $i"
@@ -2928,11 +2927,9 @@ function populate_database_produtos() {
 			fi
 			sqlite3 "$database" "INSERT INTO produtos (nome, un, estoque, preco, codebar, data, validade, qmin,fabricante) VALUES ('$nome', '$un', $estoque, $preco, '$codebar', '$data', '$validade', '$qmin', '$fabricante');"
 		done
-	fi
 }
 
 function populate_database_fornecedor() {
-	if yesno 17 11 "$(gettext "CUIDADO! Procedimento irá inserir dados aleatórios para testes na tabela Fornecedor. Confirma ?")"; then
 		msgok "$(gettext "Populando tabela fornecedor")"
 		for ((i = 1; i <= 99; i++)); do
 			data=$(sh_date)
@@ -2943,11 +2940,9 @@ function populate_database_fornecedor() {
 			cnpj=$(printf "%02d.%03d.%03d/%04d-%02d" $i $i $i $i $i)
 			sqlite3 "$database" "INSERT INTO fornecedor (data, nome, ende, cida, uf, cnpj) VALUES ('$data', '$nome', '$ende', '$cida', '$uf', '$cnpj');"
 		done
-	fi
 }
 
 function populate_database_vendas() {
-	if yesno 17 11 "$(gettext "CUIDADO! Procedimento irá inserir dados aleatórios para testes na tabela Vendas. Confirma ?")"; then
 		msgok "$(gettext "Populando tabela vendas")"
 		# Inicialize o dia, mês e ano
 		dia=1
@@ -2990,11 +2985,9 @@ function populate_database_vendas() {
 				fi
 			fi
 		done
-	fi
 }
 
 function populate_database_compras() {
-	if yesno 17 11 "$(gettext "CUIDADO! Procedimento irá inserir dados aleatórios para testes na tabela Compras. Confirma ?")"; then
 		# Inicialize dia, mes e ano
 		dia=1
 		mes="$(date +"%m")"
@@ -3042,7 +3035,6 @@ function populate_database_compras() {
 				fi
 			fi
 		done
-	fi
 }
 
 find_max_length() {
