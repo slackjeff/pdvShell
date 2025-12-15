@@ -970,7 +970,7 @@ read_manual() {
 	done
 }
 
-get() {
+function get() {
 	local row="$1"
 	local col="$2"
 	local prompt="$3"
@@ -1093,7 +1093,7 @@ function readnotconf() {
 	esac
 }
 
-read_key() {
+function read_key() {
 	local k seq
 
 	IFS= read -rsn1 k || return 1
