@@ -976,7 +976,7 @@ function get() {
 	local prompt="$3"
 	local new_value="$4" # nome da variável de saída
 	local old_value="$5" # valor inicial
-	local color="${Acores[box]}"
+	local color="${6:-${Acores[box]}}"
 	local input="" k
 
 	# valor inicial visível/editável
@@ -1237,7 +1237,7 @@ function msgok() {
 	local color="${2:-${Acores[msgok]}}"
 	local timeout="$3"
 
-	mensagem "$row" "$msg" "${Acores[msgok]}" "$timeout"
+	_msg "$row" "$msg" "${Acores[msgok]}" "$timeout"
 }
 
 function msgerror() {
@@ -1246,10 +1246,10 @@ function msgerror() {
 	local color="${2:-${Acores[msgerror]}}"
 	local timeout="$3"
 
-	mensagem "$row" "$msg" "${Acores[msgerror]}" "$timeout"
+	_msg "$row" "$msg" "${Acores[msgerror]}" "$timeout"
 }
 
-function mensagem() {
+function _msg() {
 	local row="$1"
 	local msg="$2"
 	local color="${3:-$green}"
@@ -1275,6 +1275,23 @@ function mensagem() {
 	setpos "$row" 0
 	tput el
 	tput rc
+}
+
+function mensagem() {
+	local xtitle="${1:-${_SYSTEM}}"
+	local xmsg="${2:-'ERRO'}"
+	local timeout="${3:-5}"
+	local color="${4:-${red}}"
+	local itens=3
+	local nrow=$((($(lastrow) - $itens) / 2))
+#	local nrow=$((($(lastrow) - $itens) - 1))
+#	local nrow=2
+	local nleft=15
+
+	titulo 1 "$xtitle" "${Acores[statussup]}"
+	box "$nrow" "$nleft" "$itens" "$((lastcol - 30))" "$xtitle" "$white"
+	print $((nrow + 1)) $((nleft + 1)) "$(padc "$xmsg" "$((lastcol - 22))" ' ')" "$color"
+	inkey "$timeout"
 }
 
 function sh_clear_eol() {
@@ -2704,6 +2721,7 @@ function registrar_venda() {
 		IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
 		sqlite3 "$database" "INSERT INTO vendas (id, data, quantidade, preco, total, docnr) VALUES ('$id', '$data_venda', '$quantidade', '$valor', '$total_venda', '$docnr');"
 	done
+#	mensagem "${_SYSTEM}" "$(gettext "Registro de venda efetuado")" 0 "${green}"
 	msgok "$(gettext "Registro de venda efetuado")"
 }
 
@@ -2716,6 +2734,7 @@ function atualizar_estoque_vendas() {
 		IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
 		sqlite3 "$database" "UPDATE produtos SET estoque = COALESCE(estoque, 0) - $quantidade WHERE id='$id';"
 	done
+#	mensagem "${_SYSTEM}" "$(gettext "Baixa de estoque efetuado")" 0 "${green}"
 	msgok "$(gettext "Baixa de estoque efetuado")"
 }
 
@@ -2769,7 +2788,8 @@ function realizar_venda() {
 		((++nrow))
 		get $nrow 01 "$(gettext "ID/nome/CodeBar (em branco=concluir)"): " identificador
 
-		[[ -z "$identificador" ]] && break
+		[[ -z "$identificador" ]] && break # em branco? concluir venda
+
 		identificador=${identificador^^}
 		#código de barras
 		if [[ $identificador =~ ^[0-9]{13}$ ]]; then
@@ -2781,7 +2801,7 @@ function realizar_venda() {
 			produto_info=$(dbseek 'produtos' 'nome' "$identificador" "$IsHeader" "$IsLike")
 		fi
 		if [[ -z "$produto_info" ]]; then
-			msgerror "$(gettext "Produto não encontrado")"
+			mensagem "${xtitle}" "$(gettext "Produto não encontrado")"
 			continue
 		fi
 		IFS='|' read -r id produto_nome unidade estoque valor codebar <<<"$produto_info"
@@ -2796,17 +2816,17 @@ function realizar_venda() {
 					unset 'lista_produtos[$id]'
 					continue
 				else
-					msgerror "$(gettext "Quantidade inválida ou item não tem na lista")"
+					mensagem "${xtitle}" "$(gettext "Quantidade inválida ou item não tem na lista")"
 					continue
 				fi
 			fi
 		else
-			msgerror "$(gettext "Quantidade inválida!")"
+			mensagem "${xtitle}" "$(gettext "Quantidade inválida!")"
 			continue
 		fi
 
 		if [[ "$estoque" -lt "$quantidade" ]]; then
-			msgerror "$(gettext "Quantidade insuficiente de") '$produto_nome' $(gettext "no estoque")"
+			mensagem "${xtitle}" "$(gettext "Quantidade insuficiente de") '$produto_nome' $(gettext "no estoque - restam"): $estoque"
 			continue
 		fi
 		subtotal=$(echo "$quantidade * $valor" | bc -l)
@@ -2824,6 +2844,7 @@ function realizar_venda() {
 		fi
 		total_venda=$(echo "$total_venda + $subtotal" | bc -l)
 	done
+
 	if [[ "${#lista_produtos[@]}" -gt 0 ]]; then
 		((++nrow))
 		setpos $nrow 1
@@ -2831,6 +2852,11 @@ function realizar_venda() {
 			registrar_venda "$total_venda"
 			atualizar_estoque_vendas
 		fi
+		print $nrow 1 "$(replicate ' ' 40)"
+		get   $nrow 1  "Valor para troco)                   : " efetivo '' ${white}
+      print $nrow 50 "Troco:" ${white}
+      print $nrow 57 "$(LC_ALL=C printf "%.2f" "$(echo "$efetivo - $total_venda" | bc -l)")" ${red}
+		inkey 20
 	fi
 }
 
@@ -2897,7 +2923,7 @@ function produtos_entradas() {
 		fi
 
 		if [[ -z "$produto_info" ]]; then
-			msgerror "$(gettext "Produto não encontrado")"
+			mensagem "${xtitle}" "$(gettext "Produto não encontrado")"
 			continue
 		fi
 
@@ -2913,12 +2939,12 @@ function produtos_entradas() {
 					unset 'lista_produtos[$id]'
 					continue
 				else
-					msgerror "$(gettext "Quantidade inválida ou item não tem na lista")"
+					mensagem "${xtitle}" "$(gettext "Quantidade inválida ou item não tem na lista")"
 					continue
 				fi
 			fi
 		else
-			msgerror "$(gettext "Quantidade inválida!")"
+			mensagem "${xtitle}" "$(gettext "Quantidade inválida!")"
 			continue
 		fi
 
@@ -2929,7 +2955,7 @@ function produtos_entradas() {
 			if [[ -n "$custo" ]] && [[ $custo =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
 				break
 			else
-				msgerror "$(gettext "Formato inválido. Usar ponto decimal ex: 4.99 ou número inteiro.")"
+				mensagem "${xtitle}" "$(gettext "Formato inválido. Usar ponto decimal ex: 4.99 ou número inteiro.")"
 			fi
 		done
 		subtotal=$(echo "$quantidade * $custo" | bc -l)
@@ -2971,7 +2997,7 @@ function produtos_entradas() {
 				fornecedor_info=$(dbseek fornecedor nome "$identificador")
 			fi
 			if [[ -z "$fornecedor_info" ]]; then
-				msgerror "$(gettext "Fornecedor não encontrado nos parâmetros informados")"
+				mensagem "${xtitle}" "$(gettext "Fornecedor não encontrado nos parâmetros informados")"
 				continue
 			fi
 			IFS='|' read -r id data nome ende cida esta cnpj <<<"$fornecedor_info"
@@ -3047,9 +3073,9 @@ function conciliar_estoque() {
 				WHERE produtos.id = vendas.id
 			);"
 			sqlite3 "$database" "$query"
-			msgok "$(gettext "Atualização concluída")"
+			mensagem "${xtitle}" "$(gettext "Atualização concluída")"
 		else
-			msgerror "$(gettext "Erro durante a atualização")"
+			mensagem "${xtitle}" "$(gettext "Erro durante a atualização")"
 		fi
 	fi
 }
