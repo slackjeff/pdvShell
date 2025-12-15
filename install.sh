@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 #sh <(curl -s -L https://raw.githubusercontent.com/voidlinux-br/void-installer/master/install.sh)
 #sh <(wget -q -O - https://raw.githubusercontent.com/voidlinux-br/void-installer/master/install.sh)
@@ -111,4 +111,3 @@
 	echo "ou entre em: $tmpDir e digite:"
 	echo "	sudo ./mercearia"
 }
-
