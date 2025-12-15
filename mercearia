@@ -272,8 +272,6 @@ function sh_setup_Packages() {
 	local packagesToInstall="${PACKAGEDEP[@]}"
 	local DISTRO=$(detect_distro)
 
-	echo $DISTRO
-	exit 0
 	case "$DISTRO" in
 	void)
 		msg_info "Instalando necessários pacotes para VOID"
