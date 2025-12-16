@@ -4,7 +4,7 @@
 #	pdv - simple cashier front for small grocery stores made with shell script and sqlite!
 #	Created: 2023/10/21
 #	Altered: 2024/11/20 - 02:21 -04
-#	Updated: dom 14 dez 2025 21:01:44 -04
+#	Updated: ter 16 dez 2025 00:22:48 -04
 #
 #  Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
 #	Copyright (c) 2023-2025, Vilmar Catafesta <vcatafesta@gmail.com>
@@ -35,7 +35,7 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=pdv
 #
 declare APP="${0##*/}"
-declare _VERSION_="1.12.14-20251214"
+declare _VERSION_="1.12.16-20251216"
 declare _SYSTEM_='SISTEMA PDV'
 declare database='pdv.db'
 declare INI_FILE="pdv.ini"
@@ -1277,6 +1277,38 @@ function _msg() {
 	tput rc
 }
 
+box_msg() {
+  local msg="$1"
+
+  # pega tamanho real do terminal
+  local rows cols
+  rows=$(tput lines)
+  cols=$(tput cols)
+
+  local w=$(( ${#msg} + 4 ))
+  local h=3
+  local r=$(( (rows - h) / 2 ))
+  local c=$(( (cols - w) / 2 ))
+
+  # salva cursor
+  tput sc
+
+  # topo
+  tput cup "$r" "$c"
+  printf "+%s+\n" "$(printf '%*s' $((w-2)) '' | tr ' ' '-')"
+
+  # meio
+  tput cup "$((r+1))" "$c"
+  printf "| %s |\n" "$msg"
+
+  # fundo
+  tput cup "$((r+2))" "$c"
+  printf "+%s+\n" "$(printf '%*s' $((w-2)) '' | tr ' ' '-')"
+
+  # restaura cursor
+  tput rc
+}
+
 function mensagem() {
 	local xtitle="${1:-${_SYSTEM}}"
 	local xmsg="${2:-'ERRO'}"
@@ -1288,10 +1320,14 @@ function mensagem() {
 #	local nrow=2
 	local nleft=15
 
+#  tput smcup   # entra na tela alternativa
+   tput civis   # sai e restaura a tela anterior
 	titulo 1 "$xtitle" "${Acores[statussup]}"
 	box "$nrow" "$nleft" "$itens" "$((lastcol - 30))" "$xtitle" "$white"
 	print $((nrow + 1)) $((nleft + 1)) "$(padc "$xmsg" "$((lastcol - 22))" ' ')" "$color"
 	inkey "$timeout"
+   tput cnorm
+#  tput rmcup   # sai e restaura a tela anterior
 }
 
 function sh_clear_eol() {
@@ -1463,11 +1499,11 @@ function dbseek() {
 		fi
 	else
 		if ((Header)); then
-			if result_info=$(sqlite3 $database -column -header "SELECT * FROM '$tabela' WHERE $campo=$search;") && [[ -n "$result_info" ]]; then
+			if result_info=$(sqlite3 $database -column -header "SELECT * FROM '$tabela' WHERE $campo='$search';") && [[ -n "$result_info" ]]; then
 				retval=0
 			fi
 		else
-			if result_info=$(sqlite3 $database "SELECT * FROM '$tabela' WHERE $campo=$search;") && [[ -n "$result_info" ]]; then
+   		if result_info=$(sqlite3 $database "SELECT * FROM '$tabela' WHERE $campo='$search';") && [[ -n "$result_info" ]]; then
 				retval=0
 			fi
 		fi
@@ -1505,25 +1541,26 @@ function produto_inclusao_alteracao() {
 	fi
 
 	while true; do
-		produto_info=
-		last_recno="$(lastrec 'produtos')"
-		tela
-		titulo 1 "$xtitle" "${Acores[statussup]}"
-		box 11 10 9 $half_lastcol "$xtitle" "${Acores[box]}"
-		print 10 11 "$last_recno"
-		if ((IsInclusao)); then
-			print 12 11 "$cdesc            : "
-		else
-			print 12 11 "$cdesc         : "
-		fi
-		print 13 11 "$(gettext "Cod Fabricante")       : "
-		print 14 11 "$(gettext "Código Barras")        : "
-		print 15 11 "$(gettext "Unidade")              : "
-		print 16 11 "$(gettext "Estoque mínimo")       : "
-		print 17 11 "$(gettext "Data validade")        : "
-		print 18 11 "$(gettext "Preço (ex: 4.99 ou 5)"): "
-
 		while true; do
+   		produto_info=
+   		last_recno="$(lastrec 'produtos')"
+   		tela
+   		titulo 1 "$xtitle" "${Acores[statussup]}"
+   		box 11 10 9 $half_lastcol "$xtitle" "${Acores[box]}"
+   		print 10 11 "$last_recno"
+
+   		if ((IsInclusao)); then
+   			print 12 11 "$cdesc            : "
+   		else
+   			print 12 11 "$cdesc         : "
+   		fi
+   		print 13 11 "$(gettext "Cod Fabricante")       : "
+   		print 14 11 "$(gettext "Código Barras")        : "
+   		print 15 11 "$(gettext "Unidade")              : "
+   		print 16 11 "$(gettext "Estoque mínimo")       : "
+   		print 17 11 "$(gettext "Data validade")        : "
+   		print 18 11 "$(gettext "Preço (ex: 4.99 ou 5)"): "
+
 			if ((IsInclusao)); then
 				get 12 11 "$cdesc            : " nome || return
 				if [[ -z "$nome" ]]; then
@@ -1532,6 +1569,11 @@ function produto_inclusao_alteracao() {
 						return
 					fi
 				fi
+            produto_info=$(dbseek 'produtos' 'nome' "$nome" "$IsHeader" "$IsLike")
+				if [ -n "$produto_info" ]; then
+         	   mensagem "${xtitle}" "$(gettext "Descrição já registrada.")"
+				   continue
+            fi
 				break
 			else
 				get 12 11 "$cdesc         : " nome || return
