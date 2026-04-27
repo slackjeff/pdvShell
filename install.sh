@@ -32,7 +32,7 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 #  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#set -euo pipefail
+set -euo pipefail
 
 # ===== CORES =====
 c_reset='\033[0m'
@@ -61,7 +61,7 @@ warn() {
 umask 0022
 
 url="https://raw.githubusercontent.com/slackjeff/pdvShell/refs/heads/main"
-files_bin=(pdvshell install.sh)
+files_bin=(pdvshell)
 files_home=(LICENSE README.md)
 files_lang=(pdvshell)
 idioma=(pt_BR en es it de fr ru zh_CN zh_TW ja ko)
