@@ -44,32 +44,56 @@
 
 ## 📦 インストール
 
-```bash
-bash <(curl -s -L https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh)
-```
+以下のオプションのいずれかを選択します。
 
-または
-
+### 🔹 方法 1 — カール (素早く直接)
 ```bash
-git clone --depth=1 https://github.com/slackjeff/pdvShell
-cd pdvShell
-./install.sh
+curl -LO https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh
+sudo bash install.sh
 ```
 
 ---
 
-## ▶️使い方
+### 🔹 方法 2 — wget (curl の代替)
+```bash
+wget https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh
+sudo bash install.sh
+```
+
+---
+
+### 🔹 方法 3 — git (開発に推奨)
+```bash
+git clone --depth=1 https://github.com/slackjeff/pdvShell
+cd pdvShell
+sudo bash install.sh
+```
+
+---
+
+## ⚠️観察
+
+- スクリプトは **root として実行する必要があります** (`sudo`)。
+- 安全性を高めるため、実行する前に内容を確認してください。
+  ```bash
+  less install.sh
+  ```
+- 運用環境で使用する前に、開発環境でテストすることをお勧めします。
+
+---
+
+## 🧠 実践的なヒント
+
+後でプロジェクトを更新または変更する予定がある場合は、**git** を使用してください。
+すばやくインストールしたいだけの場合は、**curl** または **wget** を使用すると数秒でインストールできます。
+
+---
+
+## ▶️ 利用・実行
 
 ```bash
 pdvshell
 ```
-
-または
-
-```bash
-./pdvShell
-```
-
 ---
 
 # 🖥️ インターフェースが完成しました

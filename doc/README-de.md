@@ -44,32 +44,56 @@ Ideal für kleine Lebensmittelgeschäfte, die etwas Einfaches, Schnelles und Zuv
 
 ## 📦 Installation
 
-```bash
-bash <(curl -s -L https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh)
-```
+Wählen Sie eine der folgenden Optionen:
 
-oder
-
+### 🔹 Methode 1 – Locken (schnell und direkt)
 ```bash
-git clone --depth=1 https://github.com/slackjeff/pdvShell
-cd pdvShell
-./install.sh
+curl -LO https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh
+sudo bash install.sh
 ```
 
 ---
 
-## ▶️ Nutzung
+### 🔹 Methode 2 – wget (Alternative zu Curl)
+```bash
+wget https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh
+sudo bash install.sh
+```
+
+---
+
+### 🔹 Methode 3 – Git (für die Entwicklung empfohlen)
+```bash
+git clone --depth=1 https://github.com/slackjeff/pdvShell
+cd pdvShell
+sudo bash install.sh
+```
+
+---
+
+## ⚠️ Beobachtungen
+
+- Das Skript **muss als Root ausgeführt werden** (`sudo`).
+- Für mehr Sicherheit lesen Sie den Inhalt vor dem Ausführen:
+  ```bash
+  less install.sh
+  ```
+- Es wird empfohlen, vor der Verwendung in der Produktion einen Test in einer Entwicklungsumgebung durchzuführen.
+
+---
+
+## 🧠 Praxistipp
+
+Wenn Sie planen, das Projekt später zu aktualisieren oder zu ändern, verwenden Sie **git**.
+Wenn Sie nur schnell installieren möchten, erledigen **curl** oder **wget** den Zweck in Sekundenschnelle.
+
+---
+
+## ▶️ Verwendung/Ausführung
 
 ```bash
 pdvshell
 ```
-
-oder
-
-```bash
-./pdvShell
-```
-
 ---
 
 # 🖥️ Schnittstelle vollständig

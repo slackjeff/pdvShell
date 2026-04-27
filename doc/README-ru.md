@@ -44,32 +44,56 @@
 
 ## 📦 Установка
 
-```bash
-bash <(curl -s -L https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh)
-```
+Выберите один из вариантов ниже:
 
-или
-
+### 🔹 Способ 1 — завивка (быстрая и прямая)
 ```bash
-git clone --depth=1 https://github.com/slackjeff/pdvShell
-cd pdvShell
-./install.sh
+curl -LO https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh
+sudo bash install.sh
 ```
 
 ---
 
-## ▶️ Использование
+### 🔹 Способ 2 — wget (альтернатива Curl)
+```bash
+wget https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh
+sudo bash install.sh
+```
+
+---
+
+### 🔹 Способ 3 — git (рекомендуется для разработки)
+```bash
+git clone --depth=1 https://github.com/slackjeff/pdvShell
+cd pdvShell
+sudo bash install.sh
+```
+
+---
+
+## ⚠️ Наблюдения
+
+- Скрипт **должен запускаться от имени пользователя root** (`sudo`).
+- Для большей безопасности просмотрите содержимое перед запуском:
+  ```bash
+  less install.sh
+  ```
+- Перед использованием в производстве рекомендуется протестировать в среде разработки.
+
+---
+
+## 🧠 Практический совет
+
+Если вы планируете обновить или изменить проект позже, используйте **git**.
+Если вы просто хотите установить быстро, **curl** или **wget** справятся с задачей за считанные секунды.
+
+---
+
+## ▶️ Использование/Выполнение
 
 ```bash
 pdvshell
 ```
-
-или
-
-```bash
-./pdvShell
-```
-
 ---
 
 # 🖥️ Полный интерфейс

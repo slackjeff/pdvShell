@@ -44,32 +44,56 @@
 
 ## 📦 安裝
 
-```bash
-bash <(curl -s -L https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh)
-```
+選擇以下選項之一：
 
-或者
-
+### 🔹方法1－捲髮（快速、直接）
 ```bash
-git clone --depth=1 https://github.com/slackjeff/pdvShell
-cd pdvShell
-./install.sh
+curl -LO https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh
+sudo bash install.sh
 ```
 
 ---
 
-## ▶️ 使用方法
+### 🔹方法 2 — wget（curl 的替代方法）
+```bash
+wget https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh
+sudo bash install.sh
+```
+
+---
+
+### 🔹方法三——git（推薦用於開發）
+```bash
+git clone --depth=1 https://github.com/slackjeff/pdvShell
+cd pdvShell
+sudo bash install.sh
+```
+
+---
+
+## ⚠️觀察
+
+- 該腳本**必須以 root 身分執行** (`sudo`)。
+- 為了提高安全性，請在運行前查看內容：
+  ```bash
+  less install.sh
+  ```
+- 建議在生產中使用之前在開發環境中進行測試。
+
+---
+
+## 🧠實用技巧
+
+如果您打算稍後更新或修改項目，請使用 **git**。
+如果您只是想快速安裝，**curl** 或 **wget** 將在幾秒鐘內完成任務。
+
+---
+
+## ▶️ 使用/執行
 
 ```bash
 pdvshell
 ```
-
-或者
-
-```bash
-./pdvShell
-```
-
 ---
 
 # 🖥️接口完整

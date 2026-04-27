@@ -44,32 +44,56 @@
 
 ## 📦 설치
 
-```bash
-bash <(curl -s -L https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh)
-```
+아래 옵션 중 하나를 선택하세요.
 
-또는
-
+### 🔹 방법 1 — 컬(빠르고 직접적인)
 ```bash
-git clone --depth=1 https://github.com/slackjeff/pdvShell
-cd pdvShell
-./install.sh
+curl -LO https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh
+sudo bash install.sh
 ```
 
 ---
 
-## ▶️ 사용법
+### 🔹 방법 2 — wget(curl의 대안)
+```bash
+wget https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh
+sudo bash install.sh
+```
+
+---
+
+### 🔹 방법 3 — git(개발에 권장)
+```bash
+git clone --depth=1 https://github.com/slackjeff/pdvShell
+cd pdvShell
+sudo bash install.sh
+```
+
+---
+
+## ⚠️ 관찰
+
+- 스크립트는 **루트**(`sudo`)로 실행되어야 합니다.
+- 안전을 강화하려면 실행하기 전에 내용을 검토하세요.
+  ```bash
+  less install.sh
+  ```
+- 프로덕션 환경에서 사용하기 전에 개발 환경에서 테스트하는 것이 좋습니다.
+
+---
+
+## 🧠 실용적인 팁
+
+나중에 프로젝트를 업데이트하거나 수정하려면 **git**을 사용하세요.
+빠르게 설치하고 싶다면 **curl** 또는 **wget**을 사용하면 몇 초 만에 설치가 완료됩니다.
+
+---
+
+## ▶️ 이용/실행
 
 ```bash
 pdvshell
 ```
-
-또는
-
-```bash
-./pdvShell
-```
-
 ---
 
 # 🖥️ 인터페이스 완성
