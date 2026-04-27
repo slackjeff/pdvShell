@@ -9,7 +9,7 @@
 #  Created: 2023/23/10
 #  Altered: 2023/23/10
 #
-#  Copyright (c) 2023-2023, Vilmar Catafesta <vcatafesta@gmail.com>
+#  Copyright (c) 2023-2026, Vilmar Catafesta <vcatafesta@gmail.com>
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -41,15 +41,17 @@
 	umask 0022
 	url="https://raw.githubusercontent.com/slackjeff/pdvShell/main"
 	url_blob='https://github.com/slackjeff/pdvShell/blob/main'
-	declare -a files_bin=('mercearia')
+	declare -a files_bin=('pdvshell')
 	declare -a files_home=('LICENSE' 'README.md' 'install.sh')
-	declare -a files_lang=('mercearia')
+	declare -a files_lang=('pdvshell')
 	declare -a files_blob=()
-	declare -a idioma=(bg cs da de el en es et fi fr he hr hu is it ja ko nl no pl pt-PT pt-BR ro ru sk sv tr uk zh fa hi ar)
+	declare -a idioma=(pt-BR en es it de fr ru zh_CN zh_TW ja ko)
 	tmpDir=~/pdvShell
 	dir_locale="usr/share/locale"
 
-	[[ ! -d "$tmpDir" ]] && { mkdir -p "$tmpDir" || oops "Unable to create temporary directory to download files"; }
+	[[ ! -d "$tmpDir" ]] && {
+		mkdir -p "$tmpDir" || oops "Unable to create temporary directory to download files"
+	}
 
 	require_util() {
 		command -v "$1" >/dev/null 2>&1 || oops "you do not have '$1' installed, which is needed to $2"
@@ -100,14 +102,14 @@
 		sudo chmod +x $tmpDir/$file
 		sudo cp -rfv $tmpDir/$file /usr/bin/
 		sudo ln -s /usr/bin/$file /usr/bin/pdv
-		sudo ln -s /usr/bin/$file /usr/bin/pdvShell
+		sudo ln -s /usr/bin/$file /usr/bin/mercearia
 	done
 
 	ls -la --color=auto $tmpDir
 
 	echo
 	echo "digite:"
-	echo "	mercearia"
+	echo "	pdvshell"
 	echo "ou entre em: $tmpDir e digite:"
-	echo "	sudo ./mercearia"
+	echo "	sudo ./pdvshell"
 }

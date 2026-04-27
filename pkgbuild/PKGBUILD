@@ -64,14 +64,10 @@ cd /opt/$pkgname
 exec ./$(basename "$pkgname") "\$@"
 EOF
    chmod 755 "${pkgdir}/usr/bin/$pkgname"
-	install -Dm666 "${srcdir}/mercearia-eng.sh"  "${pkgdir}/opt/$pkgname/"
 	install -d -m755 "${pkgdir}/opt/$pkgname/doc"
 	install -Dm644 "${srcdir}/LICENSE"           "${pkgdir}/opt/$pkgname/doc/"
 	install -Dm644 "${srcdir}/README.md"         "${pkgdir}/opt/$pkgname/doc/"
-	install -Dm644 "${srcdir}/README(ENG).md"    "${pkgdir}/opt/$pkgname/doc/"
 	install -d -m755 "${pkgdir}/opt/$pkgname/src"
-	install -Dm755 "${srcdir}/save"               "${pkgdir}/opt/$pkgname/src/"
-	install -Dm644 "${srcdir}/save.c"             "${pkgdir}/opt/$pkgname/src/"
 
 	# Install license file if present
 	if [ -f "LICENSE" ]; then

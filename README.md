@@ -67,7 +67,7 @@ pdvshell
 ou
 
 ```bash
-./pdvShell
+./pdvshell
 ```
 
 ---
