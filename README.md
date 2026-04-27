@@ -1,66 +1,143 @@
-# pdvShell
-PDVSHELL, simples frente de caixa para  mercearias pequenas feito em shell script e sqlite!
+# 🧾 PDVShell
 
-## Download:
+<p align="center">
+  <img src="assets/demo.gif" alt="PDVShell Demo" width="700"/>
+</p>
 
-- 1 - using git
-    - $ git clone --depth=1 https://github.com/slackjeff/pdvShell
+<p align="center">
+  <img src="https://img.shields.io/badge/shell-bash-blue?style=flat-square"/>
+  <img src="https://img.shields.io/badge/database-sqlite-lightgrey?style=flat-square"/>
+  <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square"/>
+  <img src="https://img.shields.io/badge/platform-linux-orange?style=flat-square"/>
+  <img src="https://img.shields.io/badge/focus-low--end%20systems-red?style=flat-square"/>
+</p>
 
-- 2 - using curl/wget stdin
-    - $ bash <(curl -s -L https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh)
-    - $ bash <(wget -q -O - https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh)
-    - $ curl -s -O https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh | bash
-    - $ wget -q -O - https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh | bash
+---
 
-- 3 - using curl/wget
-    - $ curl -O https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh
-    - $ wget https://raw.githubusercontent.com/voidlinux-br/slackjeff/pdvShell/main/install.sh
-    - $ chmod +x install.sh
-    - $ ./install.sh
+## 📌 Sobre
 
-- 4 - arch like 
-    - $ curl -O https://raw.githubusercontent.com/slackjeff/pdvShell/refs/heads/main/pkgbuild/PKGBUILD
-    - $ wget https://raw.githubusercontent.com/slackjeff/pdvShell/refs/heads/main/pkgbuild/PKGBUILD
-    - $ makepkg -i
+**PDVShell** é um sistema de frente de caixa (PDV) leve e eficiente, desenvolvido em **Shell Script + SQLite**.
 
-    - $ curl -s -o PKGBUILD https://raw.githubusercontent.com/slackjeff/pdvShell/refs/heads/main/pkgbuild/PKGBUILD && makepkg -i
-    - $ wget -q -O PKGBUILD https://raw.githubusercontent.com/slackjeff/pdvShell/refs/heads/main/pkgbuild/PKGBUILD && makepkg -i
+Ideal para pequenas mercearias que precisam de algo simples, rápido e confiável.
 
-    - 1 - running after install
-        - $ pdvshell
+---
 
-## Running (after download):
-- 1 - running in local repo
-    - $ ./pdvShell
+## 🚀 Funcionalidades
 
-## Futuras Features
-*
+- 📦 Cadastro e gerenciamento de produtos  
+- 🏪 Controle de fornecedores  
+- 💰 Registro de vendas  
+- 📊 Relatórios  
+- ⚙️ Configurações  
+- 🧾 Controle de estoque  
 
-## Telas
-<img alt="mercearia-menu-produtos-produtos" src="assets/mercearia-menu-produtos.png" width="600" />
-<img alt="mercearia-menu-fornecedores" src="assets/mercearia-menu-fornecedores.png" width="600" />
-<img alt="mercearia-menu-movimento" src="assets/mercearia-menu-movimento.png" width="600" />
-<img alt="mercearia-menu-relatorio" src="assets/mercearia-menu-relatorio.png" width="600" />
-<img alt="mercearia-menu-consultas" src="assets/mercearia-menu-consultas.png" width="600" />
-<img alt="mercearia-menu-manutencao" src="assets/mercearia-menu-manutencao.png" width="600" />
-<img alt="mercearia-menu-configuracao" src="assets/mercearia-menu-configuracao.png" width="600" />
-<img alt="mercearia-menu-sobre" src="assets/mercearia-menu-sobre.png" width="600" />
+---
 
-<img alt="mercearia-produtos-cadastro" src="assets/mercearia-produtos-cadastro.png" width="600" />
-<img alt="mercearia-produtos-exclusao" src="assets/mercearia-produtos-exclusao.png" width="600" />
-<img alt="mercearia-produtos-pesquisar" src="assets/mercearia-produtos-pesquisar.png" width="600" />
-<img alt="mercearia-produtos-produtos-vendidos" src="assets/mercearia-produtos-vendidos.png" width="600" />
-<img alt="mercearia-produtos-compra" src="assets/mercearia-produtos-compra.png" width="600" />
-<img alt="mercearia-produtos-produtos-vendas" src="assets/mercearia-produtos-vendas.png" width="600" />
-<img alt="mercearia-produtos-entradas" src="assets/mercearia-produtos-entradas.png" width="600" />
-<img alt="mercearia-produtos-abaixo-do-minimo" src="assets/mercearia-produtos-abaixo-do-minimo.png" width="600" />
-<img alt="mercearia-produtos-fora-de-validade" src="assets/mercearia-produtos-fora-de-validade.png" width="600" />
+## 📦 Instalação
 
-<img alt="mercearia-fornecedor-cadastro.png" src="assets/mercearia-fornecedor-cadastro.png" width="600" />
-<img alt="mercearia-fornecedor-listagem.png" src="assets/mercearia-fornecedor-listagem.png" width="600" />
-<img alt="mercearia-exibir-vendas-diarias" src="assets/mercearia-exibir-vendas-diarias.png" width="600" />
-<img alt="mercearia-menu-configuracao" src="assets/mercearia-menu-configuracao.png" width="600" />
-<img alt="configuracao-de-cores" src="assets/configuracao-de-cores.png" width="600" />
-<img alt="mercearia-configuracao-dados-empresa" src="assets/mercearia-configuracao-dados-empresa.png" width="600" />
-<img alt="mercearia-sobre-sobre" src="assets/mercearia-sobre-sobre.png" width="600" />
-<img alt="mercearia-menu-sair" src="assets/mercearia-menu-sair.png" width="600" />
+```bash
+bash <(curl -s -L https://raw.githubusercontent.com/slackjeff/pdvShell/main/install.sh)
+```
+
+ou
+
+```bash
+git clone --depth=1 https://github.com/slackjeff/pdvShell
+cd pdvShell
+./install.sh
+```
+
+---
+
+## ▶️ Uso
+
+```bash
+pdvshell
+```
+
+ou
+
+```bash
+./pdvShell
+```
+
+---
+
+# 🖥️ Interface completa
+
+## 📋 Menus
+
+![Menu Produtos](assets/mercearia-menu-produtos.png)
+![Menu Fornecedores](assets/mercearia-menu-fornecedores.png)
+![Menu Movimento](assets/mercearia-menu-movimento.png)
+![Menu Relatório](assets/mercearia-menu-relatorio.png)
+![Menu Consultas](assets/mercearia-menu-consultas.png)
+![Menu Manutenção](assets/mercearia-menu-manutencao.png)
+![Menu Configuração](assets/mercearia-menu-configuracao.png)
+![Menu Sobre](assets/mercearia-menu-sobre.png)
+
+---
+
+## 📦 Produtos
+
+![Cadastro](assets/mercearia-produtos-cadastro.png)
+![Exclusão](assets/mercearia-produtos-exclusao.png)
+![Pesquisar](assets/mercearia-produtos-pesquisar.png)
+![Vendidos](assets/mercearia-produtos-vendidos.png)
+![Compra](assets/mercearia-produtos-compra.png)
+![Vendas](assets/mercearia-produtos-vendas.png)
+![Entradas](assets/mercearia-produtos-entradas.png)
+![Abaixo do mínimo](assets/mercearia-produtos-abaixo-do-minimo.png)
+![Validade](assets/mercearia-produtos-fora-de-validade.png)
+
+---
+
+## 🏪 Fornecedores
+
+![Cadastro fornecedor](assets/mercearia-fornecedor-cadastro.png)
+![Lista fornecedor](assets/mercearia-fornecedor-listagem.png)
+
+---
+
+## 📊 Relatórios
+
+![Vendas diárias](assets/mercearia-exibir-vendas-diarias.png)
+
+---
+
+## ⚙️ Configurações
+
+![Menu config](assets/mercearia-menu-configuracao.png)
+![Cores](assets/configuracao-de-cores.png)
+![Empresa](assets/mercearia-configuracao-dados-empresa.png)
+
+---
+
+## ℹ️ Sobre
+
+![Sobre](assets/mercearia-sobre-sobre.png)
+![Sair](assets/mercearia-menu-sair.png)
+
+---
+
+## 🧠 Filosofia
+
+- Simples e direto  
+- Sem dependências pesadas  
+- Terminal raiz  
+- Funciona até em máquina velha  
+
+---
+
+## 🛠️ Roadmap
+
+- [ ] Backup automático  
+- [ ] Multiusuário  
+- [ ] Impressão  
+- [ ] Exportação CSV/PDF  
+
+---
+
+## 📄 Licença
+
+MIT
