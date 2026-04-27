@@ -1,0 +1,80 @@
+# Maintainer: Vilmar Catafesta <vcatafesta@gmail.com>
+
+pkgname=pdvshell
+pkgdesc="simple cashier front for small grocery stores made with shell script and sqlite"
+depends=('ncurses' 'gettext' 'sqlite' 'bc' 'coreutils' 'sed' 'awk' 'figlet')
+pkgver=$(date +%Y%m%d)
+pkgrel=$(date +%H%M)
+arch=('any')
+license=('MIT')
+url="https://github.com/vcatafesta/${pkgname}"
+source=("git+${url}.git")
+md5sums=('SKIP')
+
+# Automatically detect and use the correct install file
+if [ -e "${pkgname}.install" ]; then
+	install=${pkgname}.install
+elif [ -e "pkgbuild.install" ]; then
+	install=pkgbuild.install
+fi
+
+package() {
+	cd "${srcdir}/${pkgname}"
+
+	# Determine the correct source directory
+	if [ -d "${pkgname}" ]; then
+		srcdir="${srcdir}/${pkgname}/${pkgname}"
+	else
+		srcdir="${srcdir}/${pkgname}"
+	fi
+
+	# Install files
+	local dirs=("usr" "etc" "opt")
+	for dir in "${dirs[@]}"; do
+		if [ -d "${srcdir}/${dir}" ]; then
+			cp -a "${srcdir}/${dir}" "${pkgdir}/"
+		fi
+	done
+
+	# Identifica o usuário que invocou o sudo
+	local user_home
+
+	if [ -n "$SUDO_USER" ]; then
+		user_home=$(eval echo ~"$SUDO_USER")
+	else
+		user_home="$HOME"
+	fi
+
+#	# Cria o diretório no home do usuário que invocou o sudo
+#	mkdir -p "${user_home}/$pkgname"
+#	echo "Diretório $pkgname criado em ${user_home}"
+
+	install -d -m1777 "${pkgdir}/opt/$pkgname"
+	install -Dm755 "${srcdir}/$pkgname"          "${pkgdir}/opt/$pkgname/$pkgname"
+
+ # Criar o script wrapper em /usr/bin
+  install -d "${pkgdir}/usr/local/bin"
+  cat <<EOF > "${pkgdir}/usr/local/bin/$pkgname"
+#!/usr/bin/env bash
+# script wrapper para /opt/pdvshell/pdvshell
+# Copyright (c) Vilmar Catafesta, 2019-2025 <vcatafesta@gmail.com>
+
+cd /opt/$pkgname
+exec ./$(basename "$pkgname") "\$@"
+EOF
+   chmod 755 "${pkgdir}/usr/local/bin/$pkgname"
+	install -d -m755 "${pkgdir}/opt/$pkgname/doc"
+	install -Dm644 "${srcdir}/LICENSE"           "${pkgdir}/opt/$pkgname/doc/"
+	install -Dm644 "${srcdir}/README.md"         "${pkgdir}/opt/$pkgname/doc/"
+	install -d -m755 "${pkgdir}/opt/$pkgname/src"
+
+	# Install license file if present
+	if [ -f "LICENSE" ]; then
+		install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+	fi
+
+	# Install documentation if present
+	if [ -f "README.md" ]; then
+		install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+	fi
+}
