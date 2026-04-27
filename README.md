@@ -89,7 +89,7 @@ Se quer apenas instalar rapidamente, **curl** ou **wget** resolvem em segundos.
 
 ---
 
-## ▶️ Uso
+## ▶️ Uso/Execução
 
 ```bash
 pdvshell
