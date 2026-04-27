@@ -51,7 +51,7 @@ log() {
 }
 
 ok() {
-  echo -e "${c_green}[OK]${c_reset} $*"
+  echo -e "   ${c_green}[OK]${c_reset} $*"
 }
 
 warn() {
@@ -60,11 +60,11 @@ warn() {
 
 umask 0022
 
-url="https://raw.githubusercontent.com/slackjeff/pdvShell/main"
-files_bin=(pdvshell)
-files_home=(LICENSE README.md install.sh)
+url="https://raw.githubusercontent.com/slackjeff/pdvShell/refs/heads/main"
+files_bin=(pdvshell install.sh)
+files_home=(LICENSE README.md)
 files_lang=(pdvshell)
-idioma=(pt-BR en es it de fr ru zh_CN zh_TW ja ko)
+idioma=(pt_BR en es it de fr ru zh_CN zh_TW ja ko)
 
 tmpDir="$(mktemp -d -t pdvshell.XXXXXX)"
 dir_locale="usr/share/locale"
@@ -87,7 +87,7 @@ log "usando diretório temporário: $tmpDir"
 
 # download binários
 for f in "${files_bin[@]}"; do
-  log "baixando $f..."
+  log "baixando binário $f..."
   cmdfetch "$url/$f" "$tmpDir/$f" || oops "falha ao baixar $f"
   ok "$f baixado"
 done
@@ -130,13 +130,13 @@ done
 
 # wrapper
 log "criando wrapper..."
-sudo tee /usr/bin/pdvshell >/dev/null <<'EOF'
+sudo tee /usr/local/bin/pdvshell >/dev/null <<'EOF'
 #!/usr/bin/env bash
 cd /opt/pdvshell
 exec ./pdvshell "$@"
 EOF
 
-sudo chmod 755 /usr/bin/pdvshell
+sudo chmod 755 /usr/local/bin/pdvshell
 ok "wrapper criado"
 
 echo
