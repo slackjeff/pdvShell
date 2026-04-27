@@ -33,6 +33,15 @@ Ideal para pequenas mercearias que precisam de algo simples, rápido e confiáve
 
 ---
 
+## 🧠 Filosofia
+
+- Simples e direto  
+- Sem dependências pesadas  
+- Terminal raiz  
+- Funciona até em máquina velha  
+
+---
+
 ## 📦 Instalação
 
 ```bash
@@ -117,15 +126,6 @@ ou
 
 ![Sobre](assets/mercearia-sobre-sobre.png)
 ![Sair](assets/mercearia-menu-sair.png)
-
----
-
-## 🧠 Filosofia
-
-- Simples e direto  
-- Sem dependências pesadas  
-- Terminal raiz  
-- Funciona até em máquina velha  
 
 ---
 
