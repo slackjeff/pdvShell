@@ -32,84 +32,113 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 #  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-{
-	oops() {
-		echo "$0:" "$@" >&2
-		exit 1
-	}
+#set -euo pipefail
 
-	umask 0022
-	url="https://raw.githubusercontent.com/slackjeff/pdvShell/main"
-	url_blob='https://github.com/slackjeff/pdvShell/blob/main'
-	declare -a files_bin=('pdvshell')
-	declare -a files_home=('LICENSE' 'README.md' 'install.sh')
-	declare -a files_lang=('pdvshell')
-	declare -a files_blob=()
-	declare -a idioma=(pt-BR en es it de fr ru zh_CN zh_TW ja ko)
-	tmpDir=~/pdvShell
-	dir_locale="usr/share/locale"
+# ===== CORES =====
+c_reset='\033[0m'
+c_red='\033[1;31m'
+c_green='\033[1;32m'
+c_yellow='\033[1;33m'
+c_blue='\033[1;34m'
 
-	[[ ! -d "$tmpDir" ]] && {
-		mkdir -p "$tmpDir" || oops "Unable to create temporary directory to download files"
-	}
-
-	require_util() {
-		command -v "$1" >/dev/null 2>&1 || oops "you do not have '$1' installed, which is needed to $2"
-	}
-
-	#require_util tar "descompatar o tarball"
-
-	if command -v curl >/dev/null 2>&1; then
-		cmdfetch() { curl --silent --continue-at - --insecure -L "$1" -o "$2"; }
-	elif command -v wget >/dev/null 2>&1; then
-		cmdfetch() { wget --quiet -c "$1" -O "$2"; }
-	else
-		require_util curl "downloader"
-		require_util wget "downloader"
-	fi
-
-	for f in "${files_bin[@]}"; do
-		echo "Downloading $f to '$tmpDir'..."
-		cmdfetch "$url/$f" "$tmpDir/$f" || oops "download failure '$url/$f'"
-	done
-
-	for f in "${files_home[@]}"; do
-		echo "Downloading $f to '$tmpDir'..."
-		cmdfetch "$url/$f" "$tmpDir/$f" || oops "download failure '$url/$f'"
-	done
-
-	for f in "${files_blob[@]}"; do
-		if cmdfetch "$url_blob/$f" "$tmpDir/$f" || oops "download failure '$url/$f'"; then
-			echo "Downloading $f to '$tmpDir'..."
-		fi
-	done
-
-	for lang in "${idioma[@]}"; do
-		for f in "${files_lang[@]}"; do
-			[[ ! -d "$tmpDir/$dir_locale/$lang/LC_MESSAGES/" ]] && {
-				mkdir -p "$tmpDir/$dir_locale/$lang/LC_MESSAGES/" ||
-					oops "Unable to create temporary directory to download files"
-			}
-			if cmdfetch "$url/$dir_locale/$lang/LC_MESSAGES/$f.mo" "$tmpDir/$dir_locale/$lang/LC_MESSAGES/$f.mo"; then
-				echo "Downloading $f.mo to '$tmpDir/$dir_locale/$lang/LC_MESSAGES/'"
-			fi
-		done
-	done
-
-	sudo cp -rfv $tmpDir/usr/share/locale/* /usr/share/locale/
-
-	for file in "${files_bin[@]}"; do
-		sudo chmod +x $tmpDir/$file
-		sudo cp -rfv $tmpDir/$file /usr/bin/
-		sudo ln -s /usr/bin/$file /usr/bin/pdv
-		sudo ln -s /usr/bin/$file /usr/bin/mercearia
-	done
-
-	ls -la --color=auto $tmpDir
-
-	echo
-	echo "digite:"
-	echo "	pdvshell"
-	echo "ou entre em: $tmpDir e digite:"
-	echo "	sudo ./pdvshell"
+oops() {
+  echo -e "${c_red}[ERRO]${c_reset} $*" >&2
+  exit 1
 }
+
+log() {
+  echo -e "${c_blue}[*]${c_reset} $*"
+}
+
+ok() {
+  echo -e "${c_green}[OK]${c_reset} $*"
+}
+
+warn() {
+  echo -e "${c_yellow}[AVISO]${c_reset} $*"
+}
+
+umask 0022
+
+url="https://raw.githubusercontent.com/slackjeff/pdvShell/main"
+files_bin=(pdvshell)
+files_home=(LICENSE README.md install.sh)
+files_lang=(pdvshell)
+idioma=(pt-BR en es it de fr ru zh_CN zh_TW ja ko)
+
+tmpDir="$(mktemp -d -t pdvshell.XXXXXX)"
+dir_locale="usr/share/locale"
+
+cleanup() {
+  rm -rf "$tmpDir"
+}
+trap cleanup EXIT
+
+# downloader
+if command -v curl >/dev/null 2>&1; then
+  cmdfetch() { curl -fsSL "$1" -o "$2"; }
+elif command -v wget >/dev/null 2>&1; then
+  cmdfetch() { wget -q "$1" -O "$2"; }
+else
+  oops "precisa de curl ou wget"
+fi
+
+log "usando diretório temporário: $tmpDir"
+
+# download binários
+for f in "${files_bin[@]}"; do
+  log "baixando $f..."
+  cmdfetch "$url/$f" "$tmpDir/$f" || oops "falha ao baixar $f"
+  ok "$f baixado"
+done
+
+# extras
+for f in "${files_home[@]}"; do
+  log "baixando $f..."
+  cmdfetch "$url/$f" "$tmpDir/$f" || oops "falha ao baixar $f"
+done
+
+# locales
+for lang in "${idioma[@]}"; do
+  for f in "${files_lang[@]}"; do
+    target="$tmpDir/$dir_locale/$lang/LC_MESSAGES"
+    mkdir -p "$target"
+
+    if cmdfetch "$url/$dir_locale/$lang/LC_MESSAGES/$f.mo" "$target/$f.mo"; then
+      ok "locale $lang"
+    else
+      warn "locale $lang não disponível"
+    fi
+  done
+done
+
+# instala locales
+if [[ -d "$tmpDir/usr/share/locale" ]]; then
+  log "instalando locales..."
+  sudo cp -r "$tmpDir/usr/share/locale/." /usr/share/locale/
+  ok "locales instalados"
+fi
+
+# instala app
+log "instalando em /opt/pdvshell..."
+sudo install -d /opt/pdvshell
+
+for file in "${files_bin[@]}"; do
+  sudo install -m 755 "$tmpDir/$file" "/opt/pdvshell/$file"
+  ok "$file instalado"
+done
+
+# wrapper
+log "criando wrapper..."
+sudo tee /usr/bin/pdvshell >/dev/null <<'EOF'
+#!/usr/bin/env bash
+cd /opt/pdvshell
+exec ./pdvshell "$@"
+EOF
+
+sudo chmod 755 /usr/bin/pdvshell
+ok "wrapper criado"
+
+echo
+echo -e "${c_green}Instalação concluída!${c_reset}"
+echo -e "Use: ${c_blue}pdvshell${c_reset}"
