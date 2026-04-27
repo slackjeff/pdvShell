@@ -1,31 +1,25 @@
 # Maintainer: Vilmar Catafesta <vcatafesta@gmail.com>
 
-pkgname=pdvshell
+pkgbase=pdvshell
+pkgname=voidbr-pdvshell
 pkgdesc="simple cashier front for small grocery stores made with shell script and sqlite"
 depends=('ncurses' 'gettext' 'sqlite' 'bc' 'coreutils' 'sed' 'awk' 'figlet')
 pkgver=$(date +%Y%m%d)
 pkgrel=$(date +%H%M)
 arch=('any')
 license=('MIT')
-url="https://github.com/vcatafesta/${pkgname}"
+url="https://github.com/vcatafesta/${pkgbase}"
 source=("git+${url}.git")
 md5sums=('SKIP')
 
-# Automatically detect and use the correct install file
-if [ -e "${pkgname}.install" ]; then
-	install=${pkgname}.install
-elif [ -e "pkgbuild.install" ]; then
-	install=pkgbuild.install
-fi
-
 package() {
-	cd "${srcdir}/${pkgname}"
+	cd "${srcdir}/${pkgbase}"
 
 	# Determine the correct source directory
-	if [ -d "${pkgname}" ]; then
-		srcdir="${srcdir}/${pkgname}/${pkgname}"
+	if [ -d "${pkgbase}" ]; then
+		srcdir="${srcdir}/${pkgbase}/${pkgbase}"
 	else
-		srcdir="${srcdir}/${pkgname}"
+		srcdir="${srcdir}/${pkgbase}"
 	fi
 
 	# Install files
@@ -45,27 +39,27 @@ package() {
 		user_home="$HOME"
 	fi
 
-#	# Cria o diretório no home do usuário que invocou o sudo
-#	mkdir -p "${user_home}/$pkgname"
-#	echo "Diretório $pkgname criado em ${user_home}"
+	# # Cria o diretório no home do usuário que invocou o sudo
+	# mkdir -p "${user_home}/$pkgname"
+	# echo "Diretório $pkgname criado em ${user_home}"
 
 	install -d -m1777 "${pkgdir}/opt/$pkgname"
-	install -Dm755 "${srcdir}/$pkgname"          "${pkgdir}/opt/$pkgname/$pkgname"
+	install -Dm755 "${srcdir}/$pkgbase" "${pkgdir}/opt/$pkgname/$pkgbase"
 
- # Criar o script wrapper em /usr/bin
-  install -d "${pkgdir}/usr/local/bin"
-  cat <<EOF > "${pkgdir}/usr/local/bin/$pkgname"
+	# Criar o script wrapper em /usr/bin
+	install -d "${pkgdir}/usr/local/bin"
+	cat <<EOF >"${pkgdir}/usr/local/bin/$pkgbase"
 #!/usr/bin/env bash
 # script wrapper para /opt/pdvshell/pdvshell
 # Copyright (c) Vilmar Catafesta, 2019-2025 <vcatafesta@gmail.com>
 
 cd /opt/$pkgname
-exec ./$(basename "$pkgname") "\$@"
+exec ./pdvshell "\$@"
 EOF
-   chmod 755 "${pkgdir}/usr/local/bin/$pkgname"
+	chmod 755 "${pkgdir}/usr/local/bin/$pkgbase"
 	install -d -m755 "${pkgdir}/opt/$pkgname/doc"
-	install -Dm644 "${srcdir}/LICENSE"           "${pkgdir}/opt/$pkgname/doc/"
-	install -Dm644 "${srcdir}/README.md"         "${pkgdir}/opt/$pkgname/doc/"
+	install -Dm644 "${srcdir}/LICENSE" "${pkgdir}/opt/$pkgname/doc/"
+	install -Dm644 "${srcdir}/README.md" "${pkgdir}/opt/$pkgname/doc/"
 	install -d -m755 "${pkgdir}/opt/$pkgname/src"
 
 	# Install license file if present
