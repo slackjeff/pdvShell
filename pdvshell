@@ -36,7 +36,8 @@ export TEXTDOMAIN=pdvshell
 #
 declare APP="${0##*/}"
 declare _VERSION_="0.04.27-20260427"
-declare _SYSTEM_='SISTEMA PDV'
+declare _SYSTEM_="PDVSHELL"
+declare _SYSTEM_DESC="$(gettext "Simples frente de caixa escrito em shell script e sqlite")"
 declare database='pdvshell.db'
 declare INI_FILE="pdvshell.ini"
 trap 'cleanup' INT TERM HUP
@@ -106,15 +107,15 @@ function sh_config() {
 	declare -g Mercearia='Mercearia'
 	declare -g Menu_Principal="$(gettext "Menu Principal")"
 	declare -g Nenhum_produto_encontrado_nos_parametros_informados="$(gettext "Nenhum produto encontrado nos parâmetros informados")"
-	declare -g Produtos="$(gettext 'Produtos')"
-	declare -g Fornecedores="$(gettext 'Fornecedores')"
-	declare -g Realizar_Venda_Saida="$(gettext 'Realizar Venda/Saída')"
-	declare -g Entradas_de_Produtos="$(gettext 'Entradas de Produtos')"
-	declare -g Pesquisa_Relatorio_Consulta="$(gettext 'Pesquisa/Relatórios/Consulta')"
-	declare -g Manutencao="$(gettext 'Manutenção')"
-	declare -g Configuracao="$(gettext 'Configuração')"
-	declare -g Sair="$(gettext 'Sair')"
-	declare -g Sair_do_Sistema="$(gettext 'Sair do Sistema')"
+	declare -g Produtos="$(gettext "Produtos")"
+	declare -g Fornecedores="$(gettext "Fornecedores")"
+	declare -g Realizar_Venda_Saida="$(gettext "Realizar Venda/Saída")"
+	declare -g Entradas_de_Produtos="$(gettext "Entradas de Produtos")"
+	declare -g Pesquisa_Relatorio_Consulta="$(gettext "Pesquisa/Relatórios/Consulta")"
+	declare -g Manutencao="$(gettext "Manutenção")"
+	declare -g Configuracao="$(gettext "Configuração")"
+	declare -g Sair="$(gettext "Sair")"
+	declare -g Sair_do_Sistema="$(gettext "Sair do Sistema")"
 	declare -g Opcao_invalida="$(gettext "Opção inválida. Tente novamente.")"
 	declare -g Cadastrar="$(gettext 'Cadastrar')"
 	declare -g Inclusao="$(gettext 'Inclusão')"
@@ -1146,7 +1147,7 @@ function yesno() {
 	local linha=$1
 	local coluna=$2
 	local titulo="$3"
-	local itens=("Sim" "Não")
+	local itens=("$(gettext 'Sim')" "$(gettext 'Não')")
 	local tamanho_maximo=${#titulo}
 	local quantidade_itens="${#itens[@]}"
 	local i tecla selecionado item_formatado
@@ -3772,10 +3773,10 @@ function sobre::about() {
 	titulo 1 "$xtitle" "${Acores[statussup]}"
 	box "$nrow" "$nleft" "$itens" "$((lastcol - 30))" "$xtitle" "$white"
 	print $((nrow + 1)) $((nleft + 1)) "$(padc "pdvShell v$_VERSION_" "$((lastcol - 22))" ' ')" "$red"
-	print $((nrow + 2)) $((nleft + 1)) "$(padc "$(gettext "Simples frente de caixa para mercearias pequenas feito em shell script e sqlite!")" "$((lastcol - 22))" ' ')" "$green"
+	print $((nrow + 2)) $((nleft + 1)) "$(padc "$_SYSTEM_DESC" "$((lastcol - 22))" ' ')" "$green"
 	print $((nrow + 4)) $((nleft + 1)) "$(padc "Copyright © 2023-2023, Jefferson Carneiro <slackjeff>. Todos os direitos reservados." "$((lastcol - 22))" ' ')" "$black"
 	print $((nrow + 5)) $((nleft + 1)) "$(padc "https://github.com/slackjeff/pdvShell" "$((lastcol - 22))" ' ')" "$black"
-	print $((nrow + 6)) $((nleft + 1)) "$(padc "Copyright © 2023-2025, Vilmar Catafesta <vcatafesta@gmail.com>. Todos os direitos reservados." "$((lastcol - 22))" ' ')" "$black"
+	print $((nrow + 6)) $((nleft + 1)) "$(padc "Copyright © 2023-2026, Vilmar Catafesta <vcatafesta@gmail.com>. Todos os direitos reservados." "$((lastcol - 22))" ' ')" "$black"
 	print $((nrow + 7)) $((nleft + 1)) "$(padc "https://github.com/vcatafesta/pdvShell" "$((lastcol - 22))" ' ')" "$black"
 	print $((nrow + 9)) $((nleft + 1)) "$(padc "$(gettext "O pdvShell é disponibilizado para você sob a Licença MIT, e")" "$((lastcol - 22))" ' ')" "$white"
 	print $((nrow + 10)) $((nleft + 1)) "$(padc "$(gettext "inclui software de código aberto sob uma variedade de outras licenças.")" "$((lastcol - 22))" ' ')" "$white"

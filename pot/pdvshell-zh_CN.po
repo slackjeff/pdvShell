@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: chili-tradutor-go 2.1.20-20260201\n"
-"POT-Creation-Date: 2026-04-27 13:05-0400\n"
-"PO-Revision-Date: 2026-04-27 13:05-0400\n"
+"POT-Creation-Date: 2026-04-28 00:53-0400\n"
+"PO-Revision-Date: 2026-04-28 00:53-0400\n"
 "Last-Translator: Vilmar Catafesta <vcatafesta@gmail.com>\n"
 "Language-Team: Portuguese <https://github.com/chililinux/chili-tradutor-go>\n"
 "MIME-Version: 1.0\n"
@@ -14,723 +14,729 @@ msgstr ""
 "Language: zh_CN\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: pdvshell:107
+#: pdvshell:40
+msgid "Simples frente de caixa escrito em shell script e sqlite"
+msgstr "用 shell 脚本和 sqlite 编写的简单框前面"
+
+#: pdvshell:108
 msgid "Menu Principal"
 msgstr "菜单校长"
 
-#: pdvshell:108
+#: pdvshell:109
 msgid "Nenhum produto encontrado nos parâmetros informados"
 msgstr "未找到指定参数的产品"
 
-#: pdvshell:109
+#: pdvshell:110
 msgid "Produtos"
 msgstr "产品"
 
-#: pdvshell:110
+#: pdvshell:111
 msgid "Fornecedores"
 msgstr "供应商"
 
-#: pdvshell:111
+#: pdvshell:112
 msgid "Realizar Venda/Saída"
 msgstr "进行出售/退出"
 
-#: pdvshell:112
+#: pdvshell:113
 msgid "Entradas de Produtos"
 msgstr "产品参赛作品"
 
-#: pdvshell:113
+#: pdvshell:114
 msgid "Pesquisa/Relatórios/Consulta"
 msgstr "搜索/报告/查询"
 
-#: pdvshell:114
+#: pdvshell:115
 msgid "Manutenção"
 msgstr "维护"
 
-#: pdvshell:115
+#: pdvshell:116
 msgid "Configuração"
 msgstr "设置"
 
-#: pdvshell:116
+#: pdvshell:117
 msgid "Sair"
 msgstr "退出"
 
-#: pdvshell:117
+#: pdvshell:118
 msgid "Sair do Sistema"
 msgstr "退出系统"
 
-#: pdvshell:118
+#: pdvshell:119
 msgid "Opção inválida. Tente novamente."
 msgstr "无效选项。请再试一次。"
 
-#: pdvshell:119
+#: pdvshell:120
 msgid "Cadastrar"
 msgstr "登记"
 
-#: pdvshell:120
+#: pdvshell:121
 msgid "Inclusão"
 msgstr "包容性"
 
-#: pdvshell:121
+#: pdvshell:122
 msgid "Alterar"
 msgstr "改变"
 
-#: pdvshell:122
+#: pdvshell:123
 msgid "Alteração"
 msgstr "改变"
 
-#: pdvshell:123
+#: pdvshell:124
 msgid "Remover/Excluir"
 msgstr "删除/排除"
 
-#: pdvshell:124
+#: pdvshell:125
 msgid "Remoção"
 msgstr "移动"
 
-#: pdvshell:125
+#: pdvshell:126
 msgid "Exclusão"
 msgstr "排除"
 
-#: pdvshell:126
+#: pdvshell:127
 msgid "Pesquisar"
 msgstr "寻找"
 
-#: pdvshell:127
+#: pdvshell:128
 msgid "Consulta"
 msgstr "咨询"
 
-#: pdvshell:128
+#: pdvshell:129
 msgid "Voltar"
 msgstr "返回"
 
-#: pdvshell:129
+#: pdvshell:130
 msgid "Registro efetuado com sucesso!"
 msgstr "注册成功！"
 
-#: pdvshell:130
+#: pdvshell:131
 msgid "Registro removido com sucesso!"
 msgstr "注册删除成功！"
 
-#: pdvshell:131
+#: pdvshell:132
 msgid "Erro na remoção do registro!"
 msgstr "删除注册时出错！"
 
-#: pdvshell:132
+#: pdvshell:133
 msgid "Erro no cadastro/atualização do registro"
 msgstr "注册/更新注册时出错"
 
-#: pdvshell:133
+#: pdvshell:134
 msgid "Formato de data inicial inválida"
 msgstr "开始日期格式无效"
 
-#: pdvshell:134
+#: pdvshell:135
 msgid "Sobre"
 msgstr "在"
 
-#: pdvshell:135
+#: pdvshell:136
 msgid "Sobre o"
 msgstr "关于"
 
-#: pdvshell:136
+#: pdvshell:137
 msgid "Consultas"
 msgstr "查询"
 
-#: pdvshell:137
+#: pdvshell:138
 msgid "Movimento"
 msgstr "移动"
 
-#: pdvshell:138
+#: pdvshell:139
 msgid "Relatórios"
 msgstr "报告"
 
-#: pdvshell:139
+#: pdvshell:140
 msgid "Relatório de"
 msgstr "报告"
 
-#: pdvshell:140
+#: pdvshell:141
 msgid "Produtos abaixo estoque minímo"
 msgstr "低于最低库存的产品"
 
-#: pdvshell:141
+#: pdvshell:142
 msgid "Produtos fora da validade"
 msgstr "过时的产品"
 
-#: pdvshell:142
+#: pdvshell:143
 msgid "Vendas Diárias"
 msgstr "每日销售额"
 
-#: pdvshell:143
+#: pdvshell:144
 msgid "Produtos Vendidos"
 msgstr "销售产品"
 
-#: pdvshell:144 pdvshell:3600
+#: pdvshell:145 pdvshell:3601
 msgid "Atualizar Estoque (conciliação)"
 msgstr "更新库存（对账）"
 
-#: pdvshell:145 pdvshell:3601
+#: pdvshell:146 pdvshell:3602
 msgid "Popular DataBases para testes"
 msgstr "用于测试的流行数据库"
 
-#: pdvshell:146 pdvshell:3602
+#: pdvshell:147 pdvshell:3603
 msgid "Zerar/Limpar DataBase Produtos"
 msgstr "重置/清除数据库产品"
 
-#: pdvshell:147 pdvshell:3603
+#: pdvshell:148 pdvshell:3604
 msgid "Zerar/Limpar DataBase Fornecedor"
 msgstr "重置/清除供应商数据库"
 
-#: pdvshell:148 pdvshell:3604
+#: pdvshell:149 pdvshell:3605
 msgid "Zerar/Limpar DataBase Vendas"
 msgstr "重置/清除销售数据库"
 
-#: pdvshell:149 pdvshell:3605
+#: pdvshell:150 pdvshell:3606
 msgid "Zerar/Limpar DataBase Compras"
 msgstr "重置/清除购买数据库"
 
-#: pdvshell:150 pdvshell:3838
+#: pdvshell:151 pdvshell:3839
 msgid "Dados Empresa"
 msgstr "公司资料"
 
-#: pdvshell:151
+#: pdvshell:152
 msgid "Cores"
 msgstr "核心"
 
-#: pdvshell:152 pdvshell:3850
+#: pdvshell:153 pdvshell:3851
 msgid "Pano de fundo"
 msgstr "背景"
 
-#: pdvshell:1260
+#: pdvshell:1150
+msgid "Sim"
+msgstr "是的"
+
+#: pdvshell:1150
+msgid "Não"
+msgstr "不"
+
+#: pdvshell:1261
 msgid " Pressione qualquer tecla para continuar"
 msgstr "按任意键继续"
 
-#: pdvshell:1533 pdvshell:1701
+#: pdvshell:1534 pdvshell:1702
 msgid "Descrição"
 msgstr "描述"
 
-#: pdvshell:1534
+#: pdvshell:1535
 msgid "CADASTRO DE PRODUTO"
 msgstr "产品注册"
 
-#: pdvshell:1538
+#: pdvshell:1539
 msgid "ID/Descrição"
 msgstr "ID/描述"
 
-#: pdvshell:1539
+#: pdvshell:1540
 msgid "ALTERAÇÃO DE PRODUTO"
 msgstr "产品变更"
 
-#: pdvshell:1557 pdvshell:1610
+#: pdvshell:1558 pdvshell:1611
 msgid "Cod Fabricante"
 msgstr "制造商代码"
 
-#: pdvshell:1558 pdvshell:1635 pdvshell:1703
+#: pdvshell:1559 pdvshell:1636 pdvshell:1704
 msgid "Código Barras"
 msgstr "条形码"
 
-#: pdvshell:1559 pdvshell:1636 pdvshell:1704
+#: pdvshell:1560 pdvshell:1637 pdvshell:1705
 msgid "Unidade"
 msgstr "单元"
 
-#: pdvshell:1560 pdvshell:1637 pdvshell:1705
+#: pdvshell:1561 pdvshell:1638 pdvshell:1706
 msgid "Estoque mínimo"
 msgstr "最低库存"
 
-#: pdvshell:1561 pdvshell:1641 pdvshell:1706
+#: pdvshell:1562 pdvshell:1642 pdvshell:1707
 msgid "Data validade"
 msgstr "到期日"
 
-#: pdvshell:1562 pdvshell:1659 pdvshell:1707
+#: pdvshell:1563 pdvshell:1660 pdvshell:1708
 msgid "Preço (ex: 4.99 ou 5)"
 msgstr "价格（例如：4.99 或 5）"
 
-#: pdvshell:1568 pdvshell:1602
+#: pdvshell:1569 pdvshell:1603
 msgid "Descrição não pode ser em branco. Cancelar?"
 msgstr "描述不能为空。取消？"
 
-#: pdvshell:1574
+#: pdvshell:1575
 msgid "Descrição já registrada."
 msgstr "说明已注册。"
 
-#: pdvshell:1592
+#: pdvshell:1593
 msgid "Descrição não pode ser em branco."
 msgstr "描述不能为空。"
 
-#: pdvshell:1624
+#: pdvshell:1625
 msgid "Fabricante/Fornecedor não encontrado"
 msgstr "未找到制造商/供应商"
 
-#: pdvshell:1629
+#: pdvshell:1630
 msgid "Fabricante/Fornecedor não pode ser em branco. Cancelar?"
 msgstr "制造商/供应商不能为空。取消？"
 
-#: pdvshell:1646 pdvshell:2343 pdvshell:2360
+#: pdvshell:1647 pdvshell:2344 pdvshell:2361
 msgid "Data inválida"
 msgstr "无效日期"
 
-#: pdvshell:1651
+#: pdvshell:1652
 msgid "Data não pode ser em branco. Cancelar?"
 msgstr "日期不能为空。取消？"
 
-#: pdvshell:1663 pdvshell:3000
+#: pdvshell:1664 pdvshell:3001
 msgid "Formato inválido. Usar ponto decimal ex: 4.99 ou número inteiro."
 msgstr "格式无效。使用小数点，例如4.99 或整数。"
 
-#: pdvshell:1667
+#: pdvshell:1668
 msgid "Confirma inclusão/atualização do produto?"
 msgstr "确认包含/更新产品？"
 
-#: pdvshell:1681 pdvshell:2093 pdvshell:2173 pdvshell:3705
+#: pdvshell:1682 pdvshell:2094 pdvshell:2174 pdvshell:3706
 msgid "Inclusão/alteração não efetuada."
 msgstr "未进行包含/更改。"
 
-#: pdvshell:1687
+#: pdvshell:1688
 msgid "EXCLUSÃO DE PRODUTO"
 msgstr "产品排除"
 
-#: pdvshell:1700 pdvshell:1709 pdvshell:2113 pdvshell:2120 pdvshell:2192
-#: pdvshell:2199
+#: pdvshell:1701 pdvshell:1710 pdvshell:2114 pdvshell:2121 pdvshell:2193
+#: pdvshell:2200
 msgid "ID/Nome"
 msgstr "身份证/姓名"
 
-#: pdvshell:1702
+#: pdvshell:1703
 msgid "Fabricante"
 msgstr "制造商"
 
-#: pdvshell:1714
+#: pdvshell:1715
 msgid "O ID não pode ser em branco. Cancelar?"
 msgstr "ID 不能为空。取消？"
 
-#: pdvshell:1743
+#: pdvshell:1744
 msgid "Confirma exclusão do produto?"
 msgstr "确认删除产品吗？"
 
-#: pdvshell:1744
+#: pdvshell:1745
 msgid "Removendo cadastro do produto"
 msgstr "删除产品注册"
 
-#: pdvshell:1747
+#: pdvshell:1748
 msgid "Deseja remover registros de vendas e compras desse produto?"
 msgstr "您想删除该产品的销售和购买记录吗？"
 
-#: pdvshell:1748
+#: pdvshell:1749
 msgid "Removendo registros de vendas"
 msgstr "删除销售记录"
 
-#: pdvshell:1750
+#: pdvshell:1751
 msgid "Removendo registros de compras"
 msgstr "删除购买记录"
 
-#: pdvshell:1801 pdvshell:1802
+#: pdvshell:1802 pdvshell:1803
 msgid "PESQUISAR PRODUTOS"
 msgstr "搜索产品"
 
-#: pdvshell:1803 pdvshell:1882 pdvshell:1963
+#: pdvshell:1804 pdvshell:1883 pdvshell:1964
 msgid "Pesquisar por: nome, id <x>|<x-y>, f<id> ou *=tudo"
 msgstr "搜索依据：名称、ID <x>|<x-y>、f<id> 或 *=all"
 
-#: pdvshell:2030
+#: pdvshell:2031
 msgid "CADASTRO DE FORNECEDOR"
 msgstr "供应商注册"
 
-#: pdvshell:2045 pdvshell:2052 pdvshell:2056 pdvshell:2114 pdvshell:2140
-#: pdvshell:2193 pdvshell:3669 pdvshell:3676
+#: pdvshell:2046 pdvshell:2053 pdvshell:2057 pdvshell:2115 pdvshell:2141
+#: pdvshell:2194 pdvshell:3670 pdvshell:3677
 msgid "Nome"
 msgstr "姓名"
 
-#: pdvshell:2046 pdvshell:2071 pdvshell:2115 pdvshell:2151 pdvshell:2194
-#: pdvshell:3670 pdvshell:3687
+#: pdvshell:2047 pdvshell:2072 pdvshell:2116 pdvshell:2152 pdvshell:2195
+#: pdvshell:3671 pdvshell:3688
 msgid "Endereço"
 msgstr "地址"
 
-#: pdvshell:2047 pdvshell:2072 pdvshell:2116 pdvshell:2152 pdvshell:2195
-#: pdvshell:3671 pdvshell:3688
+#: pdvshell:2048 pdvshell:2073 pdvshell:2117 pdvshell:2153 pdvshell:2196
+#: pdvshell:3672 pdvshell:3689
 msgid "Cidade"
 msgstr "城市"
 
-#: pdvshell:2048 pdvshell:2073 pdvshell:2117 pdvshell:2153 pdvshell:2196
+#: pdvshell:2049 pdvshell:2074 pdvshell:2118 pdvshell:2154 pdvshell:2197
 msgid "Estado"
 msgstr "状态"
 
-#: pdvshell:2049 pdvshell:2074 pdvshell:2118 pdvshell:2154 pdvshell:2197
-#: pdvshell:3673 pdvshell:3690
+#: pdvshell:2050 pdvshell:2075 pdvshell:2119 pdvshell:2155 pdvshell:2198
+#: pdvshell:3674 pdvshell:3691
 msgid "Cnpj"
 msgstr "全国人大常委会"
 
-#: pdvshell:2058
+#: pdvshell:2059
 msgid "Nome não pode ser em branco"
 msgstr "名称不能为空"
 
-#: pdvshell:2065 pdvshell:2145
+#: pdvshell:2066 pdvshell:2146
 msgid "O nome não pode ser em branco. Cancelar?"
 msgstr "名称不能为空。取消？"
 
-#: pdvshell:2077 pdvshell:2157
+#: pdvshell:2078 pdvshell:2158
 msgid "Confirma inclusão/atualização do fornecedor?"
 msgstr "确认纳入/更新供应商？"
 
-#: pdvshell:2099
+#: pdvshell:2100
 msgid "ALTERAÇÃO DE FORNECEDOR"
 msgstr "供应商变更"
 
-#: pdvshell:2124 pdvshell:2202 pdvshell:3030
+#: pdvshell:2125 pdvshell:2203 pdvshell:3031
 msgid "ID/Nome não pode ser em branco. Cancelar?"
 msgstr "ID/姓名不能为空。取消？"
 
-#: pdvshell:2134 pdvshell:3042
+#: pdvshell:2135 pdvshell:3043
 msgid "Fornecedor não encontrado nos parâmetros informados"
 msgstr "在指定参数中未找到供应商"
 
-#: pdvshell:2179
+#: pdvshell:2180
 msgid "EXCLUSÃO DE FORNECEDOR"
 msgstr "供应商排除"
 
-#: pdvshell:2216 pdvshell:2313
+#: pdvshell:2217 pdvshell:2314
 msgid "Nenhum fornecedor encontrado nos parâmetros informados"
 msgstr "未找到指定参数的供应商"
 
-#: pdvshell:2227
+#: pdvshell:2228
 msgid "Confirma exclusão do fornecedor?"
 msgstr "确认排除供应商？"
 
-#: pdvshell:2244
+#: pdvshell:2245
 msgid "PESQUISAR FORNECEDOR"
 msgstr "搜寻供应商"
 
-#: pdvshell:2264
+#: pdvshell:2265
 msgid "Pesquisar por: nome, id <x>|<x-y> ou *=tudo"
 msgstr "搜索依据：名称、ID <x>|<x-y> 或 *=全部"
 
-#: pdvshell:2334 pdvshell:2338
+#: pdvshell:2335 pdvshell:2339
 msgid "Data Inicial"
 msgstr "开始日期"
 
-#: pdvshell:2335 pdvshell:2355
+#: pdvshell:2336 pdvshell:2356
 msgid "Data Final"
 msgstr "最终数据"
 
-#: pdvshell:2348 pdvshell:2365
+#: pdvshell:2349 pdvshell:2366
 msgid "A data não pode ser em branco. Cancelar?"
 msgstr "日期不能为空。取消？"
 
-#: pdvshell:2452 pdvshell:2455 pdvshell:2596 pdvshell:2599
+#: pdvshell:2453 pdvshell:2456 pdvshell:2597 pdvshell:2600
 msgid "Pesquisar por: docnr, data <dd-mm-aaaa>, id <x>|<x-y>, f<id>, ou *=tudo"
 msgstr "搜索：docnr、日期 <dd-mm-yyyy>、id <x>|<x-y>、f<id> 或 *=all"
 
-#: pdvshell:2453 pdvshell:2456 pdvshell:2597 pdvshell:2600
+#: pdvshell:2454 pdvshell:2457 pdvshell:2598 pdvshell:2601
 msgid "Agrupar : n=docnr, d=data, i=id, f=forn ou *=nenhum"
 msgstr "组：n=docnr、d=data、i=id、f=forn 或 *=none"
 
-#: pdvshell:2583
+#: pdvshell:2584
 msgid "RELATÓRIO ENTRADAS DE PRODUTOS"
 msgstr "产品进入报告"
 
-#: pdvshell:2749
+#: pdvshell:2750
 msgid "Não consta entradas nos parâmetros informados"
 msgstr "报告的参数中没有条目"
 
-#: pdvshell:2767
+#: pdvshell:2768
 msgid "Registro de venda efetuado"
 msgstr "已完成销售登记"
 
-#: pdvshell:2780
+#: pdvshell:2781
 msgid "Baixa de estoque efetuado"
 msgstr "已进行存货核销"
 
-#: pdvshell:2784
+#: pdvshell:2785
 msgid "CUPOM PDV"
 msgstr "库普姆增值税"
 
-#: pdvshell:2831 pdvshell:2952
+#: pdvshell:2832 pdvshell:2953
 msgid "ID/nome/CodeBar (em branco=concluir)"
 msgstr "ID/名称/CodeBar（空白=完成）"
 
-#: pdvshell:2846 pdvshell:2968
+#: pdvshell:2847 pdvshell:2969
 msgid "Produto não encontrado"
 msgstr "未找到产品"
 
-#: pdvshell:2854 pdvshell:2977
+#: pdvshell:2855 pdvshell:2978
 msgid "Quantidade (0 para remover o item)"
 msgstr "数量（0表示删除商品）"
 
-#: pdvshell:2861 pdvshell:2984
+#: pdvshell:2862 pdvshell:2985
 msgid "Quantidade inválida ou item não tem na lista"
 msgstr "数量无效或商品不在列表中"
 
-#: pdvshell:2866 pdvshell:2989
+#: pdvshell:2867 pdvshell:2990
 msgid "Quantidade inválida!"
 msgstr "数量无效！"
 
-#: pdvshell:2871
+#: pdvshell:2872
 msgid "Quantidade insuficiente de"
 msgstr "数量不足"
 
-#: pdvshell:2871
+#: pdvshell:2872
 msgid "no estoque - restam"
 msgstr "有库存 - 左"
 
-#: pdvshell:2893
+#: pdvshell:2894
 msgid "Confirma o fechamento do CUPOM?"
 msgstr "您确认优惠券关闭吗？"
 
-#: pdvshell:2906
+#: pdvshell:2907
 msgid "ENTRADAS DE PRODUTOS"
 msgstr "产品参赛作品"
 
-#: pdvshell:2996
+#: pdvshell:2997
 msgid "Preço custo (ex: 4.99 ou 5)"
 msgstr "成本价（例如：4.99 或 5）"
 
-#: pdvshell:3022
+#: pdvshell:3023
 msgid "DADOS DA NFF"
 msgstr "NFF数据"
 
-#: pdvshell:3024 pdvshell:3026
+#: pdvshell:3025 pdvshell:3027
 msgid "Fornecedor"
 msgstr "供应商"
 
-#: pdvshell:3025 pdvshell:3047
+#: pdvshell:3026 pdvshell:3048
 msgid "Docnr/NFF"
 msgstr "文件/NFF"
 
-#: pdvshell:3057
+#: pdvshell:3058
 msgid "Confirma a entrada desses produtos?"
 msgstr "您确认这些产品到货了吗？"
 
-#: pdvshell:3094
+#: pdvshell:3095
 msgid "Ajuste de estoque efetuado"
 msgstr "库存调整"
 
-#: pdvshell:3101
+#: pdvshell:3102
 msgid "Confirma a atualização?"
 msgstr "确认更新？"
 
-#: pdvshell:3102
+#: pdvshell:3103
 msgid "Aguarde... Atualizando estoque"
 msgstr "请稍等...库存更新中"
 
-#: pdvshell:3118
+#: pdvshell:3119
 msgid "Atualização concluída"
 msgstr "更新完成"
 
-#: pdvshell:3120
+#: pdvshell:3121
 msgid "Erro durante a atualização"
 msgstr "更新期间出错"
 
-#: pdvshell:3143
+#: pdvshell:3144
 msgid "Checando tabela produtos"
 msgstr "检查产品表"
 
-#: pdvshell:3145
+#: pdvshell:3146
 msgid "Checando tabela fornecedor"
 msgstr "检查供应商表"
 
-#: pdvshell:3147
+#: pdvshell:3148
 msgid "Checando tabela vendas"
 msgstr "检查销售表"
 
-#: pdvshell:3149
+#: pdvshell:3150
 msgid "Checando tabela compras"
 msgstr "检查采购表"
 
-#: pdvshell:3154
+#: pdvshell:3155
 msgid ""
 "CUIDADO! Procedimento irá apagar todos os registros da tabela produtos. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3155
+#: pdvshell:3156
 msgid "Aguarde, Droping tabela produtos"
 msgstr "请稍等，正在删除产品表"
 
-#: pdvshell:3162
+#: pdvshell:3163
 msgid ""
 "CUIDADO! Procedimento irá apagar todos os registros da tabela fornecedor. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3163
+#: pdvshell:3164
 msgid "Aguarde, Droping tabela fornecedor"
 msgstr "请稍等，正在删除供应商表"
 
-#: pdvshell:3170
+#: pdvshell:3171
 msgid ""
 "CUIDADO! Procedimento irá apagar todos os registros da tabela vendas. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3171
+#: pdvshell:3172
 msgid "Aguarde, Droping tabela vendas"
 msgstr "请稍等，正在删除销售表"
 
-#: pdvshell:3178
+#: pdvshell:3179
 msgid ""
 "CUIDADO! Procedimento irá apagar todos os registros da tabela compras. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3179
+#: pdvshell:3180
 msgid "Aguarde, Droping tabela compras"
 msgstr "请稍等，正在删除购物桌"
 
-#: pdvshell:3194
+#: pdvshell:3195
 msgid ""
 "CUIDADO! Procedimento irá inserir dados aleatórios para testes nas tabelas. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3208
+#: pdvshell:3209
 msgid "Populando tabela produtos"
 msgstr "填充产品表"
 
-#: pdvshell:3227
+#: pdvshell:3228
 msgid "Populando tabela fornecedor"
 msgstr "填充供应商表"
 
-#: pdvshell:3240
+#: pdvshell:3241
 msgid "Populando tabela vendas"
 msgstr "填充销售表"
 
-#: pdvshell:3291
+#: pdvshell:3292
 msgid "Populando tabela compras"
 msgstr "填充购物表"
 
-#: pdvshell:3543
+#: pdvshell:3544
 msgid "MENU FORNECEDORES"
 msgstr "供应商菜单"
 
-#: pdvshell:3570
+#: pdvshell:3571
 msgid "MENU PRODUTOS"
 msgstr "产品菜单"
 
-#: pdvshell:3597
+#: pdvshell:3598
 msgid "MENU MANUTENÇÃO"
 msgstr "维护菜单"
 
-#: pdvshell:3628
+#: pdvshell:3629
 msgid "MENU PEQUISA/RELATÓRIOS/CONSULTA"
 msgstr "菜单搜索/报告/查询"
 
-#: pdvshell:3661
+#: pdvshell:3662
 msgid "DADOS DA EMPRESA"
 msgstr "公司资料"
 
-#: pdvshell:3672 pdvshell:3689
+#: pdvshell:3673 pdvshell:3690
 msgid "UF"
 msgstr "超滤"
 
-#: pdvshell:3681
+#: pdvshell:3682
 msgid "O Nome não pode ser em branco. Cancelar?"
 msgstr "名称不能为空。取消？"
 
-#: pdvshell:3692
+#: pdvshell:3693
 msgid "Confirma dados?"
 msgstr "确认数据？"
 
-#: pdvshell:3712
+#: pdvshell:3713
 msgid "CONFIGURAÇÃO DE CORES"
 msgstr "颜色设置"
 
-#: pdvshell:3732
+#: pdvshell:3733
 msgid "COR SELECIONADA :"
 msgstr "所选颜色："
 
-#: pdvshell:3733
+#: pdvshell:3734
 msgid "ESC             : CANCELAR"
 msgstr "ESC : 取消"
 
-#: pdvshell:3734
+#: pdvshell:3735
 msgid "ENTER           : ACEITAR ESCOLHA"
 msgstr "输入：接受选择"
 
-#: pdvshell:3735
+#: pdvshell:3736
 msgid "SETA ACIMA  ↑   : ALTERAR COR +"
 msgstr "向上箭头 ↑ ：更改颜色 +"
 
-#: pdvshell:3736
+#: pdvshell:3737
 msgid "SETA ABAIXO ↓   : ALTERAR COR -"
 msgstr "向下箭头 ↓：更改颜色 -"
 
-#: pdvshell:3765
+#: pdvshell:3766
 msgid "SOBRE"
 msgstr "在"
 
-#: pdvshell:3775
-msgid ""
-"Simples frente de caixa para mercearias pequenas feito em shell script e "
-"sqlite!"
-msgstr ""
-
-#: pdvshell:3780
+#: pdvshell:3781
 msgid "O pdvShell é disponibilizado para você sob a Licença MIT, e"
 msgstr "pdvShell 根据 MIT 许可证向您提供，并且"
 
-#: pdvshell:3781
+#: pdvshell:3782
 msgid "inclui software de código aberto sob uma variedade de outras licenças."
 msgstr "包括各种其他许可证下的开源软件。"
 
-#: pdvshell:3782
+#: pdvshell:3783
 msgid "Você pode ler instruções sobre como baixar e criar para você mesmo"
 msgstr "您可以阅读有关如何下载和自行创建的说明"
 
-#: pdvshell:3783
+#: pdvshell:3784
 msgid "o código fonte específico usado para criar esta cópia."
 msgstr "用于创建此副本的特定源代码。"
 
-#: pdvshell:3784
+#: pdvshell:3785
 msgid "Este programa vem com absolutamente nenhuma garantia."
 msgstr "该计划绝对不提供任何保证。"
 
-#: pdvshell:3789
+#: pdvshell:3790
 msgid "PANO DE FUNDO"
 msgstr "背景"
 
-#: pdvshell:3835
+#: pdvshell:3836
 msgid "MENU CONFIGURAÇÃO"
 msgstr "设置菜单"
 
-#: pdvshell:3839
+#: pdvshell:3840
 msgid "Cor Logo"
 msgstr "彩色标志"
 
-#: pdvshell:3840
+#: pdvshell:3841
 msgid "Cor Cabecalho"
 msgstr "标题颜色"
 
-#: pdvshell:3841
+#: pdvshell:3842
 msgid "Cor Status Superior"
 msgstr "更高国家的心脏"
 
-#: pdvshell:3842
+#: pdvshell:3843
 msgid "Cor Status Inferior"
 msgstr "心脏状态较低"
 
-#: pdvshell:3843
+#: pdvshell:3844
 msgid "Cor Box"
 msgstr "软盒"
 
-#: pdvshell:3844
+#: pdvshell:3845
 msgid "Cor Titulo Box"
 msgstr "Cor 标题框"
 
-#: pdvshell:3845
+#: pdvshell:3846
 msgid "Cor DispBox"
 msgstr "科尔显示盒"
 
-#: pdvshell:3846
+#: pdvshell:3847
 msgid "Cor Mensagem Info OK"
 msgstr "颜色 留言信息 确定"
 
-#: pdvshell:3847
+#: pdvshell:3848
 msgid "Cor Mensagem Info ERRO"
 msgstr "颜色信息信息错误"
 
-#: pdvshell:3848
+#: pdvshell:3849
 msgid "Cor Mensagem Confirmação"
 msgstr "颜色留言确认"
 
-#: pdvshell:3849
+#: pdvshell:3850
 msgid "Cor Pano de fundo"
 msgstr "彩色背景"
 
-#: pdvshell:3894
+#: pdvshell:3895
 msgid "Pergunta: Deseja realmente Sair?"
 msgstr "问：你真的想离开吗？"

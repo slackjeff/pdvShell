@@ -8,6 +8,7 @@
 #  install.sh
 #  Created: 2023/23/10
 #  Altered: 2023/23/10
+#  Updated: seg 27 abr 2026 12:47:01 -04
 #
 #  Copyright (c) 2023-2026, Vilmar Catafesta <vcatafesta@gmail.com>
 #  All rights reserved.
@@ -35,32 +36,33 @@
 set -euo pipefail
 
 # ===== CORES =====
-c_reset='\033[0m'
-c_red='\033[1;31m'
-c_green='\033[1;32m'
-c_yellow='\033[1;33m'
-c_blue='\033[1;34m'
+reset='\033[0m'
+rst='\033[0m'
+red='\033[1;31m'
+green='\033[1;32m'
+yellow='\033[1;33m'
+blue='\033[1;34m'
 
 oops() {
-  echo -e "${c_red}[ERRO]${c_reset} $*" >&2
-  exit 1
+	echo -e "${red}[ERRO]${reset} $*" >&2
+	exit 1
 }
 
 log() {
-  echo -e "${c_blue}[*]${c_reset} $*"
+	echo -e "${blue}[*]${reset} $*"
 }
 
 ok() {
-  echo -e "   ${c_green}[OK]${c_reset} $*"
+	echo -e "   ${green}[OK]${reset} $*"
 }
 
 warn() {
-  echo -e "${c_yellow}[AVISO]${c_reset} $*"
+	echo -e "${yellow}[AVISO]${reset} $*"
 }
 
 umask 0022
 
-url="https://raw.githubusercontent.com/slackjeff/pdvShell/refs/heads/main"
+url='https://raw.githubusercontent.com/slackjeff/pdvShell/refs/heads/main'
 files_bin=(pdvshell)
 files_home=(LICENSE README.md)
 files_lang=(pdvshell)
@@ -70,53 +72,53 @@ tmpDir="$(mktemp -d -t pdvshell.XXXXXX)"
 dir_locale="usr/share/locale"
 
 cleanup() {
-  rm -rf "$tmpDir"
+	rm -rf "$tmpDir"
 }
 trap cleanup EXIT
 
 # downloader
 if command -v curl >/dev/null 2>&1; then
-  cmdfetch() { curl -fsSL "$1" -o "$2"; }
+	cmdfetch() { curl -fsSL "$1" -o "$2"; }
 elif command -v wget >/dev/null 2>&1; then
-  cmdfetch() { wget -q "$1" -O "$2"; }
+	cmdfetch() { wget -q "$1" -O "$2"; }
 else
-  oops "precisa de curl ou wget"
+	oops "precisa de curl ou wget"
 fi
 
 log "usando diretório temporário: $tmpDir"
 
 # download binários
 for f in "${files_bin[@]}"; do
-  log "baixando binário $f..."
-  cmdfetch "$url/$f" "$tmpDir/$f" || oops "falha ao baixar $f"
-  ok "$f baixado"
+	log "baixando binário $f..."
+	cmdfetch "$url/$f" "$tmpDir/$f" || oops "falha ao baixar $f"
+	ok "$f baixado"
 done
 
 # extras
 for f in "${files_home[@]}"; do
-  log "baixando $f..."
-  cmdfetch "$url/$f" "$tmpDir/$f" || oops "falha ao baixar $f"
+	log "baixando $f..."
+	cmdfetch "$url/$f" "$tmpDir/$f" || oops "falha ao baixar $f"
 done
 
 # locales
 for lang in "${idioma[@]}"; do
-  for f in "${files_lang[@]}"; do
-    target="$tmpDir/$dir_locale/$lang/LC_MESSAGES"
-    mkdir -p "$target"
+	for f in "${files_lang[@]}"; do
+		target="$tmpDir/$dir_locale/$lang/LC_MESSAGES"
+		mkdir -p "$target"
 
-    if cmdfetch "$url/$dir_locale/$lang/LC_MESSAGES/$f.mo" "$target/$f.mo"; then
-      ok "locale $lang"
-    else
-      warn "locale $lang não disponível"
-    fi
-  done
+		if cmdfetch "$url/$dir_locale/$lang/LC_MESSAGES/$f.mo" "$target/$f.mo"; then
+			ok "locale $lang"
+		else
+			warn "locale $lang não disponível"
+		fi
+	done
 done
 
 # instala locales
 if [[ -d "$tmpDir/usr/share/locale" ]]; then
-  log "instalando locales..."
-  sudo cp -r "$tmpDir/usr/share/locale/." /usr/share/locale/
-  ok "locales instalados"
+	log "instalando locales..."
+	sudo cp -r "$tmpDir/usr/share/locale/." /usr/share/locale/
+	ok "locales instalados"
 fi
 
 # instala app
@@ -124,8 +126,8 @@ log "instalando em /opt/pdvshell..."
 sudo install -d /opt/pdvshell
 
 for file in "${files_bin[@]}"; do
-  sudo install -m 755 "$tmpDir/$file" "/opt/pdvshell/$file"
-  ok "$file instalado"
+	sudo install -m 755 "$tmpDir/$file" "/opt/pdvshell/$file"
+	ok "$file instalado"
 done
 
 # wrapper
@@ -140,5 +142,5 @@ sudo chmod 755 /usr/local/bin/pdvshell
 ok "wrapper criado"
 
 echo
-echo -e "${c_green}Instalação concluída!${c_reset}"
-echo -e "Use: ${c_blue}pdvshell${c_reset}"
+echo -e "${green}Instalação concluída!${reset}"
+echo -e "Use: ${blue}pdvshell${reset}"
