@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: chili-tradutor-go 2.1.20-20260201\n"
-"POT-Creation-Date: 2026-04-28 00:53-0400\n"
-"PO-Revision-Date: 2026-04-28 00:53-0400\n"
+"POT-Creation-Date: 2026-08-12 16:21-0400\n"
+"PO-Revision-Date: 2026-08-12 16:21-0400\n"
 "Last-Translator: Vilmar Catafesta <vcatafesta@gmail.com>\n"
 "Language-Team: Portuguese <https://github.com/chililinux/chili-tradutor-go>\n"
 "MIME-Version: 1.0\n"
@@ -166,31 +166,31 @@ msgstr "Vendite giornaliere"
 msgid "Produtos Vendidos"
 msgstr "Prodotti venduti"
 
-#: pdvshell:145 pdvshell:3601
+#: pdvshell:145 pdvshell:4266
 msgid "Atualizar Estoque (conciliação)"
 msgstr "Aggiorna stock (riconciliazione)"
 
-#: pdvshell:146 pdvshell:3602
+#: pdvshell:146 pdvshell:4267
 msgid "Popular DataBases para testes"
 msgstr "Database popolari per i test"
 
-#: pdvshell:147 pdvshell:3603
+#: pdvshell:147 pdvshell:4268
 msgid "Zerar/Limpar DataBase Produtos"
 msgstr "Reimposta/Cancella prodotti database"
 
-#: pdvshell:148 pdvshell:3604
+#: pdvshell:148 pdvshell:4269
 msgid "Zerar/Limpar DataBase Fornecedor"
 msgstr "Reimposta/Cancella database fornitori"
 
-#: pdvshell:149 pdvshell:3605
+#: pdvshell:149 pdvshell:4270
 msgid "Zerar/Limpar DataBase Vendas"
 msgstr "Reimposta/Cancella database delle vendite"
 
-#: pdvshell:150 pdvshell:3606
+#: pdvshell:150 pdvshell:4271
 msgid "Zerar/Limpar DataBase Compras"
 msgstr "Reimposta/Cancella DataBase Acquisti"
 
-#: pdvshell:151 pdvshell:3839
+#: pdvshell:151 pdvshell:4522
 msgid "Dados Empresa"
 msgstr "Dati aziendali"
 
@@ -198,545 +198,578 @@ msgstr "Dati aziendali"
 msgid "Cores"
 msgstr "Nuclei"
 
-#: pdvshell:153 pdvshell:3851
+#: pdvshell:153 pdvshell:4534
 msgid "Pano de fundo"
 msgstr "Sfondo"
 
-#: pdvshell:1150
+#: pdvshell:1369
 msgid "Sim"
-msgstr "SÌ"
+msgstr "Sim"
 
-#: pdvshell:1150
+#: pdvshell:1369
 msgid "Não"
 msgstr "NO"
 
-#: pdvshell:1261
+#: pdvshell:1453
+msgid "OK"
+msgstr "OK"
+
+#: pdvshell:1552
 msgid " Pressione qualquer tecla para continuar"
 msgstr "Premere un tasto qualsiasi per continuare"
 
-#: pdvshell:1534 pdvshell:1702
+#: pdvshell:1908 pdvshell:2135
 msgid "Descrição"
 msgstr "Descrizione"
 
-#: pdvshell:1535
+#: pdvshell:1909
 msgid "CADASTRO DE PRODUTO"
 msgstr "REGISTRAZIONE DEL PRODOTTO"
 
-#: pdvshell:1539
+#: pdvshell:1913
 msgid "ID/Descrição"
 msgstr "ID/Descrizione"
 
-#: pdvshell:1540
+#: pdvshell:1914
 msgid "ALTERAÇÃO DE PRODUTO"
 msgstr "CAMBIO PRODOTTO"
 
-#: pdvshell:1558 pdvshell:1611
+#: pdvshell:1932 pdvshell:2000 pdvshell:2009
 msgid "Cod Fabricante"
 msgstr "Codice produttore"
 
-#: pdvshell:1559 pdvshell:1636 pdvshell:1704
+#: pdvshell:1933 pdvshell:2001 pdvshell:2055 pdvshell:2137
 msgid "Código Barras"
 msgstr "Codice a barre"
 
-#: pdvshell:1560 pdvshell:1637 pdvshell:1705
+#: pdvshell:1934 pdvshell:2002 pdvshell:2058 pdvshell:2138
 msgid "Unidade"
 msgstr "Unità"
 
-#: pdvshell:1561 pdvshell:1638 pdvshell:1706
+#: pdvshell:1935 pdvshell:2003 pdvshell:2067 pdvshell:2139
 msgid "Estoque mínimo"
 msgstr "Scorta minima"
 
-#: pdvshell:1562 pdvshell:1642 pdvshell:1707
+#: pdvshell:1936 pdvshell:2004 pdvshell:2071 pdvshell:2140
 msgid "Data validade"
 msgstr "Data di scadenza"
 
-#: pdvshell:1563 pdvshell:1660 pdvshell:1708
+#: pdvshell:1937 pdvshell:2005 pdvshell:2088 pdvshell:2141
 msgid "Preço (ex: 4.99 ou 5)"
 msgstr "Prezzo (es: 4,99 o 5)"
 
-#: pdvshell:1569 pdvshell:1603
+#: pdvshell:1942 pdvshell:1976
 msgid "Descrição não pode ser em branco. Cancelar?"
 msgstr "La descrizione non può essere vuota. Cancellare?"
 
-#: pdvshell:1575
+#: pdvshell:1949
 msgid "Descrição já registrada."
 msgstr "Descrizione già registrata."
 
-#: pdvshell:1593
+#: pdvshell:1967
 msgid "Descrição não pode ser em branco."
 msgstr "La descrizione non può essere vuota."
 
-#: pdvshell:1625
-msgid "Fabricante/Fornecedor não encontrado"
-msgstr "Produttore/Fornitore non trovato"
+#: pdvshell:2024
+msgid ""
+"Fabricante/Fornecedor não encontrado. Deseja escolher da lista de "
+"cadastrados?"
+msgstr ""
 
-#: pdvshell:1630
-msgid "Fabricante/Fornecedor não pode ser em branco. Cancelar?"
-msgstr "Il produttore/fornitore non può essere vuoto. Cancellare?"
+#: pdvshell:2031 pdvshell:2046
+msgid "Nenhum fornecedor cadastrado. Deseja cadastrar um fornecedor agora?"
+msgstr "Nessun fornitore registrato. Vuoi registrare un fornitore adesso?"
 
-#: pdvshell:1647 pdvshell:2344 pdvshell:2361
+#: pdvshell:2063
+msgid "Unidade deve ter exatamente 2 caracteres (ex: KG, UN, PC)"
+msgstr "L'unità deve contenere esattamente 2 caratteri (ad esempio KG, UN, PC)"
+
+#: pdvshell:2076 pdvshell:2903 pdvshell:2920
 msgid "Data inválida"
 msgstr "Data non valida"
 
-#: pdvshell:1652
+#: pdvshell:2080
 msgid "Data não pode ser em branco. Cancelar?"
 msgstr "La data non può essere vuota. Cancellare?"
 
-#: pdvshell:1664 pdvshell:3001
+#: pdvshell:2092 pdvshell:3601
 msgid "Formato inválido. Usar ponto decimal ex: 4.99 ou número inteiro."
 msgstr "Formato non valido. Utilizza il punto decimale, ad es. 4,99 o numero intero."
 
-#: pdvshell:1668
+#: pdvshell:2096
 msgid "Confirma inclusão/atualização do produto?"
 msgstr "Confermi l'inclusione/aggiornamento del prodotto?"
 
-#: pdvshell:1682 pdvshell:2094 pdvshell:2174 pdvshell:3706
+#: pdvshell:2115 pdvshell:2575 pdvshell:2678 pdvshell:4371
 msgid "Inclusão/alteração não efetuada."
 msgstr "Inclusione/modifica non effettuata."
 
-#: pdvshell:1688
+#: pdvshell:2121
 msgid "EXCLUSÃO DE PRODUTO"
 msgstr "ESCLUSIONE DEL PRODOTTO"
 
-#: pdvshell:1701 pdvshell:1710 pdvshell:2114 pdvshell:2121 pdvshell:2193
-#: pdvshell:2200
+#: pdvshell:2134 pdvshell:2143 pdvshell:2605 pdvshell:2612 pdvshell:2698
+#: pdvshell:2705
 msgid "ID/Nome"
 msgstr "ID/Nome"
 
-#: pdvshell:1703
+#: pdvshell:2136
 msgid "Fabricante"
 msgstr "Produttore"
 
-#: pdvshell:1715
+#: pdvshell:2148
 msgid "O ID não pode ser em branco. Cancelar?"
 msgstr "L'ID non può essere vuoto. Cancellare?"
 
-#: pdvshell:1744
+#: pdvshell:2177
 msgid "Confirma exclusão do produto?"
 msgstr "Confirma exclusão do produto?"
 
-#: pdvshell:1745
+#: pdvshell:2178
 msgid "Removendo cadastro do produto"
 msgstr "Rimozione della registrazione del prodotto"
 
-#: pdvshell:1748
+#: pdvshell:2181
 msgid "Deseja remover registros de vendas e compras desse produto?"
 msgstr "Vuoi rimuovere i record di vendita e acquisto per questo prodotto?"
 
-#: pdvshell:1749
+#: pdvshell:2182
 msgid "Removendo registros de vendas"
 msgstr "Removendo registros de vendas"
 
-#: pdvshell:1751
+#: pdvshell:2184
 msgid "Removendo registros de compras"
 msgstr "Rimozione dei record di acquisto"
 
-#: pdvshell:1802 pdvshell:1803
+#: pdvshell:2239 pdvshell:2240
 msgid "PESQUISAR PRODUTOS"
 msgstr "CERCA PRODOTTI"
 
-#: pdvshell:1804 pdvshell:1883 pdvshell:1964
+#: pdvshell:2241 pdvshell:2325 pdvshell:2412
 msgid "Pesquisar por: nome, id <x>|<x-y>, f<id> ou *=tudo"
 msgstr "Cerca per: nome, id <x>|<x-y>, f<id> o *=all"
 
-#: pdvshell:2031
+#: pdvshell:2480
 msgid "CADASTRO DE FORNECEDOR"
 msgstr "REGISTRAZIONE FORNITORI"
 
-#: pdvshell:2046 pdvshell:2053 pdvshell:2057 pdvshell:2115 pdvshell:2141
-#: pdvshell:2194 pdvshell:3670 pdvshell:3677
+#: pdvshell:2517 pdvshell:2524 pdvshell:2606 pdvshell:2631 pdvshell:2699
+#: pdvshell:4335 pdvshell:4342
 msgid "Nome"
 msgstr "Nome"
 
-#: pdvshell:2047 pdvshell:2072 pdvshell:2116 pdvshell:2152 pdvshell:2195
-#: pdvshell:3671 pdvshell:3688
+#: pdvshell:2518 pdvshell:2538 pdvshell:2607 pdvshell:2641 pdvshell:2700
+#: pdvshell:4336 pdvshell:4353
 msgid "Endereço"
 msgstr "Indirizzo"
 
-#: pdvshell:2048 pdvshell:2073 pdvshell:2117 pdvshell:2153 pdvshell:2196
-#: pdvshell:3672 pdvshell:3689
+#: pdvshell:2519 pdvshell:2539 pdvshell:2608 pdvshell:2642 pdvshell:2701
+#: pdvshell:4337 pdvshell:4354
 msgid "Cidade"
 msgstr "Città"
 
-#: pdvshell:2049 pdvshell:2074 pdvshell:2118 pdvshell:2154 pdvshell:2197
+#: pdvshell:2520 pdvshell:2540 pdvshell:2609 pdvshell:2643 pdvshell:2702
 msgid "Estado"
 msgstr "Stato"
 
-#: pdvshell:2050 pdvshell:2075 pdvshell:2119 pdvshell:2155 pdvshell:2198
-#: pdvshell:3674 pdvshell:3691
-msgid "Cnpj"
-msgstr "Cnpj"
+#: pdvshell:2521 pdvshell:2543 pdvshell:2610 pdvshell:2646 pdvshell:2703
+msgid "CNPJ/CPF"
+msgstr "CNPJ/CPF"
 
-#: pdvshell:2059
-msgid "Nome não pode ser em branco"
-msgstr "Nome não pode ser em branco"
+#: pdvshell:2527
+msgid "Fornecedor já cadastrado com esse nome"
+msgstr "Fornitore già registrato con quel nome"
 
-#: pdvshell:2066 pdvshell:2146
+#: pdvshell:2532 pdvshell:2635
 msgid "O nome não pode ser em branco. Cancelar?"
 msgstr "Il nome non può essere vuoto. Cancellare?"
 
-#: pdvshell:2078 pdvshell:2158
+#: pdvshell:2549 pdvshell:2652
+msgid "CNPJ/CPF inválido"
+msgstr "CNPJ/CPF non valido"
+
+#: pdvshell:2553 pdvshell:2656
 msgid "Confirma inclusão/atualização do fornecedor?"
 msgstr "Confermi inclusione/aggiornamento fornitore?"
 
-#: pdvshell:2100
+#: pdvshell:2581
 msgid "ALTERAÇÃO DE FORNECEDOR"
 msgstr "CAMBIO FORNITORE"
 
-#: pdvshell:2125 pdvshell:2203 pdvshell:3031
+#: pdvshell:2615 pdvshell:2708 pdvshell:3633
 msgid "ID/Nome não pode ser em branco. Cancelar?"
 msgstr "L'ID/Nome non può essere vuoto. Cancellare?"
 
-#: pdvshell:2135 pdvshell:3043
+#: pdvshell:2625 pdvshell:3645
 msgid "Fornecedor não encontrado nos parâmetros informados"
 msgstr "Fornitore non trovato nei parametri specificati"
 
-#: pdvshell:2180
+#: pdvshell:2684
 msgid "EXCLUSÃO DE FORNECEDOR"
 msgstr "ESCLUSIONE FORNITORI"
 
-#: pdvshell:2217 pdvshell:2314
+#: pdvshell:2722 pdvshell:2871
 msgid "Nenhum fornecedor encontrado nos parâmetros informados"
 msgstr "Nessun fornitore trovato nei parametri indicati"
 
-#: pdvshell:2228
+#: pdvshell:2733
 msgid "Confirma exclusão do fornecedor?"
 msgstr "Confermi l'esclusione del fornitore?"
 
-#: pdvshell:2245
+#: pdvshell:2754
+msgid "SELECIONAR FORNECEDOR"
+msgstr "SELEZIONA FORNITORE"
+
+#: pdvshell:2777
+msgid "Nenhum fornecedor cadastrado"
+msgstr "Nessun fornitore registrato"
+
+#: pdvshell:2800
 msgid "PESQUISAR FORNECEDOR"
 msgstr "CERCA FORNITORE"
 
-#: pdvshell:2265
+#: pdvshell:2822
 msgid "Pesquisar por: nome, id <x>|<x-y> ou *=tudo"
 msgstr "Cerca per: nome, id <x>|<x-y> o *=all"
 
-#: pdvshell:2335 pdvshell:2339
+#: pdvshell:2894 pdvshell:2898
 msgid "Data Inicial"
 msgstr "Data di inizio"
 
-#: pdvshell:2336 pdvshell:2356
+#: pdvshell:2895 pdvshell:2915
 msgid "Data Final"
 msgstr "Dati finali"
 
-#: pdvshell:2349 pdvshell:2366
+#: pdvshell:2908 pdvshell:2925
 msgid "A data não pode ser em branco. Cancelar?"
 msgstr "La data non può essere vuota. Cancellare?"
 
-#: pdvshell:2453 pdvshell:2456 pdvshell:2597 pdvshell:2600
+#: pdvshell:3014 pdvshell:3017 pdvshell:3163 pdvshell:3166
 msgid "Pesquisar por: docnr, data <dd-mm-aaaa>, id <x>|<x-y>, f<id>, ou *=tudo"
 msgstr "Cerca: docnr, data <gg-mm-aaaa>, id <x>|<x-y>, f<id> o *=all"
 
-#: pdvshell:2454 pdvshell:2457 pdvshell:2598 pdvshell:2601
+#: pdvshell:3015 pdvshell:3018 pdvshell:3164 pdvshell:3167
 msgid "Agrupar : n=docnr, d=data, i=id, f=forn ou *=nenhum"
 msgstr "Gruppo: n=docnr, d=data, i=id, f=forn o *=none"
 
-#: pdvshell:2584
+#: pdvshell:3146
 msgid "RELATÓRIO ENTRADAS DE PRODUTOS"
 msgstr "RAPPORTO INGRESSO PRODOTTO"
 
-#: pdvshell:2750
+#: pdvshell:3316
 msgid "Não consta entradas nos parâmetros informados"
 msgstr "Non ci sono voci nei parametri riportati"
 
-#: pdvshell:2768
+#: pdvshell:3334
 msgid "Registro de venda efetuado"
 msgstr "Registrazione delle vendite effettuata"
 
-#: pdvshell:2781
+#: pdvshell:3348
 msgid "Baixa de estoque efetuado"
 msgstr "Svalutazione delle scorte effettuata"
 
-#: pdvshell:2785
+#: pdvshell:3352
 msgid "CUPOM PDV"
 msgstr "IVA CUPOM"
 
-#: pdvshell:2832 pdvshell:2953
+#: pdvshell:3407 pdvshell:3547
 msgid "ID/nome/CodeBar (em branco=concluir)"
 msgstr "ID/nome/CodeBar (vuoto=finitura)"
 
-#: pdvshell:2847 pdvshell:2969
+#: pdvshell:3422 pdvshell:3563
 msgid "Produto não encontrado"
 msgstr "Prodotto non trovato"
 
-#: pdvshell:2855 pdvshell:2978
+#: pdvshell:3430 pdvshell:3572
 msgid "Quantidade (0 para remover o item)"
 msgstr "Quantità (0 per rimuovere l'articolo)"
 
-#: pdvshell:2862 pdvshell:2985
+#: pdvshell:3443 pdvshell:3585
 msgid "Quantidade inválida ou item não tem na lista"
 msgstr "Quantità non valida o articolo non presente nell'elenco"
 
-#: pdvshell:2867 pdvshell:2990
+#: pdvshell:3448 pdvshell:3590
 msgid "Quantidade inválida!"
 msgstr "Quantità non valida!"
 
-#: pdvshell:2872
+#: pdvshell:3453
 msgid "Quantidade insuficiente de"
 msgstr "Quantità insufficiente di"
 
-#: pdvshell:2872
+#: pdvshell:3453
 msgid "no estoque - restam"
 msgstr "in magazzino - a sinistra"
 
-#: pdvshell:2894
+#: pdvshell:3477
 msgid "Confirma o fechamento do CUPOM?"
 msgstr "Confermi la chiusura del COUPON?"
 
-#: pdvshell:2907
+#: pdvshell:3491
 msgid "ENTRADAS DE PRODUTOS"
 msgstr "Voci di prodotto"
 
-#: pdvshell:2997
+#: pdvshell:3597
 msgid "Preço custo (ex: 4.99 ou 5)"
 msgstr "Prezzo di costo (es: 4,99 o 5)"
 
-#: pdvshell:3023
+#: pdvshell:3625
 msgid "DADOS DA NFF"
 msgstr "DATI NFF"
 
-#: pdvshell:3025 pdvshell:3027
+#: pdvshell:3627 pdvshell:3629
 msgid "Fornecedor"
 msgstr "Fornitore"
 
-#: pdvshell:3026 pdvshell:3048
+#: pdvshell:3628 pdvshell:3650
 msgid "Docnr/NFF"
 msgstr "Doc./NFF"
 
-#: pdvshell:3058
+#: pdvshell:3660
 msgid "Confirma a entrada desses produtos?"
 msgstr "Confermate l'arrivo di questi prodotti?"
 
-#: pdvshell:3095
+#: pdvshell:3697
 msgid "Ajuste de estoque efetuado"
 msgstr "Adeguamento dell'inventario effettuato"
 
-#: pdvshell:3102
+#: pdvshell:3704
 msgid "Confirma a atualização?"
 msgstr "Confermi l'aggiornamento?"
 
-#: pdvshell:3103
+#: pdvshell:3705
 msgid "Aguarde... Atualizando estoque"
 msgstr "Si prega di attendere... Aggiornamento stock in corso"
 
-#: pdvshell:3119
+#: pdvshell:3721
 msgid "Atualização concluída"
 msgstr "Aggiornamento completato"
 
-#: pdvshell:3121
+#: pdvshell:3723
 msgid "Erro durante a atualização"
 msgstr "Errore durante l'aggiornamento"
 
-#: pdvshell:3144
+#: pdvshell:3746
 msgid "Checando tabela produtos"
 msgstr "Controllo della tabella dei prodotti"
 
-#: pdvshell:3146
+#: pdvshell:3748
 msgid "Checando tabela fornecedor"
 msgstr "Controllo della tabella fornitori"
 
-#: pdvshell:3148
+#: pdvshell:3750
 msgid "Checando tabela vendas"
 msgstr "Controllo della tabella delle vendite"
 
-#: pdvshell:3150
+#: pdvshell:3752
 msgid "Checando tabela compras"
 msgstr "Controllo della tabella acquisti"
 
-#: pdvshell:3155
+#: pdvshell:3757
 msgid ""
 "CUIDADO! Procedimento irá apagar todos os registros da tabela produtos. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3156
+#: pdvshell:3758
 msgid "Aguarde, Droping tabela produtos"
 msgstr "Per favore attendere, Eliminazione tabella prodotti"
 
-#: pdvshell:3163
+#: pdvshell:3765
 msgid ""
 "CUIDADO! Procedimento irá apagar todos os registros da tabela fornecedor. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3164
+#: pdvshell:3766
 msgid "Aguarde, Droping tabela fornecedor"
 msgstr "Attendere prego. Eliminazione tabella fornitori"
 
-#: pdvshell:3171
+#: pdvshell:3773
 msgid ""
 "CUIDADO! Procedimento irá apagar todos os registros da tabela vendas. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3172
+#: pdvshell:3774
 msgid "Aguarde, Droping tabela vendas"
 msgstr "Attendere prego. Eliminazione tabella vendite"
 
-#: pdvshell:3179
+#: pdvshell:3781
 msgid ""
 "CUIDADO! Procedimento irá apagar todos os registros da tabela compras. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3180
+#: pdvshell:3782
 msgid "Aguarde, Droping tabela compras"
 msgstr "Per favore attendi, abbandono il tavolo della spesa"
 
-#: pdvshell:3195
+#: pdvshell:3797
 msgid ""
 "CUIDADO! Procedimento irá inserir dados aleatórios para testes nas tabelas. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3209
+#: pdvshell:3799
+msgid "Aguarde, populando banco de dados..."
+msgstr "Attendere, popolamento del database..."
+
+#: pdvshell:3804
+msgid "Banco de dados populado com sucesso!"
+msgstr "Database popolato con successo!"
+
+#: pdvshell:3815
 msgid "Populando tabela produtos"
 msgstr "Popolamento della tabella dei prodotti"
 
-#: pdvshell:3228
+#: pdvshell:3846
 msgid "Populando tabela fornecedor"
 msgstr "Popolamento della tabella dei fornitori"
 
-#: pdvshell:3241
+#: pdvshell:3871
 msgid "Populando tabela vendas"
 msgstr "Popolamento della tabella delle vendite"
 
-#: pdvshell:3292
+#: pdvshell:3935
 msgid "Populando tabela compras"
 msgstr "Popolamento del tavolo della spesa"
 
-#: pdvshell:3544
+#: pdvshell:4209
 msgid "MENU FORNECEDORES"
 msgstr "MENÙ FORNITORI"
 
-#: pdvshell:3571
+#: pdvshell:4236
 msgid "MENU PRODUTOS"
 msgstr "MENÙ PRODOTTI"
 
-#: pdvshell:3598
+#: pdvshell:4263
 msgid "MENU MANUTENÇÃO"
 msgstr "MENÙ DI MANUTENZIONE"
 
-#: pdvshell:3629
+#: pdvshell:4294
 msgid "MENU PEQUISA/RELATÓRIOS/CONSULTA"
 msgstr "MENU RICERCA/RAPPORTI/QUERY"
 
-#: pdvshell:3662
+#: pdvshell:4327
 msgid "DADOS DA EMPRESA"
 msgstr "DATI AZIENDALI"
 
-#: pdvshell:3673 pdvshell:3690
+#: pdvshell:4338 pdvshell:4355
 msgid "UF"
 msgstr "uf"
 
-#: pdvshell:3682
+#: pdvshell:4339 pdvshell:4356
+msgid "Cnpj"
+msgstr "Cnpj"
+
+#: pdvshell:4347
 msgid "O Nome não pode ser em branco. Cancelar?"
 msgstr "Il nome non può essere vuoto. Cancellare?"
 
-#: pdvshell:3693
+#: pdvshell:4358
 msgid "Confirma dados?"
 msgstr "Confermi i dati?"
 
-#: pdvshell:3713
+#: pdvshell:4378
 msgid "CONFIGURAÇÃO DE CORES"
 msgstr "IMPOSTAZIONE DEL COLORE"
 
-#: pdvshell:3733
+#: pdvshell:4405
 msgid "COR SELECIONADA :"
 msgstr "COLORE SELEZIONATO:"
 
-#: pdvshell:3734
+#: pdvshell:4406
 msgid "ESC             : CANCELAR"
 msgstr "ESC: ANNULLA"
 
-#: pdvshell:3735
+#: pdvshell:4407
 msgid "ENTER           : ACEITAR ESCOLHA"
 msgstr "ENTRA: ACCETTA LA SCELTA"
 
-#: pdvshell:3736
+#: pdvshell:4408
 msgid "SETA ACIMA  ↑   : ALTERAR COR +"
 msgstr "FRECCIA SU ↑ : CAMBIA COLORE +"
 
-#: pdvshell:3737
+#: pdvshell:4409
 msgid "SETA ABAIXO ↓   : ALTERAR COR -"
 msgstr "FRECCIA GIÙ ↓ : CAMBIA COLORE -"
 
-#: pdvshell:3766
+#: pdvshell:4438
 msgid "SOBRE"
 msgstr "SU"
 
-#: pdvshell:3781
+#: pdvshell:4453
 msgid "O pdvShell é disponibilizado para você sob a Licença MIT, e"
 msgstr "pdvShell è reso disponibile con la licenza MIT e"
 
-#: pdvshell:3782
+#: pdvshell:4454
 msgid "inclui software de código aberto sob uma variedade de outras licenças."
 msgstr "include software open source sotto una varietà di altre licenze."
 
-#: pdvshell:3783
+#: pdvshell:4455
 msgid "Você pode ler instruções sobre como baixar e criar para você mesmo"
 msgstr "Puoi leggere le istruzioni su come scaricare e creare tu stesso"
 
-#: pdvshell:3784
+#: pdvshell:4456
 msgid "o código fonte específico usado para criar esta cópia."
 msgstr "il codice sorgente specifico utilizzato per creare questa copia."
 
-#: pdvshell:3785
+#: pdvshell:4457
 msgid "Este programa vem com absolutamente nenhuma garantia."
 msgstr "Questo programma non prevede assolutamente alcuna garanzia."
 
-#: pdvshell:3790
+#: pdvshell:4462
 msgid "PANO DE FUNDO"
 msgstr "Sfondo"
 
-#: pdvshell:3836
+#: pdvshell:4519
 msgid "MENU CONFIGURAÇÃO"
 msgstr "MENÙ DI IMPOSTAZIONE"
 
-#: pdvshell:3840
+#: pdvshell:4523
 msgid "Cor Logo"
 msgstr "Marchio a colori"
 
-#: pdvshell:3841
+#: pdvshell:4524
 msgid "Cor Cabecalho"
 msgstr "Colore dell'intestazione"
 
-#: pdvshell:3842
+#: pdvshell:4525
 msgid "Cor Status Superior"
 msgstr "Cuore dello Stato superiore"
 
-#: pdvshell:3843
+#: pdvshell:4526
 msgid "Cor Status Inferior"
 msgstr "Stato del cuore inferiore"
 
-#: pdvshell:3844
+#: pdvshell:4527
 msgid "Cor Box"
 msgstr "Cor Box"
 
-#: pdvshell:3845
+#: pdvshell:4528
 msgid "Cor Titulo Box"
 msgstr "Casella del titolo Cor"
 
-#: pdvshell:3846
+#: pdvshell:4529
 msgid "Cor DispBox"
 msgstr "CorDispBox"
 
-#: pdvshell:3847
+#: pdvshell:4530
 msgid "Cor Mensagem Info OK"
 msgstr "Informazioni messaggio colore OK"
 
-#: pdvshell:3848
+#: pdvshell:4531
 msgid "Cor Mensagem Info ERRO"
 msgstr "Colore Messaggio Informazioni ERRORE"
 
-#: pdvshell:3849
+#: pdvshell:4532
 msgid "Cor Mensagem Confirmação"
 msgstr "Conferma del messaggio a colori"
 
-#: pdvshell:3850
+#: pdvshell:4533
 msgid "Cor Pano de fundo"
 msgstr "Sfondo colorato"
 
-#: pdvshell:3895
+#: pdvshell:4578
 msgid "Pergunta: Deseja realmente Sair?"
 msgstr "Domanda: vuoi davvero andartene?"

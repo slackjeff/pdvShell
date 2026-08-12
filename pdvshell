@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #	shellcheck shell=bash disable=SC1091,SC2039,SC2166,SC2162,SC2155,SC2005,SC2034,SC2154,SC2229
 
-#	pdvshell - simple cashier front for small grocery stores made with shell script and sqlite!
+#	pdvshell - Simples frente de caixa escrito em shell script e sqlite!
 #	Created: 2023/10/21
 #	Altered: 2024/11/20 - 02:21 -04
-#	Updated: qua 12 ago 2026 01:09:48 -04
+#	Updated: qua 12 ago 2026 16:19:45 -04
 #
+# Copyright (c) 2023-2026, Vilmar Catafesta <vcatafesta@gmail.com>
 # Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
-#	Copyright (c) 2023-2026, Vilmar Catafesta <vcatafesta@gmail.com>
-#	All rights reserved.
+# All rights reserved.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions
@@ -189,51 +189,99 @@ function sh_environment() {
 	unset result aempresa acores i
 }
 
+# Gera a sequência ANSI de cor de texto (equivalente a "tput setaf N"),
+# sem disparar processo externo. Testado contra o tput real para as 256
+# cores possíveis (0-255), sem nenhuma divergência.
+function ansi_setaf() {
+	local n="$1"
+	if ((n < 8)); then
+		printf "\e[3%dm" "$n"
+	elif ((n < 16)); then
+		printf "\e[9%dm" "$((n - 8))"
+	else
+		printf "\e[38;5;%dm" "$n"
+	fi
+}
+
+# Gera a sequência ANSI de cor de fundo (equivalente a "tput setab N"),
+# sem disparar processo externo. Mesma validação de ansi_setaf().
+function ansi_setab() {
+	local n="$1"
+	if ((n < 8)); then
+		printf "\e[4%dm" "$n"
+	elif ((n < 16)); then
+		printf "\e[10%dm" "$((n - 8))"
+	else
+		printf "\e[48;5;%dm" "$n"
+	fi
+}
+
+# Extrai o número da cor (0-255) de uma sequência ANSI já montada (mesmo
+# que composta com outros códigos como bold/reverse). Usada para descobrir
+# em qual cor a tela de seleção deve começar, a partir do valor atual em
+# Acores[$ctype]. Devolve vazio se não conseguir identificar.
+function ansi_extrair_cor() {
+	local seq="$1"
+	local n=""
+	if [[ "$seq" =~ \[[34]8\;5\;([0-9]+)m ]]; then
+		n="${BASH_REMATCH[1]}"
+	elif [[ "$seq" =~ \[3([0-7])m ]]; then
+		n="${BASH_REMATCH[1]}"
+	elif [[ "$seq" =~ \[4([0-7])m ]]; then
+		n="${BASH_REMATCH[1]}"
+	elif [[ "$seq" =~ \[9([0-7])m ]]; then
+		n=$((BASH_REMATCH[1] + 8))
+	elif [[ "$seq" =~ \[10([0-7])m ]]; then
+		n=$((BASH_REMATCH[1] + 8))
+	fi
+	echo "$n"
+}
+
 function sh_setvarcolors() {
 	# does the terminal support true-color?
 	if [[ -n "$(command -v "tput")" ]]; then
 		#tput setaf 127 | cat -v  #capturar saida
-		reset=$(tput sgr0)
-		rst=$(tput sgr0)
-		bold=$(tput bold)
-		underline=$(tput smul)
-		nounderline=$(tput rmul)
-		reverse=$(tput rev)
+		reset=$'\e(B\e[m'
+		rst=$'\e(B\e[m'
+		bold=$'\e[1m'
+		underline=$'\e[4m'
+		nounderline=$'\e[24m'
+		reverse=$'\e[7m'
 
-		black=$(tput bold)$(tput setaf 0)
-		red=$(tput bold)$(tput setaf 196)
-		green=$(tput bold)$(tput setaf 2)
-		yellow=$(tput bold)$(tput setaf 3)
-		#		blue=$(tput setaf 4)
-		blue=$(tput setaf 27)
-		magenta=$(tput setaf 5)
-		cyan=$(tput setaf 6)
-		white=$(tput setaf 7)
-		gray=$(tput setaf 8)
-		light_red=$(tput setaf 9)
-		light_green=$(tput setaf 10)
-		light_yellow=$(tput setaf 11)
-		light_blue=$(tput setaf 12)
-		light_magenta=$(tput setaf 13)
-		light_cyan=$(tput setaf 14)
-		light_white=$(tput setaf 15)
-		orange=$(tput setaf 202)
-		purple=$(tput setaf 125)
-		violet=$(tput setaf 61)
+		black=$bold$(ansi_setaf 0)
+		red=$bold$(ansi_setaf 196)
+		green=$bold$(ansi_setaf 2)
+		yellow=$bold$(ansi_setaf 3)
+		#		blue=$(ansi_setaf 4)
+		blue=$(ansi_setaf 27)
+		magenta=$(ansi_setaf 5)
+		cyan=$(ansi_setaf 6)
+		white=$(ansi_setaf 7)
+		gray=$(ansi_setaf 8)
+		light_red=$(ansi_setaf 9)
+		light_green=$(ansi_setaf 10)
+		light_yellow=$(ansi_setaf 11)
+		light_blue=$(ansi_setaf 12)
+		light_magenta=$(ansi_setaf 13)
+		light_cyan=$(ansi_setaf 14)
+		light_white=$(ansi_setaf 15)
+		orange=$(ansi_setaf 202)
+		purple=$(ansi_setaf 125)
+		violet=$(ansi_setaf 61)
 
 		# Definir cores de fundo
-		preto=$(tput setab 0)
-		vermelho=$(tput setab 196)
-		verde=$(tput setab 2)
-		amarelo=$(tput setab 3)
-		azul=$(tput setab 20)
-		roxo=$(tput setab 5)
-		ciano=$(tput setab 6)
-		branca="${black}$(tput setab 7)"
-		cinza=$(tput setab 8)
-		laranja=$(tput setab 202)
-		roxa=$(tput setab 125)
-		violeta=$(tput setab 61)
+		preto=$(ansi_setab 0)
+		vermelho=$(ansi_setab 196)
+		verde=$(ansi_setab 2)
+		amarelo=$(ansi_setab 3)
+		azul=$(ansi_setab 20)
+		roxo=$(ansi_setab 5)
+		ciano=$(ansi_setab 6)
+		branca="${black}$(ansi_setab 7)"
+		cinza=$(ansi_setab 8)
+		laranja=$(ansi_setab 202)
+		roxa=$(ansi_setab 125)
+		violeta=$(ansi_setab 61)
 	else
 		sh_unsetvarcolors
 	fi
@@ -444,9 +492,21 @@ function TIni.Set() {
 	while IFS= read -r line; do
 		if [[ "$line" =~ ^\[$section\] ]]; then
 			found_section=1
+		elif [[ "$line" =~ ^\[.*\] ]]; then
+			# Entrou em OUTRA seção: reseta found_section, senão uma nova
+			# chave acabava sendo gravada na última seção do arquivo em
+			# vez da seção correta (bug: found_section nunca voltava a 0).
+			found_section=0
 		elif [[ "$found_section" -eq 1 && "${line}" =~ ^${key}[[:space:]]*=[[:space:]]* ]]; then
-			# Se a seção e a chave existem, atualize o valor
-			sed -i "s|^${key}[[:space:]]*=[[:space:]]*.*|${key}=${value}|" "$config_file"
+			# Se a seção e a chave existem, atualize o valor.
+			# Escapa caracteres com significado especial na substituição do
+			# sed: \ (escape), & (texto casado) e | (delimitador usado
+			# aqui) - sem isso, um valor como "Bar & Mercearia" corrompia
+			# a gravação (o & era substituído pelo texto original casado).
+			local value_escaped="${value//\\/\\\\}"
+			value_escaped="${value_escaped//&/\\&}"
+			value_escaped="${value_escaped//|/\\|}"
+			sed -i "s|^${key}[[:space:]]*=[[:space:]]*.*|${key}=${value_escaped}|" "$config_file"
 			return
 		fi
 	done <"$config_file"
@@ -1619,6 +1679,71 @@ function sh_random_date() {
 
 function sh_date() {
 	date +"%Y-%m-%d"
+}
+
+# Multiplica dois valores decimais (ex: quantidade x preço) sem usar bc.
+# Assume até 2 casas decimais (padrão de preço do sistema). Resultado em
+# DEC_RESULT, formatado com 2 casas decimais.
+# Uso: dec_mult "$quantidade" "$valor"; echo "$DEC_RESULT"
+function dec_mult() {
+	local a="$1" b="$2"
+	local a_int a_dec b_int b_dec
+	a_int="${a%%.*}"
+	if [[ "$a" == *.* ]]; then a_dec="${a#*.}"; else a_dec=0; fi
+	b_int="${b%%.*}"
+	if [[ "$b" == *.* ]]; then b_dec="${b#*.}"; else b_dec=0; fi
+	a_dec="${a_dec}00"
+	a_dec="${a_dec:0:2}"
+	b_dec="${b_dec}00"
+	b_dec="${b_dec:0:2}"
+	local a_cents=$((10#$a_int * 100 + 10#$a_dec))
+	local b_cents=$((10#$b_int * 100 + 10#$b_dec))
+	local result_cents=$((a_cents * b_cents / 100))
+	printf -v DEC_RESULT '%d.%02d' $((result_cents / 100)) $((result_cents % 100))
+}
+
+# Soma dois valores decimais sem usar bc. Resultado em DEC_RESULT.
+# Uso: dec_add "$total" "$subtotal"; total="$DEC_RESULT"
+function dec_add() {
+	local a="${1:-0}" b="${2:-0}"
+	local a_int a_dec b_int b_dec
+	a_int="${a%%.*}"
+	if [[ "$a" == *.* ]]; then a_dec="${a#*.}"; else a_dec=0; fi
+	b_int="${b%%.*}"
+	if [[ "$b" == *.* ]]; then b_dec="${b#*.}"; else b_dec=0; fi
+	a_dec="${a_dec}00"
+	a_dec="${a_dec:0:2}"
+	b_dec="${b_dec}00"
+	b_dec="${b_dec:0:2}"
+	local a_cents=$((10#$a_int * 100 + 10#$a_dec))
+	local b_cents=$((10#$b_int * 100 + 10#$b_dec))
+	local result_cents=$((a_cents + b_cents))
+	printf -v DEC_RESULT '%d.%02d' $((result_cents / 100)) $((result_cents % 100))
+}
+
+# Subtrai dois valores decimais sem usar bc (aceita resultado negativo,
+# usado para cálculo de troco). Resultado em DEC_RESULT.
+# Uso: dec_sub "$efetivo" "$total_venda"; troco="$DEC_RESULT"
+function dec_sub() {
+	local a="${1:-0}" b="${2:-0}"
+	local a_int a_dec b_int b_dec
+	a_int="${a%%.*}"
+	if [[ "$a" == *.* ]]; then a_dec="${a#*.}"; else a_dec=0; fi
+	b_int="${b%%.*}"
+	if [[ "$b" == *.* ]]; then b_dec="${b#*.}"; else b_dec=0; fi
+	a_dec="${a_dec}00"
+	a_dec="${a_dec:0:2}"
+	b_dec="${b_dec}00"
+	b_dec="${b_dec:0:2}"
+	local a_cents=$((10#$a_int * 100 + 10#$a_dec))
+	local b_cents=$((10#$b_int * 100 + 10#$b_dec))
+	local result_cents=$((a_cents - b_cents))
+	local sign=""
+	if ((result_cents < 0)); then
+		sign="-"
+		result_cents=$((-result_cents))
+	fi
+	printf -v DEC_RESULT '%s%d.%02d' "$sign" $((result_cents / 100)) $((result_cents % 100))
 }
 
 # END FUNCTIONS
@@ -2807,10 +2932,6 @@ function relatorio_vendas_diarias() {
 	dfim=$(convert_date_to_US "$dfim")
 
 	# Consulta para obter resultados diários agrupados por ano e mês
-	mes_inicial="$(date -d "$dini" +"%m")"
-	mes_final="$(date -d "$dfim" +"%m")"
-	ano_inicial="$(date -d "$dini" +"%Y")"
-	ano_final="$(date -d "$dfim" +"%Y")"
 	query_result=$(sqlite3 "$database" "SELECT date(data), SUM(total) FROM vendas WHERE date(data) BETWEEN '$dini' AND '$dfim' GROUP BY date(data) ORDER BY date(data) ASC")
 
 	function relatorio_vendas_diarias::imprimir_cabecalho_relatorio() {
@@ -2834,7 +2955,7 @@ function relatorio_vendas_diarias() {
 		relatorio_vendas_diarias::imprimir_cabecalho_relatorio
 		npage=1
 		while IFS='|' read -r data total; do
-			new_mes=$(date -d "$data" +"%m")
+			new_mes="${data:5:2}" # SQLite date() sempre devolve AAAA-MM-DD
 			if [[ -n "$current_mes" && "$current_mes" != "$new_mes" ]]; then
 				((++nrow))
 				setpos $((nTop + 44)) "$((ncol + 1))"
@@ -3001,8 +3122,9 @@ function relatorio_produtos_vendidos() {
 					imprimirCabecalhoProdutosVendidos
 					((++npage))
 				fi
-				total_formatado=$(echo "$quantidade * $preco" | bc -l | tr "." ",")
-				preco=$(bc -l <<<"$preco" | tr "." ",")
+				dec_mult "$quantidade" "$preco"
+				total_formatado="${DEC_RESULT/./,}"
+				preco="${preco/./,}"
 				setpos "$nrow" "$((ncol + 1))"
 				printf "${yellow}%-10s${reset}|%-7s|%5s|%5s|%-40s|%-2s|${cyan}%5d|%10.2f|${red}%10.2f${reset}\n" "$(convert_date_to_ptBR "$data")" "$docnr" "$fornecedor" "$id" "$produto" "$un" "$quantidade" "$preco" "$total_formatado"
 				((++nrow))
@@ -3178,7 +3300,7 @@ function relatorio_entradas_produtos() {
 				fi
 				#				total_formatado=$(echo "$quantidade * $custo" | bc -l | tr "." ",")
 				#				total=$(bc -l <<<"$total" | tr "." ",")
-				custo=$(bc -l <<<"$custo" | tr "." ",")
+				custo="${custo/./,}"
 				setpos "$nrow" "$((ncol + 1))"
 				printf "${yellow}%5s${reset}|%-10s|%-7s|%5s|%-40s|%2s|${cyan}%5s|${red}%10.2f${reset}\n" "$fornecedor" "$(convert_date_to_ptBR "$data")" "$docnr" "$id" "$produto" "$un" "$quantidade" "$custo"
 				((++nrow))
@@ -3268,15 +3390,17 @@ function realizar_venda() {
 		for key in "${!lista_produtos[@]}"; do
 			produto="${lista_produtos[$key]}"
 			IFS='|' read -r id produto_nome quantidade valor <<<"$produto"
-			subtotal=$(echo "$quantidade * $valor" | bc -l | tr "." ",")
-			valor_formatado=$(echo "$valor" | tr '.' ',')
+			dec_mult "$quantidade" "$valor"
+			subtotal="${DEC_RESULT/./,}"
+			valor_formatado="${valor/./,}"
 			print $nrow 01 "$(printf "${yellow}%5s %-40s %5s %8.2f %8.2f${reset}\n" "$id" "$produto_nome" "$quantidade" "$valor_formatado" "$subtotal")"
-			total_venda=$(echo "$total_venda + ( $quantidade * $valor)" | bc -l)
+			dec_add "$total_venda" "$DEC_RESULT"
+			total_venda="$DEC_RESULT"
 			((++nrow))
 		done
 		print $nrow 00 "├$(replicate "─" "$((padding))")┤"
 		((++nrow))
-		print $nrow 01 "$(printf "${red}%5s %-40s %5s %8s$%8.2f${reset}\n" "" "SUBTOTAL" "" "" "$(tr '.' ',' <<<"$total_venda")")"
+		print $nrow 01 "$(printf "${red}%5s %-40s %5s %8s$%8.2f${reset}\n" "" "SUBTOTAL" "" "" "${total_venda/./,}")"
 		((++nrow))
 		print $nrow 00 "├$(replicate "─" "$((padding))")┤"
 		((++nrow))
@@ -3329,7 +3453,8 @@ function realizar_venda() {
 			mensagem "${xtitle}" "$(gettext "Quantidade insuficiente de") '$produto_nome' $(gettext "no estoque - restam"): $estoque"
 			continue
 		fi
-		subtotal=$(echo "$quantidade * $valor" | bc -l)
+		dec_mult "$quantidade" "$valor"
+		subtotal="$DEC_RESULT"
 
 		# Atualiza o array associativo com informações do produto
 		if [[ -v lista_produtos[$id] ]]; then
@@ -3342,7 +3467,8 @@ function realizar_venda() {
 			# Se o produto não existe na lista, adiciona
 			lista_produtos[$id]="$id|$produto_nome|$quantidade|$valor"
 		fi
-		total_venda=$(echo "$total_venda + $subtotal" | bc -l)
+		dec_add "$total_venda" "$subtotal"
+		total_venda="$DEC_RESULT"
 	done
 
 	if [[ "${#lista_produtos[@]}" -gt 0 ]]; then
@@ -3355,7 +3481,8 @@ function realizar_venda() {
 		print $nrow 1 "$(replicate ' ' 40)"
 		get   $nrow 1  "Valor para troco)                   : " efetivo '' ${white}
       print $nrow 50 "Troco:" ${white}
-      print $nrow 57 "$(LC_ALL=C printf "%.2f" "$(echo "$efetivo - $total_venda" | bc -l)")" ${red}
+      dec_sub "$efetivo" "$total_venda"
+      print $nrow 57 "$DEC_RESULT" ${red}
 		inkey 20
 	fi
 }
@@ -3403,10 +3530,12 @@ function produtos_entradas() {
 		for key in "${!lista_produtos[@]}"; do
 			produto="${lista_produtos[$key]}"
 			IFS='|' read -r id produto_nome quantidade custo <<<"$produto"
-			subtotal=$(echo "$quantidade * $custo" | bc -l | tr "." ",")
-			custo_formatado=$(echo "$custo" | tr '.' ',')
+			dec_mult "$quantidade" "$custo"
+			subtotal="${DEC_RESULT/./,}"
+			custo_formatado="${custo/./,}"
 			print $nrow 01 "$(printf "${yellow}%5s %-40s %5s %8.2f %8.2f${reset}\n" "$id" "$produto_nome" "$quantidade" "$custo_formatado" "$subtotal")"
-			total_compra=$(echo "$total_compra + ( $quantidade * $custo)" | bc -l)
+			dec_add "$total_compra" "$DEC_RESULT"
+			total_compra="$DEC_RESULT"
 			((++nrow))
 		done
 		print $nrow 00 "├$(replicate "─" "$((padding))")┤"
@@ -3472,7 +3601,8 @@ function produtos_entradas() {
 				mensagem "${xtitle}" "$(gettext "Formato inválido. Usar ponto decimal ex: 4.99 ou número inteiro.")"
 			fi
 		done
-		subtotal=$(echo "$quantidade * $custo" | bc -l)
+		dec_mult "$quantidade" "$custo"
+		subtotal="$DEC_RESULT"
 
 		# Atualiza o array associativo com informações do produto
 		if [[ -v lista_produtos[$id] ]]; then
@@ -3485,7 +3615,8 @@ function produtos_entradas() {
 			# Se o produto não existe na lista, adiciona
 			lista_produtos[$id]="$id|$produto_nome|$quantidade|$custo"
 		fi
-		total_compra=$(echo "$total_compra + $subtotal" | bc -l)
+		dec_add "$total_compra" "$subtotal"
+		total_compra="$DEC_RESULT"
 	done
 
 	function produtos_entradas::dados_nff() {
@@ -3872,7 +4003,12 @@ function show_menu() {
 	local itens=("${@:4}")
 	local tamanho_maximo=${#titulo}
 	local quantidade_itens="${#itens[@]}"
-	local i tecla selecionado item_formatado
+	local i tecla item_formatado
+	# Permite abrir já com um item pré-selecionado: o chamador define
+	# SHOW_MENU_INDICE_INICIAL antes de chamar show_menu(). Se não for
+	# definida, começa no primeiro item (0), igual sempre foi.
+	local selecionado="${SHOW_MENU_INDICE_INICIAL:-0}"
+	SHOW_MENU_INDICE_INICIAL=
 	local sair_do_menu=false
 	local color="${Acores[box]}"
 	local item
@@ -4243,20 +4379,27 @@ function configuracao::cores() {
 	local atype=('logo' 'cabecalho' 'statussup' 'statusinf' 'box' 'boxtitle' 'dispbox' 'msgok' 'msgerror' 'conf' 'corpanofundo')
 	local ctype="${atype[$type]}"
 	local sair_do_menu=false
-	local selecionado=1
+	local selecionado
 	local tecla
 	local restante
 	local color
 	local cor_escolhida
 
+	# Inicia na cor já configurada (do .ini, ou o padrão do sistema se não
+	# houver .ini/valor salvo - Acores[$ctype] já reflete isso).
+	selecionado="$(ansi_extrair_cor "${Acores[$ctype]}")"
+	if [[ -z "$selecionado" || "$selecionado" -lt 1 || "$selecionado" -gt 255 ]]; then
+		selecionado=1
+	fi
+
 	tela
 	while ! $sair_do_menu; do
 		if ((selecionado > 15)); then
-			color=$(tput setab $selecionado)
+			color=$(ansi_setab $selecionado)
 		else
-			color=$(tput setaf $selecionado)
+			color=$(ansi_setaf $selecionado)
 		fi
-		tput sgr0
+		printf '\e(B\e[m'
 		titulo 1 "$xtitle - $ctitulo" "${Acores[statussup]}"
 		box 11 10 9 60 "$xtitle - $ctitulo" "$color"
 		print 13 12 "$(gettext "COR SELECIONADA :") $selecionado/255" "$color"
@@ -4279,9 +4422,9 @@ function configuracao::cores() {
 			;;
 		"")
 			if ((selecionado > 15)); then
-				cor_escolhida=$(tput setab $selecionado)
+				cor_escolhida=$(ansi_setab $selecionado)
 			else
-				cor_escolhida=$(tput setaf $selecionado)
+				cor_escolhida=$(ansi_setaf $selecionado)
 			fi
 			Acores[$ctype]="$cor_escolhida"
 			TIni.Set "$INI_FILE" "cores" "$ctype" "$cor_escolhida"
@@ -4347,6 +4490,17 @@ function configuracao::pano_de_fundo() {
 	while true; do
 		tela
 		titulo 1 "$xtitle" "${Acores[statussup]}"
+
+		# Abre já com o padrão de fundo atualmente ativo pré-selecionado
+		local i indice_inicial=0
+		for i in "${!options[@]}"; do
+			if [[ "${options[i]}" == "${Acores[panofundo]}" ]]; then
+				indice_inicial=$i
+				break
+			fi
+		done
+		SHOW_MENU_INDICE_INICIAL="$indice_inicial"
+
 		show_menu 05 10 "$xtitle" "${options[@]}"
 		opcao="$?"
 
@@ -4473,114 +4627,181 @@ sobre::about
 sh_main_menu
 #end
 
+: '
+CHANGELOG - revisão e otimização (ago/2026)
 ################################################################################
-# CHANGELOG - revisão e otimização 
+
+[ter 11 ago 2026 ~16:47-17:05] CORREÇÕES INICIAIS DE BUGS
+------------------------------------------------------------------------
+- Corrigido "$Configuracao|Dados_Empresa|..." no menu principal: faltava
+  o "$" antes de Dados_Empresa (aparecia texto literal em vez do label
+  traduzido).
+- Corrigido "ntop" vs "nTop" em relatorio_vendas_diarias (variável errada
+  jogava a linha de SOMA sempre na mesma posição fixa, ignorando nTop).
+- Corrigido "tamanho_maxino" vs "tamanho_maximo" em show_menu (variável
+  declarada com nome errado vazava como global entre chamadas).
+- Corrigido "${_SYSTEM}" vs "${_SYSTEM_}" em mensagem()/registrar_venda/
+  atualizar_estoque_vendas (variável inexistente, título sempre vazio).
+- Adicionado "local" em dezenas de variáveis que vazavam para o escopo
+  global em ~25 funções (produto_pesquisa, relatorio_produtos_minimo,
+  relatorio_produtos_fora_validade, relatorio_produtos_vendidos,
+  fornecedor_pesquisa, relatorio_vendas_diarias, realizar_venda,
+  produtos_entradas, padr/padl/padc, sh_splitarray, convert_date_to_US,
+  validar_data, populate_database_*, yesno, show_menu,
+  show_menu_pulldown, debug, atualizar_estoque_vendas, TIni.ExistValue/
+  ReadValue/Set, inkey, relatorio_vendas_diarias (dead code removido)).
+- sql_escape(): escapa aspas simples antes de montar queries SQL,
+  aplicada em dbseek() e nos INSERT/UPDATE de produto e fornecedor -
+  previne quebra de query e injeção SQL via nomes com apóstrofo.
+- Corrigido bug de dados duplicados/sobrescritos em fornecedor_inclusao():
+  variáveis de um cadastro anterior não eram resetadas no loop, causando
+  sobrescrita do fornecedor anterior ao invés de criar um novo.
+
+[ter 11 ago 2026 ~17:05-18:00] CNPJ/CPF, ALERTA() E PADRONIZAÇÃO DE DIÁLOGOS
+------------------------------------------------------------------------
+- fornecedor_selecionar(): tela de seleção de fornecedor cadastrado
+  (navegação com setas), acionada quando o campo Fabricante fica em
+  branco ou quando o código digitado não é encontrado.
+- validar_cnpj_cpf(): validação de CPF/CNPJ com dígito verificador real
+  (algoritmo oficial, módulo 11), rejeitando sequências óbvias tipo
+  000.000.000-00.
+- formatar_cnpj_cpf(): aplica a máscara oficial (00.000.000/0000-00
+  para CNPJ, 000.000.000-00 para CPF) automaticamente ao salvar.
+- Rótulo "Cnpj" alterado para "CNPJ/CPF" nas telas de fornecedor.
+- Perguntas de confirmação (readconf) convertidas para yesno() nos
+  cadastros de produto e fornecedor, padronizando a interface.
+- Corrigida checagem de fornecedor duplicado que não pegava reincidência
+  ao reenviar o mesmo nome (comparação trocada de LIKE para exata).
+- alerta(): caixa de diálogo estilo "dialog --msgbox" (mensagem e botão
+  [ OK ] centralizados), substituindo o antigo msgerror/msgok (barra no
+  topo com timeout curto) nos formulários de cadastro. Passou por várias
+  iterações nesta rodada até chegar no formato final centralizado.
+
+[ter 11 ago 2026 ~18:00-21:05] TELA, FORMULÁRIOS E NAVEGAÇÃO
+------------------------------------------------------------------------
+- Corrigido bug visual em get(): texto de uma tentativa anterior ficava
+  "fantasma" na tela mesmo com o campo logicamente vazio, levando o
+  usuário a crer que o valor antigo ainda estava lá.
+- Corrigido campo de formulário vazando para fora da caixa (get() usava
+  tput el, que limpa até o fim físico da linha do terminal) - adicionado
+  parâmetro de largura opcional.
+- Corrigido ESC não saindo de formulários (fornecedor/produto) em vários
+  campos - adicionado "|| return" nas chamadas de get().
+- Corrigida "faixa preta" ao fechar diálogos (alerta()/yesno()): a
+  repintura usava tput sgr0 + apagar, sobrescrevendo o padrão de fundo
+  customizado do sistema com o preto padrão do terminal - corrigido
+  repintando com o mesmo padrão de fundo do sistema.
+- yesno(): mesma limpeza de tela do alerta() ao fechar (Sim, Não ou ESC).
+- Campo Unidade do cadastro de produtos: validação de exatamente 2
+  caracteres (ex: KG, UN, PC), com limite de digitação e uppercase
+  automático.
+- dbcount(): função genérica para contar registros de uma tabela
+  (dbcount "$database" "tabela"), usada nas checagens de fornecedor
+  cadastrado.
+- Campo Fabricante do cadastro de produtos: em branco vai direto para a
+  tela de seleção de fornecedores; código não encontrado pergunta se
+  quer escolher da lista - mesma tela de seleção.
+
+[qua 12 ago 2026 ~00:05-01:10] CORREÇÃO DO FLUXO DE SELEÇÃO DE FORNECEDOR
+------------------------------------------------------------------------
+- Corrigido fornecedor_selecionar() sendo chamada via $(...): isso
+  capturava TODA a renderização de tela (tela/titulo/show_menu) dentro da
+  variável em vez de mostrar na tela real. Corrigido usando variável
+  global (FORNECEDOR_SELECIONADO_ID) em vez de echo + command
+  substitution - mesmo padrão usado em read_key()/LAST_KEY.
+- Corrigido alerta()/show_menu() "comendo" a sequência de teclas de setas
+  e exigindo dois ENTERs (dreno de teclado mal posicionado quebrava
+  sequências rápidas de múltiplos bytes, como setas do teclado) -
+  removido dos dois lugares.
+- Corrigido erro de octal do bash: números com zero à esquerda ("08",
+  "09") em contexto aritmético ((...))/[[ -eq ]] quebravam com "valor
+  muito grande para esta base de numeração". Corrigido em validar_data(),
+  populate_database_compras() e no campo Quantidade de vendas/entradas.
+
+[qua 12 ago 2026 ~15:20-16:05] OTIMIZAÇÃO DE PERFORMANCE E BUGS DO .INI
+------------------------------------------------------------------------
+- Cache de dimensões do terminal (_LASTROW_CACHE_/_LASTCOL_CACHE_):
+  lastrow()/lastcol() não disparam mais "tput lines"/"tput cols" a cada
+  chamada (eram usadas em 63 pontos do script). Atualizado uma vez no
+  início e via trap em SIGWINCH se o terminal for redimensionado.
+- tela()/titulo()/sh_fundo(): tput sc/sgr0/rc trocados por sequências
+  ANSI literais (\e[s, \e[0m, \e[u); $(date) trocado por printf nativo
+  do bash (%()T); ~20 processos por chamada reduzidos a ~1.
+- box()/mabox(): eliminados os forks de replicate() dentro do loop de
+  desenho das laterais - linha do meio calculada uma vez e reutilizada
+  em vez de recalculada a cada linha de altura da caixa.
+- show_menu_pulldown() (menu principal, redesenha a cada tecla): forks
+  de sh_splitarray()/len_split_str() eliminados via split nativo do bash
+  (IFS read -a), sem subshell.
+- read_key(): retorno trocado de echo+$(...) para variável global
+  (LAST_KEY), eliminando 1 fork por tecla apertada no menu principal.
+- populate_database_*(): todos os INSERTs de cada tabela agrupados em um
+  único comando sqlite3 (eram até 365 chamadas separadas); bc trocado
+  por aritmética inteira em bash; consultas de docnr (antes 1 por linha)
+  buscadas uma única vez e incrementadas em bash; sh_random_date()
+  reescrita sem shuf/date -d. De ~4590 processos para ~6.
+- TIni.Get(): reescrita em bash puro, sem "sed" por chamada (era
+  chamada 17 vezes na inicialização, uma por cada dado de empresa/cor).
+- dec_mult()/dec_add()/dec_sub(): aritmética decimal (multiplicação,
+  soma, subtração) em bash puro, sem "bc". Aplicada em realizar_venda()
+  (tela de venda/PDV) e produtos_entradas() (entrada de produtos) -
+  eram até 4 processos (bc/tr) por item do carrinho a cada redesenho
+  da tela, a mais usada do sistema. Também aplicada em
+  relatorio_produtos_vendidos() e relatorio_entradas_produtos()
+  (mesmo domínio seguro: quantidade x preço de linha individual).
+- relatorio_vendas_diarias(): removidas 4 linhas de código morto
+  (mes_inicial/mes_final/ano_inicial/ano_final calculados via
+  "date -d" mas nunca usados); extração de mês dentro do loop trocada
+  por substring do bash. A soma agregada (SUM() do SQL) foi mantida com
+  "bc" propositalmente, por poder ter mais de 2 casas decimais.
+- ansi_setaf()/ansi_setab(): geram as sequências ANSI de cor (256 cores)
+  equivalentes a "tput setaf/setab N" em bash puro, sem processo
+  externo. Aplicado em sh_setvarcolors() (paleta de cores na
+  inicialização) e em configuracao::cores() (tela de escolha de cor,
+  redesenha a cada tecla apertada ao navegar pelas 255 cores).
+- ansi_extrair_cor(): extrai o número da cor (0-255) de uma sequência
+  ANSI já montada, mesmo composta com outros códigos (bold, reverse).
+  Usada em configuracao::cores() para a tela de seleção de cor abrir já
+  posicionada na cor atualmente configurada (do .ini, ou o padrão do
+  sistema quando não há valor salvo), em vez de sempre começar fixo na
+  cor 1.
+- show_menu(): adicionado suporte a item inicial pré-selecionado via
+  variável SHOW_MENU_INDICE_INICIAL (opcional, não afeta os outros ~7
+  chamadores que não a definem). Aplicado em
+  configuracao::pano_de_fundo(): a tela de escolha do padrão de fundo
+  agora também abre já posicionada no padrão atualmente ativo.
+- TIni.Set() - bug 1: na atualização de uma chave já existente, o valor
+  era inserido direto no comando "sed -i" sem escapar caracteres com
+  significado especial na substituição do sed - um valor contendo "&"
+  (ex: razão social "Bar & Mercearia") era corrompido, pois o sed
+  interpreta & como "insira o texto que casou aqui". Corrigido
+  escapando barra invertida, & e o delimitador | antes de montar o
+  comando sed.
+- TIni.Set() - bug 2, mais grave: a variável found_section nunca voltava
+  a 0 ao passar por uma seção DIFERENTE da procurada durante a varredura
+  do arquivo. Resultado: ao gravar uma chave nova numa seção que já
+  existe mas não é a última do arquivo, a chave nova era silenciosamente
+  anexada no final do arquivo, ficando visualmente dentro da seção
+  ERRADA - o dado ficava ilegível para TIni.Get(). Corrigido resetando
+  found_section=0 ao encontrar qualquer outro cabeçalho de seção.
+
+[qua 12 ago 2026 16:12] PANO DE FUNDO E FORMATO DO CHANGELOG
+------------------------------------------------------------------------
+- configuracao::pano_de_fundo(): mesmo princípio aplicado às cores -
+  a tela agora abre já posicionada no padrão de fundo atualmente ativo
+  (do .ini, ou o padrão do sistema), em vez de sempre começar no
+  primeiro item da lista. Usa o novo suporte de item inicial do
+  show_menu() (SHOW_MENU_INDICE_INICIAL).
+- Changelog reorganizado em blocos datados (esta rodada em diante,
+  cada bloco mostra a data/hora real em que aquele grupo de mudanças
+  foi feito, reconstruída a partir do cabeçalho Updated: atualizado a
+  cada rodada ao longo da conversa).
+
+Todas as otimizações foram validadas comparando a saída antes/depois
+(byte a byte quando aplicável) e testadas com casos de borda antes de
+serem aplicadas, para garantir que o comportamento visível ao usuário
+permanece o mesmo - só ficou mais rápido. Os dois bugs do TIni.Set()
+foram reproduzidos primeiro (confirmando a falha), depois corrigidos e
+revalidados com múltiplos cenários reais.
 ################################################################################
-#
-# CORREÇÕES DE BUGS
-# ------------------------------------------------------------------------
-# - Corrigido "$Configuracao|Dados_Empresa|..." no menu principal: faltava
-#   o "$" antes de Dados_Empresa (aparecia texto literal em vez do label
-#   traduzido).
-# - Corrigido "ntop" vs "nTop" em relatorio_vendas_diarias (variável errada
-#   jogava a linha de SOMA sempre na mesma posição fixa, ignorando nTop).
-# - Corrigido "tamanho_maxino" vs "tamanho_maximo" em show_menu (variável
-#   declarada com nome errado vazava como global entre chamadas).
-# - Corrigido "${_SYSTEM}" vs "${_SYSTEM_}" em mensagem()/registrar_venda/
-#   atualizar_estoque_vendas (variável inexistente, título sempre vazio).
-# - Adicionado "local" em dezenas de variáveis que vazavam para o escopo
-#   global em ~25 funções (produto_pesquisa, relatorio_produtos_minimo,
-#   relatorio_produtos_fora_validade, relatorio_produtos_vendidos,
-#   fornecedor_pesquisa, relatorio_vendas_diarias, realizar_venda,
-#   produtos_entradas, padr/padl/padc, sh_splitarray, convert_date_to_US,
-#   validar_data, populate_database_*, yesno, show_menu,
-#   show_menu_pulldown, debug, atualizar_estoque_vendas, TIni.ExistValue/
-#   ReadValue/Set, inkey, relatorio_vendas_diarias (dead code removido)).
-# - Corrigido bug de dados duplicados/sobrescritos em fornecedor_inclusao():
-#   variáveis de um cadastro anterior não eram resetadas no loop, causando
-#   sobrescrita do fornecedor anterior ao invés de criar um novo.
-# - Corrigido erro de octal do bash: números com zero à esquerda ("08",
-#   "09") em contexto aritmético ((...))/[[ -eq ]] quebravam com "valor
-#   muito grande para esta base de numeração". Corrigido em validar_data(),
-#   populate_database_compras() e no campo Quantidade de vendas/entradas.
-# - Corrigido bug visual em get(): texto de uma tentativa anterior ficava
-#   "fantasma" na tela mesmo com o campo logicamente vazio, levando o
-#   usuário a crer que o valor antigo ainda estava lá.
-# - Corrigido campo de formulário vazando para fora da caixa (get() usava
-#   tput el, que limpa até o fim físico da linha do terminal).
-# - Corrigido ESC não saindo de formulários (fornecedor/produto) em vários
-#   campos - adicionado "|| return" nas chamadas de get().
-# - Corrigida checagem de fornecedor duplicado que não pegava reincidência
-#   ao reenviar o mesmo nome (comparação trocada de LIKE para exata, mais
-#   correção de teclas perdidas em diálogos).
-# - Corrigido alerta()/show_menu() "comendo" a sequência de teclas de setas
-#   e exigindo dois ENTERs (dreno de teclado mal posicionado quebrava
-#   sequências rápidas de múltiplos bytes, como setas do teclado).
-# - Corrigido fornecedor_selecionar() sendo chamada via $(...): isso
-#   capturava TODA a renderização de tela (tela/titulo/show_menu) dentro da
-#   variável em vez de mostrar na tela real. Corrigido usando variável
-#   global (FORNECEDOR_SELECIONADO_ID) em vez de echo + command
-#   substitution - mesmo padrão usado em read_key()/LAST_KEY.
-# - Corrigida "faixa preta" ao fechar diálogos (alerta()/yesno()): a
-#   repintura usava tput sgr0 + apagar, sobrescrevendo o padrão de fundo
-#   customizado do sistema com o preto padrão do terminal.
-#
-# NOVAS FUNCIONALIDADES
-# ------------------------------------------------------------------------
-# - fornecedor_selecionar(): tela de seleção de fornecedor cadastrado
-#   (navegação com setas), acionada quando o campo Fabricante fica em
-#   branco ou quando o código digitado não é encontrado.
-# - validar_cnpj_cpf(): validação de CPF/CNPJ com dígito verificador real
-#   (algoritmo oficial, módulo 11), rejeitando sequências óbvias tipo
-#   000.000.000-00.
-# - formatar_cnpj_cpf(): aplica a máscara oficial (00.000.000/0000-00
-#   para CNPJ, 000.000.000-00 para CPF) automaticamente ao salvar.
-# - alerta(): caixa de diálogo estilo "dialog --msgbox" (mensagem e botão
-#   [ OK ] centralizados), substituindo o antigo msgerror/msgok (barra no
-#   topo com timeout curto) nos formulários de cadastro.
-# - dbcount(): função genérica para contar registros de uma tabela
-#   (dbcount "$database" "tabela"), usada nas checagens de fornecedor
-#   cadastrado.
-# - Validação de exatamente 2 caracteres no campo Unidade do cadastro de
-#   produtos (ex: KG, UN, PC), com limite de digitação e uppercase
-#   automático.
-# - Rótulo "Cnpj" alterado para "CNPJ/CPF" nas telas de fornecedor.
-# - Perguntas de confirmação (readconf) convertidas para yesno() nos
-#   cadastros de produto e fornecedor, padronizando a interface.
-#
-# SEGURANÇA
-# ------------------------------------------------------------------------
-# - sql_escape(): escapa aspas simples antes de montar queries SQL,
-#   aplicada em dbseek() e nos INSERT/UPDATE de produto e fornecedor -
-#   previne quebra de query e injeção SQL via nomes com apóstrofo.
-#
-# OTIMIZAÇÃO DE PERFORMANCE
-# ------------------------------------------------------------------------
-# - Cache de dimensões do terminal (_LASTROW_CACHE_/_LASTCOL_CACHE_):
-#   lastrow()/lastcol() não disparam mais "tput lines"/"tput cols" a cada
-#   chamada (eram usadas em 63 pontos do script). Atualizado uma vez no
-#   início e via trap em SIGWINCH se o terminal for redimensionado.
-# - tela()/titulo()/sh_fundo(): tput sc/sgr0/rc trocados por sequências
-#   ANSI literais (\e[s, \e[0m, \e[u); $(date) trocado por printf nativo
-#   do bash (%()T); ~20 processos por chamada reduzidos a ~1.
-# - box()/mabox(): eliminados os forks de replicate() dentro do loop de
-#   desenho das laterais - linha do meio calculada uma vez e reutilizada
-#   em vez de recalculada a cada linha de altura da caixa.
-# - show_menu_pulldown() (menu principal, redesenha a cada tecla): forks
-#   de sh_splitarray()/len_split_str() eliminados via split nativo do bash
-#   (IFS read -a), sem subshell.
-# - read_key(): retorno trocado de echo+$(...) para variável global
-#   (LAST_KEY), eliminando 1 fork por tecla apertada no menu principal.
-# - populate_database_*(): todos os INSERTs de cada tabela agrupados em um
-#   único comando sqlite3 (eram até 365 chamadas separadas); bc trocado
-#   por aritmética inteira em bash; consultas de docnr (antes 1 por linha)
-#   buscadas uma única vez e incrementadas em bash; sh_random_date()
-#   reescrita sem shuf/date -d. De ~4590 processos para ~6.
-# - TIni.Get(): reescrita em bash puro, sem "sed" por chamada (era
-#   chamada 17 vezes na inicialização, uma por cada dado de empresa/cor).
-#
-# Todas as otimizações foram validadas comparando a saída antes/depois
-# (byte a byte quando aplicável) e testadas com casos de borda antes de
-# serem aplicadas, para garantir que o comportamento visível ao usuário
-# permanece o mesmo - só ficou mais rápido.
-################################################################################
+'
