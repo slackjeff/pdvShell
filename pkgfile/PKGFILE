@@ -79,6 +79,7 @@ pre_install() {
 
 post_install() {
   log "Finalizando instalação"
+  [ -d "/opt/$pkgname" ] && chmod 1777 "/opt/$pkgname"
 }
 
 pre_upgrade() {
@@ -87,4 +88,5 @@ pre_upgrade() {
 
 post_upgrade() {
   log "Finalizando upgrade"
+  [ -d "/opt/$pkgname" ] && chmod 1777 "/opt/$pkgname"
 }
