@@ -1,0 +1,32 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_install:
+
+	# Cria diretórios necessários
+
+	install -d -m1777 debian/pdvshell/opt/pdvshell
+	install -d debian/pdvshell/usr/local/bin
+
+	# Instala script principal
+
+	[ -f "src/pdvshell" ] && install -Dm755 src/pdvshell debian/pdvshell/opt/pdvshell/pdvshell || install -Dm755 pdvshell debian/pdvshell/opt/pdvshell/pdvshell
+
+	# Cria wrapper
+
+	printf '#!/bin/sh\ncd /opt/pdvshell\nexec ./pdvshell "$$@"\n' > debian/pdvshell/usr/local/bin/pdvshell
+	chmod 755 debian/pdvshell/usr/local/bin/pdvshell
+
+	# Copia assets
+
+	cp -a usr debian/pdvshell/ 2>/dev/null || true
+	cp -a doc debian/pdvshell/opt/pdvshell/ 2>/dev/null || true
+	cp -a assets debian/pdvshell/opt/pdvshell/ 2>/dev/null || true
+
+	# Licença
+
+	install -Dm644 LICENSE debian/pdvshell/usr/share/licenses/pdvshell/LICENSE 2>/dev/null || true
+
+override_dh_usrlocal:

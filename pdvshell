@@ -4,7 +4,7 @@
 #	pdvshell - Simples frente de caixa escrito em shell script e sqlite!
 #	Created: 2023/10/21
 #	Altered: 2024/11/20 - 02:21 -04
-#	Updated: qua 12 ago 2026 16:19:45 -04
+#	Updated: qua 12 ago 2026 22:46:00 -04
 #
 # Copyright (c) 2023-2026, Vilmar Catafesta <vcatafesta@gmail.com>
 # Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
@@ -149,7 +149,7 @@ function sh_config() {
 	declare -g Zerar_Limpar_Vendas="$(gettext 'Zerar/Limpar DataBase Vendas')"
 	declare -g Zerar_Limpar_Compras="$(gettext 'Zerar/Limpar DataBase Compras')"
 	declare -g Dados_Empresa="$(gettext 'Dados Empresa')"
-	declare -g Cores="$(gettext 'Cores')"
+	declare -g Cores="$(gettext 'Aparência')"
 	declare -g Pano_de_fundo="$(gettext 'Pano de fundo')"
 	declare -gi pselecionadoV=1
 	declare -gi pselecionadoH=1

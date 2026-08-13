@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: chili-tradutor-go 2.1.20-20260201\n"
-"POT-Creation-Date: 2026-08-12 16:21-0400\n"
-"PO-Revision-Date: 2026-08-12 16:21-0400\n"
+"POT-Creation-Date: 2026-08-13 00:49-0400\n"
+"PO-Revision-Date: 2026-08-13 00:49-0400\n"
 "Last-Translator: Vilmar Catafesta <vcatafesta@gmail.com>\n"
 "Language-Team: Portuguese <https://github.com/chililinux/chili-tradutor-go>\n"
 "MIME-Version: 1.0\n"
@@ -195,8 +195,8 @@ msgid "Dados Empresa"
 msgstr "Datos de la empresa"
 
 #: pdvshell:152
-msgid "Cores"
-msgstr "Núcleos"
+msgid "Aparência"
+msgstr "Apariencia"
 
 #: pdvshell:153 pdvshell:4534
 msgid "Pano de fundo"
