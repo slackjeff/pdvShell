@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+function teste() {
+  local 1
+
+}
+
+teste

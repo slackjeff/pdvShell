@@ -35,6 +35,17 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
+pkgver=$(date +%Y%m%d)
+pkgrel=$(date +%H%M)
+
+cat > debian/changelog <<EOF
+pdvshell (${pkgver}-${pkgrel}) unstable; urgency=medium
+
+  * Debian release.
+
+ -- Vilmar Catafesta <vcatafesta@gmail.com>  $(date -R)
+EOF
+
 script=$(realpath "$0")
 script_name=$(basename "$script")
 project_dir=$(dirname "$script")

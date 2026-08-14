@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: chili-tradutor-go 2.1.20-20260201\n"
-"POT-Creation-Date: 2026-08-13 00:49-0400\n"
-"PO-Revision-Date: 2026-08-13 00:49-0400\n"
+"POT-Creation-Date: 2026-08-14 02:08-0400\n"
+"PO-Revision-Date: 2026-08-14 02:08-0400\n"
 "Last-Translator: Vilmar Catafesta <vcatafesta@gmail.com>\n"
 "Language-Team: Portuguese <https://github.com/chililinux/chili-tradutor-go>\n"
 "MIME-Version: 1.0\n"
@@ -166,31 +166,31 @@ msgstr "일일 매출"
 msgid "Produtos Vendidos"
 msgstr "판매된 제품"
 
-#: pdvshell:145 pdvshell:4266
+#: pdvshell:145 pdvshell:4607
 msgid "Atualizar Estoque (conciliação)"
 msgstr "재고 업데이트(조정)"
 
-#: pdvshell:146 pdvshell:4267
+#: pdvshell:146 pdvshell:4608
 msgid "Popular DataBases para testes"
 msgstr "테스트용 인기 데이터베이스"
 
-#: pdvshell:147 pdvshell:4268
+#: pdvshell:147 pdvshell:4609
 msgid "Zerar/Limpar DataBase Produtos"
 msgstr "데이터베이스 제품 재설정/지우기"
 
-#: pdvshell:148 pdvshell:4269
+#: pdvshell:148 pdvshell:4610
 msgid "Zerar/Limpar DataBase Fornecedor"
 msgstr "공급업체 데이터베이스 재설정/지우기"
 
-#: pdvshell:149 pdvshell:4270
+#: pdvshell:149 pdvshell:4611
 msgid "Zerar/Limpar DataBase Vendas"
 msgstr "판매 데이터베이스 재설정/지우기"
 
-#: pdvshell:150 pdvshell:4271
+#: pdvshell:150 pdvshell:4612
 msgid "Zerar/Limpar DataBase Compras"
 msgstr "구매 데이터베이스 재설정/삭제"
 
-#: pdvshell:151 pdvshell:4522
+#: pdvshell:151 pdvshell:4863
 msgid "Dados Empresa"
 msgstr "회사 데이터"
 
@@ -198,578 +198,587 @@ msgstr "회사 데이터"
 msgid "Aparência"
 msgstr "모습"
 
-#: pdvshell:153 pdvshell:4534
+#: pdvshell:153 pdvshell:4875
 msgid "Pano de fundo"
 msgstr "배경"
 
-#: pdvshell:1369
+#: pdvshell:1707
 msgid "Sim"
 msgstr "심"
 
-#: pdvshell:1369
+#: pdvshell:1707
 msgid "Não"
 msgstr "아니요"
 
-#: pdvshell:1453
+#: pdvshell:1791
 msgid "OK"
 msgstr "좋아요"
 
-#: pdvshell:1552
+#: pdvshell:1890
 msgid " Pressione qualquer tecla para continuar"
 msgstr "계속하려면 아무 키나 누르세요."
 
-#: pdvshell:1908 pdvshell:2135
+#: pdvshell:2333 pdvshell:2560
 msgid "Descrição"
 msgstr "설명"
 
-#: pdvshell:1909
+#: pdvshell:2334
 msgid "CADASTRO DE PRODUTO"
 msgstr "제품 등록"
 
-#: pdvshell:1913
+#: pdvshell:2338
 msgid "ID/Descrição"
 msgstr "ID/설명"
 
-#: pdvshell:1914
+#: pdvshell:2339
 msgid "ALTERAÇÃO DE PRODUTO"
 msgstr "제품 변경"
 
-#: pdvshell:1932 pdvshell:2000 pdvshell:2009
+#: pdvshell:2357 pdvshell:2425 pdvshell:2434
 msgid "Cod Fabricante"
 msgstr "제조업체 코드"
 
-#: pdvshell:1933 pdvshell:2001 pdvshell:2055 pdvshell:2137
+#: pdvshell:2358 pdvshell:2426 pdvshell:2480 pdvshell:2562
 msgid "Código Barras"
 msgstr "바 코드"
 
-#: pdvshell:1934 pdvshell:2002 pdvshell:2058 pdvshell:2138
+#: pdvshell:2359 pdvshell:2427 pdvshell:2483 pdvshell:2563
 msgid "Unidade"
 msgstr "단위"
 
-#: pdvshell:1935 pdvshell:2003 pdvshell:2067 pdvshell:2139
+#: pdvshell:2360 pdvshell:2428 pdvshell:2492 pdvshell:2564
 msgid "Estoque mínimo"
 msgstr "최소 재고"
 
-#: pdvshell:1936 pdvshell:2004 pdvshell:2071 pdvshell:2140
+#: pdvshell:2361 pdvshell:2429 pdvshell:2496 pdvshell:2565
 msgid "Data validade"
 msgstr "만료일"
 
-#: pdvshell:1937 pdvshell:2005 pdvshell:2088 pdvshell:2141
+#: pdvshell:2362 pdvshell:2430 pdvshell:2513 pdvshell:2566
 msgid "Preço (ex: 4.99 ou 5)"
 msgstr "가격(예: 4.99 또는 5)"
 
-#: pdvshell:1942 pdvshell:1976
+#: pdvshell:2367 pdvshell:2401
 msgid "Descrição não pode ser em branco. Cancelar?"
 msgstr "설명은 비워둘 수 없습니다. 취소?"
 
-#: pdvshell:1949
+#: pdvshell:2374
 msgid "Descrição já registrada."
 msgstr "설명이 이미 등록되었습니다."
 
-#: pdvshell:1967
+#: pdvshell:2392
 msgid "Descrição não pode ser em branco."
 msgstr "설명은 비워둘 수 없습니다."
 
-#: pdvshell:2024
+#: pdvshell:2449
 msgid ""
 "Fabricante/Fornecedor não encontrado. Deseja escolher da lista de "
 "cadastrados?"
 msgstr ""
 
-#: pdvshell:2031 pdvshell:2046
+#: pdvshell:2456 pdvshell:2471
 msgid "Nenhum fornecedor cadastrado. Deseja cadastrar um fornecedor agora?"
 msgstr "등록된 공급업체가 없습니다. 지금 공급자를 등록하시겠습니까?"
 
-#: pdvshell:2063
+#: pdvshell:2488
 msgid "Unidade deve ter exatamente 2 caracteres (ex: KG, UN, PC)"
 msgstr "단위는 정확히 2자여야 합니다(예: KG, UN, PC)."
 
-#: pdvshell:2076 pdvshell:2903 pdvshell:2920
+#: pdvshell:2501 pdvshell:3264 pdvshell:3281
 msgid "Data inválida"
 msgstr "잘못된 날짜"
 
-#: pdvshell:2080
+#: pdvshell:2505
 msgid "Data não pode ser em branco. Cancelar?"
 msgstr "날짜는 비워둘 수 없습니다. 취소?"
 
-#: pdvshell:2092 pdvshell:3601
+#: pdvshell:2517 pdvshell:3942
 msgid "Formato inválido. Usar ponto decimal ex: 4.99 ou número inteiro."
 msgstr "형식이 잘못되었습니다. 소수점을 사용하세요. 4.99 또는 정수."
 
-#: pdvshell:2096
+#: pdvshell:2521
 msgid "Confirma inclusão/atualização do produto?"
 msgstr "제품의 포함/업데이트를 확인하시겠습니까?"
 
-#: pdvshell:2115 pdvshell:2575 pdvshell:2678 pdvshell:4371
+#: pdvshell:2540 pdvshell:2962 pdvshell:3065 pdvshell:4712
 msgid "Inclusão/alteração não efetuada."
 msgstr "포함/변경되지 않았습니다."
 
-#: pdvshell:2121
+#: pdvshell:2546
 msgid "EXCLUSÃO DE PRODUTO"
 msgstr "제품 제외"
 
-#: pdvshell:2134 pdvshell:2143 pdvshell:2605 pdvshell:2612 pdvshell:2698
-#: pdvshell:2705
+#: pdvshell:2559 pdvshell:2568 pdvshell:2992 pdvshell:2999 pdvshell:3085
+#: pdvshell:3092
 msgid "ID/Nome"
 msgstr "아이디/이름"
 
-#: pdvshell:2136
+#: pdvshell:2561
 msgid "Fabricante"
 msgstr "제조업체"
 
-#: pdvshell:2148
+#: pdvshell:2573
 msgid "O ID não pode ser em branco. Cancelar?"
 msgstr "ID는 비워둘 수 없습니다. 취소?"
 
-#: pdvshell:2177
+#: pdvshell:2602
 msgid "Confirma exclusão do produto?"
 msgstr "제품 삭제를 확인하시겠습니까?"
 
-#: pdvshell:2178
+#: pdvshell:2603
 msgid "Removendo cadastro do produto"
 msgstr "제품 등록 제거"
 
-#: pdvshell:2181
+#: pdvshell:2606
 msgid "Deseja remover registros de vendas e compras desse produto?"
 msgstr "이 제품의 판매 및 구매 기록을 삭제하시겠습니까?"
 
-#: pdvshell:2182
+#: pdvshell:2607
 msgid "Removendo registros de vendas"
 msgstr "판매 기록 삭제"
 
-#: pdvshell:2184
+#: pdvshell:2609
 msgid "Removendo registros de compras"
 msgstr "구매 기록 삭제"
 
-#: pdvshell:2239 pdvshell:2240
+#: pdvshell:2656 pdvshell:2657 pdvshell:2663 pdvshell:2721
 msgid "PESQUISAR PRODUTOS"
 msgstr "제품 검색"
 
-#: pdvshell:2241 pdvshell:2325 pdvshell:2412
+#: pdvshell:2658 pdvshell:2743 pdvshell:2806
 msgid "Pesquisar por: nome, id <x>|<x-y>, f<id> ou *=tudo"
 msgstr "검색 기준: 이름, ID <x>|<x-y>, f<id> 또는 *=all"
 
-#: pdvshell:2480
+#: pdvshell:2663 pdvshell:2748 pdvshell:2811 pdvshell:3207 pdvshell:3298
+#: pdvshell:3396 pdvshell:3523
+msgid "Processando..."
+msgstr "처리 중..."
+
+#: pdvshell:2867
 msgid "CADASTRO DE FORNECEDOR"
 msgstr "공급업체 등록"
 
-#: pdvshell:2517 pdvshell:2524 pdvshell:2606 pdvshell:2631 pdvshell:2699
-#: pdvshell:4335 pdvshell:4342
+#: pdvshell:2904 pdvshell:2911 pdvshell:2993 pdvshell:3018 pdvshell:3086
+#: pdvshell:4676 pdvshell:4683
 msgid "Nome"
 msgstr "이름"
 
-#: pdvshell:2518 pdvshell:2538 pdvshell:2607 pdvshell:2641 pdvshell:2700
-#: pdvshell:4336 pdvshell:4353
+#: pdvshell:2905 pdvshell:2925 pdvshell:2994 pdvshell:3028 pdvshell:3087
+#: pdvshell:4677 pdvshell:4694
 msgid "Endereço"
 msgstr "주소"
 
-#: pdvshell:2519 pdvshell:2539 pdvshell:2608 pdvshell:2642 pdvshell:2701
-#: pdvshell:4337 pdvshell:4354
+#: pdvshell:2906 pdvshell:2926 pdvshell:2995 pdvshell:3029 pdvshell:3088
+#: pdvshell:4678 pdvshell:4695
 msgid "Cidade"
 msgstr "도시"
 
-#: pdvshell:2520 pdvshell:2540 pdvshell:2609 pdvshell:2643 pdvshell:2702
+#: pdvshell:2907 pdvshell:2927 pdvshell:2996 pdvshell:3030 pdvshell:3089
 msgid "Estado"
 msgstr "상태"
 
-#: pdvshell:2521 pdvshell:2543 pdvshell:2610 pdvshell:2646 pdvshell:2703
+#: pdvshell:2908 pdvshell:2930 pdvshell:2997 pdvshell:3033 pdvshell:3090
 msgid "CNPJ/CPF"
 msgstr "CNPJ/CPF"
 
-#: pdvshell:2527
+#: pdvshell:2914
 msgid "Fornecedor já cadastrado com esse nome"
 msgstr "해당 이름으로 이미 등록된 공급업체"
 
-#: pdvshell:2532 pdvshell:2635
+#: pdvshell:2919 pdvshell:3022
 msgid "O nome não pode ser em branco. Cancelar?"
 msgstr "이름은 비워둘 수 없습니다. 취소?"
 
-#: pdvshell:2549 pdvshell:2652
+#: pdvshell:2936 pdvshell:3039
 msgid "CNPJ/CPF inválido"
 msgstr "잘못된 CNPJ/CPF"
 
-#: pdvshell:2553 pdvshell:2656
+#: pdvshell:2940 pdvshell:3043
 msgid "Confirma inclusão/atualização do fornecedor?"
 msgstr "공급업체 포함/업데이트를 확인하시겠습니까?"
 
-#: pdvshell:2581
+#: pdvshell:2968
 msgid "ALTERAÇÃO DE FORNECEDOR"
 msgstr "공급업체 변경"
 
-#: pdvshell:2615 pdvshell:2708 pdvshell:3633
+#: pdvshell:3002 pdvshell:3095 pdvshell:3974
 msgid "ID/Nome não pode ser em branco. Cancelar?"
 msgstr "ID/이름은 비워둘 수 없습니다. 취소?"
 
-#: pdvshell:2625 pdvshell:3645
+#: pdvshell:3012 pdvshell:3986
 msgid "Fornecedor não encontrado nos parâmetros informados"
 msgstr "지정된 매개변수에서 공급업체를 찾을 수 없습니다."
 
-#: pdvshell:2684
+#: pdvshell:3071
 msgid "EXCLUSÃO DE FORNECEDOR"
 msgstr "공급업체 제외"
 
-#: pdvshell:2722 pdvshell:2871
+#: pdvshell:3109 pdvshell:3220
 msgid "Nenhum fornecedor encontrado nos parâmetros informados"
 msgstr "지정된 매개변수에서 공급업체를 찾을 수 없습니다."
 
-#: pdvshell:2733
+#: pdvshell:3120
 msgid "Confirma exclusão do fornecedor?"
 msgstr "공급자 제외를 확인하시겠습니까?"
 
-#: pdvshell:2754
+#: pdvshell:3141
 msgid "SELECIONAR FORNECEDOR"
 msgstr "공급업체 선택"
 
-#: pdvshell:2777
+#: pdvshell:3164
 msgid "Nenhum fornecedor cadastrado"
 msgstr "등록된 공급업체가 없습니다."
 
-#: pdvshell:2800
+#: pdvshell:3187
 msgid "PESQUISAR FORNECEDOR"
 msgstr "공급자 검색"
 
-#: pdvshell:2822
+#: pdvshell:3202
 msgid "Pesquisar por: nome, id <x>|<x-y> ou *=tudo"
 msgstr "검색 기준: 이름, ID <x>|<x-y> 또는 *=all"
 
-#: pdvshell:2894 pdvshell:2898
+#: pdvshell:3255 pdvshell:3259
 msgid "Data Inicial"
 msgstr "시작일"
 
-#: pdvshell:2895 pdvshell:2915
+#: pdvshell:3256 pdvshell:3276
 msgid "Data Final"
 msgstr "데이터 최종"
 
-#: pdvshell:2908 pdvshell:2925
+#: pdvshell:3269 pdvshell:3286
 msgid "A data não pode ser em branco. Cancelar?"
 msgstr "날짜는 비워둘 수 없습니다. 취소?"
 
-#: pdvshell:3014 pdvshell:3017 pdvshell:3163 pdvshell:3166
+#: pdvshell:3362
+msgid "PERÍODO"
+msgstr "기간"
+
+#: pdvshell:3387 pdvshell:3390 pdvshell:3514 pdvshell:3517
 msgid "Pesquisar por: docnr, data <dd-mm-aaaa>, id <x>|<x-y>, f<id>, ou *=tudo"
 msgstr "검색: docnr, 날짜 <dd-mm-yyyy>, id <x>|<x-y>, f<id> 또는 *=all"
 
-#: pdvshell:3015 pdvshell:3018 pdvshell:3164 pdvshell:3167
+#: pdvshell:3388 pdvshell:3391 pdvshell:3515 pdvshell:3518
 msgid "Agrupar : n=docnr, d=data, i=id, f=forn ou *=nenhum"
 msgstr "그룹: n=docnr, d=data, i=id, f=forn 또는 *=none"
 
-#: pdvshell:3146
+#: pdvshell:3499
 msgid "RELATÓRIO ENTRADAS DE PRODUTOS"
 msgstr "제품 항목 보고서"
 
-#: pdvshell:3316
+#: pdvshell:3615
 msgid "Não consta entradas nos parâmetros informados"
 msgstr "보고된 매개변수에 항목이 없습니다."
 
-#: pdvshell:3334
+#: pdvshell:3663
 msgid "Registro de venda efetuado"
 msgstr "판매등록 완료"
 
-#: pdvshell:3348
+#: pdvshell:3677
 msgid "Baixa de estoque efetuado"
 msgstr "주식상각 실시"
 
-#: pdvshell:3352
+#: pdvshell:3681
 msgid "CUPOM PDV"
 msgstr "쿠폼 부가세"
 
-#: pdvshell:3407 pdvshell:3547
+#: pdvshell:3742 pdvshell:3888
 msgid "ID/nome/CodeBar (em branco=concluir)"
 msgstr "ID/이름/CodeBar(공백=마침)"
 
-#: pdvshell:3422 pdvshell:3563
+#: pdvshell:3757 pdvshell:3904
 msgid "Produto não encontrado"
 msgstr "제품을 찾을 수 없습니다"
 
-#: pdvshell:3430 pdvshell:3572
+#: pdvshell:3765 pdvshell:3913
 msgid "Quantidade (0 para remover o item)"
 msgstr "수량(항목을 제거하려면 0)"
 
-#: pdvshell:3443 pdvshell:3585
+#: pdvshell:3778 pdvshell:3926
 msgid "Quantidade inválida ou item não tem na lista"
 msgstr "잘못된 수량 또는 목록에 없는 항목"
 
-#: pdvshell:3448 pdvshell:3590
+#: pdvshell:3783 pdvshell:3931
 msgid "Quantidade inválida!"
 msgstr "수량이 잘못되었습니다!"
 
-#: pdvshell:3453
+#: pdvshell:3788
 msgid "Quantidade insuficiente de"
 msgstr "수량 부족"
 
-#: pdvshell:3453
+#: pdvshell:3788
 msgid "no estoque - restam"
 msgstr "재고 있음 - 왼쪽"
 
-#: pdvshell:3477
+#: pdvshell:3812
 msgid "Confirma o fechamento do CUPOM?"
 msgstr "COUPON 종료를 확인하셨나요?"
 
-#: pdvshell:3491
+#: pdvshell:3826
 msgid "ENTRADAS DE PRODUTOS"
 msgstr "제품 항목"
 
-#: pdvshell:3597
+#: pdvshell:3938
 msgid "Preço custo (ex: 4.99 ou 5)"
 msgstr "원가(예: 4.99 또는 5)"
 
-#: pdvshell:3625
+#: pdvshell:3966
 msgid "DADOS DA NFF"
 msgstr "NFF 데이터"
 
-#: pdvshell:3627 pdvshell:3629
+#: pdvshell:3968 pdvshell:3970
 msgid "Fornecedor"
 msgstr "공급자"
 
-#: pdvshell:3628 pdvshell:3650
+#: pdvshell:3969 pdvshell:3991
 msgid "Docnr/NFF"
 msgstr "문서/NFF"
 
-#: pdvshell:3660
+#: pdvshell:4001
 msgid "Confirma a entrada desses produtos?"
 msgstr "해당 상품 도착을 확인하시나요?"
 
-#: pdvshell:3697
+#: pdvshell:4038
 msgid "Ajuste de estoque efetuado"
 msgstr "재고 조정 완료"
 
-#: pdvshell:3704
+#: pdvshell:4045
 msgid "Confirma a atualização?"
 msgstr "업데이트를 확인하시겠습니까?"
 
-#: pdvshell:3705
+#: pdvshell:4046
 msgid "Aguarde... Atualizando estoque"
 msgstr "잠시만 기다려주세요... 재고 업데이트 중"
 
-#: pdvshell:3721
+#: pdvshell:4062
 msgid "Atualização concluída"
 msgstr "업데이트 완료"
 
-#: pdvshell:3723
+#: pdvshell:4064
 msgid "Erro durante a atualização"
 msgstr "업데이트 중 오류"
 
-#: pdvshell:3746
+#: pdvshell:4087
 msgid "Checando tabela produtos"
 msgstr "상품표 확인 중"
 
-#: pdvshell:3748
+#: pdvshell:4089
 msgid "Checando tabela fornecedor"
 msgstr "공급업체 테이블 확인"
 
-#: pdvshell:3750
+#: pdvshell:4091
 msgid "Checando tabela vendas"
 msgstr "판매 테이블 확인"
 
-#: pdvshell:3752
+#: pdvshell:4093
 msgid "Checando tabela compras"
 msgstr "구매 테이블 확인 중"
 
-#: pdvshell:3757
+#: pdvshell:4098
 msgid ""
 "CUIDADO! Procedimento irá apagar todos os registros da tabela produtos. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3758
+#: pdvshell:4099
 msgid "Aguarde, Droping tabela produtos"
 msgstr "잠시만 기다려주세요. 제품 테이블을 삭제하는 중입니다."
 
-#: pdvshell:3765
+#: pdvshell:4106
 msgid ""
 "CUIDADO! Procedimento irá apagar todos os registros da tabela fornecedor. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3766
+#: pdvshell:4107
 msgid "Aguarde, Droping tabela fornecedor"
 msgstr "기다려 주십시오. 공급업체 테이블을 삭제하는 중입니다."
 
-#: pdvshell:3773
+#: pdvshell:4114
 msgid ""
 "CUIDADO! Procedimento irá apagar todos os registros da tabela vendas. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3774
+#: pdvshell:4115
 msgid "Aguarde, Droping tabela vendas"
 msgstr "기다려주세요. 판매 테이블을 삭제하는 중입니다."
 
-#: pdvshell:3781
+#: pdvshell:4122
 msgid ""
 "CUIDADO! Procedimento irá apagar todos os registros da tabela compras. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3782
+#: pdvshell:4123
 msgid "Aguarde, Droping tabela compras"
 msgstr "잠시만 기다려주세요. 쇼핑 테이블을 삭제하는 중입니다."
 
-#: pdvshell:3797
+#: pdvshell:4138
 msgid ""
 "CUIDADO! Procedimento irá inserir dados aleatórios para testes nas tabelas. "
 "Confirma ?"
 msgstr ""
 
-#: pdvshell:3799
+#: pdvshell:4140
 msgid "Aguarde, populando banco de dados..."
 msgstr "데이터베이스를 채우는 중입니다..."
 
-#: pdvshell:3804
+#: pdvshell:4145
 msgid "Banco de dados populado com sucesso!"
 msgstr "데이터베이스가 성공적으로 채워졌습니다!"
 
-#: pdvshell:3815
+#: pdvshell:4156
 msgid "Populando tabela produtos"
 msgstr "제품 테이블 채우기"
 
-#: pdvshell:3846
+#: pdvshell:4187
 msgid "Populando tabela fornecedor"
 msgstr "공급자 테이블 채우기"
 
-#: pdvshell:3871
+#: pdvshell:4212
 msgid "Populando tabela vendas"
 msgstr "판매 테이블 채우기"
 
-#: pdvshell:3935
+#: pdvshell:4276
 msgid "Populando tabela compras"
 msgstr "쇼핑 테이블 채우기"
 
-#: pdvshell:4209
+#: pdvshell:4550
 msgid "MENU FORNECEDORES"
 msgstr "공급업체 메뉴"
 
-#: pdvshell:4236
+#: pdvshell:4577
 msgid "MENU PRODUTOS"
 msgstr "제품 메뉴"
 
-#: pdvshell:4263
+#: pdvshell:4604
 msgid "MENU MANUTENÇÃO"
 msgstr "유지 관리 메뉴"
 
-#: pdvshell:4294
+#: pdvshell:4635
 msgid "MENU PEQUISA/RELATÓRIOS/CONSULTA"
 msgstr "메뉴 검색/보고서/질문"
 
-#: pdvshell:4327
+#: pdvshell:4668
 msgid "DADOS DA EMPRESA"
 msgstr "회사 데이터"
 
-#: pdvshell:4338 pdvshell:4355
+#: pdvshell:4679 pdvshell:4696
 msgid "UF"
 msgstr "University of Florida의"
 
-#: pdvshell:4339 pdvshell:4356
+#: pdvshell:4680 pdvshell:4697
 msgid "Cnpj"
 msgstr "Cnpj"
 
-#: pdvshell:4347
+#: pdvshell:4688
 msgid "O Nome não pode ser em branco. Cancelar?"
 msgstr "이름은 비워둘 수 없습니다. 취소?"
 
-#: pdvshell:4358
+#: pdvshell:4699
 msgid "Confirma dados?"
 msgstr "데이터를 확인하시겠습니까?"
 
-#: pdvshell:4378
+#: pdvshell:4719
 msgid "CONFIGURAÇÃO DE CORES"
 msgstr "색상 설정"
 
-#: pdvshell:4405
+#: pdvshell:4746
 msgid "COR SELECIONADA :"
 msgstr "선택한 색상:"
 
-#: pdvshell:4406
+#: pdvshell:4747
 msgid "ESC             : CANCELAR"
 msgstr "ESC : 취소"
 
-#: pdvshell:4407
+#: pdvshell:4748
 msgid "ENTER           : ACEITAR ESCOLHA"
 msgstr "입력: 선택 사항 수락"
 
-#: pdvshell:4408
+#: pdvshell:4749
 msgid "SETA ACIMA  ↑   : ALTERAR COR +"
 msgstr "위쪽 화살표 ↑ : 색상 변경 +"
 
-#: pdvshell:4409
+#: pdvshell:4750
 msgid "SETA ABAIXO ↓   : ALTERAR COR -"
 msgstr "아래쪽 화살표 ↓ : 색상 변경 -"
 
-#: pdvshell:4438
+#: pdvshell:4779
 msgid "SOBRE"
 msgstr "~에"
 
-#: pdvshell:4453
+#: pdvshell:4794
 msgid "O pdvShell é disponibilizado para você sob a Licença MIT, e"
 msgstr "pdvShell은 MIT 라이선스에 따라 귀하에게 제공됩니다."
 
-#: pdvshell:4454
+#: pdvshell:4795
 msgid "inclui software de código aberto sob uma variedade de outras licenças."
 msgstr "다양한 기타 라이센스에 따른 오픈 소스 소프트웨어가 포함되어 있습니다."
 
-#: pdvshell:4455
+#: pdvshell:4796
 msgid "Você pode ler instruções sobre como baixar e criar para você mesmo"
 msgstr "직접 다운로드하고 생성하는 방법에 대한 지침을 읽을 수 있습니다."
 
-#: pdvshell:4456
+#: pdvshell:4797
 msgid "o código fonte específico usado para criar esta cópia."
 msgstr "이 복사본을 만드는 데 사용된 특정 소스 코드."
 
-#: pdvshell:4457
+#: pdvshell:4798
 msgid "Este programa vem com absolutamente nenhuma garantia."
 msgstr "이 프로그램은 전혀 보장하지 않습니다."
 
-#: pdvshell:4462
+#: pdvshell:4803
 msgid "PANO DE FUNDO"
 msgstr "배경"
 
-#: pdvshell:4519
+#: pdvshell:4860
 msgid "MENU CONFIGURAÇÃO"
 msgstr "설정 메뉴"
 
-#: pdvshell:4523
+#: pdvshell:4864
 msgid "Cor Logo"
 msgstr "컬러 로고"
 
-#: pdvshell:4524
+#: pdvshell:4865
 msgid "Cor Cabecalho"
 msgstr "헤더 색상"
 
-#: pdvshell:4525
+#: pdvshell:4866
 msgid "Cor Status Superior"
 msgstr "더 높은 국가의 심장"
 
-#: pdvshell:4526
+#: pdvshell:4867
 msgid "Cor Status Inferior"
 msgstr "낮은 심장 상태"
 
-#: pdvshell:4527
+#: pdvshell:4868
 msgid "Cor Box"
 msgstr "코르 박스"
 
-#: pdvshell:4528
+#: pdvshell:4869
 msgid "Cor Titulo Box"
 msgstr "코르 제목 상자"
 
-#: pdvshell:4529
+#: pdvshell:4870
 msgid "Cor DispBox"
 msgstr "Cor DispBox"
 
-#: pdvshell:4530
+#: pdvshell:4871
 msgid "Cor Mensagem Info OK"
 msgstr "컬러 메시지 정보 OK"
 
-#: pdvshell:4531
+#: pdvshell:4872
 msgid "Cor Mensagem Info ERRO"
 msgstr "색상 메시지 정보 ERROR"
 
-#: pdvshell:4532
+#: pdvshell:4873
 msgid "Cor Mensagem Confirmação"
 msgstr "컬러 메시지 확인"
 
-#: pdvshell:4533
+#: pdvshell:4874
 msgid "Cor Pano de fundo"
 msgstr "컬러 배경화면"
 
-#: pdvshell:4578
+#: pdvshell:4919
 msgid "Pergunta: Deseja realmente Sair?"
 msgstr "질문: 정말로 떠나고 싶나요?"

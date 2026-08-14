@@ -4,11 +4,11 @@
 #	pdvshell - Simples frente de caixa escrito em shell script e sqlite!
 #	Created: 2023/10/21
 #	Altered: 2024/11/20 - 02:21 -04
-#	Updated: sex 14 ago 2026 00:48:55 -04
+#	Updated: qua 12 ago 2026 22:46:00 -04
 #
-#   Copyright (c) 2023-2026, Vilmar Catafesta <vcatafesta@gmail.com>
-#   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
-#   All rights reserved.
+# Copyright (c) 2023-2026, Vilmar Catafesta <vcatafesta@gmail.com>
+# Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
+# All rights reserved.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions
@@ -149,7 +149,7 @@ function sh_config() {
 	declare -g Zerar_Limpar_Vendas="$(gettext 'Zerar/Limpar DataBase Vendas')"
 	declare -g Zerar_Limpar_Compras="$(gettext 'Zerar/Limpar DataBase Compras')"
 	declare -g Dados_Empresa="$(gettext 'Dados Empresa')"
-	declare -g Aparencia="$(gettext 'Aparência')"
+	declare -g Cores="$(gettext 'Aparência')"
 	declare -g Pano_de_fundo="$(gettext 'Pano de fundo')"
 	declare -gi pselecionadoV=1
 	declare -gi pselecionadoH=1
@@ -694,303 +694,6 @@ function padc() {
 	printf "%*s\n" $(((${#texto} + $COLS) / 2)) "$texto" | sed "s/ /$char/g"
 }
 
-# Calcula larguras de campo ajustadas à largura disponível do terminal:
-# campos flexíveis encolhem (nunca abaixo do mínimo) para caber; campos
-# fixos nunca mudam. Se houver espaço de sobra, mantém as larguras ideais
-# (não estica além do necessário). Resultado em CALC_LARGURAS_RESULT, na
-# mesma sintaxe pipe-separated do Max_field_width.
-# Uso: calcular_larguras "5|40|2|5" "0|1|0|0" "$largura_disponivel" [minimo]
-function calcular_larguras() {
-	local ideais="$1"
-	local flex="$2"
-	local disponivel="$3"
-	local minimo="${4:-6}"
-	local -a a_ideais a_flex
-	IFS='|' read -r -a a_ideais <<<"$ideais"
-	IFS='|' read -r -a a_flex <<<"$flex"
-	local n=${#a_ideais[@]}
-	local i
-
-	local total_ideal=0
-	for i in "${!a_ideais[@]}"; do
-		total_ideal=$((total_ideal + a_ideais[i]))
-	done
-	# soma dos separadores '|' entre campos (n-1) + 2 bordas da caixa
-	total_ideal=$((total_ideal + n - 1 + 2))
-
-	if ((total_ideal == disponivel)); then
-		CALC_LARGURAS_RESULT="$ideais"
-		return 0
-	fi
-
-	local -a a_result=("${a_ideais[@]}")
-
-	if ((total_ideal < disponivel)); then
-		# sobra espaço: distribui proporcionalmente entre as colunas
-		# marcadas como flexíveis, pra ocupar toda a área disponível
-		local sobra=$((disponivel - total_ideal))
-		local total_flex=0
-		for i in "${!a_ideais[@]}"; do
-			[[ "${a_flex[i]}" == "1" ]] && total_flex=$((total_flex + a_ideais[i]))
-		done
-
-		if ((total_flex > 0)); then
-			for i in "${!a_ideais[@]}"; do
-				if [[ "${a_flex[i]}" == "1" ]]; then
-					local acrescimo=$((sobra * a_ideais[i] / total_flex))
-					a_result[i]=$((a_ideais[i] + acrescimo))
-				fi
-			done
-			# ajuste fino: sobra de arredondamento vai pro 1º campo flexível
-			local total_atual=0
-			for i in "${!a_result[@]}"; do
-				total_atual=$((total_atual + a_result[i]))
-			done
-			total_atual=$((total_atual + n - 1 + 2))
-			local resto=$((disponivel - total_atual))
-			if ((resto > 0)); then
-				for i in "${!a_ideais[@]}"; do
-					if [[ "${a_flex[i]}" == "1" ]]; then
-						a_result[i]=$((a_result[i] + resto))
-						break
-					fi
-				done
-			fi
-		fi
-
-		local resultado=""
-		for i in "${!a_result[@]}"; do
-			[[ -n "$resultado" ]] && resultado+="|"
-			resultado+="${a_result[i]}"
-		done
-		CALC_LARGURAS_RESULT="$resultado"
-		return 0
-	fi
-
-	# total_ideal > disponivel: não cabe, precisa encolher
-	local excesso=$((total_ideal - disponivel))
-	local total_flex=0
-	for i in "${!a_ideais[@]}"; do
-		[[ "${a_flex[i]}" == "1" ]] && total_flex=$((total_flex + a_ideais[i]))
-	done
-
-	if ((total_flex > 0)); then
-		for i in "${!a_ideais[@]}"; do
-			if [[ "${a_flex[i]}" == "1" ]]; then
-				local reducao=$((excesso * a_ideais[i] / total_flex))
-				local nova=$((a_ideais[i] - reducao))
-				((nova < minimo)) && nova=$minimo
-				a_result[i]=$nova
-			fi
-		done
-	fi
-
-	# ajuste fino: tira 1 de cada vez do maior campo flexível até bater exato
-	local total_atual=0
-	for i in "${!a_result[@]}"; do
-		total_atual=$((total_atual + a_result[i]))
-	done
-	total_atual=$((total_atual + n - 1 + 2))
-
-	while ((total_atual > disponivel)); do
-		local idx_maior=-1
-		local maior_valor=0
-		for i in "${!a_ideais[@]}"; do
-			if [[ "${a_flex[i]}" == "1" && ${a_result[i]} -gt $minimo && ${a_result[i]} -gt $maior_valor ]]; then
-				maior_valor=${a_result[i]}
-				idx_maior=$i
-			fi
-		done
-		((idx_maior == -1)) && break
-		a_result[idx_maior]=$((a_result[idx_maior] - 1))
-		total_atual=$((total_atual - 1))
-	done
-
-	local resultado=""
-	for i in "${!a_result[@]}"; do
-		[[ -n "$resultado" ]] && resultado+="|"
-		resultado+="${a_result[i]}"
-	done
-	CALC_LARGURAS_RESULT="$resultado"
-}
-
-# Navegador de tabela estilo Browse()/TBrowse do Clipper/Harbour: mostra
-# dados tabulares com scroll vertical (só desenha as linhas visíveis,
-# nunca estoura o terminal por maior que seja o conjunto de dados) e
-# navegação por setas/PgUp/PgDn/Home/End/Enter/ESC.
-#
-# Uso: browse_tabela linha coluna altura largura "Título" "Cab|eça|lho" "Larg|uras" nome_array [cor] [cores_colunas]
-#   título: aparece centralizado na borda superior da caixa, igual o
-#   show_menu()/box() já fazem. Pode ser vazio ("") se não precisar.
-#
-#   nome_array: nome de um array bash já populado, cada elemento é uma
-#   linha de dados pipe-delimited (mesmo número de campos do cabeçalho).
-#   Uma linha aceita 3 formatos:
-#     N campos (padrão)         : sem cor especial, usa cor da coluna/padrão
-#     N+1 campos                : último campo = cor da LINHA inteira
-#                                  (ex: "5|Produto X|10|$vermelho")
-#     N*2 campos                : segunda metade = cor por CÉLULA, uma
-#                                  por coluna desta linha (ex: campo de
-#                                  estoque com cor diferente por sinal:
-#                                  "5|Produto X|-3|10|||$vermelho||")
-#
-#   cores_colunas (opcional): define uma cor fixa por COLUNA (aplicada
-#   em todas as linhas que não sobrescrevem via cor de linha/célula),
-#   mesma sintaxe pipe-delimited das larguras (ex: "|||$cyan||$red"
-#   pinta só a 5ª e a última coluna). Campo vazio = cor padrão da caixa.
-#
-#   Prioridade quando mais de uma coexiste: cor de LINHA sempre vence
-#   (destaca a linha inteira sem exceção) > cor de CÉLULA (varia célula
-#   a célula dentro da mesma linha) > cor de COLUNA (fixa, igual em
-#   todas as linhas) > cor padrão da caixa. A linha atualmente
-#   selecionada (em vídeo reverso) sempre usa cor uniforme, ignorando
-#   cores de célula/coluna, para não cortar o reverso no meio da linha.
-#
-# Retorno: 0 = ENTER (BROWSE_SELECIONADO=índice 0-based,
-#              BROWSE_LINHA_SELECIONADA=linha de dado escolhida)
-#          1 = ESC (cancelado) ou falha de leitura de tecla
-#          2 = array vazio (nada a mostrar)
-function browse_tabela() {
-	local linha="$1" col="$2" altura="$3" largura="$4"
-	local titulo_caixa="$5"
-	local cabecalho="$6"
-	local larguras="$7"
-	local -n browse_dados="$8"
-	local color="${9:-${Acores[box]}}"
-	local cores_colunas="${10:-}"
-
-	local total=${#browse_dados[@]}
-	local visiveis=$((altura - 3))
-	local topo=0 atual=0
-	local -a a_larguras a_cabecalho a_cores_col
-	IFS='|' read -r -a a_larguras <<<"$larguras"
-	IFS='|' read -r -a a_cabecalho <<<"$cabecalho"
-	[[ -n "$cores_colunas" ]] && IFS='|' read -r -a a_cores_col <<<"$cores_colunas"
-	local i j idx campo linha_fmt valor cor_campo
-
-	BROWSE_SELECIONADO=""
-	BROWSE_LINHA_SELECIONADA=""
-
-	if ((total == 0)); then
-		return 2
-	fi
-	((visiveis < 1)) && visiveis=1
-
-	while true; do
-		box "$linha" "$col" "$altura" "$largura" "$titulo_caixa" "$color"
-
-		setpos "$((linha + 1))" "$((col + 1))"
-		linha_fmt=""
-		for i in "${!a_cabecalho[@]}"; do
-			utf8_campo "${a_cabecalho[i]}" "${a_larguras[i]}"
-			linha_fmt+="$UTF8_CAMPO_RESULT"
-			((i < ${#a_cabecalho[@]} - 1)) && linha_fmt+="|"
-		done
-		printf "%s%s%s" "${Acores[dispbox]}" "$linha_fmt" "$reset"
-
-		for ((i = 0; i < visiveis; i++)); do
-			idx=$((topo + i))
-			setpos "$((linha + 2 + i))" "$((col + 1))"
-			if ((idx < total)); then
-				local -a campos_linha
-				# o "|" extra no final evita que o read -a descarte um
-				# campo vazio no final da linha (bug conhecido do bash:
-				# "a|b|" lê só 2 campos em vez de 3) - sem isso, uma
-				# linha N×2 (cor por célula) com a última cor vazia
-				# perde um campo e quebra a detecção do formato.
-				IFS='|' read -r -a campos_linha <<<"${browse_dados[idx]}|"
-				local cor_linha=""
-				local -a cores_celula=()
-				if ((${#campos_linha[@]} == 2 * ${#a_larguras[@]})); then
-					# metade dos campos são cor por CÉLULA (uma por coluna
-					# desta linha específica, ex: estoque negativo em
-					# vermelho, positivo em ciano - varia célula a célula)
-					cores_celula=("${campos_linha[@]:${#a_larguras[@]}}")
-					campos_linha=("${campos_linha[@]:0:${#a_larguras[@]}}")
-				elif ((${#campos_linha[@]} > ${#a_larguras[@]})); then
-					cor_linha="${campos_linha[-1]}"
-					unset 'campos_linha[-1]'
-				fi
-
-				if ((idx == atual)); then
-					# Linha selecionada: sempre uniforme (reverso + cor de
-					# linha, sem cor por campo) - um reset no meio do
-					# caminho cancelaria o vídeo reverso pro resto da linha.
-					linha_fmt=""
-					for j in "${!a_larguras[@]}"; do
-						utf8_campo "${campos_linha[j]}" "${a_larguras[j]}"
-						linha_fmt+="$UTF8_CAMPO_RESULT"
-						((j < ${#a_larguras[@]} - 1)) && linha_fmt+="|"
-					done
-					printf "%s%s%s%s" "$reverse" "$cor_linha" "$linha_fmt" "$reset"
-				else
-					linha_fmt=""
-					for j in "${!a_larguras[@]}"; do
-						utf8_campo "${campos_linha[j]}" "${a_larguras[j]}"
-						campo="$UTF8_CAMPO_RESULT"
-						if [[ -n "$cor_linha" ]]; then
-							linha_fmt+="$campo"
-						else
-							cor_campo="${cores_celula[j]:-${a_cores_col[j]:-}}"
-							if [[ -n "$cor_campo" ]]; then
-								linha_fmt+="${cor_campo}${campo}${reset}"
-							else
-								linha_fmt+="$campo"
-							fi
-						fi
-						((j < ${#a_larguras[@]} - 1)) && linha_fmt+="|"
-					done
-					printf "%s%s%s" "$cor_linha" "$linha_fmt" "$reset"
-				fi
-			fi
-		done
-
-		read_key || return 1
-		case "$LAST_KEY" in
-		"$K_UP")
-			if ((atual > 0)); then
-				((atual--))
-				((atual < topo)) && ((topo--))
-			fi
-			;;
-		"$K_DOWN")
-			if ((atual < total - 1)); then
-				((atual++))
-				((atual >= topo + visiveis)) && ((topo++))
-			fi
-			;;
-		"$K_PGUP")
-			atual=$((atual - visiveis))
-			((atual < 0)) && atual=0
-			topo=$atual
-			;;
-		"$K_PGDN")
-			atual=$((atual + visiveis))
-			((atual >= total)) && atual=$((total - 1))
-			topo=$((atual - visiveis + 1))
-			((topo < 0)) && topo=0
-			;;
-		"$K_HOME")
-			atual=0
-			topo=0
-			;;
-		"$K_END")
-			atual=$((total - 1))
-			topo=$((total - visiveis))
-			((topo < 0)) && topo=0
-			;;
-		"$K_ENTER")
-			BROWSE_SELECIONADO=$atual
-			BROWSE_LINHA_SELECIONADA="${browse_dados[atual]}"
-			return 0
-			;;
-		"$K_ESC")
-			return 1
-			;;
-		esac
-	done
-}
-
 # dispbox "0|0|6" "ID|DESCRICAO DO PRODUTO|ESTOQUE|PREÇO" "5|40|5|11" "$cinza" 'left'
 function dispbox() {
 	local -A Aarray
@@ -1483,13 +1186,9 @@ function get() {
 	local largura="${7:-0}" # largura máxima a limpar antes de desenhar (0 = não limpa)
 	local maxlen="${8:-0}"  # número máximo de caracteres aceitos (0 = sem limite)
 	local input="" k
-	local cursor=0
-	local prev_len=0
-	local base_col=$((col + ${#prompt}))
 
 	# valor inicial visível/editável
 	input="$old_value"
-	cursor=${#input}
 
 	setpos "$row" "$col"
 	if ((largura > 0)); then
@@ -1499,72 +1198,35 @@ function get() {
 	fi
 	printf "%s%s%s" "$reset" "$color" "$prompt"
 	printf "%s%s" "$reverse" "$input"
-	prev_len=${#input}
-	setpos "$row" "$((base_col + cursor))"
 
 	while true; do
 		IFS= read -rsn1 k
 		case "$k" in
 		$'\e')
-			local k2 k3 seq
-			IFS= read -rsn1 -t 0.05 k2
-			if [[ -z "$k2" ]]; then
-				# ESC puro (sem mais bytes) = cancelar
-				printf "%s" "$reset"
-				return 1
-			fi
-			seq="$k2"
-			if [[ "$k2" == "[" || "$k2" == "O" ]]; then
-				while IFS= read -rsn1 -t 0.05 k3; do
-					seq+="$k3"
-					case "$k3" in
-					[0-9] | ';') continue ;; # byte de parâmetro
-					*) break ;;               # byte final, sequência completa
-					esac
-				done
-			fi
-			case "$seq" in
-			"[D") ((cursor > 0)) && ((cursor--)) ;;                        # seta esquerda
-			"[C") ((cursor < ${#input})) && ((cursor++)) ;;                # seta direita
-			"[H" | "[1~" | "[7~" | "OH") cursor=0 ;;                       # home
-			"[F" | "[4~" | "[8~" | "OF") cursor=${#input} ;;               # end
-			"[3~")                                                        # delete
-				((cursor < ${#input})) && input="${input:0:cursor}${input:cursor+1}"
-				;;
-			*) : ;; # seta cima/baixo, pgup/pgdn etc. - ignoradas
-			esac
+			# limpa resto da sequência ANSI
+			while read -rsn1 -t 0.01; do :; done
+			printf "%s" "$reset"
+			return 1
 			;;
 		"" | $'\n' | $'\r')
 			printf "%s" "$reset"
 			break
 			;;
 		$'\177' | $'\b')
-			if ((cursor > 0)); then
-				input="${input:0:cursor-1}${input:cursor}"
-				((cursor--))
+			if [[ -n "$input" ]]; then
+				input="${input:0:-1}"
+				printf "\b \b"
 			fi
 			;;
 		*)
 			if ((maxlen == 0 || ${#input} < maxlen)); then
-				input="${input:0:cursor}${k}${input:cursor}"
-				((cursor++))
+				input+="$k"
+				printf "%s%s" "$k" "$reverse"
 			else
 				printf '\a' # beep: limite de caracteres atingido
 			fi
 			;;
 		esac
-
-		# redesenha o campo inteiro (campos são curtos: datas, ids etc.)
-		local pad=0
-		((prev_len > ${#input})) && pad=$((prev_len - ${#input}))
-		setpos "$row" "$base_col"
-		printf "%s%s" "$reverse" "$input"
-		if ((pad > 0)); then
-			printf "%s" "$reset"
-			printf "%*s" "$pad" ""
-		fi
-		prev_len=${#input}
-		setpos "$row" "$((base_col + cursor))"
 	done
 
 	printf -v "$new_value" '%s' "$input"
@@ -1658,7 +1320,7 @@ function read_key() {
 
 	case "$k" in
 	$'\e')
-		if IFS= read -rsn1 -t 0.05 seq && [[ $seq == "[" ]]; then
+		if IFS= read -rsn1 -t 0.01 seq && [[ $seq == "[" ]]; then
 			IFS= read -rsn1 seq
 			case "$seq" in
 			A) LAST_KEY="$K_UP" ;;
@@ -2082,93 +1744,6 @@ function dec_sub() {
 		result_cents=$((-result_cents))
 	fi
 	printf -v DEC_RESULT '%s%d.%02d' "$sign" $((result_cents / 100)) $((result_cents % 100))
-}
-
-# Formata um número (formato ponto, ex: vindo direto do banco) para
-# exatamente 2 casas decimais, sem usar %f do printf. O printf %f
-# interpreta a entrada de acordo com LC_NUMERIC e pode rejeitar algo
-# como "11.3" como "número inválido" em locales com vírgula decimal
-# (ex: pt_BR) - e prefixar com LC_NUMERIC=C não resolve de forma
-# confiável, porque bash builtins usam o estado de locale já
-# carregado do processo, não necessariamente a variável de ambiente
-# de um prefixo temporário. Esta função usa só %d (inteiro), que
-# nunca depende de locale. Resultado em FORMATAR_2_CASAS_RESULT.
-# Uso: formatar_2_casas "$preco"; preco="$FORMATAR_2_CASAS_RESULT"
-function formatar_2_casas() {
-	local valor="$1"
-	local parte_inteira parte_decimal sinal=""
-	if [[ "$valor" == -* ]]; then
-		sinal="-"
-		valor="${valor#-}"
-	fi
-	if [[ "$valor" == *.* ]]; then
-		parte_inteira="${valor%%.*}"
-		parte_decimal="${valor#*.}"
-	else
-		parte_inteira="$valor"
-		parte_decimal=""
-	fi
-	[[ -z "$parte_inteira" ]] && parte_inteira=0
-	parte_decimal="${parte_decimal}00"
-	parte_decimal="${parte_decimal:0:2}"
-	printf -v FORMATAR_2_CASAS_RESULT '%s%d.%02d' "$sinal" "$((10#$parte_inteira))" "$((10#$parte_decimal))"
-}
-
-# Arredonda (não trunca) um valor decimal para 2 casas usando bc - para
-# quando o valor vem de um SUM() do SQL, que pode ter cauda decimal por
-# imprecisão de ponto flutuante (ex: "39.949999999999996") e precisa de
-# arredondamento correto, não só corte como formatar_2_casas() faz.
-# Corrige as inconsistências do bc: "0" sem decimais e valores menores
-# que 1 sem o zero à esquerda (".50" em vez de "0.50"). Assume valor
-# não-negativo (uso previsto: somas de vendas). Resultado em
-# ARREDONDAR_MOEDA_RESULT.
-function arredondar_moeda() {
-	local valor="${1:-0}"
-	local resultado
-	resultado=$(echo "scale=2; ($valor + 0.005) / 1" | bc -l)
-	local intpart="${resultado%%.*}"
-	local decpart="${resultado#*.}"
-	[[ "$resultado" != *.* ]] && decpart=""
-	[[ -z "$intpart" ]] && intpart=0
-	decpart="${decpart}00"
-	decpart="${decpart:0:2}"
-	ARREDONDAR_MOEDA_RESULT="${intpart}.${decpart}"
-}
-
-# Trunca e preenche uma string até exatamente N caracteres VISUAIS
-# (não bytes), sem cortar no meio de um caractere acentuado (Ç, Ã,
-# etc). Necessária porque sob locale POSIX/C (sem pt_BR instalada),
-# ${#string}/${string:0:N}/printf "%-Ns" contam BYTES, não caracteres -
-# um "Ç"/"Ã" ocupa 2 bytes mas só 1 posição visual na tela, causando
-# desalinhamento entre o cabeçalho (com acento) e as linhas de dados
-# (geralmente sem) nas telas de navegação em tabela. Resultado em
-# UTF8_CAMPO_RESULT. Uso: utf8_campo "$valor" "$largura"
-function utf8_campo() {
-	local valor="$1"
-	local largura="$2"
-	local -i byte_len=${#valor}
-	local -i i=0
-	local -i chars=0
-	local byte truncado=""
-	while ((i < byte_len)); do
-		byte="${valor:i:1}"
-		if [[ "$byte" != [$'\x80'-$'\xbf'] ]]; then
-			((chars >= largura)) && break
-			((chars++))
-		fi
-		truncado+="$byte"
-		((i++))
-	done
-	local stripped="${truncado//[$'\x80'-$'\xbf']/}"
-	local -i visivel=${#stripped}
-	local -i faltam=$((largura - visivel))
-	if ((faltam > 0)); then
-		local espacos
-		printf -v espacos '%*s' "$faltam" ''
-		UTF8_CAMPO_RESULT="${truncado}${espacos}"
-	else
-		UTF8_CAMPO_RESULT="$truncado"
-	fi
 }
 
 # END FUNCTIONS
@@ -2646,10 +2221,18 @@ function produto_pesquisa() {
 	local IsLike=0
 	local id nome un estoque preco codebar data validade qmin fabricante
 	local f_id f_data f_nome f_ende f_cida f_uf f_cnpj
+	local ncol
+	local nrow
+	local nlastrow
+	local half_lastcol
+	local Coordenadas
+	local Cabecalho
 	local Max_field_width
+	local Color
+	local Align_field
 	local identificador
 	local id_ini id_fim
-	local -a linhas_produto
+	local npage
 
 	while true; do
 		tela
@@ -2659,8 +2242,6 @@ function produto_pesquisa() {
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
-
-		mensagem "$(gettext "PESQUISAR PRODUTOS")" "$(gettext "Processando...")" 0 "$yellow"
 
 		if [[ $identificador =~ ^[0-9]+$ ]]; then
 			IsLike=0
@@ -2682,45 +2263,44 @@ function produto_pesquisa() {
 			produto_info=$(dbseek 'produtos' 'nome' "$identificador" "$IsHeader" "$IsLike")
 		fi
 
-		if [[ -z "$produto_info" ]]; then
-			msgerror "$Nenhum_produto_encontrado_nos_parametros_informados" "" 10
-			continue
-		fi
+		function imprimirCabecalhoPesquisaProdutos() {
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+			#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="ID|DESCRIÇÃO DO PRODUTO|UN|FABRI|VALIDADE|QMIN|ESTOQ|PREÇO|CODEBAR"
+			Max_field_width="5|40|2|5|10|5|5|10|13"
+			Color="${Acores[dispbox]}"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
+		}
 
-		linhas_produto=()
-		while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
-			formatar_2_casas "$preco"
-			preco="$FORMATAR_2_CASAS_RESULT"
-
-			# Cor dinâmica do ESTOQUE: vermelho se < QMIN, amarelo se
-			# == QMIN, ciano se > QMIN.
-			local cor_estoque=""
-			if [[ "$estoque" =~ ^-?[0-9]+$ && "$qmin" =~ ^-?[0-9]+$ ]]; then
-				if ((estoque < qmin)); then
-					cor_estoque="$red"
-				elif ((estoque == qmin)); then
-					cor_estoque="$yellow"
-				else
-					cor_estoque="$cyan"
+		if [[ -n "$produto_info" ]]; then
+			nrow=$((nTop + 4))
+			ncol=0
+			half_lastcol=$(($(lastcol) / 2))
+			nlastrow="$(($(lastrow) - 2))"
+			imprimirCabecalhoPesquisaProdutos
+			npage=1
+			while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
+				if ((nrow >= nlastrow)); then
+					nrow=$((nTop + 4))
+					if [[ $((npage % 2)) -eq 0 ]]; then
+						ncol=0
+						msgok "Página: $npage" "" -1
+					else
+						ncol=$((ncol + half_lastcol))
+					fi
+					imprimirCabecalhoPesquisaProdutos
+					((++npage))
 				fi
-			fi
-
-			# Formato N×2 do browse_tabela: 9 campos de dado + 9 campos de
-			# cor (mesma ordem das colunas). Só ESTOQ (índice 6) recebe cor;
-			# as demais ficam vazias e caem no fallback de cor de coluna.
-			local -a cores_linha=("" "" "" "" "" "" "$cor_estoque" "" "")
-			local cores_str
-			cores_str=$(IFS='|'; echo "${cores_linha[*]}")
-
-			linhas_produto+=("$id|$nome|$un|$fabricante|$(convert_date_to_ptBR "$validade")|$qmin|$estoque|${preco/./,}|$codebar|$cores_str")
-		done <<<"$produto_info"
-
-		calcular_larguras "5|40|2|5|10|5|5|10|13" "0|1|0|0|0|0|0|0|0" "$(($(lastcol) - 2))"
-		Max_field_width="$CALC_LARGURAS_RESULT"
-
-		browse_tabela "$((nTop + 3))" 0 "$(($(lastrow) - $((nTop + 3))))" "$(($(lastcol) - 1))" "$(gettext "PESQUISAR PRODUTOS")" \
-			"ID|DESCRIÇÃO DO PRODUTO|UN|FABRI|VALIDADE|QMIN|ESTOQ|PREÇO|CODEBAR" "$Max_field_width" linhas_produto "${Acores[box]}" \
-			"|||||$cyan|$cyan|$yellow"
+				setpos "$nrow" "$((ncol + 1))"
+				preco=$(bc -l <<<"$preco" | tr "." ",")
+				printf "%5s|%-40s|%2s|%5s|%10s|${cyan}%5s|%5s|${red}%10.2f${reset}|%-13s" "$id" "$nome" "$un" "$fabricante" "$(convert_date_to_ptBR "$validade")" "$qmin" "$estoque" "$preco" "$codebar"
+				((++nrow))
+			done <<<"$produto_info"
+			msgok "Página: $npage" "" -1
+		else
+			msgerror "$Nenhum_produto_encontrado_nos_parametros_informados" "" 10
+		fi
 	done
 }
 
@@ -2728,13 +2308,15 @@ function relatorio_produtos_minimo() {
 	local xtitle="${Relatorio_de^^} ${Produtos_abaixo_estoque_minimo^^}"
 	local produto_info
 	local id nome un estoque preco codebar data validade qmin fabricante
+	local ncol
+	local nrow
+	local nlastrow
+	local half_lastcol
 	local identificador
 	local fornecedor_info
 	local f_id f_data f_nome f_ende f_cida f_uf f_cnpj
 	local id_ini id_fim
-	local Max_field_width
-	local -a linhas_produto
-	local cor_linha
+	local npage
 
 	while true; do
 		tela
@@ -2744,8 +2326,6 @@ function relatorio_produtos_minimo() {
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
-
-		mensagem "$xtitle" "$(gettext "Processando...")" 0 "$yellow"
 
 		if [[ $identificador =~ ^[0-9]+$ ]]; then
 			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id='$identificador';")
@@ -2765,26 +2345,48 @@ function relatorio_produtos_minimo() {
 			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id LIKE '%$identificador_esc%' AND produtos.estoque < produtos.qmin;")
 		fi
 
-		if [[ -z "$produto_info" ]]; then
+		function imprimirCabecalhoProdutosMinimo() {
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+			#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="ID|VALIDADE|DESCRIÇÃO DO PRODUTO|UN|QMIN|ESTOQUE"
+			Max_field_width="5|10|40|2|7|7"
+			Color="${Acores[dispbox]}"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
+		}
+
+		if [[ -n "$produto_info" ]]; then
+			nrow=$((nTop + 4))
+			ncol=0
+			half_lastcol=$(($(lastcol) / 2))
+			nlastrow="$(($(lastrow) - 2))"
+			imprimirCabecalhoProdutosMinimo
+			npage=1
+			while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
+				if ((nrow >= nlastrow)); then
+					nrow=$((nTop + 4))
+					if [[ $((npage % 2)) -eq 0 ]]; then
+						ncol=0
+						msgok "Página: $npage" "" -1
+					else
+						ncol=$((ncol + half_lastcol))
+					fi
+					imprimirCabecalhoProdutosMinimo
+					((++npage))
+				fi
+				setpos "$nrow" "$((ncol + 1))"
+
+				if [[ $estoque -lt $qmin ]]; then
+					printf "${yellow}%-5s${reset}|%-10s|%-40s|%2s|${cyan}%7s|${red}%7s${reset}" "$id" "$(convert_date_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
+				else
+					printf "${yellow}%-5s${reset}|%-10s|%-40s|%2s|${cyan}%7s|${green}%7s${reset}" "$id" "$(convert_date_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
+				fi
+				((++nrow))
+			done <<<"$produto_info"
+			msgok "Página: $npage" "" -1
+		else
 			msgerror "$Nenhum_produto_encontrado_nos_parametros_informados" "" 10
-			continue
 		fi
-
-		linhas_produto=()
-		while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
-			if [[ $estoque -lt $qmin ]]; then
-				cor_linha="$red"
-			else
-				cor_linha="$green"
-			fi
-			linhas_produto+=("$id|$(convert_date_to_ptBR "$validade")|$nome|$un|$qmin|$estoque|$cor_linha")
-		done <<<"$produto_info"
-
-		calcular_larguras "5|10|40|2|7|7" "0|0|1|0|0|0" "$(($(lastcol) - 2))"
-		Max_field_width="$CALC_LARGURAS_RESULT"
-
-		browse_tabela "$((nTop + 3))" 0 "$(($(lastrow) - $((nTop + 3))))" "$(($(lastcol) - 1))" "$xtitle" \
-			"ID|VALIDADE|DESCRIÇÃO DO PRODUTO|UN|QMIN|ESTOQUE" "$Max_field_width" linhas_produto "${Acores[box]}"
 	done
 }
 
@@ -2792,12 +2394,16 @@ function relatorio_produtos_fora_validade() {
 	local xtitle="${Relatorio_de^^} ${Produtos_fora_da_validade^^}"
 	local produto_info
 	local id nome un estoque preco codebar data validade qmin fabricante
+	local ncol
+	local nrow
+	local nlastrow
+	local half_lastcol
+	local today="$(sh_date)"
 	local identificador
 	local fornecedor_info
 	local f_id f_data f_nome f_ende f_cida f_uf f_cnpj
 	local id_ini id_fim
-	local Max_field_width
-	local -a linhas_produto
+	local npage
 
 	while true; do
 		tela
@@ -2807,8 +2413,6 @@ function relatorio_produtos_fora_validade() {
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
-
-		mensagem "$xtitle" "$(gettext "Processando...")" 0 "$yellow"
 
 		if [[ $identificador =~ ^[0-9]+$ ]]; then
 			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id='$identificador';")
@@ -2828,38 +2432,47 @@ function relatorio_produtos_fora_validade() {
 			produto_info=$(sqlite3 $database "SELECT * FROM produtos WHERE id LIKE '%$identificador_esc%' AND produtos.validade < '$(sh_date)';")
 		fi
 
-		if [[ -z "$produto_info" ]]; then
-			msgerror "$Nenhum_produto_encontrado_nos_parametros_informados" "" 10
-			continue
-		fi
+		function imprimirCabecalhoProdutosForaValidade() {
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+			#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="ID|VALIDADE|DESCRIÇÃO DO PRODUTO|UN|QMIN|ESTOQUE"
+			Max_field_width="5|10|40|2|7|7"
+			Color="${Acores[dispbox]}"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
+		}
 
-		linhas_produto=()
-		while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
-			# Cor dinâmica do ESTOQUE (mesmo esquema do PESQUISAR PRODUTOS):
-			# vermelho se < QMIN, amarelo se == QMIN, ciano se > QMIN.
-			local cor_estoque=""
-			if [[ "$estoque" =~ ^-?[0-9]+$ && "$qmin" =~ ^-?[0-9]+$ ]]; then
-				if ((estoque < qmin)); then
-					cor_estoque="$red"
-				elif ((estoque == qmin)); then
-					cor_estoque="$yellow"
-				else
-					cor_estoque="$cyan"
+		if [[ -n "$produto_info" ]]; then
+			nrow=$((nTop + 4))
+			ncol=0
+			half_lastcol=$(($(lastcol) / 2))
+			nlastrow="$(($(lastrow) - 2))"
+			imprimirCabecalhoProdutosForaValidade
+			npage=1
+			while IFS='|' read -r id nome un estoque preco codebar data validade qmin fabricante; do
+				if ((nrow >= nlastrow)); then
+					nrow=$((nTop + 4))
+					if [[ $((npage % 2)) -eq 0 ]]; then
+						ncol=0
+						msgok "Página: $npage" "" -1
+					else
+						ncol=$((ncol + half_lastcol))
+					fi
+					imprimirCabecalhoProdutosForaValidade
+					((++npage))
 				fi
-			fi
-			# Formato N×2: 6 campos de dado + 6 de cor; só ESTOQUE (índice
-			# 5, última coluna) recebe cor.
-			local -a cores_linha=("" "" "" "" "" "$cor_estoque")
-			local cores_str
-			cores_str=$(IFS='|'; echo "${cores_linha[*]}")
-			linhas_produto+=("$id|$(convert_date_to_ptBR "$validade")|$nome|$un|$qmin|$estoque|$cores_str")
-		done <<<"$produto_info"
-
-		calcular_larguras "5|10|40|2|7|7" "0|0|1|0|0|0" "$(($(lastcol) - 2))"
-		Max_field_width="$CALC_LARGURAS_RESULT"
-
-		browse_tabela "$((nTop + 3))" 0 "$(($(lastrow) - $((nTop + 3))))" "$(($(lastcol) - 1))" "$xtitle" \
-			"ID|VALIDADE|DESCRIÇÃO DO PRODUTO|UN|QMIN|ESTOQUE" "$Max_field_width" linhas_produto "${Acores[box]}"
+				setpos "$nrow" "$((ncol + 1))"
+				if [[ "$validade" < "$today" ]]; then
+					printf "${yellow}%-5s|${red}%-10s${reset}|%-40s|%2s|${cyan}%7s|${red}%7s${reset}" "$id" "$(convert_date_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
+				else
+					printf "${yellow}%-5s|${green}%-10s${reset}|%-40s|%2s|${cyan}%7s|${green}%7s${reset}" "$id" "$(convert_date_to_ptBR "$validade")" "$nome" "$un" "$qmin" "$estoque"
+				fi
+				((++nrow))
+			done <<<"$produto_info"
+			msgok "Página: $npage" "" -1
+		else
+			msgerror "$Nenhum_produto_encontrado_nos_parametros_informados" "" 10
+		fi
 	done
 }
 
@@ -3191,9 +2804,16 @@ function fornecedor_pesquisa() {
 	local id_fim
 	local IsHeader=0
 	local IsLike=1
+	local nrow
+	local ncol
+	local cabecalho
+	local traco
+	local nlastrow
+	local nconta
+	local half_lastcol
+	local line
+	local npage
 	local id data nome ende cida uf cnpj
-	local -a linhas_fornecedor
-	local Max_field_width
 
 	while true; do
 		tela
@@ -3203,8 +2823,6 @@ function fornecedor_pesquisa() {
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
-
-		mensagem "$xtitle" "$(gettext "Processando...")" 0 "$yellow"
 
 		if [[ $identificador =~ ^[0-9]+$ ]]; then
 			fornecedor_info=$(dbseek 'fornecedor' 'id' "$identificador")
@@ -3216,21 +2834,43 @@ function fornecedor_pesquisa() {
 			fornecedor_info=$(dbseek 'fornecedor' 'nome' "$identificador" "$IsHeader" "$IsLike")
 		fi
 
-		if [[ -z "$fornecedor_info" ]]; then
+		function imprimirCabecalhoPesquisaFornecedor() {
+			#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+			Cabecalho="ID|DATA|NOME FORNECEDOR|ENDEREÇO|CIDADE|UF|CNPJ/CPF"
+			Max_field_width="5|10|40|40|25|2|18"
+			Color="${Acores[dispbox]}"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
+		}
+
+		if [[ -n "$fornecedor_info" ]]; then
+			nrow=$((nTop + 4))
+			ncol=0
+			nconta=0
+			nlastrow="$(($(lastrow) - 2))"
+			half_lastcol=$(($(lastcol) / 1))
+			imprimirCabecalhoPesquisaFornecedor
+			npage=1
+			while IFS='|' read -r id data nome ende cida uf cnpj; do
+				if ((nrow >= nlastrow)); then
+					if [[ $((npage % npage)) -eq 0 ]]; then
+						nrow=$((nTop + 4))
+						ncol=0
+						msgok "Página: $npage" "" -1
+					fi
+					imprimirCabecalhoPesquisaFornecedor
+					((++npage))
+				fi
+				setpos "$nrow" "$((ncol + 1))"
+				printf "%5s|%-10s|%-40s|%-40s|%-25s|%2s|%18s" "$id" "$(convert_date_to_ptBR "$data")" "$nome" "$ende" "$cida" "$uf" "$cnpj"
+				((++nrow))
+			done <<<"$fornecedor_info"
+			msgok "Página: $npage" "" -1
+		else
 			msgerror "$(gettext "Nenhum fornecedor encontrado nos parâmetros informados")" "" 10
-			continue
 		fi
 
-		linhas_fornecedor=()
-		while IFS='|' read -r id data nome ende cida uf cnpj; do
-			linhas_fornecedor+=("$id|$(convert_date_to_ptBR "$data")|$nome|$ende|$cida|$uf|$cnpj")
-		done <<<"$fornecedor_info"
-
-		calcular_larguras "5|10|40|40|25|2|18" "0|0|1|1|1|0|0" "$(($(lastcol) - 2))"
-		Max_field_width="$CALC_LARGURAS_RESULT"
-
-		browse_tabela "$((nTop + 3))" 0 "$(($(lastrow) - $((nTop + 3))))" "$(($(lastcol) - 1))" "$xtitle" \
-			"ID|DATA|NOME FORNECEDOR|ENDEREÇO|CIDADE|UF|CNPJ/CPF" "$Max_field_width" linhas_fornecedor "${Acores[box]}"
 	done
 }
 
@@ -3240,14 +2880,13 @@ function relatorio_vendas_diarias() {
 	local dini dfim
 	local data_inicio="01-$(date +"%m-%Y")"
 	local data_fim=$(date +"%d-%m-%Y")
-	local total_mes current_mes
-	local new_mes total data
-	local Max_field_width
-	local qtd_itens num_vendas qtd_mes vendas_mes
-	local ticket_medio ticket_medio_mes total_mes_fmt total_fmt
-	local dini_ptbr dfim_ptbr xtitle_periodo
-	local total_geral qtd_geral vendas_geral ticket_medio_geral total_geral_fmt
-	local -a linhas_vendas
+	local Coordenadas Cabecalho Max_field_width Color Align_field
+	local ncol nrow half_lastcol nlastrow total_mes current_mes
+	local new_mes total
+	local mes_inicial mes_final
+	local ano_inicial ano_final
+	local npages npage
+	local data
 
 	tela
 	titulo 1 "$xtitle" "${Acores[statussup]}"
@@ -3289,111 +2928,97 @@ function relatorio_vendas_diarias() {
 		fi
 	done
 
-	dini_ptbr="$dini"
-	dfim_ptbr="$dfim"
 	dini=$(convert_date_to_US "$dini")
 	dfim=$(convert_date_to_US "$dfim")
 
 	# Consulta para obter resultados diários agrupados por ano e mês
-	mensagem "$xtitle" "$(gettext "Processando...")" 0 "$yellow"
-	query_result=$(sqlite3 "$database" "SELECT date(data), SUM(total), SUM(quantidade), COUNT(DISTINCT docnr) FROM vendas WHERE date(data) BETWEEN '$dini' AND '$dfim' GROUP BY date(data) ORDER BY date(data) ASC")
+	query_result=$(sqlite3 "$database" "SELECT date(data), SUM(total) FROM vendas WHERE date(data) BETWEEN '$dini' AND '$dfim' GROUP BY date(data) ORDER BY date(data) ASC")
 
-	if [[ -z "${query_result}" ]]; then
-		msgok "" "" -1
-		return
+	function relatorio_vendas_diarias::imprimir_cabecalho_relatorio() {
+		Coordenadas="$((nTop + 4))|$ncol|$(($(lastrow) - $((nTop + 5))))"
+		#		Coordenadas="$((nTop + 4))|$ncol|1"
+		Cabecalho="DATA|TOTAL DIA"
+		Max_field_width="10|10"
+		Color="${Acores[dispbox]}"
+		Align_field='left'
+		dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
+	}
+
+	if [[ -n "${query_result}" ]]; then
+		ncol=0
+		nrow=$((nTop + 5))
+		npages=$(($(lastcol) / 22))
+		half_lastcol=$(($(lastcol) / npages))
+		nlastrow="$(($(lastrow) - 2))"
+		total_mes=0
+		current_mes=
+		relatorio_vendas_diarias::imprimir_cabecalho_relatorio
+		npage=1
+		while IFS='|' read -r data total; do
+			new_mes="${data:5:2}" # SQLite date() sempre devolve AAAA-MM-DD
+			if [[ -n "$current_mes" && "$current_mes" != "$new_mes" ]]; then
+				((++nrow))
+				setpos $((nTop + 44)) "$((ncol + 1))"
+				printf "${blue}%-10s ${red}%'10.2f${reset}\n" "SOMA" "$(tr "." "," <<<"$total_mes")"
+				total_mes=0
+
+				if [[ $((npage % npages)) -eq 0 ]]; then
+					ncol=0
+					msgok "Página: $npage" "" -1
+				else
+					ncol=$((ncol + half_lastcol))
+				fi
+
+				relatorio_vendas_diarias::imprimir_cabecalho_relatorio
+				nrow=$((nTop + 5))
+				((++npage))
+			fi
+
+			total_mes=$(echo "$total_mes + $total" | bc -l)
+			total=$(bc -l <<<"$total" | tr "." ",")
+			setpos "$nrow" "$((ncol + 1))"
+			if [[ $((nrow % 2)) -eq 0 ]]; then
+				printf "${cyan}%s|%10.2f${reset}\n" "$(convert_date_to_ptBR "$data")" "$total"
+			else
+				printf "${black}%s|%10.2f${reset}\n" "$(convert_date_to_ptBR "$data")" "$total"
+			fi
+			((++nrow))
+			current_mes="$new_mes"
+		done <<<"${query_result}"
+		((++nrow))
+		setpos "$nrow" "$((ncol + 1))"
+		printf "${blue}%-10s ${red}%'10.2f${reset}\n" "SOMA" "$(tr "." "," <<<"$total_mes")"
 	fi
-
-	total_mes=0
-	qtd_mes=0
-	vendas_mes=0
-	total_geral=0
-	qtd_geral=0
-	vendas_geral=0
-	current_mes=
-	linhas_vendas=()
-	while IFS='|' read -r data total qtd_itens num_vendas; do
-		new_mes="${data:5:2}" # SQLite date() sempre devolve AAAA-MM-DD
-		if [[ -n "$current_mes" && "$current_mes" != "$new_mes" ]]; then
-			arredondar_moeda "$total_mes"
-			total_mes_fmt="${ARREDONDAR_MOEDA_RESULT/./,}"
-			ticket_medio_mes=0
-			((vendas_mes > 0)) && ticket_medio_mes=$(echo "$total_mes / $vendas_mes" | bc -l)
-			arredondar_moeda "$ticket_medio_mes"
-			linhas_vendas+=("SOMA MENSAL|$total_mes_fmt|$qtd_mes|$vendas_mes|${ARREDONDAR_MOEDA_RESULT/./,}|$red")
-			linhas_vendas+=("")
-			total_mes=0
-			qtd_mes=0
-			vendas_mes=0
-		fi
-
-		total_mes=$(echo "$total_mes + $total" | bc -l)
-		qtd_mes=$((qtd_mes + qtd_itens))
-		vendas_mes=$((vendas_mes + num_vendas))
-
-		total_geral=$(echo "$total_geral + $total" | bc -l)
-		qtd_geral=$((qtd_geral + qtd_itens))
-		vendas_geral=$((vendas_geral + num_vendas))
-
-		arredondar_moeda "$total"
-		total_fmt="${ARREDONDAR_MOEDA_RESULT/./,}"
-		ticket_medio=0
-		((num_vendas > 0)) && ticket_medio=$(echo "$total / $num_vendas" | bc -l)
-		arredondar_moeda "$ticket_medio"
-		linhas_vendas+=("$(convert_date_to_ptBR "$data")|$total_fmt|$qtd_itens|$num_vendas|${ARREDONDAR_MOEDA_RESULT/./,}")
-		current_mes="$new_mes"
-	done <<<"${query_result}"
-	arredondar_moeda "$total_mes"
-	total_mes_fmt="${ARREDONDAR_MOEDA_RESULT/./,}"
-	ticket_medio_mes=0
-	((vendas_mes > 0)) && ticket_medio_mes=$(echo "$total_mes / $vendas_mes" | bc -l)
-	arredondar_moeda "$ticket_medio_mes"
-	linhas_vendas+=("SOMA MENSAL|$total_mes_fmt|$qtd_mes|$vendas_mes|${ARREDONDAR_MOEDA_RESULT/./,}|$red")
-
-	# SOMA GERAL: soma de todo o período consultado (todos os meses),
-	# não só do último mês - sempre a última linha do relatório.
-	linhas_vendas+=("")
-	ticket_medio_geral=0
-	((vendas_geral > 0)) && ticket_medio_geral=$(echo "$total_geral / $vendas_geral" | bc -l)
-	arredondar_moeda "$total_geral"
-	total_geral_fmt="${ARREDONDAR_MOEDA_RESULT/./,}"
-	arredondar_moeda "$ticket_medio_geral"
-	linhas_vendas+=("SOMA GERAL|$total_geral_fmt|$qtd_geral|$vendas_geral|${ARREDONDAR_MOEDA_RESULT/./,}|$red")
-
-	xtitle_periodo="$xtitle - $(gettext "PERÍODO") $dini_ptbr/$dfim_ptbr"
-
-	calcular_larguras "10|10|9|9|12" "1|1|1|1|1" "$(($(lastcol) - 2))"
-	Max_field_width="$CALC_LARGURAS_RESULT"
-
-	browse_tabela "$((nTop + 4))" 0 "$(($(lastrow) - $((nTop + 4))))" "$(($(lastcol) - 1))" "$xtitle_periodo" \
-		"DATA|TOTAL DIA|QTD ITENS|Nº VENDAS|TICKET MÉDIO" "$Max_field_width" linhas_vendas "${Acores[box]}"
+	msgok "" "" -1
 }
 
 function relatorio_produtos_vendidos() {
 	local xtitle="${Relatorio_de^^} ${Produtos_Vendidos^^}"
 	local current_index index
+	local nrow
+	local ncol
+	local half_lastcol
+	local nlastrow
 	local identificador
 	local query result
 	local id_ini id_fim
+	local npage
 	local compare
 	local fornecedor data docnr id un produto quantidade preco total codebar
 	local total_formatado
-	local Max_field_width
-	local -a linhas_venda
 
 	while true; do
 		tela
 		titulo 1 "$xtitle" "${Acores[statussup]}"
-		box "$nTop" 0 4 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
 		print $((nTop + 1)) 1 "$(gettext "Pesquisar por: docnr, data <dd-mm-aaaa>, id <x>|<x-y>, f<id>, ou *=tudo") : "
-		print $((nTop + 2)) 1 "$(gettext "Agrupar : n=docnr, d=data, i=id, f=forn ou *=nenhum") : "
+		print $((nTop + 1)) $(($(lastcol) / 2)) "$(gettext "Agrupar : n=docnr, d=data, i=id, f=forn ou *=nenhum") : "
 
 		get $((nTop + 1)) 1 "$(gettext "Pesquisar por: docnr, data <dd-mm-aaaa>, id <x>|<x-y>, f<id>, ou *=tudo") : " identificador || return
-		get $((nTop + 2)) 1 "$(gettext "Agrupar : n=docnr, d=data, i=id, f=forn ou *=nenhum") : " index || return
+		get $((nTop + 1)) $(($(lastcol) / 2)) "$(gettext "Agrupar : n=docnr, d=data, i=id, f=forn ou *=nenhum") : " index || return
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
-
-		mensagem "$xtitle" "$(gettext "Processando...")" 0 "$yellow"
 
 		# por docnr
 		if [[ $identificador =~ ^[0-9]{7}$ ]]; then
@@ -3457,41 +3082,63 @@ function relatorio_produtos_vendidos() {
 			result=$(sqlite3 "$database" "$query")
 		fi
 
-		if [ -z "$result" ]; then
+		function imprimirCabecalhoProdutosVendidos() {
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+			#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="DATA|DOCNR|FORN|ID|DESCRIÇÃO DO PRODUTO|UN|QTD|PREÇO|TOTAL"
+			Max_field_width="10|7|5|5|40|2|5|10|10"
+			Color="${Acores[dispbox]}"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
+		}
+
+		# Verifica se há dados no resultado da consulta
+		if [ -n "$result" ]; then
+			current_index=""
+			nrow=$((nTop + 4))
+			ncol=0
+			half_lastcol=$(($(lastcol) / 2))
+			nlastrow="$(($(lastrow) - 2))"
+			imprimirCabecalhoProdutosVendidos
+			npage=1
+			while IFS='|' read -r fornecedor data docnr id un produto quantidade preco total codebar; do
+				case "$index" in
+				n) compare="$docnr" ;;
+				d) compare="$data" ;;
+				i) compare="$id" ;;
+				f) compare="$fornecedor" ;;
+				esac
+				if [[ "$current_index" != "" && "$compare" != "$current_index" ]]; then
+					((++nrow))
+				fi
+				if ((nrow >= nlastrow)); then
+					nrow=$((nTop + 4))
+					if [[ $((npage % 2)) -eq 0 ]]; then
+						ncol=0
+						msgok "Página: $npage" "" -1
+					else
+						ncol=$((ncol + half_lastcol))
+					fi
+					imprimirCabecalhoProdutosVendidos
+					((++npage))
+				fi
+				dec_mult "$quantidade" "$preco"
+				total_formatado="${DEC_RESULT/./,}"
+				preco="${preco/./,}"
+				setpos "$nrow" "$((ncol + 1))"
+				printf "${yellow}%-10s${reset}|%-7s|%5s|%5s|%-40s|%-2s|${cyan}%5d|%10.2f|${red}%10.2f${reset}\n" "$(convert_date_to_ptBR "$data")" "$docnr" "$fornecedor" "$id" "$produto" "$un" "$quantidade" "$preco" "$total_formatado"
+				((++nrow))
+				case "$index" in
+				n) current_index="$docnr" ;;
+				d) current_index="$data" ;;
+				i) current_index="$id" ;;
+				f) current_index="$fornecedor" ;;
+				esac
+			done <<<"$result"
+			msgok "Página: $npage" "" -1
+		else
 			msgerror "$Nenhum_produto_encontrado_nos_parametros_informados" "" 10
-			continue
 		fi
-
-		current_index=""
-		linhas_venda=()
-		while IFS='|' read -r fornecedor data docnr id un produto quantidade preco total codebar; do
-			case "$index" in
-			n) compare="$docnr" ;;
-			d) compare="$data" ;;
-			i) compare="$id" ;;
-			f) compare="$fornecedor" ;;
-			esac
-			if [[ "$current_index" != "" && "$compare" != "$current_index" ]]; then
-				linhas_venda+=("")
-			fi
-			dec_mult "$quantidade" "$preco"
-			total_formatado="${DEC_RESULT/./,}"
-			formatar_2_casas "$preco"
-			preco="$FORMATAR_2_CASAS_RESULT"
-			linhas_venda+=("$(convert_date_to_ptBR "$data")|$docnr|$fornecedor|$id|$produto|$un|$quantidade|${preco/./,}|$total_formatado")
-			case "$index" in
-			n) current_index="$docnr" ;;
-			d) current_index="$data" ;;
-			i) current_index="$id" ;;
-			f) current_index="$fornecedor" ;;
-			esac
-		done <<<"$result"
-
-		calcular_larguras "10|7|5|5|40|2|5|10|10" "0|0|0|0|1|0|0|0|0" "$(($(lastcol) - 2))"
-		Max_field_width="$CALC_LARGURAS_RESULT"
-
-		browse_tabela "$((nTop + 4))" 0 "$(($(lastrow) - $((nTop + 4))))" "$(($(lastcol) - 1))" "$xtitle" \
-			"DATA|DOCNR|FORN|ID|DESCRIÇÃO DO PRODUTO|UN|QTD|PREÇO|TOTAL" "$Max_field_width" linhas_venda "${Acores[box]}"
 	done
 }
 
@@ -3500,27 +3147,27 @@ function relatorio_entradas_produtos() {
 	local identificador query result
 	local dini dfim
 	local id_ini id_fim
-	local fornecedor id data custo docnr un produto quantidade total
+	local current_docnr
+	local nrow ncol half_lastcol nlastrow
+	local total_formatado total
+	local fornecedor id data custo docnr un produto quantidade
 	local index
+	local npage
 	local compare
 	local current_index
-	local Max_field_width
-	local -a linhas_compra
 
 	while true; do
 		tela
 		titulo 1 "$xtitle" "${Acores[statussup]}"
-		box "$nTop" 0 4 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
+		box "$nTop" 0 3 $(($(lastcol) - 1)) "$xtitle" "${Acores[box]}"
 		print $((nTop + 1)) 1 "$(gettext "Pesquisar por: docnr, data <dd-mm-aaaa>, id <x>|<x-y>, f<id>, ou *=tudo") : "
-		print $((nTop + 2)) 1 "$(gettext "Agrupar : n=docnr, d=data, i=id, f=forn ou *=nenhum") : "
+		print $((nTop + 1)) $(($(lastcol) / 2)) "$(gettext "Agrupar : n=docnr, d=data, i=id, f=forn ou *=nenhum") : "
 
 		get $((nTop + 1)) 1 "$(gettext "Pesquisar por: docnr, data <dd-mm-aaaa>, id <x>|<x-y>, f<id>, ou *=tudo") : " identificador || return
-		get $((nTop + 2)) 1 "$(gettext "Agrupar : n=docnr, d=data, i=id, f=forn ou *=nenhum") : " index || return
+		get $((nTop + 1)) $(($(lastcol) / 2)) "$(gettext "Agrupar : n=docnr, d=data, i=id, f=forn ou *=nenhum") : " index || return
 
 		[[ -z "$identificador" ]] && return
 		[[ "$identificador" == "*" ]] && identificador=
-
-		mensagem "$xtitle" "$(gettext "Processando...")" 0 "$yellow"
 
 		# por data parcial
 		if [[ "$identificador" =~ ^[0-9]{2}-[0-9]{2}-[0-9]{4}\s[0-9]{2}-[0-9]{2}-[0-9]{4}$ ]]; then
@@ -3611,39 +3258,63 @@ function relatorio_entradas_produtos() {
 			result=$(sqlite3 "$database" "$query")
 		fi
 
-		if [ -z "$result" ]; then
+		function imprimirCabecalhoProdutosComprados() {
+			Coordenadas="$((nTop + 3))|$ncol|$(($(lastrow) - $((nTop + 4))))"
+			#			Coordenadas="$((nTop + 3))|$ncol|1"
+			Cabecalho="FORN|DATA|DOCNR|ID|DESCRIÇÃO DO PRODUTO|UN|QTD|CUSTO"
+			Max_field_width="5|10|7|5|40|2|5|10"
+			Color="${Acores[dispbox]}"
+			Align_field='left'
+			dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
+		}
+
+		# Verifica se há dados no resultado da consulta
+		if [ -n "$result" ]; then
+			current_index=""
+			nrow=$((nTop + 4))
+			ncol=0
+			half_lastcol=$(($(lastcol) / 2))
+			nlastrow="$(($(lastrow) - 2))"
+			imprimirCabecalhoProdutosComprados
+			npage=1
+			while IFS='|' read -r fornecedor id data docnr un produto quantidade custo total; do
+				case "$index" in
+				n) compare="$docnr" ;;
+				d) compare="$data" ;;
+				i) compare="$id" ;;
+				f) compare="$fornecedor" ;;
+				esac
+				if [[ "$current_index" != "" && "$compare" != "$current_index" ]]; then
+					((++nrow))
+				fi
+				if ((nrow >= nlastrow)); then
+					nrow=$((nTop + 4))
+					if [[ $((npage % 2)) -eq 0 ]]; then
+						ncol=0
+						msgok "Página: $npage" "" -1
+					else
+						ncol=$((ncol + half_lastcol))
+					fi
+					imprimirCabecalhoProdutosComprados
+					((++npage))
+				fi
+				#				total_formatado=$(echo "$quantidade * $custo" | bc -l | tr "." ",")
+				#				total=$(bc -l <<<"$total" | tr "." ",")
+				custo="${custo/./,}"
+				setpos "$nrow" "$((ncol + 1))"
+				printf "${yellow}%5s${reset}|%-10s|%-7s|%5s|%-40s|%2s|${cyan}%5s|${red}%10.2f${reset}\n" "$fornecedor" "$(convert_date_to_ptBR "$data")" "$docnr" "$id" "$produto" "$un" "$quantidade" "$custo"
+				((++nrow))
+				case "$index" in
+				n) current_index="$docnr" ;;
+				d) current_index="$data" ;;
+				i) current_index="$id" ;;
+				f) current_index="$fornecedor" ;;
+				esac
+			done <<<"$result"
+			msgok "Página: $npage" "" -1
+		else
 			msgerror "$(gettext "Não consta entradas nos parâmetros informados")" "" 5
-			continue
 		fi
-
-		current_index=""
-		linhas_compra=()
-		while IFS='|' read -r fornecedor id data docnr un produto quantidade custo total; do
-			case "$index" in
-			n) compare="$docnr" ;;
-			d) compare="$data" ;;
-			i) compare="$id" ;;
-			f) compare="$fornecedor" ;;
-			esac
-			if [[ "$current_index" != "" && "$compare" != "$current_index" ]]; then
-				linhas_compra+=("")
-			fi
-			formatar_2_casas "$custo"
-			custo="$FORMATAR_2_CASAS_RESULT"
-			linhas_compra+=("$fornecedor|$(convert_date_to_ptBR "$data")|$docnr|$id|$produto|$un|$quantidade|${custo/./,}")
-			case "$index" in
-			n) current_index="$docnr" ;;
-			d) current_index="$data" ;;
-			i) current_index="$id" ;;
-			f) current_index="$fornecedor" ;;
-			esac
-		done <<<"$result"
-
-		calcular_larguras "5|10|7|5|40|2|5|10" "0|0|0|0|1|0|0|0" "$(($(lastcol) - 2))"
-		Max_field_width="$CALC_LARGURAS_RESULT"
-
-		browse_tabela "$((nTop + 4))" 0 "$(($(lastrow) - $((nTop + 4))))" "$(($(lastcol) - 1))" "$xtitle" \
-			"FORN|DATA|DOCNR|ID|DESCRIÇÃO DO PRODUTO|UN|QTD|CUSTO" "$Max_field_width" linhas_compra "${Acores[box]}"
 	done
 }
 
@@ -3699,15 +3370,10 @@ function realizar_venda() {
 	local produto_id produto_quantidade produto_valor nova_quantidade
 	local efetivo
 
-	local largura_descricao=40
 	function realizar_venda::imprimir_cabecalho() {
 		local Coordenadas="$((nTop))|0|$((itens + 7))"
 		local Cabecalho="ID|DESCRIÇÃO DO PRODUTO|QTD|PREÇO|TOTAL"
-		calcular_larguras "5|40|5|8|8" "0|1|0|0|0" "$(lastcol)"
-		local Max_field_width="$CALC_LARGURAS_RESULT"
-		largura_descricao="${CALC_LARGURAS_RESULT#*|}"
-		largura_descricao="${largura_descricao%%|*}"
-		padding=$((5 + largura_descricao + 5 + 8 + 8 + 5))
+		local Max_field_width="5|40|5|8|8"
 		local Color="${Acores[dispbox]}"
 		local Align_field='left'
 		dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
@@ -3727,15 +3393,14 @@ function realizar_venda() {
 			dec_mult "$quantidade" "$valor"
 			subtotal="${DEC_RESULT/./,}"
 			valor_formatado="${valor/./,}"
-			produto_nome="${produto_nome:0:$largura_descricao}"
-			print $nrow 01 "$(printf "${yellow}%5s %-*s %5s %8s %8s${reset}\n" "$id" "$largura_descricao" "$produto_nome" "$quantidade" "$valor_formatado" "$subtotal")"
+			print $nrow 01 "$(printf "${yellow}%5s %-40s %5s %8.2f %8.2f${reset}\n" "$id" "$produto_nome" "$quantidade" "$valor_formatado" "$subtotal")"
 			dec_add "$total_venda" "$DEC_RESULT"
 			total_venda="$DEC_RESULT"
 			((++nrow))
 		done
 		print $nrow 00 "├$(replicate "─" "$((padding))")┤"
 		((++nrow))
-		print $nrow 01 "$(printf "${red}%5s %-*s %5s %8s$%8s${reset}\n" "" "$largura_descricao" "SUBTOTAL" "" "" "${total_venda/./,}")"
+		print $nrow 01 "$(printf "${red}%5s %-40s %5s %8s$%8.2f${reset}\n" "" "SUBTOTAL" "" "" "${total_venda/./,}")"
 		((++nrow))
 		print $nrow 00 "├$(replicate "─" "$((padding))")┤"
 		((++nrow))
@@ -3845,15 +3510,10 @@ function produtos_entradas() {
 	local fornecedor_info
 	local data nome ende cida esta cnpj docnr
 
-	local largura_descricao=40
 	function produtos_entradas::imprimir_cabecalho() {
 		local Coordenadas="$((nTop))|0|$((itens + 8))"
 		local Cabecalho="ID|DESCRIÇÃO DO PRODUTO|QTD|PREÇO|TOTAL"
-		calcular_larguras "5|40|5|8|8" "0|1|0|0|0" "$(lastcol)"
-		local Max_field_width="$CALC_LARGURAS_RESULT"
-		largura_descricao="${CALC_LARGURAS_RESULT#*|}"
-		largura_descricao="${largura_descricao%%|*}"
-		padding=$((5 + largura_descricao + 5 + 8 + 8 + 5))
+		local Max_field_width="5|40|5|8|8"
 		local Color="${Acores[dispbox]}"
 		local Align_field='left'
 		dispbox "$Coordenadas" "$Cabecalho" "$Max_field_width" "$Color" "$Align_field"
@@ -3873,15 +3533,14 @@ function produtos_entradas() {
 			dec_mult "$quantidade" "$custo"
 			subtotal="${DEC_RESULT/./,}"
 			custo_formatado="${custo/./,}"
-			produto_nome="${produto_nome:0:$largura_descricao}"
-			print $nrow 01 "$(printf "${yellow}%5s %-*s %5s %8s %8s${reset}\n" "$id" "$largura_descricao" "$produto_nome" "$quantidade" "$custo_formatado" "$subtotal")"
+			print $nrow 01 "$(printf "${yellow}%5s %-40s %5s %8.2f %8.2f${reset}\n" "$id" "$produto_nome" "$quantidade" "$custo_formatado" "$subtotal")"
 			dec_add "$total_compra" "$DEC_RESULT"
 			total_compra="$DEC_RESULT"
 			((++nrow))
 		done
 		print $nrow 00 "├$(replicate "─" "$((padding))")┤"
 		((++nrow))
-		print $nrow 01 "$(printf "${red}%5s %-*s %5s %8s$%8s${reset}\n" "" "$largura_descricao" "SUBTOTAL" "" "" "${total_compra/./,}")"
+		print $nrow 01 "$(printf "${red}%5s %-40s %5s %8s$%8.2f${reset}\n" "" "SUBTOTAL" "" "" "$(tr '.' ',' <<<"$total_compra")")"
 		((++nrow))
 		print $nrow 00 "├$(replicate "─" "$((padding))")┤"
 		((++nrow))
@@ -4905,7 +4564,7 @@ function sh_main_menu() {
 		"$Relatorios|$Produtos|$Produtos_Vendidos|$Entradas_de_Produtos|$Produtos_abaixo_estoque_minimo|$Produtos_fora_da_validade|$Vendas_Diarias|$Fornecedores"
 		"$Consultas|$Produtos|$Produtos_Vendidos|$Entradas_de_Produtos|$Produtos_abaixo_estoque_minimo|$Produtos_fora_da_validade|$Vendas_Diarias|$Fornecedores"
 		"$Manutencao|$Atualizar_Estoque|$Popular_Databases|$Zerar_Limpar_Produtos|$Zerar_Limpar_Fornecedor|$Zerar_Limpar_Vendas|$Zerar_Limpar_Compras"
-		"$Configuracao|$Dados_Empresa|$Aparencia|$Pano_de_fundo"
+		"$Configuracao|$Dados_Empresa|$Cores|$Pano_de_fundo"
 		"$Sobre|$Sobre_o pdvShell"
 	)
 
@@ -5138,527 +4797,11 @@ CHANGELOG - revisão e otimização (ago/2026)
   foi feito, reconstruída a partir do cabeçalho Updated: atualizado a
   cada rodada ao longo da conversa).
 
-[qua 12 ago 2026 22:46-22:47] AJUSTES DE TEXTO/CABEÇALHO
-------------------------------------------------------------------------
-- Ordem das linhas de copyright invertida (Vilmar Catafesta primeiro,
-  Jefferson Carneiro depois) e espaçamento padronizado.
-- Descrição do cabeçalho do arquivo traduzida para português, batendo
-  com o texto já usado em _SYSTEM_DESC.
-- Item de menu "Cores" renomeado para "Aparência" (rótulo exibido) e a
-  variável interna também renomeada de Cores para Aparencia, para não
-  ficar inconsistente com o texto que ela guarda.
-
-[qui 13 ago 2026 03:50] TELAS DE RELATÓRIO/CONSULTA RESPONSIVAS
-------------------------------------------------------------------------
-- Diagnosticado o motivo das telas de relatório/busca quebrarem
-  dependendo da resolução do terminal: as larguras de coluna eram
-  100% fixas no código (ex: "5|40|2|5|10|5|5|10|13"), sem nenhuma
-  relação com o tamanho real do terminal; e a paginação em 2 colunas
-  lado a lado nunca verificava se o conteúdo cabia na metade da tela,
-  causando sobreposição visual em terminais estreitos (medido: a busca
-  de fornecedores precisa de ~147 caracteres, chegando a exigir mais
-  de 290 colunas de terminal para a divisão em 2 colunas fazer sentido).
-- calcular_larguras(): calcula larguras de coluna ajustadas à largura
-  disponível - campos flexíveis (texto livre, como descrição/nome/
-  endereço) encolhem proporcionalmente até um mínimo, nunca abaixo
-  disso; campos fixos (ID, datas, preços, códigos) nunca mudam. Nunca
-  ultrapassa a largura disponível (ajuste fino por arredondamento).
-- calcular_colunas_cabiveis(): decide dinamicamente se cabem 2 colunas
-  lado a lado (com base na largura MÍNIMA viável da tabela) ou se é
-  preciso cair para 1 coluna usando a tela inteira - evita a
-  sobreposição na raiz, ao invés de só encolher texto até não caber
-  de jeito nenhum.
-- Aplicado nas 6 telas com paginação lado a lado: produto_pesquisa,
-  relatorio_produtos_minimo, relatorio_produtos_fora_validade,
-  fornecedor_pesquisa (3 campos flexíveis: nome/endereço/cidade),
-  relatorio_produtos_vendidos, relatorio_entradas_produtos. Também
-  aplicado em realizar_venda() e produtos_entradas() (telas de
-  carrinho, sem paginação - usam a largura total do terminal como
-  alvo, e o separador "├──┤" abaixo da lista é recalculado para
-  acompanhar a nova largura da tabela).
-- relatorio_vendas_diarias() não foi alterada: a tabela (DATA|TOTAL
-  DIA) precisa de só ~22 caracteres e já tinha lógica própria de
-  múltiplas colunas dinâmicas: nunca teve o problema de sobreposição.
-- As linhas de dados de cada tela foram ajustadas para usar a mesma
-  largura calculada do cabeçalho (via "%-*s" do printf, com largura
-  passada como argumento), garantindo que as colunas de dados sempre
-  alinhem com o cabeçalho, incluindo truncamento do texto quando a
-  coluna encolhe.
-- Validado com 13 cenários (5 telas x larguras de terminal de 80, 132
-  e 300 colunas): nenhum caso ultrapassou a largura disponível, e a
-  decisão de 1 ou 2 colunas mudou corretamente conforme o espaço.
-
-[qui 13 ago 2026 04:24] CORREÇÃO: ESPAÇO DESPERDIÇADO NAS TELAS RESPONSIVAS
-------------------------------------------------------------------------
-- Reportado com print de tela: a busca de fornecedores ficou com a
-  caixa ocupando só metade da largura do terminal, texto truncado à
-  toa e um espaço preto enorme sobrando à direita, mesmo com poucos
-  registros (cabendo tudo numa única página).
-- Causa: calcular_colunas_cabiveis() decidia usar 2 colunas lado a
-  lado baseado apenas na largura do terminal permitir, sem checar se
-  havia dados suficientes para realmente precisar da segunda coluna -
-  reservando (e desperdiçando) metade da tela mesmo quando só uma
-  página de resultados seria exibida.
-- Corrigido removendo a especulação de 2 colunas por completo: as 6
-  telas voltam a usar sempre a largura total do terminal para uma
-  única coluna, paginando verticalmente ("Página: N, pressione
-  qualquer tecla") quando os dados não cabem de uma vez - mais simples
-  e sem essa classe de bug. calcular_colunas_cabiveis() foi removida
-  do script (não é mais chamada em lugar nenhum). calcular_larguras()
-  foi mantida: continua encolhendo colunas de texto livre só quando o
-  terminal realmente não tem espaço suficiente.
-
-[qui 13 ago 2026 04:35] BROWSE_TABELA() - NAVEGADOR ESTILO CLIPPER/HARBOUR
-------------------------------------------------------------------------
-- browse_tabela(): novo widget de navegação de dados tabulares, inspirado
-  no Browse()/TBrowse do Clipper/Harbour. Só desenha as linhas realmente
-  visíveis na tela (janela de rolagem), então nunca estoura o terminal
-  nem desperdiça espaço, não importa quantos registros existam. Suporta
-  setas (cima/baixo, move o cursor e rola quando necessário), PgUp/PgDn
-  (pula uma tela inteira de cada vez), Home/End (primeiro/último
-  registro), Enter (seleciona e devolve a linha via variáveis globais
-  BROWSE_SELECIONADO/BROWSE_LINHA_SELECIONADA) e ESC (cancela). Não usa
-  show_menu() como base porque essa função desenha TODOS os itens de
-  uma vez sem nenhum controle de rolagem - com muitos registros ela
-  estouraria o terminal do mesmo jeito.
-- fornecedor_pesquisa() reescrita para usar browse_tabela(): a função
-  ficou bem mais simples (não precisa mais da lógica manual de
-  paginação "Página: N, pressione tecla"), e a navegação ficou muito
-  mais fluida - sem mais interrupções a cada tela cheia, rolagem livre
-  pra cima/baixo/PgUp/PgDn/Home/End pelo resultado inteiro.
-- Validado com 9 cenários de navegação (limites de início/fim, PgUp/
-  PgDn, Home/End, seleção com Enter, cancelamento com ESC, array
-  vazio) e um teste de integração completo simulando 30 fornecedores,
-  em terminal estreito (80 col, larguras encolhem corretamente) e
-  largo (155 col, mesmo cenário do print reportado - usa a largura
-  ideal completa, sem espaço desperdiçado).
-- Corrigido durante o desenvolvimento: a função entrava em loop
-  infinito se a leitura de tecla falhasse (ex: entrada esgotada) -
-  agora trata isso como equivalente a ESC.
-
-[qui 13 ago 2026 05:22] BROWSE_TABELA() APLICADA NAS 6 TELAS RESTANTES
-------------------------------------------------------------------------
-- browse_tabela() estendida para suportar cor por linha: uma linha de
-  dado pode ter um campo extra no final (ex: "5|Produto|10|$vermelho")
-  que é tratado como cor daquela linha específica, sem afetar linhas
-  que não usam essa cor - preserva indicadores visuais funcionais (não
-  só decorativos) como vermelho/verde para estoque abaixo do mínimo ou
-  produto vencido, que se perderiam numa conversão simples.
-- Convertidas para browse_tabela(): produto_pesquisa(),
-  relatorio_produtos_minimo() e relatorio_produtos_fora_validade()
-  (cor vermelha/verde por linha preservada), relatorio_produtos_
-  vendidos() e relatorio_entradas_produtos() (agrupamento visual por
-  docnr/data/id/fornecedor preservado inserindo uma linha em branco
-  no array entre grupos, no lugar do antigo salto de linha manual).
-  relatorio_vendas_diarias() não foi alterada (tabela pequena, sem o
-  problema de sobreposição, como já registrado antes).
-- Corrigido de brinde um bug de formatação encontrado durante a
-  conversão: preço/custo eram convertidos de ponto para vírgula
-  direto (ex: "5" ficava "5" em vez de "5,00", "4.9" ficava "4,9" em
-  vez de "4,90") - faltava garantir 2 casas decimais antes da troca,
-  como o antigo "%10.2f" do printf já garantia. Corrigido com
-  printf %.2f antes da substituição em todas as 3 telas afetadas
-  (produto_pesquisa, relatorio_produtos_vendidos,
-  relatorio_entradas_produtos).
-- Todas as ~30 chamadas de imprimirCabecalho*()/dispbox() e a lógica
-  manual de paginação "Página: N" foram removidas dessas 5 funções -
-  ficaram significativamente mais curtas e simples.
-- Validado com teste de integração cobrindo: formatação de preço em 3
-  precisões diferentes, cor por linha vermelho/verde, agrupamento com
-  linha separadora na posição correta, e navegação (seta+Enter)
-  retornando o registro certo.
-
-[qui 13 ago 2026 05:27] BROWSE_TABELA() - COR POR COLUNA
-------------------------------------------------------------------------
-- browse_tabela() estendida com um novo parâmetro opcional (cores das
-  colunas, mesma sintaxe pipe-delimited das larguras): permite definir
-  uma cor fixa para cada campo/coluna individualmente, caindo na cor
-  padrão da caixa quando não especificada para aquela coluna. Restaura
-  a possibilidade de destacar campos específicos (ex: preço em
-  vermelho, quantidade em ciano) que existia no código antigo baseado
-  em printf e havia se perdido na conversão para o novo widget.
-- Prioridade quando cor de linha e cor de coluna coexistem: a cor de
-  linha (ex: vermelho para estoque abaixo do mínimo) sempre vence,
-  destacando a linha inteira sem exceção.
-- Achado e corrigido durante o desenvolvimento: colorir campo por
-  campo terminando cada um com reset de cor cancelava o vídeo reverso
-  da linha selecionada no meio do caminho (o reset do ANSI limpa TODOS
-  os atributos, não só a cor) - a linha ficava com metade destacada e
-  metade normal. Corrigido fazendo a linha selecionada sempre renderizar
-  de forma uniforme (reverso + cor de linha, sem cor por coluna); as
-  cores por coluna só se aplicam às linhas que não estão em destaque.
-- Aplicado em produto_pesquisa() como demonstração: QMIN e ESTOQUE em
-  ciano, PREÇO em vermelho - restaurando exatamente as cores que a
-  versão anterior (com printf manual) já usava.
-- Validado com teste de integração usando dados reais de 2 produtos:
-  confirmado que a cor cai exatamente nos campos certos (QMIN/ESTOQUE
-  ciano, PREÇO vermelho, demais campos sem cor) tanto na linha
-  selecionada (uniforme) quanto nas demais (por coluna), e que a
-  navegação entre elas troca a formatação corretamente a cada tecla.
-
-[qui 13 ago 2026 05:31] CORREÇÃO: ERRO DE LOCALE NO PRINTF (numero invalido)
-------------------------------------------------------------------------
-- Reportado erro em produção: "printf: 11.3: numero invalido" (e
-  semelhantes) na tela de pesquisa de produtos. Causa: o bash força o
-  printf a interpretar %f de acordo com LC_NUMERIC do sistema - em
-  locale pt_BR (vírgula como separador decimal), um valor vindo do
-  banco no formato ponto (ex: "11.3") é rejeitado como número
-  inválido. O próprio código original já tinha essa lição aprendida
-  em um lugar (troco em realizar_venda usa LC_ALL=C), mas os 3 printf
-  %.2f novos adicionados na conversão para browse_tabela() (preço em
-  produto_pesquisa/relatorio_produtos_vendidos, custo em
-  relatorio_entradas_produtos) não tinham essa proteção. Corrigido
-  prefixando os 3 com LC_NUMERIC=C, forçando a interpretação correta
-  do valor bruto do banco independente do locale do sistema.
-- Investigação revelou um problema relacionado, mais amplo e já
-  pré-existente no código original (não introduzido nesta sessão): em
-  vários lugares um valor JÁ formatado para exibição com vírgula (ex:
-  "4,99") era passado para um formato %f do printf, que só aceita
-  número de verdade - isso quebra mesmo sob locale C, independente do
-  locale do sistema. Encontrado em relatorio_vendas_diarias() (soma
-  mensal), realizar_venda() e produtos_entradas() (linha de item e
-  linha de SUBTOTAL do carrinho). Corrigido trocando o formato de
-  "%8.2f"/"%10.2f" para "%8s"/"%10s" nesses 5 pontos, já que o valor
-  não precisa mais ser reformatado como número - só exibido como texto,
-  mantendo o mesmo alinhamento visual (confirmado com teste direto).
-- Validado: os 3 pontos com LC_NUMERIC=C testados com vários valores
-  (inteiro, 1 e 2 casas decimais) sem regressão sob locale C; os 5
-  pontos com troca de %f para %s testados com dados reais de carrinho,
-  sem erro e com alinhamento idêntico ao formato %f original (quando
-  este funcionava).
-
-[qui 13 ago 2026 15:19] CORREÇÃO DEFINITIVA DO LOCALE + VENDAS DIÁRIAS
-------------------------------------------------------------------------
-- O erro "printf: X.Y: número inválido" persistiu mesmo com o prefixo
-  LC_NUMERIC=C aplicado na correção anterior. Causa: prefixar uma
-  variável de ambiente antes de um BUILTIN do bash (como printf) não
-  funciona da mesma forma que antes de um comando externo - builtins
-  rodam dentro do próprio processo do bash, que já carregou o estado
-  de locale na inicialização; o prefixo temporário não força uma
-  releitura confiável desse estado para aquela chamada específica.
-- Corrigido de forma definitiva: criada formatar_2_casas(), que separa
-  a parte inteira e decimal do valor manualmente (string) e usa só
-  %d (inteiro) do printf para montar o resultado - nunca usa %f, que é
-  a fonte do problema. %d nunca depende de locale. Substituídas as 3
-  chamadas problemáticas (produto_pesquisa, relatorio_produtos_
-  vendidos, relatorio_entradas_produtos) por essa função. Validado
-  com os 7 valores exatos do erro reportado (32.4, 90.8, 44.5, 92.7,
-  39.0, 17.1, 96.9) - todos corretos, sem erro.
-- Nota: formatar_2_casas() trunca a casa decimal (não arredonda) -  
-  correto para os 3 usos acima, pois lá o valor já vem com no máximo
-  2 casas do banco (preço/custo validados na entrada). Para somas
-  agregadas (SUM() do SQL, que podem ter cauda decimal por imprecisão
-  de ponto flutuante), foi criada uma segunda função separada, veja
-  abaixo.
-- relatorio_vendas_diarias() convertida para browse_tabela(), como as
-  outras 5 telas de relatório. A linha "SOMA" mensal foi preservada
-  usando a cor de linha (destacada em azul). Aproveitando a conversão,
-  corrigido também aqui o mesmo padrão de bug (valor já em vírgula
-  sendo passado para %f) que afetava a linha de SOMA e o total diário.
-- arredondar_moeda(): nova função para os casos de SUM() do SQL nesta
-  tela especificamente - usa bc para arredondar corretamente (não só
-  truncar) valores com cauda decimal por imprecisão de ponto
-  flutuante, corrigindo também as inconsistências do próprio bc (saída
-  "0" sem decimais, valores menores que 1 sem o zero à esquerda).
-  Validado com o exemplo real de imprecisão "39.949999999999996" ->
-  "39.95" (arredondado corretamente) e outros casos de borda.
-- Simplificação aceita nesta conversão: o zebra-striping (linhas
-  alternando ciano/preto) não foi preservado, já que browse_tabela()
-  usa cor por LINHA de forma binária (linha tem cor especial ou usa a
-  cor padrão) - manter tanto o destaque da linha SOMA quanto o
-  zebra-striping ao mesmo tempo exigiria uma extensão adicional do
-  widget, não implementada por ora.
-- Validado com teste de integração simulando vendas cruzando 2 meses
-  com valores de imprecisão real de ponto flutuante: agrupamento
-  mensal, arredondamento e navegação todos corretos (somas mensais
-  batendo com a soma manual esperada).
-
 Todas as otimizações foram validadas comparando a saída antes/depois
 (byte a byte quando aplicável) e testadas com casos de borda antes de
 serem aplicadas, para garantir que o comportamento visível ao usuário
 permanece o mesmo - só ficou mais rápido. Os dois bugs do TIni.Set()
 foram reproduzidos primeiro (confirmando a falha), depois corrigidos e
 revalidados com múltiplos cenários reais.
-
-[qui 13 ago 2026 18:50] BROWSE_TABELA() - TÍTULO, UTF-8 E COR POR CÉLULA
-------------------------------------------------------------------------
-- browse_tabela() ganhou um 5º parâmetro opcional (título), passado
-  direto pra box() no mesmo padrão já usado por show_menu() - antes a
-  caixa sempre abria sem título na borda. Aplicado nas 7 chamadas
-  existentes (produto_pesquisa, fornecedor_pesquisa e os 5 relatórios).
-- Corrigido bug de alinhamento sob locale POSIX/C (este ambiente não
-  tem pt_BR instalado): o bash conta bytes em vez de caracteres
-  visuais em ${#string}/${string:0:N}/printf %-Ns, e um C/Ã acentuado
-  ocupa 2 bytes mas 1 posição visual - isso desalinhava o cabeçalho
-  (com acento) das linhas de dado (sem acento). Corrigido com
-  utf8_campo(), que trunca/preenche por caractere visual e nunca corta
-  um acento no meio. Validado com 8 casos de borda (acento no limite
-  exato da largura, string só de acentos, string vazia, etc), todos
-  passando.
-- browse_tabela() estendida com um terceiro nível de cor, por CÉLULA
-  individual: uma linha de dado pode ter o dobro de campos (N dados +
-  N cores, uma cor por coluna daquela linha específica), permitindo
-  por exemplo colorir só a célula do ESTOQUE sem afetar as demais.
-  Prioridade mantida: cor de linha > cor de célula > cor de coluna
-  (estática) > padrão.
-- Encontrado um erro no teste manual (não no código): uma linha de
-  teste com contagem de pipes errada (7 campos em vez dos 6 esperados
-  para 3 colunas) caiu sem querer no branch de cor de LINHA em vez de
-  cor por CÉLULA. Corrigido o teste e revalidado isoladamente: com a
-  contagem certa (2xN campos), só a célula do ESTOQUE fica colorida,
-  as outras duas (ID, DESCRIÇÃO) permanecem sem cor própria.
-- Aplicada a cor dinâmica no campo ESTOQUE de produto_pesquisa():
-  negativo em vermelho, positivo ou zero em ciano, calculado linha a
-  linha ao montar linhas_produto, usando o novo formato de cor por
-  célula (9 campos de dado + 9 de cor, cor preenchida só no índice do
-  ESTOQUE). Substitui a cor estática ciano que essa coluna tinha antes.
-- Validado com teste isolado da lógica de geração das cores (estoque
-  negativo, zero e positivo) confirmando 9 campos de cor sempre
-  gerados, com a cor certa (vermelho/ciano) sempre no índice do
-  ESTOQUE e os demais 8 campos vazios.
-
-[qui 13 ago 2026 18:56] RELATÓRIO DE VENDAS DIÁRIAS - NOVOS CAMPOS
-------------------------------------------------------------------------
-- relatorio_vendas_diarias() ganhou 3 colunas novas, calculadas a
-  partir dos campos já existentes na tabela vendas (quantidade e
-  docnr), sem alterar o schema: QTD ITENS (soma de quantidade no dia),
-  Nº VENDAS (contagem de docnr distintos no dia - cada cupom/venda
-  pode ter várias linhas de item, uma por produto) e TICKET MÉDIO
-  (total do dia dividido pelo nº de vendas do dia).
-- A query SQL foi ampliada de "SELECT date(data), SUM(total)" para
-  incluir também "SUM(quantidade)" e "COUNT(DISTINCT docnr)" no mesmo
-  GROUP BY date(data), sem custo adicional relevante.
-- A linha SOMA mensal (destacada em azul) também ganhou os 3 novos
-  valores agregados: soma de QTD ITENS e Nº VENDAS do mês, e o ticket
-  médio recalculado sobre o total e o nº de vendas do mês inteiro (não
-  é a média dos tickets médios diários).
-- Ticket médio usa a mesma arredondar_moeda() já existente (via bc),
-  então fica protegido do mesmo bug de locale documentado nas rodadas
-  anteriores; divisão por zero evitada checando nº de vendas > 0 antes
-  de dividir.
-- Validado com teste isolado da lógica de agregação usando dados
-  simulados (3 dias, 2 meses, múltiplas vendas no mesmo dia com docnr
-  repetido) e depois um teste fim-a-fim rodando a consulta SQL real
-  (via módulo sqlite3 do Python, já que o binário sqlite3 não está
-  disponível neste ambiente de teste) contra um banco de teste com 5
-  linhas de venda, conferindo cada valor manualmente: totais, soma de
-  itens, contagem de vendas distintas por docnr e ticket médio diário
-  e mensal, todos batendo com o esperado.
-
-[qui 13 ago 2026 19:09] RELATÓRIO DE VENDAS DIÁRIAS - SOMA, PERÍODO E TOTAL GERAL
-------------------------------------------------------------------------
-- A cor da linha SOMA (subtotal mensal) trocada de azul para vermelho,
-  e uma linha em branco separadora passou a ser inserida antes de cada
-  SOMA, destacando visualmente o subtotal das linhas de dados do mês.
-- O título da caixa do relatório (browse_tabela) passou a incluir o
-  período consultado, no formato "TÍTULO - PERÍODO dd-mm-aaaa/dd-mm-
-  aaaa", usando as datas exatamente como digitadas pelo usuário (antes
-  da conversão pro formato US usado na query SQL).
-- Adicionada uma linha TOTAL GERAL ao final do relatório (também em
-  vermelho, com separadora antes): soma do total, quantidade de itens
-  e nº de vendas de TODO o período consultado (todos os meses juntos),
-  não só do último mês - diferente da SOMA mensal, que continua sendo
-  por mês. Ticket médio geral recalculado sobre esses totais do
-  período inteiro.
-- Validado com teste isolado da lógica de acumulação (2 meses, 3 dias)
-  conferindo manualmente que TOTAL GERAL bate com a soma de todos os
-  dias (total, quantidade e nº de vendas), independente de quantos
-  meses o período abranja.
-
-[qui 13 ago 2026 22:08] RELATÓRIO DE VENDAS DIÁRIAS - ROTULOS, SEPARADOR E MENSAGEM DE PROCESSAMENTO
-------------------------------------------------------------------------
-- Rótulos renomeados para deixar claro o escopo de cada total: a
-  antiga "SOMA" (subtotal por mês) virou "SOMA MENSAL", e a antiga
-  "TOTAL GERAL" (soma de todo o período) virou "SOMA GERAL".
-- Reposicionada a linha em branco separadora: antes vinha ANTES da
-  SOMA MENSAL (separando os dias da soma do próprio mês); agora vem
-  DEPOIS, separando a SOMA MENSAL de um mês das linhas de dados do
-  próximo mês. Sequência final: dias do mês 1, SOMA MENSAL, linha em
-  branco, dias do mês 2, SOMA MENSAL, linha em branco, SOMA GERAL.
-- Adicionada mensagem "Processando..." (em amarelo) exibida na tela
-  logo antes da consulta SQL e do loop de agregação rodarem, dando
-  feedback visual em relatórios com muitos dias/meses.
-- Validado com teste isolado da nova ordem das linhas (2 meses, 3
-  dias), conferindo que a sequência bate exatamente com o padrão
-  esperado: item, item, SOMA MENSAL, branco, item, SOMA MENSAL,
-  branco, SOMA GERAL.
-
-[qui 13 ago 2026 22:28] MENSAGEM DE PROCESSAMENTO E CORREÇÃO DA GET() - SETAS/HOME/END/DELETE
-------------------------------------------------------------------------
-- relatorio_vendas_diarias(): a mensagem "Processando..." passou a usar
-  a função mensagem() já existente (a mesma usada em outras telas para
-  avisos rápidos), em vez de um print() avulso numa linha fixa. Chamada
-  com timeout 0 (mesmo padrão do exemplo já comentado no arquivo em
-  registrar_venda), que não bloqueia: o inkey() interno usa read -t 0,
-  que só verifica se tem tecla no buffer e retorna na hora, sem
-  esperar. A caixa aparece e some sozinha assim que o browse_tabela
-  desenha a tabela final.
-- Corrigido bug antigo na get() (usada em TODOS os campos de entrada
-  do sistema, inclusive as datas dos relatórios): qualquer sequência
-  iniciada por ESC - inclusive as setas do teclado, que no terminal
-  chegam como ESC seguido de mais bytes (ex: seta esquerda = ESC [ D)
-  - caía no mesmo case do ESC puro e abortava o campo inteiro. Só o
-  backspace funcionava pra editar.
-- Reescrita a get() com navegação de cursor de verdade, não só
-  ignorando as teclas: distingue ESC puro (sem mais bytes dentro de
-  0.05s - cancela o campo, como antes) de sequência CSI/SS3 (ESC [ ou
-  ESC O seguido de bytes de parâmetro e um byte final - consome só os
-  bytes da própria sequência, sem tocar no que for digitado depois).
-  Setas esquerda/direita movem o cursor dentro do texto (travando nos
-  limites 0 e fim da string), Home/End pulam pro início/fim, Delete
-  apaga o caractere sob o cursor, backspace continua apagando o de
-  trás, e digitar em qualquer posição insere ali (não só no final).
-  Setas cima/baixo e PgUp/PgDn são ignoradas (não fazem sentido num
-  campo de linha única), mas não abortam mais. O campo inteiro é
-  redesenhado a cada tecla (setpos + reimpressão), já que os campos do
-  sistema são curtos (datas, ids etc.), com um contador de tamanho
-  anterior (prev_len) pra apagar sobra de caracteres quando o texto
-  encolhe (backspace/delete no meio).
-- Validado com dois conjuntos de testes isolados simulando a leitura
-  de teclado via pipe (sem depender de terminal real): 1) que setas
-  não abortam mais e não "engolem" o próximo caractere digitado logo
-  em seguida (risco de timing, já que num pipe todos os bytes ficam
-  disponíveis de uma vez); 2) navegação completa - Home, End, seta
-  esquerda/direita travando nos limites, Delete no meio da string,
-  inserção no meio respeitando maxlen, e ESC puro ainda cancelando
-  normalmente. Todos os casos bateram com o esperado.
-
-[qui 13 ago 2026 23:49] MENSAGEM DE PROCESSAMENTO NAS DEMAIS TELAS COM BROWSE_TABELA
-------------------------------------------------------------------------
-- Estendida a mensagem "Processando..." (via mensagem(), timeout 0, sem
-  bloquear) da relatorio_vendas_diarias() pras outras 6 telas que usam
-  browse_tabela: produto_pesquisa(), relatorio_produtos_minimo(),
-  relatorio_produtos_fora_validade(), fornecedor_pesquisa(),
-  relatorio_produtos_vendidos() e relatorio_entradas_produtos().
-- Inserida sempre no mesmo ponto em cada função: logo depois da
-  validação do campo de busca (identificador == "*" vira busca-tudo) e
-  antes do bloco de queries/loop que monta as linhas da tabela - ou
-  seja, antes de qualquer processamento que antecede o browse_tabela,
-  igual já era feito no relatório de vendas diárias.
-- produto_pesquisa() não tem variável $xtitle local (usa o gettext
-  "PESQUISAR PRODUTOS" direto em cada chamada), então a mensagem
-  reaproveita a mesma string ali também, em vez de introduzir uma
-  variável nova só pra isso.
-
-[sex 14 ago 2026 00:01] CALCULAR_LARGURAS() - CRESCIMENTO PROPORCIONAL PRA PREENCHER O ESPAÇO
-------------------------------------------------------------------------
-- Encontrada a causa raiz de tabelas com espaço vazio sobrando à
-  direita da caixa (ex: relatório de vendas diárias): calcular_
-  larguras() só sabia ENCOLHER colunas quando a soma ideal não cabia
-  no espaço disponível - se sobrava espaço, ela simplesmente devolvia
-  as larguras ideais sem tocar, mesmo em colunas já marcadas como
-  flexíveis (flag "1"). Por isso mesmo relatórios que já usavam a
-  flag flexível numa coluna (ex: DESCRIÇÃO em produto_pesquisa) não
-  se esticavam quando o terminal era mais largo que o necessário.
-- Adicionado um novo ramo simétrico ao de encolher: quando sobra
-  espaço, distribui a sobra proporcionalmente entre as colunas
-  marcadas como flexíveis (peso = largura ideal de cada uma), com
-  ajuste fino jogando o resto do arredondamento pra primeira coluna
-  flexível - mesmo padrão de ajuste fino que o ramo de encolher já
-  usava. Sem nenhuma coluna flexível, comportamento idêntico ao
-  anterior (preserva compatibilidade com quem já usa flags "0|0|...").
-- relatorio_vendas_diarias(): as 5 colunas (DATA, TOTAL DIA, QTD
-  ITENS, Nº VENDAS, TICKET MÉDIO) marcadas como flexíveis (antes
-  todas "0"), já que não tem uma coluna de texto longo tipo descrição
-  pra absorver sozinha o espaço extra - faz mais sentido crescer
-  todas proporcionalmente.
-- Validado com teste isolado da função (5 cenários: sobra espaço com
-  todas as colunas flexíveis, sobra espaço com só uma coluna flexível,
-  espaço insuficiente/encolhendo, espaço exatamente igual ao ideal, e
-  sobra espaço sem nenhuma coluna flexível) e depois um teste de
-  integração extraindo a função exatamente como ficou no arquivo real
-  e rodando com valores de lastcol representativos (terminal de 80 e
-  120 colunas), conferindo que a soma final das larguras + separadores
-  + bordas bate exatamente com o espaço disponível em cada caso.
-
-[sex 14 ago 2026 00:21] PESQUISAR PRODUTOS - CORES DO ESTOQUE E PREÇO
-------------------------------------------------------------------------
-- Corrigido produto_pesquisa(): o pedido de colorir o ESTOQUE conforme
-  o QMIN tinha ficado só na prévia de uma rodada anterior, sem nunca
-  ter sido efetivamente aplicado no arquivo real - a cor ainda estava
-  baseada no sinal (negativo/positivo), não no QMIN.
-- ESTOQUE agora usa 3 faixas de cor: vermelho se menor que o QMIN,
-  amarelo se igual ao QMIN, ciano se maior que o QMIN.
-- PREÇO passou a ser sempre amarelo (cor estática de coluna; antes
-  era vermelho).
-- Validado com teste isolado das 3 faixas (menor, igual, maior que o
-  QMIN, incluindo casos com valores negativos), todos batendo com o
-  esperado.
-
-[sex 14 ago 2026 00:31] BUG CRÍTICO NO BROWSE_TABELA() - CAMPO DE COR VAZIO NO FINAL SUMIA
-------------------------------------------------------------------------
-- Encontrado por que o ESTOQUE de produto_pesquisa() não estava sendo
-  colorido mesmo depois da correção anterior: bug no PRÓPRIO
-  browse_tabela(), não no produto_pesquisa(). O parsing de cada linha
-  usava um read -a com o separador pipe, terminando o here-string sem
-  nenhum caractere extra no final -
-  e o bash tem um comportamento pouco conhecido: read -a descarta
-  SEMPRE UM campo vazio no final quando a string termina em "|" (ex:
-  "a|b|" lê só 2 campos em vez dos 3 esperados). Como CODEBAR (última
-  coluna) nunca recebe cor própria, o campo de cor dele fica vazio e
-  no final da string - o read descartava esse campo, fazendo a linha
-  ter 17 campos em vez dos 18 esperados (9 dados + 9 cores), quebrando
-  a checagem "N×2 = cor por célula" e fazendo o ESTOQUE (que não é a
-  última coluna) nunca ser reconhecido como colorido.
-- Corrigido acrescentando um "|" extra no final da string antes do
-  read ("...<<<"${browse_dados[idx]}|""), que absorve esse descarte:
-  não importa quantos campos vazios existam no final da linha
-  original, a contagem final bate exatamente com o número real de
-  campos. Correção feita direto no browse_tabela(), então vale pra
-  qualquer relatório que use cor por célula ou cor de linha, não só
-  produto_pesquisa.
-- Validado com 3 rodadas de teste isolado: 1) o comportamento do bug
-  em vários cenários (string terminando com 1, 2 ou mais campos
-  vazios); 2) que acrescentar o "|" extra sempre resulta na contagem
-  matematicamente correta (nº de pipes + 1), em qualquer cenário,
-  inclusive sem trailing vazio (sem regressão); 3) teste de ponta a
-  ponta reproduzindo a linha exata do produto 27 do print enviado
-  (estoque -3, qmin 18), confirmando que agora é detectado como cor
-  por célula e o ESTOQUE recebe vermelho corretamente. Também
-  confirmado que uma linha vazia (separador usado no relatório de
-  vendas diárias) continua se comportando igual, sem regressão.
-
-[sex 14 ago 2026 00:31] AJUSTE NO CABEÇALHO DE LICENÇA
-------------------------------------------------------------------------
-- Acrescentado um espaço extra entre "#" e o texto nas 3 linhas de
-  copyright/direitos reservados no topo do arquivo (antes "# Copyright
-  ...", agora "#  Copyright ..."). Nada mais no cabeçalho foi alterado
-  - o texto completo da licença (redistribuição, garantias) permanece
-  intacto.
-
-[sex 14 ago 2026 00:48] READ_KEY(), FORA_VALIDADE, COPYRIGHT E CAMPOS SOBREPOSTOS
-------------------------------------------------------------------------
-- read_key() (navegação do browse_tabela: setas, PgUp/PgDn, Home/End)
-  tinha o mesmo problema de timing já corrigido hoje no get(): só
-  esperava 0.01s (10ms) pelo resto da sequência ANSI depois do ESC.
-  Curto demais - em terminais com latência (SSH, tmux, sistema
-  ocupado), a seta era interpretada como ESC solto, fazendo a tabela
-  fechar sozinha (return 1) ao navegar, e sobrando os bytes "[A"/"[B"
-  no buffer pra aparecerem como lixo na tela seguinte. Timeout
-  aumentado pra 0.05s, mesmo valor já validado no get().
-- relatorio_produtos_fora_validade(): trocada a cor de LINHA INTEIRA
-  (vermelho se validade vencida, verde se não) pela cor só no campo
-  ESTOQUE, no mesmo esquema de 3 faixas do PESQUISAR PRODUTOS
-  (vermelho < QMIN, amarelo == QMIN, ciano > QMIN) - já que a consulta
-  já filtra só produtos vencidos, não fazia sentido colorir a linha
-  toda por um critério (validade) que já é garantido pelo próprio
-  filtro da tela.
-- Cabeçalho: acrescentado mais 1 espaço nas 3 linhas de copyright
-  (agora "#   Copyright...", 3 espaços) pra alinhar com as linhas
-  vizinhas que usam tab (equivalente a um tab-stop de 4).
-- relatorio_produtos_vendidos() e relatorio_entradas_produtos(): os
-  dois campos de busca ("Pesquisar por:" e "Agrupar:") ficavam lado a
-  lado na mesma linha, o segundo começando em lastcol/2. Só que o
-  primeiro prompt sozinho já tem 74 caracteres - maior que lastcol/2
-  em qualquer terminal até 148 colunas, ou seja, sobrepunha o segundo
-  campo em praticamente qualquer tela real. Corrigido colocando cada
-  campo em sua própria linha (caixa de busca cresceu de 3 pra 4
-  linhas), e os browse_tabela() correspondentes desceram 1 linha pra
-  não colidir com a caixa maior.
-- Validado cada mudança isoladamente: cor por célula do fora_validade
-  testada com o mesmo padrão N×2 já usado no PESQUISAR PRODUTOS;
-  comprimento dos dois prompts comparado contra larguras de terminal
-  de 80 a 132 colunas, confirmando que agora cabem cada um sozinho na
-  própria linha sem sobrepor nada.
 ################################################################################
 '

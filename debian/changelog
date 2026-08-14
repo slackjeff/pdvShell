@@ -1,5 +1,5 @@
-pdvshell (1.0.0-1) unstable; urgency=medium
+pdvshell (20260814-0220) unstable; urgency=medium
 
-  * Initial Debian release.
+  * Debian release.
 
- -- Vilmar Catafesta <vcatafesta@gmail.com>  Wed, 12 Aug 2026 23:00:00 -0400
+ -- Vilmar Catafesta <vcatafesta@gmail.com>  Fri, 14 Aug 2026 02:20:01 -0400
