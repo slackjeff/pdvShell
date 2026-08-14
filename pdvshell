@@ -4,11 +4,11 @@
 #	pdvshell - Simples frente de caixa escrito em shell script e sqlite!
 #	Created: 2023/10/21
 #	Altered: 2024/11/20 - 02:21 -04
-#	Updated: sex 14 ago 2026 00:48:55 -04
+#	Updated: sex 14 ago 2026 03:24:37 -04
 #
-#   Copyright (c) 2023-2026, Vilmar Catafesta <vcatafesta@gmail.com>
-#   Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
-#   All rights reserved.
+# Copyright (c) 2023-2026, Vilmar Catafesta <vcatafesta@gmail.com>
+# Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
+# All rights reserved.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions
@@ -4969,6 +4969,7 @@ sh_main_menu
 #end
 
 : '
+################################################################################
 CHANGELOG - revisão e otimização (ago/2026)
 ################################################################################
 
