@@ -164,4 +164,4 @@ pdvshell
 
 ## 📄 Licenza
 
-CON
+MIT

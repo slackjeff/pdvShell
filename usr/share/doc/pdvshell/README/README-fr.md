@@ -164,4 +164,4 @@ pdvshell
 
 ## 📄 Licence
 
-AVEC
+MIT

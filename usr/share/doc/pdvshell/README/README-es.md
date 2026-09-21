@@ -164,4 +164,4 @@ CHILE_REF_0_CHILI
 
 ## 📄 Licencia
 
-CON
+MIT
