@@ -12,7 +12,7 @@
 🇧🇷 [Português brasileiro](usr/share/doc/pdvshell/README/README.pt_BR.md)  
 🇷🇺 [Русский](usr/share/doc/pdvshell/README/README.ru.md)  
 🇺🇦 [Українська](usr/share/doc/pdvshell/README/README.uk.md)  
-🇨🇳 [中文](usr/share/doc/pdvshell/README/README.zh.md)  README-zh_CN.md  README-zh_TW.md  
+🇨🇳 [中文](usr/share/doc/pdvshell/README/README.zh.md)
   
 
 Configure the terminal to 160×47.  
@@ -23,9 +23,9 @@ Configure the terminal to 160×47.
 Use cron to generate a `.tar.gz` archive of the `$HOME/.config/pdvshell` directory at the time the cash register is closed.
 
 $ crontab -e
-
+```
 0 22 * * * cd $HOME && tar -zcvf "pdvshell-config-$(date +%x | sed 's|/|-|g').tar.gz" ".config/pdvshell/"
-
+```
 
 **Important:** The `22:00` time is only an example. It is recommended to configure the time according to the store's actual cash register closing time.
 
