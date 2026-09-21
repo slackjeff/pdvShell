@@ -155,7 +155,7 @@ pdvshell
 
 ## 🛠️ Roteiro
 
-- [] Backup automático
+- [ ] Backup automático
 - [ ] Multiusuário
 - [ ] Impressão
 - [ ] Exportação CSV/PDF
