@@ -14,7 +14,7 @@
 
 ---
 
-## 📌について
+## 📌 について
 
 **PDVShell** は、**シェル スクリプト + SQLite** で開発された、軽量で効率的なレジ (POS) システムです。
 
@@ -71,7 +71,7 @@ sudo bash install.sh
 
 ---
 
-## ⚠️観察
+## ⚠️ 観察
 
 - スクリプトは **root として実行する必要があります** (`sudo`)。
 - 安全性を高めるため、実行する前に内容を確認してください。
@@ -111,7 +111,7 @@ pdvshell
 
 ---
 
-## 📦製品
+## 📦 製品
 
 ![Cadastro](assets/mercearia-produtos-cadastro.png)
 ![Exclusão](assets/mercearia-produtos-exclusao.png)
@@ -138,7 +138,7 @@ pdvshell
 
 ---
 
-## ⚙️設定
+## ⚙️ 設定
 
 ![Menu config](assets/mercearia-menu-configuracao.png)
 ![Cores](assets/configuracao-de-cores.png)
@@ -146,14 +146,14 @@ pdvshell
 
 ---
 
-## 私は ️について
+## ℹ️ 私は ️について
 
 ![Sobre](assets/mercearia-sobre-sobre.png)
 ![Sair](assets/mercearia-menu-sair.png)
 
 ---
 
-## 🛠️ロードマップ
+## 🛠️ ロードマップ
 
 - [ ] 自動バックアップ
 - [ ] マルチユーザー
@@ -162,6 +162,6 @@ pdvshell
 
 ---
 
-## 📄ライセンス
+## 📄 ライセンス
 
 MIT
