@@ -1,0 +1,14 @@
+Source: pdvshell
+Section: utils
+Priority: optional
+Maintainer: Vilmar Catafesta <vcatafesta@gmail.com>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://github.com/vcatafesta/pdvshell
+
+Package: pdvshell
+Architecture: all
+Depends: ${misc:Depends}, ncurses-bin, gettext, sqlite3, bc, coreutils, sed, gawk, figlet
+Description: simple cashier front for small grocery stores made with shell script and sqlite
+ A simple cashier front application designed for small grocery stores,
+ implemented using shell scripting and SQLite.

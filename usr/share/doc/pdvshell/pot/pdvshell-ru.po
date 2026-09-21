@@ -1,0 +1,784 @@
+# Chili Tradutor Go - 2.1.20-20260201
+# Copyright (C) 2019-2026 Vilmar Catafesta <vcatafesta@gmail.com>
+# This file is distributed under the same license as the chili-tradutor-go package.
+msgid ""
+msgstr ""
+"Project-Id-Version: chili-tradutor-go 2.1.20-20260201\n"
+"POT-Creation-Date: 2026-08-14 02:08-0400\n"
+"PO-Revision-Date: 2026-08-14 02:08-0400\n"
+"Last-Translator: Vilmar Catafesta <vcatafesta@gmail.com>\n"
+"Language-Team: Portuguese <https://github.com/chililinux/chili-tradutor-go>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: pdvshell:40
+msgid "Simples frente de caixa escrito em shell script e sqlite"
+msgstr "Простая передняя часть коробки, написанная на языке оболочки и sqlite."
+
+#: pdvshell:108
+msgid "Menu Principal"
+msgstr "Главное меню"
+
+#: pdvshell:109
+msgid "Nenhum produto encontrado nos parâmetros informados"
+msgstr "Товары по указанным параметрам не найдены"
+
+#: pdvshell:110
+msgid "Produtos"
+msgstr "Продукты"
+
+#: pdvshell:111
+msgid "Fornecedores"
+msgstr "Поставщики"
+
+#: pdvshell:112
+msgid "Realizar Venda/Saída"
+msgstr "Осуществить продажу/выход"
+
+#: pdvshell:113
+msgid "Entradas de Produtos"
+msgstr "Записи о продуктах"
+
+#: pdvshell:114
+msgid "Pesquisa/Relatórios/Consulta"
+msgstr "Поиск/Отчеты/Запрос"
+
+#: pdvshell:115
+msgid "Manutenção"
+msgstr "Обслуживание"
+
+#: pdvshell:116
+msgid "Configuração"
+msgstr "Настройки"
+
+#: pdvshell:117
+msgid "Sair"
+msgstr "Чтобы выйти"
+
+#: pdvshell:118
+msgid "Sair do Sistema"
+msgstr "Выйти из системы"
+
+#: pdvshell:119
+msgid "Opção inválida. Tente novamente."
+msgstr "Неверный вариант. Пожалуйста, попробуйте еще раз."
+
+#: pdvshell:120
+msgid "Cadastrar"
+msgstr "Зарегистрироваться"
+
+#: pdvshell:121
+msgid "Inclusão"
+msgstr "Включение"
+
+#: pdvshell:122
+msgid "Alterar"
+msgstr "Чтобы изменить"
+
+#: pdvshell:123
+msgid "Alteração"
+msgstr "Изменять"
+
+#: pdvshell:124
+msgid "Remover/Excluir"
+msgstr "Удалить/исключить"
+
+#: pdvshell:125
+msgid "Remoção"
+msgstr "Удаление"
+
+#: pdvshell:126
+msgid "Exclusão"
+msgstr "Исключение"
+
+#: pdvshell:127
+msgid "Pesquisar"
+msgstr "Искать"
+
+#: pdvshell:128
+msgid "Consulta"
+msgstr "Консультация"
+
+#: pdvshell:129
+msgid "Voltar"
+msgstr "Чтобы вернуться"
+
+#: pdvshell:130
+msgid "Registro efetuado com sucesso!"
+msgstr "Регистрация прошла успешно!"
+
+#: pdvshell:131
+msgid "Registro removido com sucesso!"
+msgstr "Регистрация успешно удалена!"
+
+#: pdvshell:132
+msgid "Erro na remoção do registro!"
+msgstr "Ошибка удаления регистрации!"
+
+#: pdvshell:133
+msgid "Erro no cadastro/atualização do registro"
+msgstr "Ошибка при регистрации/обновлении регистрации"
+
+#: pdvshell:134
+msgid "Formato de data inicial inválida"
+msgstr "Неверный формат даты начала."
+
+#: pdvshell:135
+msgid "Sobre"
+msgstr "На"
+
+#: pdvshell:136
+msgid "Sobre o"
+msgstr "О"
+
+#: pdvshell:137
+msgid "Consultas"
+msgstr "Запросы"
+
+#: pdvshell:138
+msgid "Movimento"
+msgstr "Движение"
+
+#: pdvshell:139
+msgid "Relatórios"
+msgstr "Отчеты"
+
+#: pdvshell:140
+msgid "Relatório de"
+msgstr "Отчет"
+
+#: pdvshell:141
+msgid "Produtos abaixo estoque minímo"
+msgstr "Товары ниже минимального запаса"
+
+#: pdvshell:142
+msgid "Produtos fora da validade"
+msgstr "Просроченные продукты"
+
+#: pdvshell:143
+msgid "Vendas Diárias"
+msgstr "Ежедневные продажи"
+
+#: pdvshell:144
+msgid "Produtos Vendidos"
+msgstr "Проданная продукция"
+
+#: pdvshell:145 pdvshell:4607
+msgid "Atualizar Estoque (conciliação)"
+msgstr "Обновление запасов (сверка)"
+
+#: pdvshell:146 pdvshell:4608
+msgid "Popular DataBases para testes"
+msgstr "Популярные базы данных для тестирования"
+
+#: pdvshell:147 pdvshell:4609
+msgid "Zerar/Limpar DataBase Produtos"
+msgstr "Сброс/очистка продуктов базы данных"
+
+#: pdvshell:148 pdvshell:4610
+msgid "Zerar/Limpar DataBase Fornecedor"
+msgstr "Сбросить/очистить базу данных поставщиков"
+
+#: pdvshell:149 pdvshell:4611
+msgid "Zerar/Limpar DataBase Vendas"
+msgstr "Сбросить/очистить базу данных продаж"
+
+#: pdvshell:150 pdvshell:4612
+msgid "Zerar/Limpar DataBase Compras"
+msgstr "Сбросить/очистить базу данных покупок"
+
+#: pdvshell:151 pdvshell:4863
+msgid "Dados Empresa"
+msgstr "Данные компании"
+
+#: pdvshell:152
+msgid "Aparência"
+msgstr "Появление"
+
+#: pdvshell:153 pdvshell:4875
+msgid "Pano de fundo"
+msgstr "фон"
+
+#: pdvshell:1707
+msgid "Sim"
+msgstr "Сим"
+
+#: pdvshell:1707
+msgid "Não"
+msgstr "Нет"
+
+#: pdvshell:1791
+msgid "OK"
+msgstr "Хорошо"
+
+#: pdvshell:1890
+msgid " Pressione qualquer tecla para continuar"
+msgstr "Нажмите любую клавишу, чтобы продолжить"
+
+#: pdvshell:2333 pdvshell:2560
+msgid "Descrição"
+msgstr "Описание"
+
+#: pdvshell:2334
+msgid "CADASTRO DE PRODUTO"
+msgstr "РЕГИСТРАЦИЯ ПРОДУКТА"
+
+#: pdvshell:2338
+msgid "ID/Descrição"
+msgstr "Идентификатор/Описание"
+
+#: pdvshell:2339
+msgid "ALTERAÇÃO DE PRODUTO"
+msgstr "СМЕНА ПРОДУКТА"
+
+#: pdvshell:2357 pdvshell:2425 pdvshell:2434
+msgid "Cod Fabricante"
+msgstr "Код производителя"
+
+#: pdvshell:2358 pdvshell:2426 pdvshell:2480 pdvshell:2562
+msgid "Código Barras"
+msgstr "Штрих-код"
+
+#: pdvshell:2359 pdvshell:2427 pdvshell:2483 pdvshell:2563
+msgid "Unidade"
+msgstr "Единица"
+
+#: pdvshell:2360 pdvshell:2428 pdvshell:2492 pdvshell:2564
+msgid "Estoque mínimo"
+msgstr "Минимальный запас"
+
+#: pdvshell:2361 pdvshell:2429 pdvshell:2496 pdvshell:2565
+msgid "Data validade"
+msgstr "Дата истечения срока действия"
+
+#: pdvshell:2362 pdvshell:2430 pdvshell:2513 pdvshell:2566
+msgid "Preço (ex: 4.99 ou 5)"
+msgstr "Цена (например: 4,99 или 5)"
+
+#: pdvshell:2367 pdvshell:2401
+msgid "Descrição não pode ser em branco. Cancelar?"
+msgstr "Описание не может быть пустым. Отмена?"
+
+#: pdvshell:2374
+msgid "Descrição já registrada."
+msgstr "Описание уже зарегистрировано."
+
+#: pdvshell:2392
+msgid "Descrição não pode ser em branco."
+msgstr "Описание не может быть пустым."
+
+#: pdvshell:2449
+msgid ""
+"Fabricante/Fornecedor não encontrado. Deseja escolher da lista de "
+"cadastrados?"
+msgstr ""
+
+#: pdvshell:2456 pdvshell:2471
+msgid "Nenhum fornecedor cadastrado. Deseja cadastrar um fornecedor agora?"
+msgstr "Нет зарегистрированного поставщика. Хотите зарегистрировать поставщика сейчас?"
+
+#: pdvshell:2488
+msgid "Unidade deve ter exatamente 2 caracteres (ex: KG, UN, PC)"
+msgstr "Единица измерения должна содержать ровно 2 символа (например, KG, UN, PC)."
+
+#: pdvshell:2501 pdvshell:3264 pdvshell:3281
+msgid "Data inválida"
+msgstr "Неверная дата"
+
+#: pdvshell:2505
+msgid "Data não pode ser em branco. Cancelar?"
+msgstr "Дата не может быть пустой. Отмена?"
+
+#: pdvshell:2517 pdvshell:3942
+msgid "Formato inválido. Usar ponto decimal ex: 4.99 ou número inteiro."
+msgstr "Неверный формат. Используйте десятичную точку, например. 4,99 или целое число."
+
+#: pdvshell:2521
+msgid "Confirma inclusão/atualização do produto?"
+msgstr "Подтвердить включение/обновление продукта?"
+
+#: pdvshell:2540 pdvshell:2962 pdvshell:3065 pdvshell:4712
+msgid "Inclusão/alteração não efetuada."
+msgstr "Включение/изменение не выполнено."
+
+#: pdvshell:2546
+msgid "EXCLUSÃO DE PRODUTO"
+msgstr "ИСКЛЮЧЕНИЕ ПРОДУКТА"
+
+#: pdvshell:2559 pdvshell:2568 pdvshell:2992 pdvshell:2999 pdvshell:3085
+#: pdvshell:3092
+msgid "ID/Nome"
+msgstr "Идентификатор/имя"
+
+#: pdvshell:2561
+msgid "Fabricante"
+msgstr "Производитель"
+
+#: pdvshell:2573
+msgid "O ID não pode ser em branco. Cancelar?"
+msgstr "Идентификатор не может быть пустым. Отмена?"
+
+#: pdvshell:2602
+msgid "Confirma exclusão do produto?"
+msgstr "Подтвердить удаление продукта?"
+
+#: pdvshell:2603
+msgid "Removendo cadastro do produto"
+msgstr "Удаление регистрации продукта"
+
+#: pdvshell:2606
+msgid "Deseja remover registros de vendas e compras desse produto?"
+msgstr "Вы хотите удалить записи о продажах и покупках для этого продукта?"
+
+#: pdvshell:2607
+msgid "Removendo registros de vendas"
+msgstr "Удаление записей о продажах"
+
+#: pdvshell:2609
+msgid "Removendo registros de compras"
+msgstr "Удаление записей о покупках"
+
+#: pdvshell:2656 pdvshell:2657 pdvshell:2663 pdvshell:2721
+msgid "PESQUISAR PRODUTOS"
+msgstr "ПОИСК ПРОДУКТОВ"
+
+#: pdvshell:2658 pdvshell:2743 pdvshell:2806
+msgid "Pesquisar por: nome, id <x>|<x-y>, f<id> ou *=tudo"
+msgstr "Поиск по: имени, идентификатору <x>|<x-y>, f<id> или *=all"
+
+#: pdvshell:2663 pdvshell:2748 pdvshell:2811 pdvshell:3207 pdvshell:3298
+#: pdvshell:3396 pdvshell:3523
+msgid "Processando..."
+msgstr "Обработка..."
+
+#: pdvshell:2867
+msgid "CADASTRO DE FORNECEDOR"
+msgstr "РЕГИСТРАЦИЯ ПОСТАВЩИКА"
+
+#: pdvshell:2904 pdvshell:2911 pdvshell:2993 pdvshell:3018 pdvshell:3086
+#: pdvshell:4676 pdvshell:4683
+msgid "Nome"
+msgstr "Имя"
+
+#: pdvshell:2905 pdvshell:2925 pdvshell:2994 pdvshell:3028 pdvshell:3087
+#: pdvshell:4677 pdvshell:4694
+msgid "Endereço"
+msgstr "Адрес"
+
+#: pdvshell:2906 pdvshell:2926 pdvshell:2995 pdvshell:3029 pdvshell:3088
+#: pdvshell:4678 pdvshell:4695
+msgid "Cidade"
+msgstr "Город"
+
+#: pdvshell:2907 pdvshell:2927 pdvshell:2996 pdvshell:3030 pdvshell:3089
+msgid "Estado"
+msgstr "Состояние"
+
+#: pdvshell:2908 pdvshell:2930 pdvshell:2997 pdvshell:3033 pdvshell:3090
+msgid "CNPJ/CPF"
+msgstr "CNPJ/CPF"
+
+#: pdvshell:2914
+msgid "Fornecedor já cadastrado com esse nome"
+msgstr "Поставщик уже зарегистрирован с таким именем"
+
+#: pdvshell:2919 pdvshell:3022
+msgid "O nome não pode ser em branco. Cancelar?"
+msgstr "Имя не может быть пустым. Отмена?"
+
+#: pdvshell:2936 pdvshell:3039
+msgid "CNPJ/CPF inválido"
+msgstr "Неверный CNPJ/CPF"
+
+#: pdvshell:2940 pdvshell:3043
+msgid "Confirma inclusão/atualização do fornecedor?"
+msgstr "Подтвердить включение/обновление поставщика?"
+
+#: pdvshell:2968
+msgid "ALTERAÇÃO DE FORNECEDOR"
+msgstr "СМЕНА ПОСТАВЩИКА"
+
+#: pdvshell:3002 pdvshell:3095 pdvshell:3974
+msgid "ID/Nome não pode ser em branco. Cancelar?"
+msgstr "Идентификатор/имя не может быть пустым. Отмена?"
+
+#: pdvshell:3012 pdvshell:3986
+msgid "Fornecedor não encontrado nos parâmetros informados"
+msgstr "Поставщик не найден по указанным параметрам"
+
+#: pdvshell:3071
+msgid "EXCLUSÃO DE FORNECEDOR"
+msgstr "ИСКЛЮЧЕНИЕ ПОСТАВЩИКА"
+
+#: pdvshell:3109 pdvshell:3220
+msgid "Nenhum fornecedor encontrado nos parâmetros informados"
+msgstr "По заданным параметрам поставщиков не найдено"
+
+#: pdvshell:3120
+msgid "Confirma exclusão do fornecedor?"
+msgstr "Подтвердить исключение поставщика?"
+
+#: pdvshell:3141
+msgid "SELECIONAR FORNECEDOR"
+msgstr "ВЫБЕРИТЕ ПОСТАВЩИКА"
+
+#: pdvshell:3164
+msgid "Nenhum fornecedor cadastrado"
+msgstr "Поставщики не зарегистрированы"
+
+#: pdvshell:3187
+msgid "PESQUISAR FORNECEDOR"
+msgstr "ПОИСК ПОСТАВЩИКА"
+
+#: pdvshell:3202
+msgid "Pesquisar por: nome, id <x>|<x-y> ou *=tudo"
+msgstr "Поиск по: имени, идентификатору <x>|<x-y> или *=all"
+
+#: pdvshell:3255 pdvshell:3259
+msgid "Data Inicial"
+msgstr "Дата начала"
+
+#: pdvshell:3256 pdvshell:3276
+msgid "Data Final"
+msgstr "Окончательные данные"
+
+#: pdvshell:3269 pdvshell:3286
+msgid "A data não pode ser em branco. Cancelar?"
+msgstr "Дата не может быть пустой. Отмена?"
+
+#: pdvshell:3362
+msgid "PERÍODO"
+msgstr "ПЕРИОД"
+
+#: pdvshell:3387 pdvshell:3390 pdvshell:3514 pdvshell:3517
+msgid "Pesquisar por: docnr, data <dd-mm-aaaa>, id <x>|<x-y>, f<id>, ou *=tudo"
+msgstr "Искать: docnr, дату <дд-мм-гггг>, id <x>|<x-y>, f<id> или *=all"
+
+#: pdvshell:3388 pdvshell:3391 pdvshell:3515 pdvshell:3518
+msgid "Agrupar : n=docnr, d=data, i=id, f=forn ou *=nenhum"
+msgstr "Группа: n=docnr, d=данные, i=id, f=forn или *=нет."
+
+#: pdvshell:3499
+msgid "RELATÓRIO ENTRADAS DE PRODUTOS"
+msgstr "ОТЧЕТ О ВНЕСЕ ПРОДУКТА"
+
+#: pdvshell:3615
+msgid "Não consta entradas nos parâmetros informados"
+msgstr "В сообщаемых параметрах нет записей"
+
+#: pdvshell:3663
+msgid "Registro de venda efetuado"
+msgstr "Регистрация продажи произведена"
+
+#: pdvshell:3677
+msgid "Baixa de estoque efetuado"
+msgstr "Списание запасов произведено"
+
+#: pdvshell:3681
+msgid "CUPOM PDV"
+msgstr "КУПОМ НДС"
+
+#: pdvshell:3742 pdvshell:3888
+msgid "ID/nome/CodeBar (em branco=concluir)"
+msgstr "Идентификатор/имя/CodeBar (пусто = завершение)"
+
+#: pdvshell:3757 pdvshell:3904
+msgid "Produto não encontrado"
+msgstr "Товар не найден"
+
+#: pdvshell:3765 pdvshell:3913
+msgid "Quantidade (0 para remover o item)"
+msgstr "Количество (0, чтобы удалить товар)"
+
+#: pdvshell:3778 pdvshell:3926
+msgid "Quantidade inválida ou item não tem na lista"
+msgstr "Неверное количество или товара нет в списке"
+
+#: pdvshell:3783 pdvshell:3931
+msgid "Quantidade inválida!"
+msgstr "Неверное количество!"
+
+#: pdvshell:3788
+msgid "Quantidade insuficiente de"
+msgstr "Недостаточное количество"
+
+#: pdvshell:3788
+msgid "no estoque - restam"
+msgstr "в наличии - осталось"
+
+#: pdvshell:3812
+msgid "Confirma o fechamento do CUPOM?"
+msgstr "Вы подтверждаете закрытие КУПОНА?"
+
+#: pdvshell:3826
+msgid "ENTRADAS DE PRODUTOS"
+msgstr "Записи о продуктах"
+
+#: pdvshell:3938
+msgid "Preço custo (ex: 4.99 ou 5)"
+msgstr "Себестоимость (например: 4,99 или 5)"
+
+#: pdvshell:3966
+msgid "DADOS DA NFF"
+msgstr "ДАННЫЕ НФФ"
+
+#: pdvshell:3968 pdvshell:3970
+msgid "Fornecedor"
+msgstr "Поставщик"
+
+#: pdvshell:3969 pdvshell:3991
+msgid "Docnr/NFF"
+msgstr "Документ/НФФ"
+
+#: pdvshell:4001
+msgid "Confirma a entrada desses produtos?"
+msgstr "Вы подтверждаете поступление этих товаров?"
+
+#: pdvshell:4038
+msgid "Ajuste de estoque efetuado"
+msgstr "Произведена корректировка запасов"
+
+#: pdvshell:4045
+msgid "Confirma a atualização?"
+msgstr "Подтвердить обновление?"
+
+#: pdvshell:4046
+msgid "Aguarde... Atualizando estoque"
+msgstr "Пожалуйста, подождите... Обновление ассортимента"
+
+#: pdvshell:4062
+msgid "Atualização concluída"
+msgstr "Обновление завершено"
+
+#: pdvshell:4064
+msgid "Erro durante a atualização"
+msgstr "Ошибка во время обновления"
+
+#: pdvshell:4087
+msgid "Checando tabela produtos"
+msgstr "Проверка таблицы продуктов"
+
+#: pdvshell:4089
+msgid "Checando tabela fornecedor"
+msgstr "Проверка таблицы поставщиков"
+
+#: pdvshell:4091
+msgid "Checando tabela vendas"
+msgstr "Проверка таблицы продаж"
+
+#: pdvshell:4093
+msgid "Checando tabela compras"
+msgstr "Проверка таблицы закупок"
+
+#: pdvshell:4098
+msgid ""
+"CUIDADO! Procedimento irá apagar todos os registros da tabela produtos. "
+"Confirma ?"
+msgstr ""
+
+#: pdvshell:4099
+msgid "Aguarde, Droping tabela produtos"
+msgstr "Пожалуйста, подождите, таблица продуктов удаляется"
+
+#: pdvshell:4106
+msgid ""
+"CUIDADO! Procedimento irá apagar todos os registros da tabela fornecedor. "
+"Confirma ?"
+msgstr ""
+
+#: pdvshell:4107
+msgid "Aguarde, Droping tabela fornecedor"
+msgstr "Пожалуйста, подождите. Таблица поставщиков удаляется."
+
+#: pdvshell:4114
+msgid ""
+"CUIDADO! Procedimento irá apagar todos os registros da tabela vendas. "
+"Confirma ?"
+msgstr ""
+
+#: pdvshell:4115
+msgid "Aguarde, Droping tabela vendas"
+msgstr "Пожалуйста, подождите, таблица продаж опускается."
+
+#: pdvshell:4122
+msgid ""
+"CUIDADO! Procedimento irá apagar todos os registros da tabela compras. "
+"Confirma ?"
+msgstr ""
+
+#: pdvshell:4123
+msgid "Aguarde, Droping tabela compras"
+msgstr "Пожалуйста, подождите, стол с покупками падает."
+
+#: pdvshell:4138
+msgid ""
+"CUIDADO! Procedimento irá inserir dados aleatórios para testes nas tabelas. "
+"Confirma ?"
+msgstr ""
+
+#: pdvshell:4140
+msgid "Aguarde, populando banco de dados..."
+msgstr "Пожалуйста, подождите, идет заполнение базы данных..."
+
+#: pdvshell:4145
+msgid "Banco de dados populado com sucesso!"
+msgstr "База данных успешно заполнена!"
+
+#: pdvshell:4156
+msgid "Populando tabela produtos"
+msgstr "Заполнение таблицы товаров"
+
+#: pdvshell:4187
+msgid "Populando tabela fornecedor"
+msgstr "Заполнение таблицы поставщиков"
+
+#: pdvshell:4212
+msgid "Populando tabela vendas"
+msgstr "Заполнение таблицы продаж"
+
+#: pdvshell:4276
+msgid "Populando tabela compras"
+msgstr "Заполнение таблицы покупок"
+
+#: pdvshell:4550
+msgid "MENU FORNECEDORES"
+msgstr "МЕНЮ ПОСТАВЩИКОВ"
+
+#: pdvshell:4577
+msgid "MENU PRODUTOS"
+msgstr "МЕНЮ ПРОДУКТОВ"
+
+#: pdvshell:4604
+msgid "MENU MANUTENÇÃO"
+msgstr "МЕНЮ ОБСЛУЖИВАНИЯ"
+
+#: pdvshell:4635
+msgid "MENU PEQUISA/RELATÓRIOS/CONSULTA"
+msgstr "МЕНЮ ПОИСК/ОТЧЕТЫ/ЗАПРОС"
+
+#: pdvshell:4668
+msgid "DADOS DA EMPRESA"
+msgstr "ДАННЫЕ О КОМПАНИИ"
+
+#: pdvshell:4679 pdvshell:4696
+msgid "UF"
+msgstr "УФ"
+
+#: pdvshell:4680 pdvshell:4697
+msgid "Cnpj"
+msgstr "КНПЖ"
+
+#: pdvshell:4688
+msgid "O Nome não pode ser em branco. Cancelar?"
+msgstr "Имя не может быть пустым. Отмена?"
+
+#: pdvshell:4699
+msgid "Confirma dados?"
+msgstr "Подтвердить данные?"
+
+#: pdvshell:4719
+msgid "CONFIGURAÇÃO DE CORES"
+msgstr "НАСТРОЙКА ЦВЕТА"
+
+#: pdvshell:4746
+msgid "COR SELECIONADA :"
+msgstr "ВЫБРАННЫЙ ЦВЕТ:"
+
+#: pdvshell:4747
+msgid "ESC             : CANCELAR"
+msgstr "ESC: ОТМЕНА"
+
+#: pdvshell:4748
+msgid "ENTER           : ACEITAR ESCOLHA"
+msgstr "ВВОД: ПРИНЯТЬ ВЫБОР"
+
+#: pdvshell:4749
+msgid "SETA ACIMA  ↑   : ALTERAR COR +"
+msgstr "СТРЕЛКА ВВЕРХ ↑: ИЗМЕНИТЬ ЦВЕТ +"
+
+#: pdvshell:4750
+msgid "SETA ABAIXO ↓   : ALTERAR COR -"
+msgstr "СТРЕЛКА ВНИЗ ↓: ИЗМЕНИТЬ ЦВЕТ -"
+
+#: pdvshell:4779
+msgid "SOBRE"
+msgstr "На"
+
+#: pdvshell:4794
+msgid "O pdvShell é disponibilizado para você sob a Licença MIT, e"
+msgstr "pdvShell предоставляется вам по лицензии MIT, и"
+
+#: pdvshell:4795
+msgid "inclui software de código aberto sob uma variedade de outras licenças."
+msgstr "включает программное обеспечение с открытым исходным кодом по множеству других лицензий."
+
+#: pdvshell:4796
+msgid "Você pode ler instruções sobre como baixar e criar para você mesmo"
+msgstr "Вы можете прочитать инструкцию как скачать и создать под себя"
+
+#: pdvshell:4797
+msgid "o código fonte específico usado para criar esta cópia."
+msgstr "конкретный исходный код, использованный для создания этой копии."
+
+#: pdvshell:4798
+msgid "Este programa vem com absolutamente nenhuma garantia."
+msgstr "Эта программа не имеет абсолютно НИКАКИХ гарантий."
+
+#: pdvshell:4803
+msgid "PANO DE FUNDO"
+msgstr "фон"
+
+#: pdvshell:4860
+msgid "MENU CONFIGURAÇÃO"
+msgstr "МЕНЮ НАСТРОЙКИ"
+
+#: pdvshell:4864
+msgid "Cor Logo"
+msgstr "Цветной логотип"
+
+#: pdvshell:4865
+msgid "Cor Cabecalho"
+msgstr "Цвет заголовка"
+
+#: pdvshell:4866
+msgid "Cor Status Superior"
+msgstr "Сердце Высшего Государства"
+
+#: pdvshell:4867
+msgid "Cor Status Inferior"
+msgstr "Состояние нижнего сердца"
+
+#: pdvshell:4868
+msgid "Cor Box"
+msgstr "Кор Коробка"
+
+#: pdvshell:4869
+msgid "Cor Titulo Box"
+msgstr "Коробка заголовка"
+
+#: pdvshell:4870
+msgid "Cor DispBox"
+msgstr "Кор DispBox"
+
+#: pdvshell:4871
+msgid "Cor Mensagem Info OK"
+msgstr "Цвет Сообщение Информация ОК"
+
+#: pdvshell:4872
+msgid "Cor Mensagem Info ERRO"
+msgstr "Цвет Сообщение Информация ОШИБКА"
+
+#: pdvshell:4873
+msgid "Cor Mensagem Confirmação"
+msgstr "Подтверждение цветного сообщения"
+
+#: pdvshell:4874
+msgid "Cor Pano de fundo"
+msgstr "Цвет фона"
+
+#: pdvshell:4919
+msgid "Pergunta: Deseja realmente Sair?"
+msgstr "Вопрос: Вы действительно хотите уйти?"
