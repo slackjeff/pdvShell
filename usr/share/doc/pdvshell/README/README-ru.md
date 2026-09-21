@@ -92,7 +92,7 @@ sudo bash install.sh
 ## ▶️ Использование/Выполнение
 
 ```bash
-pdvshell
+pdvshell.sh
 ```
 ---
 
@@ -146,7 +146,7 @@ pdvshell
 
 ---
 
-## я ️ О
+## ℹ️ О
 
 ![Sobre](assets/mercearia-sobre-sobre.png)
 ![Sair](assets/mercearia-menu-sair.png)

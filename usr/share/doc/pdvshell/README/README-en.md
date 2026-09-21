@@ -92,7 +92,7 @@ If you just want to install quickly, **curl** or **wget** will do the trick in s
 ## ▶️ Use/Execution
 
 ```bash
-pdvshell
+pdvshell.sh
 ```
 ---
 

@@ -92,7 +92,7 @@ sudo bash install.sh
 ## ▶️ 利用・実行
 
 ```bash
-pdvshell
+pdvshell.sh
 ```
 ---
 

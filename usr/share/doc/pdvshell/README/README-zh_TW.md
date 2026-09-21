@@ -1,10 +1,10 @@
 # 🧾 PDVShell
 
-<p對齊=“中心”>
+<p 對齊=“中心”>
 <img src="assets/demo.gif" alt="PDVShell 示範" width="700"/>
 </p>
 
-<p對齊=“中心”>
+<p 對齊=“中心”>
 <img src="https://img.shields.io/badge/shell-bash-blue?style=flat-square"/>
 <img src="https://img.shields.io/badge/database-sqlite-lightgrey?style=flat-square"/>
 <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square"/>
@@ -92,7 +92,7 @@ sudo bash install.sh
 ## ▶️ 使用/執行
 
 ```bash
-pdvshell
+pdvshell.sh
 ```
 ---
 
@@ -100,56 +100,56 @@ pdvshell
 
 ## 📋 選單
 
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
+![Menu Produtos](assets/mercearia-menu-produtos.png)
+![Menu Fornecedores](assets/mercearia-menu-fornecedores.png)
+![Menu Movimento](assets/mercearia-menu-movimento.png)
+![Menu Relatório](assets/mercearia-menu-relatorio.png)
+![Menu Consultas](assets/mercearia-menu-consultas.png)
+![Menu Manutenção](assets/mercearia-menu-manutencao.png)
+![Menu Configuração](assets/mercearia-menu-configuracao.png)
+![Menu Sobre](assets/mercearia-menu-sobre.png)
 
 ---
 
 ## 📦 產品
 
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
+![Cadastro](assets/mercearia-produtos-cadastro.png)
+![Exclusão](assets/mercearia-produtos-exclusao.png)
+![Pesquisar](assets/mercearia-produtos-pesquisar.png)
+![Vendidos](assets/mercearia-produtos-vendidos.png)
+![Compra](assets/mercearia-produtos-compra.png)
+![Vendas](assets/mercearia-produtos-vendas.png)
+![Entradas](assets/mercearia-produtos-entradas.png)
+![Abaixo do mínimo](assets/mercearia-produtos-abaixo-do-minimo.png)
+![Validade](assets/mercearia-produtos-fora-de-validade.png)
 
 ---
 
 ## 🏪 供應商
 
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
+![Cadastro fornecedor](assets/mercearia-fornecedor-cadastro.png)
+![Lista fornecedor](assets/mercearia-fornecedor-listagem.png)
 
 ---
 
 ## 📊 報告
 
-辣椒_REF_0_辣椒
+![Vendas diárias](assets/mercearia-exibir-vendas-diarias.png)
 
 ---
 
 ## ⚙️ 設定
 
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
+![Menu config](assets/mercearia-menu-configuracao.png)
+![Cores](assets/configuracao-de-cores.png)
+![Empresa](assets/mercearia-configuracao-dados-empresa.png)
 
 ---
 
-## 我️關於
+## ℹ️ 我️關於
 
-辣椒_REF_0_辣椒
-辣椒_REF_0_辣椒
+![Sobre](assets/mercearia-sobre-sobre.png)
+![Sair](assets/mercearia-menu-sair.png)
 
 ---
 

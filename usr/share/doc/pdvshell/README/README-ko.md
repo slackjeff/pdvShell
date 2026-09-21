@@ -92,7 +92,7 @@ sudo bash install.sh
 ## ▶️ 이용/실행
 
 ```bash
-pdvshell
+pdvshell.sh
 ```
 ---
 
@@ -146,7 +146,7 @@ pdvshell
 
 ---
 
-## 나는 ️ 소개
+## ℹ️ 나는 ️ 소개
 
 ![Sobre](assets/mercearia-sobre-sobre.png)
 ![Sair](assets/mercearia-menu-sair.png)
