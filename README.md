@@ -1,17 +1,17 @@
 
 ## 🌐 Translations
 
-🇩🇪 [Deutsch](usr/share/doc/pdvshell/README/README.de.md)  
+🇩🇪 [Deutsch](usr/share/doc/pdvshell/README/README-de.md)  
 🇬🇧 [English](usr/share/doc/pdvshell/README/README-en.md)  
-🇪🇸 [Español](usr/share/doc/pdvshell/README/README.es.md)  
-🇫🇷 [Français](usr/share/doc/pdvshell/README/README.fr.md)  
-🇮🇹 [Italiano](usr/share/doc/pdvshell/README/README.it.md)  
-🇯🇵 [日本語](usr/share/doc/pdvshell/README/README.ja.md)  
+🇪🇸 [Español](usr/share/doc/pdvshell/README/README-es.md)  
+🇫🇷 [Français](usr/share/doc/pdvshell/README/README-fr.md)  
+🇮🇹 [Italiano](usr/share/doc/pdvshell/README/README-it.md)  
+🇯🇵 [日本語](usr/share/doc/pdvshell/README/README-ja.md)  
 🇰🇷 [한국어](usr/share/doc/pdvshell/README/README-ko.md)  
-🇵🇹 [Português](usr/share/doc/pdvshell/README/README.pt.md)  
-🇧🇷 [Português brasileiro](usr/share/doc/pdvshell/README/README.pt_BR.md)  
-🇷🇺 [Русский](usr/share/doc/pdvshell/README/README.ru.md)  
-🇺🇦 [Українська](usr/share/doc/pdvshell/README/README.uk.md)  
+🇵🇹 [Português](usr/share/doc/pdvshell/README/README-pt.md)  
+🇧🇷 [Português brasileiro](usr/share/doc/pdvshell/README/README-pt_BR.md)  
+🇷🇺 [Русский](usr/share/doc/pdvshell/README/README-ru.md)  
+🇺🇦 [Українська](usr/share/doc/pdvshell/README/README-uk.md)  
 🇨🇳 [中文](usr/share/doc/pdvshell/README/README-zh_CN.md)  
 🇹🇼 [繁體中文](usr/share/doc/pdvshell/README/README-zh_TW.md)  
   
