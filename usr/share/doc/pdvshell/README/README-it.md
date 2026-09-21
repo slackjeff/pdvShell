@@ -1,10 +1,10 @@
-# 🧾PDVShell
+# 🧾 PDVShell
 
-<palign="centro">
+<p align="centro">
 <img src="assets/demo.gif" alt="PDVShell Demo" width="700"/>
 </p>
 
-<palign="centro">
+<p align="centro">
 <img src="https://img.shields.io/badge/shell-bash-blue?style=flat-square"/>
 <img src="https://img.shields.io/badge/database-sqlite-lightgrey?style=flat-square"/>
 <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square"/>
@@ -153,7 +153,7 @@ pdvshell
 
 ---
 
-## 🛠️Tabella di marcia
+## 🛠️ Tabella di marcia
 
 - [ ] Backup automatico
 - [ ] Multiutente

@@ -1,4 +1,4 @@
-# 🧾PDVShell
+# 🧾 PDVShell
 
 <p align="center">
 <img src="assets/demo.gif" alt="Démo PDVShell" width="700"/>
@@ -146,7 +146,7 @@ pdvshell
 
 ---
 
-## ️ À propos
+## ℹ️ À propos
 
 ![Sobre](assets/mercearia-sobre-sobre.png)
 ![Sair](assets/mercearia-menu-sair.png)
