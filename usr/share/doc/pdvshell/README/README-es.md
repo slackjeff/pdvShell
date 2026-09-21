@@ -156,9 +156,9 @@ CHILE_REF_0_CHILI
 ## 🛠️ Hoja de ruta
 
 - [ ] Backup automático
-- [] Multiusuario
+- [ ] Multiusuario
 - [ ] Imprimir
-- [] Exportación CSV/PDF
+- [ ] Exportación CSV/PDF
 
 ---
 
