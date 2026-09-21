@@ -16,20 +16,20 @@
 
 ## 📌 Sobre
 
-**PDVShell** é um sistema de frente de caixa (PDV) leve e eficiente, desenvolvido em **Shell Script + SQLite**.
+**PDVShell** é um sistema de ponto de venda (PDV) leve e eficiente, desenvolvido em **Shell Script** + **SQLite**.
 
-Ideal para pequenas mercearias que precisam de algo simples, rápido e confiável.
+Ideal para pequenas mercearias que necessitam de uma solução simples, rápida e fiável.
 
 ---
 
 ## 🚀 Funcionalidades
 
-- 📦 Cadastro e gerenciamento de produtos
-- 🏪 Controle de fornecedores
-- 💰 Registro de vendas
+- 📦 Registo e gestão de produtos
+- 🏪 Gestão de fornecedores
+- 💰 Registo de vendas
 - 📊 Relatórios
 - ⚙️ Configurações
-- 🧾 Controle de estoque
+- 🧾 Gestão de stock
 
 ---
 
@@ -37,8 +37,8 @@ Ideal para pequenas mercearias que precisam de algo simples, rápido e confiáve
 
 - Simples e direto
 - Sem dependências pesadas
-- Terminal raiz
-- Funciona até em máquina velha
+- Terminal puro
+- Funciona até em computadores mais antigos
 
 ---
 
@@ -74,7 +74,7 @@ sudo bash install.sh
 ## ⚠️ Observações
 
 - O script **deve ser executado como root** (`sudo`).
-- Para maior segurança, revise o conteúdo antes de executar:
+- Para maior segurança, reveja o conteúdo do script antes de o executar:
   ```bash
   less install.sh
   ```
@@ -84,12 +84,13 @@ sudo bash install.sh
 
 ## 🧠 Dica prática
 
-Se você pretende atualizar ou modificar o projeto depois, use **git**.
-Se você quer apenas instalar rapidamente, ** curl ** ou ** wget ** resolverão em segundos.
+Se pretende actualizar ou modificar o projecto posteriormente, utilize **git**.
+
+Se pretende apenas efectuar uma instalação rápida, **curl** ou **wget** permitem concluir o processo em poucos segundos.
 
 ---
 
-## ▶️ Uso/Execução
+## ▶️ Utilização
 
 ```bash
 pdvshell.sh
@@ -155,8 +156,8 @@ pdvshell.sh
 
 ## 🛠️ Roteiro
 
-- [ ] Backup automático
-- [ ] Multiusuário
+- [ ] Cópias de segurança automáticas
+- [ ] Suporte multiutilizador
 - [ ] Impressão
 - [ ] Exportação CSV/PDF
 
@@ -165,3 +166,4 @@ pdvshell.sh
 ## 📄 Licença
 
 MIT
+
