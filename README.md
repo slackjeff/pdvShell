@@ -12,7 +12,8 @@
 🇧🇷 [Português brasileiro](usr/share/doc/pdvshell/README/README.pt_BR.md)  
 🇷🇺 [Русский](usr/share/doc/pdvshell/README/README.ru.md)  
 🇺🇦 [Українська](usr/share/doc/pdvshell/README/README.uk.md)  
-🇨🇳 [中文](usr/share/doc/pdvshell/README/README.zh.md)
+🇨🇳 [中文](usr/share/doc/pdvshell/README/README-zh_CN.md)  
+🇹🇼 [繁體中文](usr/share/doc/pdvshell/README/README-zh_TW.md)  
   
 
 Configure the terminal to 160×47.  
