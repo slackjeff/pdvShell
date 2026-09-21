@@ -1,0 +1,728 @@
+
+
+##########################################################################################
+#                                      CHANGELOG                                         #
+##########################################################################################
+
+
+
+[ dom 20 set 2026 ~20:39] AJUSTES - Fernando Souza
+------------------------------------------------------------------------------------------
+
+Criado o diretório $HOME/.config/pdvshell para armazenamento dos arquivos de configuração 
+do programa, incluindo pdvshell.db e pdvshell.ini.
+
+Criado o arquivo .desktop para pdvShell.
+
+Criado o ícone para pdvShell.
+
+Desenvolvido o script pdvshell-backup.sh para automatizar e facilitar os procedimentos de 
+manutenção e backup.
+
+Reorganizada a estrutura de arquivos do projeto, visando facilitar o processo de geração 
+e empacotamento para distribuições Linux.
+
+Configurar o terminal para utilização da resolução de 160 colunas por 47 linhas (160x47).
+
+Adicionado o campo I.E. (Inscrição Estadual) à seção "DADOS DA EMPRESA".
+
+Alterado o caractere utilizado como plano de fundo padrão para "▒", adequando a apresentação 
+visual da interface.
+
+Corrigidos os arquivos README-*.md.
+Gerado os arquivos .po e .mo para pt e uk.
+
+
+
+[ter 11 ago 2026 ~16:47-17:05] CORREÇÕES INICIAIS DE BUGS
+------------------------------------------------------------------------------------------
+- Corrigido "$Configuracao|Dados_Empresa|..." no menu principal: faltava
+  o "$" antes de Dados_Empresa (aparecia texto literal em vez do label
+  traduzido).
+- Corrigido "ntop" vs "nTop" em relatorio_vendas_diarias (variável errada
+  jogava a linha de SOMA sempre na mesma posição fixa, ignorando nTop).
+- Corrigido "tamanho_maxino" vs "tamanho_maximo" em show_menu (variável
+  declarada com nome errado vazava como global entre chamadas).
+- Corrigido "${_SYSTEM}" vs "${_SYSTEM_}" em mensagem()/registrar_venda/
+  atualizar_estoque_vendas (variável inexistente, título sempre vazio).
+- Adicionado "local" em dezenas de variáveis que vazavam para o escopo
+  global em ~25 funções (produto_pesquisa, relatorio_produtos_minimo,
+  relatorio_produtos_fora_validade, relatorio_produtos_vendidos,
+  fornecedor_pesquisa, relatorio_vendas_diarias, realizar_venda,
+  produtos_entradas, padr/padl/padc, sh_splitarray, convert_date_to_US,
+  validar_data, populate_database_*, yesno, show_menu,
+  show_menu_pulldown, debug, atualizar_estoque_vendas, TIni.ExistValue/
+  ReadValue/Set, inkey, relatorio_vendas_diarias (dead code removido)).
+- sql_escape(): escapa aspas simples antes de montar queries SQL,
+  aplicada em dbseek() e nos INSERT/UPDATE de produto e fornecedor -
+  previne quebra de query e injeção SQL via nomes com apóstrofo.
+- Corrigido bug de dados duplicados/sobrescritos em fornecedor_inclusao():
+  variáveis de um cadastro anterior não eram resetadas no loop, causando
+  sobrescrita do fornecedor anterior ao invés de criar um novo.
+
+[ter 11 ago 2026 ~17:05-18:00] CNPJ/CPF, ALERTA() E PADRONIZAÇÃO DE DIÁLOGOS
+------------------------------------------------------------------------------------------
+- fornecedor_selecionar(): tela de seleção de fornecedor cadastrado
+  (navegação com setas), acionada quando o campo Fabricante fica em
+  branco ou quando o código digitado não é encontrado.
+- validar_cnpj_cpf(): validação de CPF/CNPJ com dígito verificador real
+  (algoritmo oficial, módulo 11), rejeitando sequências óbvias tipo
+  000.000.000-00.
+- formatar_cnpj_cpf(): aplica a máscara oficial (00.000.000/0000-00
+  para CNPJ, 000.000.000-00 para CPF) automaticamente ao salvar.
+- Rótulo "Cnpj" alterado para "CNPJ/CPF" nas telas de fornecedor.
+- Perguntas de confirmação (readconf) convertidas para yesno() nos
+  cadastros de produto e fornecedor, padronizando a interface.
+- Corrigida checagem de fornecedor duplicado que não pegava reincidência
+  ao reenviar o mesmo nome (comparação trocada de LIKE para exata).
+- alerta(): caixa de diálogo estilo "dialog --msgbox" (mensagem e botão
+  [ OK ] centralizados), substituindo o antigo msgerror/msgok (barra no
+  topo com timeout curto) nos formulários de cadastro. Passou por várias
+  iterações nesta rodada até chegar no formato final centralizado.
+
+[ter 11 ago 2026 ~18:00-21:05] TELA, FORMULÁRIOS E NAVEGAÇÃO
+------------------------------------------------------------------------------------------
+- Corrigido bug visual em get(): texto de uma tentativa anterior ficava
+  "fantasma" na tela mesmo com o campo logicamente vazio, levando o
+  usuário a crer que o valor antigo ainda estava lá.
+- Corrigido campo de formulário vazando para fora da caixa (get() usava
+  tput el, que limpa até o fim físico da linha do terminal) - adicionado
+  parâmetro de largura opcional.
+- Corrigido ESC não saindo de formulários (fornecedor/produto) em vários
+  campos - adicionado "|| return" nas chamadas de get().
+- Corrigida "faixa preta" ao fechar diálogos (alerta()/yesno()): a
+  repintura usava tput sgr0 + apagar, sobrescrevendo o padrão de fundo
+  customizado do sistema com o preto padrão do terminal - corrigido
+  repintando com o mesmo padrão de fundo do sistema.
+- yesno(): mesma limpeza de tela do alerta() ao fechar (Sim, Não ou ESC).
+- Campo Unidade do cadastro de produtos: validação de exatamente 2
+  caracteres (ex: KG, UN, PC), com limite de digitação e uppercase
+  automático.
+- dbcount(): função genérica para contar registros de uma tabela
+  (dbcount "$database" "tabela"), usada nas checagens de fornecedor
+  cadastrado.
+- Campo Fabricante do cadastro de produtos: em branco vai direto para a
+  tela de seleção de fornecedores; código não encontrado pergunta se
+  quer escolher da lista - mesma tela de seleção.
+
+[qua 12 ago 2026 ~00:05-01:10] CORREÇÃO DO FLUXO DE SELEÇÃO DE FORNECEDOR
+------------------------------------------------------------------------------------------
+- Corrigido fornecedor_selecionar() sendo chamada via $(...): isso
+  capturava TODA a renderização de tela (tela/titulo/show_menu) dentro da
+  variável em vez de mostrar na tela real. Corrigido usando variável
+  global (FORNECEDOR_SELECIONADO_ID) em vez de echo + command
+  substitution - mesmo padrão usado em read_key()/LAST_KEY.
+- Corrigido alerta()/show_menu() "comendo" a sequência de teclas de setas
+  e exigindo dois ENTERs (dreno de teclado mal posicionado quebrava
+  sequências rápidas de múltiplos bytes, como setas do teclado) -
+  removido dos dois lugares.
+- Corrigido erro de octal do bash: números com zero à esquerda ("08",
+  "09") em contexto aritmético ((...))/[[ -eq ]] quebravam com "valor
+  muito grande para esta base de numeração". Corrigido em validar_data(),
+  populate_database_compras() e no campo Quantidade de vendas/entradas.
+
+[qua 12 ago 2026 ~15:20-16:05] OTIMIZAÇÃO DE PERFORMANCE E BUGS DO .INI
+------------------------------------------------------------------------------------------
+- Cache de dimensões do terminal (_LASTROW_CACHE_/_LASTCOL_CACHE_):
+  lastrow()/lastcol() não disparam mais "tput lines"/"tput cols" a cada
+  chamada (eram usadas em 63 pontos do script). Atualizado uma vez no
+  início e via trap em SIGWINCH se o terminal for redimensionado.
+- tela()/titulo()/sh_fundo(): tput sc/sgr0/rc trocados por sequências
+  ANSI literais (\e[s, \e[0m, \e[u); $(date) trocado por printf nativo
+  do bash (%()T); ~20 processos por chamada reduzidos a ~1.
+- box()/mabox(): eliminados os forks de replicate() dentro do loop de
+  desenho das laterais - linha do meio calculada uma vez e reutilizada
+  em vez de recalculada a cada linha de altura da caixa.
+- show_menu_pulldown() (menu principal, redesenha a cada tecla): forks
+  de sh_splitarray()/len_split_str() eliminados via split nativo do bash
+  (IFS read -a), sem subshell.
+- read_key(): retorno trocado de echo+$(...) para variável global
+  (LAST_KEY), eliminando 1 fork por tecla apertada no menu principal.
+- populate_database_*(): todos os INSERTs de cada tabela agrupados em um
+  único comando sqlite3 (eram até 365 chamadas separadas); bc trocado
+  por aritmética inteira em bash; consultas de docnr (antes 1 por linha)
+  buscadas uma única vez e incrementadas em bash; sh_random_date()
+  reescrita sem shuf/date -d. De ~4590 processos para ~6.
+- TIni.Get(): reescrita em bash puro, sem "sed" por chamada (era
+  chamada 17 vezes na inicialização, uma por cada dado de empresa/cor).
+- dec_mult()/dec_add()/dec_sub(): aritmética decimal (multiplicação,
+  soma, subtração) em bash puro, sem "bc". Aplicada em realizar_venda()
+  (tela de venda/PDV) e produtos_entradas() (entrada de produtos) -
+  eram até 4 processos (bc/tr) por item do carrinho a cada redesenho
+  da tela, a mais usada do sistema. Também aplicada em
+  relatorio_produtos_vendidos() e relatorio_entradas_produtos()
+  (mesmo domínio seguro: quantidade x preço de linha individual).
+- relatorio_vendas_diarias(): removidas 4 linhas de código morto
+  (mes_inicial/mes_final/ano_inicial/ano_final calculados via
+  "date -d" mas nunca usados); extração de mês dentro do loop trocada
+  por substring do bash. A soma agregada (SUM() do SQL) foi mantida com
+  "bc" propositalmente, por poder ter mais de 2 casas decimais.
+- ansi_setaf()/ansi_setab(): geram as sequências ANSI de cor (256 cores)
+  equivalentes a "tput setaf/setab N" em bash puro, sem processo
+  externo. Aplicado em sh_setvarcolors() (paleta de cores na
+  inicialização) e em configuracao::cores() (tela de escolha de cor,
+  redesenha a cada tecla apertada ao navegar pelas 255 cores).
+- ansi_extrair_cor(): extrai o número da cor (0-255) de uma sequência
+  ANSI já montada, mesmo composta com outros códigos (bold, reverse).
+  Usada em configuracao::cores() para a tela de seleção de cor abrir já
+  posicionada na cor atualmente configurada (do .ini, ou o padrão do
+  sistema quando não há valor salvo), em vez de sempre começar fixo na
+  cor 1.
+- show_menu(): adicionado suporte a item inicial pré-selecionado via
+  variável SHOW_MENU_INDICE_INICIAL (opcional, não afeta os outros ~7
+  chamadores que não a definem). Aplicado em
+  configuracao::pano_de_fundo(): a tela de escolha do padrão de fundo
+  agora também abre já posicionada no padrão atualmente ativo.
+- TIni.Set() - bug 1: na atualização de uma chave já existente, o valor
+  era inserido direto no comando "sed -i" sem escapar caracteres com
+  significado especial na substituição do sed - um valor contendo "&"
+  (ex: razão social "Bar & Mercearia") era corrompido, pois o sed
+  interpreta & como "insira o texto que casou aqui". Corrigido
+  escapando barra invertida, & e o delimitador | antes de montar o
+  comando sed.
+- TIni.Set() - bug 2, mais grave: a variável found_section nunca voltava
+  a 0 ao passar por uma seção DIFERENTE da procurada durante a varredura
+  do arquivo. Resultado: ao gravar uma chave nova numa seção que já
+  existe mas não é a última do arquivo, a chave nova era silenciosamente
+  anexada no final do arquivo, ficando visualmente dentro da seção
+  ERRADA - o dado ficava ilegível para TIni.Get(). Corrigido resetando
+  found_section=0 ao encontrar qualquer outro cabeçalho de seção.
+
+[qua 12 ago 2026 16:12] PANO DE FUNDO E FORMATO DO CHANGELOG
+------------------------------------------------------------------------------------------
+- configuracao::pano_de_fundo(): mesmo princípio aplicado às cores -
+  a tela agora abre já posicionada no padrão de fundo atualmente ativo
+  (do .ini, ou o padrão do sistema), em vez de sempre começar no
+  primeiro item da lista. Usa o novo suporte de item inicial do
+  show_menu() (SHOW_MENU_INDICE_INICIAL).
+- Changelog reorganizado em blocos datados (esta rodada em diante,
+  cada bloco mostra a data/hora real em que aquele grupo de mudanças
+  foi feito, reconstruída a partir do cabeçalho Updated: atualizado a
+  cada rodada ao longo da conversa).
+
+[qua 12 ago 2026 22:46-22:47] AJUSTES DE TEXTO/CABEÇALHO
+------------------------------------------------------------------------------------------
+- Ordem das linhas de copyright invertida (Vilmar Catafesta primeiro,
+  Jefferson Carneiro depois) e espaçamento padronizado.
+- Descrição do cabeçalho do arquivo traduzida para português, batendo
+  com o texto já usado em _SYSTEM_DESC.
+- Item de menu "Cores" renomeado para "Aparência" (rótulo exibido) e a
+  variável interna também renomeada de Cores para Aparencia, para não
+  ficar inconsistente com o texto que ela guarda.
+
+[qui 13 ago 2026 03:50] TELAS DE RELATÓRIO/CONSULTA RESPONSIVAS
+------------------------------------------------------------------------------------------
+- Diagnosticado o motivo das telas de relatório/busca quebrarem
+  dependendo da resolução do terminal: as larguras de coluna eram
+  100% fixas no código (ex: "5|40|2|5|10|5|5|10|13"), sem nenhuma
+  relação com o tamanho real do terminal; e a paginação em 2 colunas
+  lado a lado nunca verificava se o conteúdo cabia na metade da tela,
+  causando sobreposição visual em terminais estreitos (medido: a busca
+  de fornecedores precisa de ~147 caracteres, chegando a exigir mais
+  de 290 colunas de terminal para a divisão em 2 colunas fazer sentido).
+- calcular_larguras(): calcula larguras de coluna ajustadas à largura
+  disponível - campos flexíveis (texto livre, como descrição/nome/
+  endereço) encolhem proporcionalmente até um mínimo, nunca abaixo
+  disso; campos fixos (ID, datas, preços, códigos) nunca mudam. Nunca
+  ultrapassa a largura disponível (ajuste fino por arredondamento).
+- calcular_colunas_cabiveis(): decide dinamicamente se cabem 2 colunas
+  lado a lado (com base na largura MÍNIMA viável da tabela) ou se é
+  preciso cair para 1 coluna usando a tela inteira - evita a
+  sobreposição na raiz, ao invés de só encolher texto até não caber
+  de jeito nenhum.
+- Aplicado nas 6 telas com paginação lado a lado: produto_pesquisa,
+  relatorio_produtos_minimo, relatorio_produtos_fora_validade,
+  fornecedor_pesquisa (3 campos flexíveis: nome/endereço/cidade),
+  relatorio_produtos_vendidos, relatorio_entradas_produtos. Também
+  aplicado em realizar_venda() e produtos_entradas() (telas de
+  carrinho, sem paginação - usam a largura total do terminal como
+  alvo, e o separador "├──┤" abaixo da lista é recalculado para
+  acompanhar a nova largura da tabela).
+- relatorio_vendas_diarias() não foi alterada: a tabela (DATA|TOTAL
+  DIA) precisa de só ~22 caracteres e já tinha lógica própria de
+  múltiplas colunas dinâmicas: nunca teve o problema de sobreposição.
+- As linhas de dados de cada tela foram ajustadas para usar a mesma
+  largura calculada do cabeçalho (via "%-*s" do printf, com largura
+  passada como argumento), garantindo que as colunas de dados sempre
+  alinhem com o cabeçalho, incluindo truncamento do texto quando a
+  coluna encolhe.
+- Validado com 13 cenários (5 telas x larguras de terminal de 80, 132
+  e 300 colunas): nenhum caso ultrapassou a largura disponível, e a
+  decisão de 1 ou 2 colunas mudou corretamente conforme o espaço.
+
+[qui 13 ago 2026 04:24] CORREÇÃO: ESPAÇO DESPERDIÇADO NAS TELAS RESPONSIVAS
+------------------------------------------------------------------------------------------
+- Reportado com print de tela: a busca de fornecedores ficou com a
+  caixa ocupando só metade da largura do terminal, texto truncado à
+  toa e um espaço preto enorme sobrando à direita, mesmo com poucos
+  registros (cabendo tudo numa única página).
+- Causa: calcular_colunas_cabiveis() decidia usar 2 colunas lado a
+  lado baseado apenas na largura do terminal permitir, sem checar se
+  havia dados suficientes para realmente precisar da segunda coluna -
+  reservando (e desperdiçando) metade da tela mesmo quando só uma
+  página de resultados seria exibida.
+- Corrigido removendo a especulação de 2 colunas por completo: as 6
+  telas voltam a usar sempre a largura total do terminal para uma
+  única coluna, paginando verticalmente ("Página: N, pressione
+  qualquer tecla") quando os dados não cabem de uma vez - mais simples
+  e sem essa classe de bug. calcular_colunas_cabiveis() foi removida
+  do script (não é mais chamada em lugar nenhum). calcular_larguras()
+  foi mantida: continua encolhendo colunas de texto livre só quando o
+  terminal realmente não tem espaço suficiente.
+
+[qui 13 ago 2026 04:35] BROWSE_TABELA() - NAVEGADOR ESTILO CLIPPER/HARBOUR
+------------------------------------------------------------------------------------------
+- browse_tabela(): novo widget de navegação de dados tabulares, inspirado
+  no Browse()/TBrowse do Clipper/Harbour. Só desenha as linhas realmente
+  visíveis na tela (janela de rolagem), então nunca estoura o terminal
+  nem desperdiça espaço, não importa quantos registros existam. Suporta
+  setas (cima/baixo, move o cursor e rola quando necessário), PgUp/PgDn
+  (pula uma tela inteira de cada vez), Home/End (primeiro/último
+  registro), Enter (seleciona e devolve a linha via variáveis globais
+  BROWSE_SELECIONADO/BROWSE_LINHA_SELECIONADA) e ESC (cancela). Não usa
+  show_menu() como base porque essa função desenha TODOS os itens de
+  uma vez sem nenhum controle de rolagem - com muitos registros ela
+  estouraria o terminal do mesmo jeito.
+- fornecedor_pesquisa() reescrita para usar browse_tabela(): a função
+  ficou bem mais simples (não precisa mais da lógica manual de
+  paginação "Página: N, pressione tecla"), e a navegação ficou muito
+  mais fluida - sem mais interrupções a cada tela cheia, rolagem livre
+  pra cima/baixo/PgUp/PgDn/Home/End pelo resultado inteiro.
+- Validado com 9 cenários de navegação (limites de início/fim, PgUp/
+  PgDn, Home/End, seleção com Enter, cancelamento com ESC, array
+  vazio) e um teste de integração completo simulando 30 fornecedores,
+  em terminal estreito (80 col, larguras encolhem corretamente) e
+  largo (155 col, mesmo cenário do print reportado - usa a largura
+  ideal completa, sem espaço desperdiçado).
+- Corrigido durante o desenvolvimento: a função entrava em loop
+  infinito se a leitura de tecla falhasse (ex: entrada esgotada) -
+  agora trata isso como equivalente a ESC.
+
+[qui 13 ago 2026 05:22] BROWSE_TABELA() APLICADA NAS 6 TELAS RESTANTES
+------------------------------------------------------------------------------------------
+- browse_tabela() estendida para suportar cor por linha: uma linha de
+  dado pode ter um campo extra no final (ex: "5|Produto|10|$vermelho")
+  que é tratado como cor daquela linha específica, sem afetar linhas
+  que não usam essa cor - preserva indicadores visuais funcionais (não
+  só decorativos) como vermelho/verde para estoque abaixo do mínimo ou
+  produto vencido, que se perderiam numa conversão simples.
+- Convertidas para browse_tabela(): produto_pesquisa(),
+  relatorio_produtos_minimo() e relatorio_produtos_fora_validade()
+  (cor vermelha/verde por linha preservada), relatorio_produtos_
+  vendidos() e relatorio_entradas_produtos() (agrupamento visual por
+  docnr/data/id/fornecedor preservado inserindo uma linha em branco
+  no array entre grupos, no lugar do antigo salto de linha manual).
+  relatorio_vendas_diarias() não foi alterada (tabela pequena, sem o
+  problema de sobreposição, como já registrado antes).
+- Corrigido de brinde um bug de formatação encontrado durante a
+  conversão: preço/custo eram convertidos de ponto para vírgula
+  direto (ex: "5" ficava "5" em vez de "5,00", "4.9" ficava "4,9" em
+  vez de "4,90") - faltava garantir 2 casas decimais antes da troca,
+  como o antigo "%10.2f" do printf já garantia. Corrigido com
+  printf %.2f antes da substituição em todas as 3 telas afetadas
+  (produto_pesquisa, relatorio_produtos_vendidos,
+  relatorio_entradas_produtos).
+- Todas as ~30 chamadas de imprimirCabecalho*()/dispbox() e a lógica
+  manual de paginação "Página: N" foram removidas dessas 5 funções -
+  ficaram significativamente mais curtas e simples.
+- Validado com teste de integração cobrindo: formatação de preço em 3
+  precisões diferentes, cor por linha vermelho/verde, agrupamento com
+  linha separadora na posição correta, e navegação (seta+Enter)
+  retornando o registro certo.
+
+[qui 13 ago 2026 05:27] BROWSE_TABELA() - COR POR COLUNA
+------------------------------------------------------------------------------------------
+- browse_tabela() estendida com um novo parâmetro opcional (cores das
+  colunas, mesma sintaxe pipe-delimited das larguras): permite definir
+  uma cor fixa para cada campo/coluna individualmente, caindo na cor
+  padrão da caixa quando não especificada para aquela coluna. Restaura
+  a possibilidade de destacar campos específicos (ex: preço em
+  vermelho, quantidade em ciano) que existia no código antigo baseado
+  em printf e havia se perdido na conversão para o novo widget.
+- Prioridade quando cor de linha e cor de coluna coexistem: a cor de
+  linha (ex: vermelho para estoque abaixo do mínimo) sempre vence,
+  destacando a linha inteira sem exceção.
+- Achado e corrigido durante o desenvolvimento: colorir campo por
+  campo terminando cada um com reset de cor cancelava o vídeo reverso
+  da linha selecionada no meio do caminho (o reset do ANSI limpa TODOS
+  os atributos, não só a cor) - a linha ficava com metade destacada e
+  metade normal. Corrigido fazendo a linha selecionada sempre renderizar
+  de forma uniforme (reverso + cor de linha, sem cor por coluna); as
+  cores por coluna só se aplicam às linhas que não estão em destaque.
+- Aplicado em produto_pesquisa() como demonstração: QMIN e ESTOQUE em
+  ciano, PREÇO em vermelho - restaurando exatamente as cores que a
+  versão anterior (com printf manual) já usava.
+- Validado com teste de integração usando dados reais de 2 produtos:
+  confirmado que a cor cai exatamente nos campos certos (QMIN/ESTOQUE
+  ciano, PREÇO vermelho, demais campos sem cor) tanto na linha
+  selecionada (uniforme) quanto nas demais (por coluna), e que a
+  navegação entre elas troca a formatação corretamente a cada tecla.
+
+[qui 13 ago 2026 05:31] CORREÇÃO: ERRO DE LOCALE NO PRINTF (numero invalido)
+------------------------------------------------------------------------------------------
+- Reportado erro em produção: "printf: 11.3: numero invalido" (e
+  semelhantes) na tela de pesquisa de produtos. Causa: o bash força o
+  printf a interpretar %f de acordo com LC_NUMERIC do sistema - em
+  locale pt_BR (vírgula como separador decimal), um valor vindo do
+  banco no formato ponto (ex: "11.3") é rejeitado como número
+  inválido. O próprio código original já tinha essa lição aprendida
+  em um lugar (troco em realizar_venda usa LC_ALL=C), mas os 3 printf
+  %.2f novos adicionados na conversão para browse_tabela() (preço em
+  produto_pesquisa/relatorio_produtos_vendidos, custo em
+  relatorio_entradas_produtos) não tinham essa proteção. Corrigido
+  prefixando os 3 com LC_NUMERIC=C, forçando a interpretação correta
+  do valor bruto do banco independente do locale do sistema.
+- Investigação revelou um problema relacionado, mais amplo e já
+  pré-existente no código original (não introduzido nesta sessão): em
+  vários lugares um valor JÁ formatado para exibição com vírgula (ex:
+  "4,99") era passado para um formato %f do printf, que só aceita
+  número de verdade - isso quebra mesmo sob locale C, independente do
+  locale do sistema. Encontrado em relatorio_vendas_diarias() (soma
+  mensal), realizar_venda() e produtos_entradas() (linha de item e
+  linha de SUBTOTAL do carrinho). Corrigido trocando o formato de
+  "%8.2f"/"%10.2f" para "%8s"/"%10s" nesses 5 pontos, já que o valor
+  não precisa mais ser reformatado como número - só exibido como texto,
+  mantendo o mesmo alinhamento visual (confirmado com teste direto).
+- Validado: os 3 pontos com LC_NUMERIC=C testados com vários valores
+  (inteiro, 1 e 2 casas decimais) sem regressão sob locale C; os 5
+  pontos com troca de %f para %s testados com dados reais de carrinho,
+  sem erro e com alinhamento idêntico ao formato %f original (quando
+  este funcionava).
+
+[qui 13 ago 2026 15:19] CORREÇÃO DEFINITIVA DO LOCALE + VENDAS DIÁRIAS
+------------------------------------------------------------------------------------------
+- O erro "printf: X.Y: número inválido" persistiu mesmo com o prefixo
+  LC_NUMERIC=C aplicado na correção anterior. Causa: prefixar uma
+  variável de ambiente antes de um BUILTIN do bash (como printf) não
+  funciona da mesma forma que antes de um comando externo - builtins
+  rodam dentro do próprio processo do bash, que já carregou o estado
+  de locale na inicialização; o prefixo temporário não força uma
+  releitura confiável desse estado para aquela chamada específica.
+- Corrigido de forma definitiva: criada formatar_2_casas(), que separa
+  a parte inteira e decimal do valor manualmente (string) e usa só
+  %d (inteiro) do printf para montar o resultado - nunca usa %f, que é
+  a fonte do problema. %d nunca depende de locale. Substituídas as 3
+  chamadas problemáticas (produto_pesquisa, relatorio_produtos_
+  vendidos, relatorio_entradas_produtos) por essa função. Validado
+  com os 7 valores exatos do erro reportado (32.4, 90.8, 44.5, 92.7,
+  39.0, 17.1, 96.9) - todos corretos, sem erro.
+- Nota: formatar_2_casas() trunca a casa decimal (não arredonda) -  
+  correto para os 3 usos acima, pois lá o valor já vem com no máximo
+  2 casas do banco (preço/custo validados na entrada). Para somas
+  agregadas (SUM() do SQL, que podem ter cauda decimal por imprecisão
+  de ponto flutuante), foi criada uma segunda função separada, veja
+  abaixo.
+- relatorio_vendas_diarias() convertida para browse_tabela(), como as
+  outras 5 telas de relatório. A linha "SOMA" mensal foi preservada
+  usando a cor de linha (destacada em azul). Aproveitando a conversão,
+  corrigido também aqui o mesmo padrão de bug (valor já em vírgula
+  sendo passado para %f) que afetava a linha de SOMA e o total diário.
+- arredondar_moeda(): nova função para os casos de SUM() do SQL nesta
+  tela especificamente - usa bc para arredondar corretamente (não só
+  truncar) valores com cauda decimal por imprecisão de ponto
+  flutuante, corrigindo também as inconsistências do próprio bc (saída
+  "0" sem decimais, valores menores que 1 sem o zero à esquerda).
+  Validado com o exemplo real de imprecisão "39.949999999999996" ->
+  "39.95" (arredondado corretamente) e outros casos de borda.
+- Simplificação aceita nesta conversão: o zebra-striping (linhas
+  alternando ciano/preto) não foi preservado, já que browse_tabela()
+  usa cor por LINHA de forma binária (linha tem cor especial ou usa a
+  cor padrão) - manter tanto o destaque da linha SOMA quanto o
+  zebra-striping ao mesmo tempo exigiria uma extensão adicional do
+  widget, não implementada por ora.
+- Validado com teste de integração simulando vendas cruzando 2 meses
+  com valores de imprecisão real de ponto flutuante: agrupamento
+  mensal, arredondamento e navegação todos corretos (somas mensais
+  batendo com a soma manual esperada).
+
+Todas as otimizações foram validadas comparando a saída antes/depois
+(byte a byte quando aplicável) e testadas com casos de borda antes de
+serem aplicadas, para garantir que o comportamento visível ao usuário
+permanece o mesmo - só ficou mais rápido. Os dois bugs do TIni.Set()
+foram reproduzidos primeiro (confirmando a falha), depois corrigidos e
+revalidados com múltiplos cenários reais.
+
+[qui 13 ago 2026 18:50] BROWSE_TABELA() - TÍTULO, UTF-8 E COR POR CÉLULA
+------------------------------------------------------------------------------------------
+- browse_tabela() ganhou um 5º parâmetro opcional (título), passado
+  direto pra box() no mesmo padrão já usado por show_menu() - antes a
+  caixa sempre abria sem título na borda. Aplicado nas 7 chamadas
+  existentes (produto_pesquisa, fornecedor_pesquisa e os 5 relatórios).
+- Corrigido bug de alinhamento sob locale POSIX/C (este ambiente não
+  tem pt_BR instalado): o bash conta bytes em vez de caracteres
+  visuais em ${#string}/${string:0:N}/printf %-Ns, e um C/Ã acentuado
+  ocupa 2 bytes mas 1 posição visual - isso desalinhava o cabeçalho
+  (com acento) das linhas de dado (sem acento). Corrigido com
+  utf8_campo(), que trunca/preenche por caractere visual e nunca corta
+  um acento no meio. Validado com 8 casos de borda (acento no limite
+  exato da largura, string só de acentos, string vazia, etc), todos
+  passando.
+- browse_tabela() estendida com um terceiro nível de cor, por CÉLULA
+  individual: uma linha de dado pode ter o dobro de campos (N dados +
+  N cores, uma cor por coluna daquela linha específica), permitindo
+  por exemplo colorir só a célula do ESTOQUE sem afetar as demais.
+  Prioridade mantida: cor de linha > cor de célula > cor de coluna
+  (estática) > padrão.
+- Encontrado um erro no teste manual (não no código): uma linha de
+  teste com contagem de pipes errada (7 campos em vez dos 6 esperados
+  para 3 colunas) caiu sem querer no branch de cor de LINHA em vez de
+  cor por CÉLULA. Corrigido o teste e revalidado isoladamente: com a
+  contagem certa (2xN campos), só a célula do ESTOQUE fica colorida,
+  as outras duas (ID, DESCRIÇÃO) permanecem sem cor própria.
+- Aplicada a cor dinâmica no campo ESTOQUE de produto_pesquisa():
+  negativo em vermelho, positivo ou zero em ciano, calculado linha a
+  linha ao montar linhas_produto, usando o novo formato de cor por
+  célula (9 campos de dado + 9 de cor, cor preenchida só no índice do
+  ESTOQUE). Substitui a cor estática ciano que essa coluna tinha antes.
+- Validado com teste isolado da lógica de geração das cores (estoque
+  negativo, zero e positivo) confirmando 9 campos de cor sempre
+  gerados, com a cor certa (vermelho/ciano) sempre no índice do
+  ESTOQUE e os demais 8 campos vazios.
+
+[qui 13 ago 2026 18:56] RELATÓRIO DE VENDAS DIÁRIAS - NOVOS CAMPOS
+------------------------------------------------------------------------------------------
+- relatorio_vendas_diarias() ganhou 3 colunas novas, calculadas a
+  partir dos campos já existentes na tabela vendas (quantidade e
+  docnr), sem alterar o schema: QTD ITENS (soma de quantidade no dia),
+  Nº VENDAS (contagem de docnr distintos no dia - cada cupom/venda
+  pode ter várias linhas de item, uma por produto) e TICKET MÉDIO
+  (total do dia dividido pelo nº de vendas do dia).
+- A query SQL foi ampliada de "SELECT date(data), SUM(total)" para
+  incluir também "SUM(quantidade)" e "COUNT(DISTINCT docnr)" no mesmo
+  GROUP BY date(data), sem custo adicional relevante.
+- A linha SOMA mensal (destacada em azul) também ganhou os 3 novos
+  valores agregados: soma de QTD ITENS e Nº VENDAS do mês, e o ticket
+  médio recalculado sobre o total e o nº de vendas do mês inteiro (não
+  é a média dos tickets médios diários).
+- Ticket médio usa a mesma arredondar_moeda() já existente (via bc),
+  então fica protegido do mesmo bug de locale documentado nas rodadas
+  anteriores; divisão por zero evitada checando nº de vendas > 0 antes
+  de dividir.
+- Validado com teste isolado da lógica de agregação usando dados
+  simulados (3 dias, 2 meses, múltiplas vendas no mesmo dia com docnr
+  repetido) e depois um teste fim-a-fim rodando a consulta SQL real
+  (via módulo sqlite3 do Python, já que o binário sqlite3 não está
+  disponível neste ambiente de teste) contra um banco de teste com 5
+  linhas de venda, conferindo cada valor manualmente: totais, soma de
+  itens, contagem de vendas distintas por docnr e ticket médio diário
+  e mensal, todos batendo com o esperado.
+
+[qui 13 ago 2026 19:09] RELATÓRIO DE VENDAS DIÁRIAS - SOMA, PERÍODO E TOTAL GERAL
+------------------------------------------------------------------------------------------
+- A cor da linha SOMA (subtotal mensal) trocada de azul para vermelho,
+  e uma linha em branco separadora passou a ser inserida antes de cada
+  SOMA, destacando visualmente o subtotal das linhas de dados do mês.
+- O título da caixa do relatório (browse_tabela) passou a incluir o
+  período consultado, no formato "TÍTULO - PERÍODO dd-mm-aaaa/dd-mm-
+  aaaa", usando as datas exatamente como digitadas pelo usuário (antes
+  da conversão pro formato US usado na query SQL).
+- Adicionada uma linha TOTAL GERAL ao final do relatório (também em
+  vermelho, com separadora antes): soma do total, quantidade de itens
+  e nº de vendas de TODO o período consultado (todos os meses juntos),
+  não só do último mês - diferente da SOMA mensal, que continua sendo
+  por mês. Ticket médio geral recalculado sobre esses totais do
+  período inteiro.
+- Validado com teste isolado da lógica de acumulação (2 meses, 3 dias)
+  conferindo manualmente que TOTAL GERAL bate com a soma de todos os
+  dias (total, quantidade e nº de vendas), independente de quantos
+  meses o período abranja.
+
+[qui 13 ago 2026 22:08] RELATÓRIO DE VENDAS DIÁRIAS - ROTULOS, SEPARADOR E MENSAGEM DE PROCESSAMENTO
+------------------------------------------------------------------------------------------
+- Rótulos renomeados para deixar claro o escopo de cada total: a
+  antiga "SOMA" (subtotal por mês) virou "SOMA MENSAL", e a antiga
+  "TOTAL GERAL" (soma de todo o período) virou "SOMA GERAL".
+- Reposicionada a linha em branco separadora: antes vinha ANTES da
+  SOMA MENSAL (separando os dias da soma do próprio mês); agora vem
+  DEPOIS, separando a SOMA MENSAL de um mês das linhas de dados do
+  próximo mês. Sequência final: dias do mês 1, SOMA MENSAL, linha em
+  branco, dias do mês 2, SOMA MENSAL, linha em branco, SOMA GERAL.
+- Adicionada mensagem "Processando..." (em amarelo) exibida na tela
+  logo antes da consulta SQL e do loop de agregação rodarem, dando
+  feedback visual em relatórios com muitos dias/meses.
+- Validado com teste isolado da nova ordem das linhas (2 meses, 3
+  dias), conferindo que a sequência bate exatamente com o padrão
+  esperado: item, item, SOMA MENSAL, branco, item, SOMA MENSAL,
+  branco, SOMA GERAL.
+
+[qui 13 ago 2026 22:28] MENSAGEM DE PROCESSAMENTO E CORREÇÃO DA GET() - SETAS/HOME/END/DELETE
+------------------------------------------------------------------------------------------
+- relatorio_vendas_diarias(): a mensagem "Processando..." passou a usar
+  a função mensagem() já existente (a mesma usada em outras telas para
+  avisos rápidos), em vez de um print() avulso numa linha fixa. Chamada
+  com timeout 0 (mesmo padrão do exemplo já comentado no arquivo em
+  registrar_venda), que não bloqueia: o inkey() interno usa read -t 0,
+  que só verifica se tem tecla no buffer e retorna na hora, sem
+  esperar. A caixa aparece e some sozinha assim que o browse_tabela
+  desenha a tabela final.
+- Corrigido bug antigo na get() (usada em TODOS os campos de entrada
+  do sistema, inclusive as datas dos relatórios): qualquer sequência
+  iniciada por ESC - inclusive as setas do teclado, que no terminal
+  chegam como ESC seguido de mais bytes (ex: seta esquerda = ESC [ D)
+  - caía no mesmo case do ESC puro e abortava o campo inteiro. Só o
+  backspace funcionava pra editar.
+- Reescrita a get() com navegação de cursor de verdade, não só
+  ignorando as teclas: distingue ESC puro (sem mais bytes dentro de
+  0.05s - cancela o campo, como antes) de sequência CSI/SS3 (ESC [ ou
+  ESC O seguido de bytes de parâmetro e um byte final - consome só os
+  bytes da própria sequência, sem tocar no que for digitado depois).
+  Setas esquerda/direita movem o cursor dentro do texto (travando nos
+  limites 0 e fim da string), Home/End pulam pro início/fim, Delete
+  apaga o caractere sob o cursor, backspace continua apagando o de
+  trás, e digitar em qualquer posição insere ali (não só no final).
+  Setas cima/baixo e PgUp/PgDn são ignoradas (não fazem sentido num
+  campo de linha única), mas não abortam mais. O campo inteiro é
+  redesenhado a cada tecla (setpos + reimpressão), já que os campos do
+  sistema são curtos (datas, ids etc.), com um contador de tamanho
+  anterior (prev_len) pra apagar sobra de caracteres quando o texto
+  encolhe (backspace/delete no meio).
+- Validado com dois conjuntos de testes isolados simulando a leitura
+  de teclado via pipe (sem depender de terminal real): 1) que setas
+  não abortam mais e não "engolem" o próximo caractere digitado logo
+  em seguida (risco de timing, já que num pipe todos os bytes ficam
+  disponíveis de uma vez); 2) navegação completa - Home, End, seta
+  esquerda/direita travando nos limites, Delete no meio da string,
+  inserção no meio respeitando maxlen, e ESC puro ainda cancelando
+  normalmente. Todos os casos bateram com o esperado.
+
+[qui 13 ago 2026 23:49] MENSAGEM DE PROCESSAMENTO NAS DEMAIS TELAS COM BROWSE_TABELA
+------------------------------------------------------------------------------------------
+- Estendida a mensagem "Processando..." (via mensagem(), timeout 0, sem
+  bloquear) da relatorio_vendas_diarias() pras outras 6 telas que usam
+  browse_tabela: produto_pesquisa(), relatorio_produtos_minimo(),
+  relatorio_produtos_fora_validade(), fornecedor_pesquisa(),
+  relatorio_produtos_vendidos() e relatorio_entradas_produtos().
+- Inserida sempre no mesmo ponto em cada função: logo depois da
+  validação do campo de busca (identificador == "*" vira busca-tudo) e
+  antes do bloco de queries/loop que monta as linhas da tabela - ou
+  seja, antes de qualquer processamento que antecede o browse_tabela,
+  igual já era feito no relatório de vendas diárias.
+- produto_pesquisa() não tem variável $xtitle local (usa o gettext
+  "PESQUISAR PRODUTOS" direto em cada chamada), então a mensagem
+  reaproveita a mesma string ali também, em vez de introduzir uma
+  variável nova só pra isso.
+
+[sex 14 ago 2026 00:01] CALCULAR_LARGURAS() - CRESCIMENTO PROPORCIONAL PRA PREENCHER O ESPAÇO
+------------------------------------------------------------------------------------------
+- Encontrada a causa raiz de tabelas com espaço vazio sobrando à
+  direita da caixa (ex: relatório de vendas diárias): calcular_
+  larguras() só sabia ENCOLHER colunas quando a soma ideal não cabia
+  no espaço disponível - se sobrava espaço, ela simplesmente devolvia
+  as larguras ideais sem tocar, mesmo em colunas já marcadas como
+  flexíveis (flag "1"). Por isso mesmo relatórios que já usavam a
+  flag flexível numa coluna (ex: DESCRIÇÃO em produto_pesquisa) não
+  se esticavam quando o terminal era mais largo que o necessário.
+- Adicionado um novo ramo simétrico ao de encolher: quando sobra
+  espaço, distribui a sobra proporcionalmente entre as colunas
+  marcadas como flexíveis (peso = largura ideal de cada uma), com
+  ajuste fino jogando o resto do arredondamento pra primeira coluna
+  flexível - mesmo padrão de ajuste fino que o ramo de encolher já
+  usava. Sem nenhuma coluna flexível, comportamento idêntico ao
+  anterior (preserva compatibilidade com quem já usa flags "0|0|...").
+- relatorio_vendas_diarias(): as 5 colunas (DATA, TOTAL DIA, QTD
+  ITENS, Nº VENDAS, TICKET MÉDIO) marcadas como flexíveis (antes
+  todas "0"), já que não tem uma coluna de texto longo tipo descrição
+  pra absorver sozinha o espaço extra - faz mais sentido crescer
+  todas proporcionalmente.
+- Validado com teste isolado da função (5 cenários: sobra espaço com
+  todas as colunas flexíveis, sobra espaço com só uma coluna flexível,
+  espaço insuficiente/encolhendo, espaço exatamente igual ao ideal, e
+  sobra espaço sem nenhuma coluna flexível) e depois um teste de
+  integração extraindo a função exatamente como ficou no arquivo real
+  e rodando com valores de lastcol representativos (terminal de 80 e
+  120 colunas), conferindo que a soma final das larguras + separadores
+  + bordas bate exatamente com o espaço disponível em cada caso.
+
+[sex 14 ago 2026 00:21] PESQUISAR PRODUTOS - CORES DO ESTOQUE E PREÇO
+------------------------------------------------------------------------------------------
+- Corrigido produto_pesquisa(): o pedido de colorir o ESTOQUE conforme
+  o QMIN tinha ficado só na prévia de uma rodada anterior, sem nunca
+  ter sido efetivamente aplicado no arquivo real - a cor ainda estava
+  baseada no sinal (negativo/positivo), não no QMIN.
+- ESTOQUE agora usa 3 faixas de cor: vermelho se menor que o QMIN,
+  amarelo se igual ao QMIN, ciano se maior que o QMIN.
+- PREÇO passou a ser sempre amarelo (cor estática de coluna; antes
+  era vermelho).
+- Validado com teste isolado das 3 faixas (menor, igual, maior que o
+  QMIN, incluindo casos com valores negativos), todos batendo com o
+  esperado.
+
+[sex 14 ago 2026 00:31] BUG CRÍTICO NO BROWSE_TABELA() - CAMPO DE COR VAZIO NO FINAL SUMIA
+------------------------------------------------------------------------------------------
+- Encontrado por que o ESTOQUE de produto_pesquisa() não estava sendo
+  colorido mesmo depois da correção anterior: bug no PRÓPRIO
+  browse_tabela(), não no produto_pesquisa(). O parsing de cada linha
+  usava um read -a com o separador pipe, terminando o here-string sem
+  nenhum caractere extra no final -
+  e o bash tem um comportamento pouco conhecido: read -a descarta
+  SEMPRE UM campo vazio no final quando a string termina em "|" (ex:
+  "a|b|" lê só 2 campos em vez dos 3 esperados). Como CODEBAR (última
+  coluna) nunca recebe cor própria, o campo de cor dele fica vazio e
+  no final da string - o read descartava esse campo, fazendo a linha
+  ter 17 campos em vez dos 18 esperados (9 dados + 9 cores), quebrando
+  a checagem "N×2 = cor por célula" e fazendo o ESTOQUE (que não é a
+  última coluna) nunca ser reconhecido como colorido.
+- Corrigido acrescentando um "|" extra no final da string antes do
+  read ("...<<<"${browse_dados[idx]}|""), que absorve esse descarte:
+  não importa quantos campos vazios existam no final da linha
+  original, a contagem final bate exatamente com o número real de
+  campos. Correção feita direto no browse_tabela(), então vale pra
+  qualquer relatório que use cor por célula ou cor de linha, não só
+  produto_pesquisa.
+- Validado com 3 rodadas de teste isolado: 1) o comportamento do bug
+  em vários cenários (string terminando com 1, 2 ou mais campos
+  vazios); 2) que acrescentar o "|" extra sempre resulta na contagem
+  matematicamente correta (nº de pipes + 1), em qualquer cenário,
+  inclusive sem trailing vazio (sem regressão); 3) teste de ponta a
+  ponta reproduzindo a linha exata do produto 27 do print enviado
+  (estoque -3, qmin 18), confirmando que agora é detectado como cor
+  por célula e o ESTOQUE recebe vermelho corretamente. Também
+  confirmado que uma linha vazia (separador usado no relatório de
+  vendas diárias) continua se comportando igual, sem regressão.
+
+[sex 14 ago 2026 00:31] AJUSTE NO CABEÇALHO DE LICENÇA
+------------------------------------------------------------------------------------------
+- Acrescentado um espaço extra entre "#" e o texto nas 3 linhas de
+  copyright/direitos reservados no topo do arquivo (antes "# Copyright
+  ...", agora "#  Copyright ..."). Nada mais no cabeçalho foi alterado
+  - o texto completo da licença (redistribuição, garantias) permanece
+  intacto.
+
+[sex 14 ago 2026 00:48] READ_KEY(), FORA_VALIDADE, COPYRIGHT E CAMPOS SOBREPOSTOS
+------------------------------------------------------------------------------------------
+- read_key() (navegação do browse_tabela: setas, PgUp/PgDn, Home/End)
+  tinha o mesmo problema de timing já corrigido hoje no get(): só
+  esperava 0.01s (10ms) pelo resto da sequência ANSI depois do ESC.
+  Curto demais - em terminais com latência (SSH, tmux, sistema
+  ocupado), a seta era interpretada como ESC solto, fazendo a tabela
+  fechar sozinha (return 1) ao navegar, e sobrando os bytes "[A"/"[B"
+  no buffer pra aparecerem como lixo na tela seguinte. Timeout
+  aumentado pra 0.05s, mesmo valor já validado no get().
+- relatorio_produtos_fora_validade(): trocada a cor de LINHA INTEIRA
+  (vermelho se validade vencida, verde se não) pela cor só no campo
+  ESTOQUE, no mesmo esquema de 3 faixas do PESQUISAR PRODUTOS
+  (vermelho < QMIN, amarelo == QMIN, ciano > QMIN) - já que a consulta
+  já filtra só produtos vencidos, não fazia sentido colorir a linha
+  toda por um critério (validade) que já é garantido pelo próprio
+  filtro da tela.
+- Cabeçalho: acrescentado mais 1 espaço nas 3 linhas de copyright
+  (agora "#   Copyright...", 3 espaços) pra alinhar com as linhas
+  vizinhas que usam tab (equivalente a um tab-stop de 4).
+- relatorio_produtos_vendidos() e relatorio_entradas_produtos(): os
+  dois campos de busca ("Pesquisar por:" e "Agrupar:") ficavam lado a
+  lado na mesma linha, o segundo começando em lastcol/2. Só que o
+  primeiro prompt sozinho já tem 74 caracteres - maior que lastcol/2
+  em qualquer terminal até 148 colunas, ou seja, sobrepunha o segundo
+  campo em praticamente qualquer tela real. Corrigido colocando cada
+  campo em sua própria linha (caixa de busca cresceu de 3 pra 4
+  linhas), e os browse_tabela() correspondentes desceram 1 linha pra
+  não colidir com a caixa maior.
+- Validado cada mudança isoladamente: cor por célula do fora_validade
+  testada com o mesmo padrão N×2 já usado no PESQUISAR PRODUTOS;
+  comprimento dos dois prompts comparado contra larguras de terminal
+  de 80 a 132 colunas, confirmando que agora cabem cada um sozinho na
+  própria linha sem sobrepor nada.
+
+##########################################################################################
+
+

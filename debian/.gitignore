@@ -1,7 +1,0 @@
-pkg/
-src/
-.debhelper
-debhelper-build-stamp
-files
-pdvshell/
-pdvshell.substvars
