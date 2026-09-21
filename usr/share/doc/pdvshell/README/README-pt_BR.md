@@ -146,7 +146,7 @@ pdvshell
 
 ---
 
-## eu ️ Sobre
+## ℹ️ Sobre
 
 ![Sobre](assets/mercearia-sobre-sobre.png)
 ![Sair](assets/mercearia-menu-sair.png)
