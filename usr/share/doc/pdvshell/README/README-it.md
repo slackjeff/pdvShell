@@ -155,7 +155,7 @@ pdvshell
 
 ## 🛠️Tabella di marcia
 
-- [] Backup automatico
+- [ ] Backup automatico
 - [ ] Multiutente
 - [ ] Stampa
 - [ ] Esportazione CSV/PDF
