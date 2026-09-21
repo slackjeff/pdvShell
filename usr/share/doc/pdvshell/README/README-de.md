@@ -146,7 +146,7 @@ pdvshell
 
 ---
 
-## ich ️ Ungefähr
+## ℹ️ Ungefähr
 
 ![Sobre](assets/mercearia-sobre-sobre.png)
 ![Sair](assets/mercearia-menu-sair.png)
