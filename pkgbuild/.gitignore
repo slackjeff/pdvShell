@@ -1,3 +1,4 @@
-pdvShell/
+pdvshell/
 pkg/
 src/
+*.zst
