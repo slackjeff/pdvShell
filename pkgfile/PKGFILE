@@ -53,6 +53,9 @@ package() {
 # script wrapper para /opt/pdvshell/pdvshell
 # Copyright (c) Vilmar Catafesta, 2019-2025 <vcatafesta@gmail.com>
 
+# Configurar o terminal para 160x47
+#printf '\033[8;47;160t'
+# Configurar o terminal para 120x40
 printf '\033[8;40;120t'
 cd /opt/$pkgname
 exec ./pdvshell "\$@"
