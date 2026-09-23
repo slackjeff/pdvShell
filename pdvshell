@@ -4,7 +4,7 @@
 #	pdvshell - Simples frente de caixa escrito em shell script e sqlite!
 #	Created: 2023/10/21
 #	Altered: 2024/11/20 - 02:21 -04
-#	Updated: sex 14 ago 2026 03:24:37 -04
+#	Updated: qua 23 set 2026 00:49:05 -04
 #
 # Copyright (c) 2023-2026, Vilmar Catafesta <vcatafesta@gmail.com>
 # Copyright (c) 2023-2023, Jefferson Carneiro <slackjeff>
@@ -35,7 +35,7 @@ export TEXTDOMAINDIR=/usr/share/locale
 export TEXTDOMAIN=pdvshell
 #
 declare APP="${0##*/}"
-declare _VERSION_="0.08.12-20260812"
+declare _VERSION_="0.09.23-20260923"
 declare _SYSTEM_="PDVSHELL"
 declare _SYSTEM_DESC="$(gettext "Simples frente de caixa escrito em shell script e sqlite")"
 declare database='pdvshell.db'
@@ -47,6 +47,7 @@ declare -A Aempresa=(
 	[cida]='Cidade Modelo'
 	[uf]='UF'
 	[cnpj]='00.000.000/0001-00'
+  [IE]='00.000.00-0'
 )
 declare -a DEPENDENCIES=(
 	tput
@@ -148,6 +149,7 @@ function sh_config() {
 	declare -g Zerar_Limpar_Fornecedor="$(gettext 'Zerar/Limpar DataBase Fornecedor')"
 	declare -g Zerar_Limpar_Vendas="$(gettext 'Zerar/Limpar DataBase Vendas')"
 	declare -g Zerar_Limpar_Compras="$(gettext 'Zerar/Limpar DataBase Compras')"
+	declare -g Backup_Diario="$(gettext 'Backup Diário')"
 	declare -g Dados_Empresa="$(gettext 'Dados Empresa')"
 	declare -g Aparencia="$(gettext 'Aparência')"
 	declare -g Pano_de_fundo="$(gettext 'Pano de fundo')"
@@ -157,7 +159,7 @@ function sh_config() {
 
 function sh_environment() {
 	local result
-	local -a aempresa=('razao' 'ende' 'cida' 'uf' 'cnpj')
+  local -a aempresa=('razao' 'ende' 'cida' 'uf' 'cnpj' 'IE')
 	local -a acores=('cabecalho' 'logo' 'statussup' 'statusinf' 'box' 'boxtitle' 'dispbox' 'msgok' 'msgerror' 'conf' 'panofundo' 'corpanofundo')
 	local i
 	declare -gA Acores=(
@@ -4610,8 +4612,10 @@ function menu_manutencao() {
 		"$(gettext 'Zerar/Limpar DataBase Fornecedor')"
 		"$(gettext 'Zerar/Limpar DataBase Vendas')"
 		"$(gettext 'Zerar/Limpar DataBase Compras')"
+		"$(gettext 'Backup diario')"
 		"$Voltar"
 	)
+
 
 	while true; do
 		tela
@@ -4672,12 +4676,13 @@ function configuracao::dados_empresa() {
 
 	tela
 	titulo 1 "$xtitle" "${Acores[statussup]}"
-	box 11 10 7 "$half_lastcol" "$xtitle" "${Acores[box]}"
+	box 11 10 8 "$half_lastcol" "$xtitle" "${Acores[box]}"
 	print 12 11 "$(gettext "Nome")                 : "
 	print 13 11 "$(gettext "Endereço")             : "
 	print 14 11 "$(gettext "Cidade")               : "
 	print 15 11 "$(gettext "UF")                   : "
 	print 16 11 "$(gettext "Cnpj")                 : "
+  print 17 11 "$(gettext "I.E")                  : "
 
 	while :; do
 		get 12 11 "$(gettext "Nome")                 : " razao "${Aempresa[razao]}" || return
@@ -4695,18 +4700,21 @@ function configuracao::dados_empresa() {
 	get 14 11 "$(gettext "Cidade")               : " cida "${Aempresa[cida]}" || return
 	get 15 11 "$(gettext "UF")                   : " uf "${Aempresa[uf]}" || return
 	get 16 11 "$(gettext "Cnpj")                 : " cnpj "${Aempresa[cnpj]}" || return
+  get 17 11 "$(gettext "I.E")                  : " IE "${Aempresa[IE]}" || return
 
-	if yesno 18 10 "$(gettext "Confirma dados?")"; then
+	if yesno 19 10 "$(gettext "Confirma dados?")"; then
 		Aempresa[razao]="$razao"
 		Aempresa[ende]="$ende"
 		Aempresa[cida]="$cida"
 		Aempresa[uf]="$uf"
 		Aempresa[cnpj]="$cnpj"
+    Aempresa[IE]="$IE"
 		TIni.Set "$INI_FILE" "empresa" "razao" "$razao"
 		TIni.Set "$INI_FILE" "empresa" "ende" "$ende"
 		TIni.Set "$INI_FILE" "empresa" "cida" "$cida"
 		TIni.Set "$INI_FILE" "empresa" "uf" "$uf"
 		TIni.Set "$INI_FILE" "empresa" "cnpj" "$cnpj"
+		TIni.Set "$INI_FILE" "empresa" "IE" "$IE"
 		msgok "$Registro_efetuado_com_sucesso"
 	else
 		msgerror "$(gettext "Inclusão/alteração não efetuada.")"
@@ -4892,6 +4900,21 @@ function menu_configuracao() {
 	done
 }
 
+sh_backup_diario() {
+  local clocalpath='/opt/pdvshell'
+  local cdata="$(date +%Y%m%d-%H%M)"
+  local cbackupfile="pdvshell-${cdata}.tar.gz"
+
+  mkdir -p "$clocalpath/backup"
+  if tar --exclude="$clocalpath/backup" -czf \
+    "$clocalpath/backup/$cbackupfile" \
+    "$clocalpath"; then
+    alerta 12 10 "$(gettext "Backup efetuado com sucesso"): $clocalpath/backup/$cbackupfile" "${Acores[msgok]}"
+  else
+    alerta 12 10 "$(gettext "Erro na criacao do backup")" "${Acores[msgerror]}"
+  fi
+}
+
 function sh_main_menu() {
 	local xtitle="${Menu_Principal^^}"
 	local half_lastrow=$(($(lastrow) / 2))
@@ -4904,7 +4927,7 @@ function sh_main_menu() {
 		"$Movimento|$Realizar_Venda_Saida|$Entradas_de_Produtos|$Vendas_Diarias"
 		"$Relatorios|$Produtos|$Produtos_Vendidos|$Entradas_de_Produtos|$Produtos_abaixo_estoque_minimo|$Produtos_fora_da_validade|$Vendas_Diarias|$Fornecedores"
 		"$Consultas|$Produtos|$Produtos_Vendidos|$Entradas_de_Produtos|$Produtos_abaixo_estoque_minimo|$Produtos_fora_da_validade|$Vendas_Diarias|$Fornecedores"
-		"$Manutencao|$Atualizar_Estoque|$Popular_Databases|$Zerar_Limpar_Produtos|$Zerar_Limpar_Fornecedor|$Zerar_Limpar_Vendas|$Zerar_Limpar_Compras"
+		"$Manutencao|$Atualizar_Estoque|$Popular_Databases|$Zerar_Limpar_Produtos|$Zerar_Limpar_Fornecedor|$Zerar_Limpar_Vendas|$Zerar_Limpar_Compras|$Backup_Diario"
 		"$Configuracao|$Dados_Empresa|$Aparencia|$Pano_de_fundo"
 		"$Sobre|$Sobre_o pdvShell"
 	)
@@ -4946,6 +4969,7 @@ function sh_main_menu() {
 		74) sh_drop_table::fornecedor ;;
 		75) sh_drop_table::vendas ;;
 		76) sh_drop_table::compras ;;
+		77) sh_backup_diario ;;
 		81) configuracao::dados_empresa ;;
 		82) menu_configuracao ;;
 		83) configuracao::pano_de_fundo ;;
