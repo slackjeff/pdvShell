@@ -46,13 +46,14 @@ package() {
 	install -d -m1777 "${pkgdir}/opt/$pkgname"
 	install -Dm755 "${srcdir}/$pkgbase" "${pkgdir}/opt/$pkgname/$pkgbase"
 
-	# Criar o script wrapper em /usr/bin
+	# Criar o script wrapper em /usr/local/bin
 	install -d "${pkgdir}/usr/local/bin"
 	cat <<EOF >"${pkgdir}/usr/local/bin/$pkgbase"
 #!/usr/bin/env bash
 # script wrapper para /opt/pdvshell/pdvshell
 # Copyright (c) Vilmar Catafesta, 2019-2025 <vcatafesta@gmail.com>
 
+printf '\033[8;40;120t'
 cd /opt/$pkgname
 exec ./pdvshell "\$@"
 EOF
