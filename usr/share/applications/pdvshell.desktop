@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=pdvshell
+Comment=Sistema de Frente de Caixa
+Exec=/usr/local/bin/pdvshell
+Icon=pdvshell
+Terminal=true
+Type=Application
+Categories=Office;Finance;
+StartupNotify=true
